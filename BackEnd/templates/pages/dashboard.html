@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NNTC Library - Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stamp-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .book-spine-pattern {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 12px 100%;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
+                      "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
+                      "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
+                      "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
+                      "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
+                      "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
+                      "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
+                      "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
+                      "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
+                      "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
+                      "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
+                      "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
+                      "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
+                      "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
+                      "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
+                      "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
+                      "on-secondary-fixed": "#360f00"
+              },
+              "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+              "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
+              "fontFamily": {
+                      "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
+                      "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
+                      "label-caps": ["IBM Plex Mono"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-surface font-body-md text-text-primary min-h-screen flex flex-col overflow-x-hidden">
+<header class="bg-primary dark:bg-primary-container shadow-md fixed top-0 z-50 w-full">
+<div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
+<nav class="hidden md:flex items-center gap-6 ml-8">
+<a class="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" href="/dashboard">Dashboard</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="/profile">Profile</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" id="logout-btn" type="button">Logout</button>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="font-bold text-sm" id="user-name">...</p>
+<p class="text-xs opacity-75" id="user-id">ID: ...</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-16">
+<section class="relative bg-primary-container h-64 overflow-hidden flex flex-col justify-center">
+<div class="absolute inset-0 book-spine-pattern opacity-20"></div>
+<div class="relative z-10 max-w-7xl mx-auto px-gutter w-full">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<div class="inline-flex items-center gap-2 bg-surface-container-highest/20 text-on-primary px-3 py-1 rounded-full mb-4 border border-on-primary/20" id="status-badge">
+<span class="w-2.5 h-2.5 rounded-full bg-outline" id="status-dot"></span>
+<span class="text-label-caps font-label-caps" id="status-text">Loading...</span>
+</div>
+<h1 class="text-headline-xl font-headline-xl text-on-primary mb-2" id="hero-name">Welcome</h1>
+<p class="text-on-primary/80 font-body-lg text-body-lg" id="hero-meta"></p>
+</div>
+</div>
+</div>
+</section>
+<div class="max-w-7xl mx-auto px-gutter -mt-16 relative z-20 pb-12">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-8 flex flex-col gap-8">
+<div class="bg-surface-white rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-9xl">library_books</span>
+</div>
+<div class="hidden mb-6" id="timer-display">
+<p class="text-label-caps font-label-caps text-secondary mb-1">CHECKED IN SINCE</p>
+<span class="text-headline-xl font-label-code text-primary tracking-widest" id="clock">--:--:--</span>
+</div>
+<div class="relative mb-8">
+<div class="absolute -inset-4 rounded-full stamp-pulse bg-status-success/20 hidden" id="pulse-ring"></div>
+<button class="relative w-48 h-48 rounded-full bg-status-success text-on-primary shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2 group" id="stamp-button" type="button">
+<span class="material-symbols-outlined text-6xl group-hover:rotate-12 transition-transform" id="stamp-icon">sync_alt</span>
+<span class="font-headline-md text-headline-md" id="stamp-text">Check In</span>
+</button>
+</div>
+<p class="text-body-md text-text-secondary max-w-sm mx-auto">
+                            Please tap the button above to register your arrival or departure from the NNTC Library facilities.
+                        </p>
+</div>
+<div class="bg-surface-white rounded-xl shadow-md p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Recent Attendance</h3>
+</div>
+<div class="space-y-4" id="history-list">
+<p class="text-body-md text-text-secondary">Loading...</p>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="grid grid-cols-2 gap-4">
+<a class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="/profile">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">person_edit</span>
+</div>
+<span class="text-label-caps font-label-caps text-[10px]">Profile</span>
+</a>
+<button class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" id="logout-tile" type="button">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">logout</span>
+</div>
+<span class="text-label-caps font-label-caps text-[10px]">Logout</span>
+</button>
+</div>
+<div class="bg-primary-container rounded-xl shadow-md p-6 text-on-primary">
+<h4 class="font-headline-md text-headline-md mb-2">Staff Notice</h4>
+<p class="text-body-md opacity-80 mb-4">
+                            The library will be closed this weekend for a facilities inventory audit.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-surface-container-highest dark:bg-surface-container-lowest border-t border-outline-variant w-full py-8 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<div class="flex flex-col md:flex-row items-center gap-6">
+<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY</span>
+<p class="text-body-md text-on-surface-variant text-sm">© 2026 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+</div>
+</footer>
+<script src="/static/js/api.js"></script>
+<script>
+        let checkedInSince = null; // Date or null
+        let timerInterval = null;
+
+        function setState(isCheckedIn, since) {
+            const btn = document.getElementById('stamp-button');
+            const icon = document.getElementById('stamp-icon');
+            const text = document.getElementById('stamp-text');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const timerDisplay = document.getElementById('timer-display');
+            const pulseRing = document.getElementById('pulse-ring');
+
+            clearInterval(timerInterval);
+            checkedInSince = isCheckedIn ? since : null;
+
+            if (isCheckedIn) {
+                btn.classList.remove('bg-status-success');
+                btn.classList.add('bg-secondary');
+                icon.textContent = 'logout';
+                text.textContent = 'Check Out';
+                statusDot.classList.remove('bg-outline');
+                statusDot.classList.add('bg-status-success');
+                statusText.textContent = 'Currently in Library';
+                timerDisplay.classList.remove('hidden');
+                pulseRing.classList.remove('hidden');
+                updateClock();
+                timerInterval = setInterval(updateClock, 1000);
+            } else {
+                btn.classList.remove('bg-secondary');
+                btn.classList.add('bg-status-success');
+                icon.textContent = 'sync_alt';
+                text.textContent = 'Check In';
+                statusDot.classList.remove('bg-status-success');
+                statusDot.classList.add('bg-outline');
+                statusText.textContent = 'Not checked in today';
+                timerDisplay.classList.add('hidden');
+                pulseRing.classList.add('hidden');
+            }
+        }
+
+        function updateClock() {
+            if (!checkedInSince) return;
+            const diff = Math.max(0, Math.floor((Date.now() - checkedInSince.getTime()) / 1000));
+            const hrs = Math.floor(diff / 3600);
+            const mins = Math.floor((diff % 3600) / 60);
+            const secs = diff % 60;
+            document.getElementById('clock').textContent =
+                `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function renderHistory(rows) {
+            const list = document.getElementById('history-list');
+            if (!rows.length) {
+                list.innerHTML = '<p class="text-body-md text-text-secondary">No check-in history yet.</p>';
+                return;
+            }
+            list.innerHTML = rows.map(row => {
+                const isIn = row.type === 'in';
+                const date = new Date(row.timestamp);
+                const formatted = date.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low border-l-4 ${isIn ? 'border-status-success' : 'border-secondary'}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-secondary/10 text-secondary'} flex items-center justify-center">
+                                <span class="material-symbols-outlined">${isIn ? 'login' : 'logout'}</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-text-primary">${isIn ? 'Checked In' : 'Checked Out'}</p>
+                                <p class="text-xs text-text-secondary">${formatted}</p>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        async function loadDashboard() {
+            try {
+                const me = await apiFetch('/me');
+                document.getElementById('user-name').textContent = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
+                document.getElementById('user-id').textContent = `ID: ${me.student_id || me.username}`;
+                document.getElementById('hero-name').textContent = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
+                document.getElementById('hero-meta').textContent = [me.department, me.student_id ? `ID: ${me.student_id}` : null].filter(Boolean).join(' • ');
+            } catch (err) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const history = await apiFetch('/me/history?limit=20');
+            renderHistory(history);
+            const last = history[0];
+            setState(!!last && last.type === 'in', last ? new Date(last.timestamp) : null);
+        }
+
+        document.getElementById('stamp-button').addEventListener('click', async () => {
+            const btn = document.getElementById('stamp-button');
+            btn.disabled = true;
+            try {
+                await apiFetch('/checkin', { method: 'POST' });
+                await loadDashboard();
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        async function doLogout() {
+            await apiFetch('/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+        document.getElementById('logout-btn').addEventListener('click', doLogout);
+        document.getElementById('logout-tile').addEventListener('click', doLogout);
+
+        loadDashboard();
+    </script>
+</body></html>

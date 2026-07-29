@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Global Attendance History | NNTC Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#ffb2b8",
+                    "outline": "#887273",
+                    "on-tertiary-fixed": "#002110",
+                    "tertiary": "#00361d",
+                    "surface-dim": "#d9dadc",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#91d5a8",
+                    "tertiary-container": "#004f2d",
+                    "primary-fixed": "#ffdadb",
+                    "on-surface-variant": "#554243",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff",
+                    "status-success": "#4A7C3F",
+                    "text-secondary": "#6B7280",
+                    "secondary": "#a53d00",
+                    "background": "#f8f9fb",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#7cc094",
+                    "surface-container-highest": "#e1e2e4",
+                    "secondary-fixed": "#ffdbcd",
+                    "surface-tint": "#9b404d",
+                    "surface": "#f8f9fb",
+                    "on-tertiary": "#ffffff",
+                    "text-primary": "#1F2328",
+                    "on-surface": "#191c1e",
+                    "on-background": "#191c1e",
+                    "on-primary-container": "#ff929d",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#dbc0c1",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#acf2c3",
+                    "primary": "#5c101f",
+                    "surface-variant": "#e1e2e4",
+                    "secondary-container": "#ff7e44",
+                    "on-secondary-container": "#682300",
+                    "secondary-fixed-dim": "#ffb597",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f8f9fb",
+                    "inverse-surface": "#2e3132",
+                    "primary-container": "#7a2734",
+                    "accent-stats": "#8B5FA3",
+                    "on-secondary-fixed-variant": "#7e2c00",
+                    "surface-container": "#edeef0",
+                    "on-tertiary-fixed-variant": "#05522f",
+                    "inverse-on-surface": "#f0f1f3",
+                    "on-primary-fixed": "#40000f",
+                    "surface-container-low": "#f3f4f6",
+                    "on-primary-fixed-variant": "#7d2936",
+                    "primary-fixed-dim": "#ffb2b8",
+                    "surface-container-high": "#e7e8ea",
+                    "surface-white": "#FFFFFF",
+                    "on-secondary-fixed": "#360f00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "hero-height": "400px",
+                    "margin-desktop": "48px",
+                    "base": "8px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Noto Sans Thai"],
+                    "headline-xl": ["Noto Sans Thai"],
+                    "body-md": ["Noto Sans Thai"],
+                    "label-code": ["IBM Plex Mono"],
+                    "headline-md": ["Noto Sans Thai"],
+                    "headline-lg": ["Noto Sans Thai"],
+                    "label-caps": ["IBM Plex Mono"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #f8f9fb; font-family: 'Noto Sans Thai', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .book-spine-pattern {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 12px 100%;
+        }
+        .stamp-shadow { box-shadow: 0px 8px 24px rgba(122, 39, 52, 0.2); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dbc0c1; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex min-h-screen text-text-primary">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary">NNTC Library</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant">Staff Portal</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Home</span>
+</a>
+<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">sync_alt</span>
+<span class="font-body-md text-body-md">Borrow/Return</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-body-md text-body-md">Inventory</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant space-y-2">
+<button class="w-full text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md">Help</span>
+</button>
+<button class="w-full text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md text-body-md">Logout</span>
+</button>
+</div>
+</aside>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar (Shared Component Overlay Style) -->
+<header class="bg-primary shadow-md sticky top-0 z-40">
+<div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Dashboard</a>
+<a class="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" href="#">Catalog</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">History</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Members</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<input class="bg-primary-container/50 text-on-primary placeholder:text-on-primary/50 border-none rounded-full px-4 py-1.5 text-sm focus:ring-2 focus:ring-secondary-container w-64" placeholder="Global search..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1.5 text-on-primary/50 text-sm">search</span>
+</div>
+<button class="text-on-primary hover:bg-primary-container/50 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-on-primary/20">
+<img class="w-full h-full object-cover" data-alt="Professional studio portrait of a library administrator wearing a modern academic outfit, set against a clean, minimal office background with warm library lighting. The photography is sharp and high-contrast, capturing a helpful and authoritative institutional staff member." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPGR6kwA24AU9aSdxo_n-Ju2vSOv4TyiSfzvpPAGnPKsBiYywgO-zfEamlw3Q3dQ2nR4l8U4n9RYtRAyQRP6iD-iY24nL0_tPMvOuxev6dlqmC-jETNEzoJXDDzU2NCRDbB_SLsP3JKzP3WRzKE6ELaYtf3_E55Om31aLBp-Twe17zNvkG8Np5EUVZMfhcUw3AtDZnYwegGMqiz6vDjIzf2YXKxaRpyx3flYlQqoMuQbXmO0baYbZE9w"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Hero (Style Guidance) -->
+<section class="bg-gradient-to-br from-primary to-primary-container pt-12 pb-24 px-gutter relative overflow-hidden">
+<div class="absolute inset-0 book-spine-pattern opacity-20"></div>
+<div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="text-on-primary font-headline-xl text-headline-xl mb-2">Attendance Master Log</h2>
+<p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">Real-time tracking of all library entry and exit events. Monitor academic flow and campus facility utilization across all departments.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-white text-primary font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-surface-container-high transition-all shadow-md">
+<span class="material-symbols-outlined">download</span>
+<span>Export CSV</span>
+</button>
+<button class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow">
+<span class="material-symbols-outlined">print</span>
+<span>Print Report</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Main Content (Floating Layout) -->
+<div class="max-w-7xl mx-auto w-full px-gutter -mt-12 relative z-20 pb-20">
+<!-- Bento Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">person_add</span>
+</span>
+<span class="text-status-success font-label-code text-label-caps">+12%</span>
+</div>
+<div>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Total Check-ins</p>
+<p class="text-headline-md font-label-code text-primary">1,284</p>
+</div>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-accent-stats/10 text-accent-stats rounded-lg">
+<span class="material-symbols-outlined">group</span>
+</span>
+<span class="text-text-secondary font-label-code text-label-caps">Current</span>
+</div>
+<div>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Occupancy</p>
+<p class="text-headline-md font-label-code text-primary">142</p>
+</div>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-secondary/10 text-secondary rounded-lg">
+<span class="material-symbols-outlined">schedule</span>
+</span>
+<span class="text-text-secondary font-label-code text-label-caps">Avg Time</span>
+</div>
+<div>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Duration</p>
+<p class="text-headline-md font-label-code text-primary">45m</p>
+</div>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-status-success/10 text-status-success rounded-lg">
+<span class="material-symbols-outlined">verified</span>
+</span>
+<span class="text-status-success font-label-code text-label-caps">99%</span>
+</div>
+<div>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Success Rate</p>
+<p class="text-headline-md font-label-code text-primary">Auth</p>
+</div>
+</div>
+</div>
+<!-- Filters & Data Table Container -->
+<div class="bg-surface-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+<!-- Advanced Search & Filters -->
+<div class="p-6 border-b border-outline-variant/30 bg-surface-container-low flex flex-wrap gap-4 items-center">
+<div class="flex-1 min-w-[300px] relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Search by name, ID, or department..." type="text"/>
+</div>
+<div class="flex gap-2">
+<select class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary">
+<option>All Actions</option>
+<option>Check In</option>
+<option>Check Out</option>
+</select>
+<select class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary">
+<option>All Departments</option>
+<option>Engineering</option>
+<option>Business</option>
+<option>Arts</option>
+<option>Information Tech</option>
+</select>
+<button class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined align-middle">calendar_month</span>
+</button>
+</div>
+</div>
+<!-- History Table -->
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high">
+<tr>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Timestamp</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Student Name</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Student ID</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Department</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Action</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider text-right">Verification</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Entry 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-label-code text-label-code text-text-primary whitespace-nowrap">2024-10-24 14:32:05</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">SP</div>
+<span class="font-body-md text-body-md font-bold">Somchai Prasert</span>
+</div>
+</td>
+<td class="px-6 py-4 font-label-code text-label-code text-text-secondary">67-1092-004</td>
+<td class="px-6 py-4 font-body-md text-body-md">Information Tech</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-status-success/10 text-status-success">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        CHECK-IN
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-status-success text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</td>
+</tr>
+<!-- Entry 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-label-code text-label-code text-text-primary whitespace-nowrap">2024-10-24 14:28:11</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-accent-stats/10 text-accent-stats flex items-center justify-center font-bold text-xs">KN</div>
+<span class="font-body-md text-body-md font-bold">Kanya Niran</span>
+</div>
+</td>
+<td class="px-6 py-4 font-label-code text-label-code text-text-secondary">67-1095-021</td>
+<td class="px-6 py-4 font-body-md text-body-md">Electrical Eng.</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-secondary/10 text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                        CHECK-OUT
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-status-success text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</td>
+</tr>
+<!-- Entry 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-label-code text-label-code text-text-primary whitespace-nowrap">2024-10-24 14:15:45</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">AW</div>
+<span class="font-body-md text-body-md font-bold">Anan Wong</span>
+</div>
+</td>
+<td class="px-6 py-4 font-label-code text-label-code text-text-secondary">67-1088-112</td>
+<td class="px-6 py-4 font-body-md text-body-md">Business Admin</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-status-success/10 text-status-success">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        CHECK-IN
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-status-success text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</td>
+</tr>
+<!-- Entry 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-label-code text-label-code text-text-primary whitespace-nowrap">2024-10-24 13:58:22</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xs">PR</div>
+<span class="font-body-md text-body-md font-bold">Preecha Rat</span>
+</div>
+</td>
+<td class="px-6 py-4 font-label-code text-label-code text-text-secondary">67-1102-094</td>
+<td class="px-6 py-4 font-body-md text-body-md">Information Tech</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-status-success/10 text-status-success">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        CHECK-IN
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-error text-lg" style="font-variation-settings: 'FILL' 1;">report</span>
+</td>
+</tr>
+<!-- Entry 5 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-label-code text-label-code text-text-primary whitespace-nowrap">2024-10-24 13:45:10</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container/10 text-primary-container flex items-center justify-center font-bold text-xs">ML</div>
+<span class="font-body-md text-body-md font-bold">Mali Luck</span>
+</div>
+</td>
+<td class="px-6 py-4 font-label-code text-label-code text-text-secondary">67-1090-008</td>
+<td class="px-6 py-4 font-body-md text-body-md">Liberal Arts</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-secondary/10 text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                        CHECK-OUT
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-status-success text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-6 bg-surface-container-low flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-label-caps font-label-caps text-text-secondary">Showing 1 to 10 of 1,284 entries</p>
+<div class="flex gap-2">
+<button class="px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors font-body-md text-body-md">Previous</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-lg font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-lg font-body-md">2</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-lg font-body-md">3</button>
+<button class="px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors font-body-md text-body-md">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer (Shared Component) -->
+<footer class="w-full py-8 mt-auto bg-surface-container-highest border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<div class="text-left">
+<p class="text-label-caps font-label-caps font-bold text-primary">NNTC Library</p>
+<p class="text-body-md font-body-md text-on-surface-variant">© 2024 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+<div class="flex gap-6">
+<a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Total Students: 2,450</a>
+<a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Hours: 08:00 - 18:00</a>
+<a class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary hover:underline transition-all" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Micro-interactions Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Interactive pulse effect for the "Verification" icons occasionally
+            const icons = document.querySelectorAll('.material-symbols-outlined');
+            icons.forEach(icon => {
+                icon.addEventListener('mouseenter', () => {
+                    icon.style.transform = 'scale(1.2)';
+                    icon.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                });
+                icon.addEventListener('mouseleave', () => {
+                    icon.style.transform = 'scale(1)';
+                });
+            });
+
+            // Table row highlight logic
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', () => {
+                    rows.forEach(r => r.classList.remove('bg-primary/5', 'ring-1', 'ring-inset', 'ring-primary/20'));
+                    row.classList.add('bg-primary/5', 'ring-1', 'ring-inset', 'ring-primary/20');
+                });
+            });
+        });
+    </script>
+</body></html>

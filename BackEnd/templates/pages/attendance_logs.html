@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Attendance Log | NNTC Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
+                    "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
+                    "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
+                    "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
+                    "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
+                    "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
+                    "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
+                    "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
+                    "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
+                    "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
+                    "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
+                    "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
+                    "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
+                    "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
+                    "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
+                    "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
+                    "on-secondary-fixed": "#360f00"
+            },
+            "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
+            "fontFamily": {
+                    "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
+                    "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
+                    "label-caps": ["IBM Plex Mono"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .book-spine-pattern {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 12px 100%;
+        }
+        .stamp-shadow { box-shadow: 0px 8px 24px rgba(122, 39, 52, 0.2); }
+    </style>
+</head>
+<body class="flex min-h-screen text-text-primary bg-background">
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary">NNTC Library</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant">Staff Portal</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/dashboard">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/members-management">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">Members</span>
+</a>
+<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="/admin/attendance-logs">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">Attendance Logs</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant space-y-2">
+<button class="w-full text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="logout-btn" type="button">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md text-body-md">Logout</span>
+</button>
+</div>
+</aside>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<section class="bg-gradient-to-br from-primary to-primary-container pt-12 pb-24 px-gutter relative overflow-hidden">
+<div class="absolute inset-0 book-spine-pattern opacity-20"></div>
+<div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="text-on-primary font-headline-xl text-headline-xl mb-2">Attendance Master Log</h2>
+<p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">Every check-in and check-out event recorded by the library, filterable by date and department.</p>
+</div>
+<div class="flex gap-4">
+<a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" target="_blank">
+<span class="material-symbols-outlined">print</span>
+<span>Print Report</span>
+</a>
+</div>
+</div>
+</section>
+<div class="max-w-7xl mx-auto w-full px-gutter -mt-12 relative z-20 pb-20">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<span class="p-2 bg-primary/10 text-primary rounded-lg w-fit mb-4">
+<span class="material-symbols-outlined">person_add</span>
+</span>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Total Events</p>
+<p class="text-headline-md font-label-code text-primary" id="stat-total">–</p>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<span class="p-2 bg-accent-stats/10 text-accent-stats rounded-lg w-fit mb-4">
+<span class="material-symbols-outlined">group</span>
+</span>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Currently Inside (est.)</p>
+<p class="text-headline-md font-label-code text-primary" id="stat-inside">–</p>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<span class="p-2 bg-secondary/10 text-secondary rounded-lg w-fit mb-4">
+<span class="material-symbols-outlined">schedule</span>
+</span>
+<p class="text-text-secondary font-label-caps text-label-caps uppercase">Avg Session Duration</p>
+<p class="text-headline-md font-label-code text-primary" id="stat-duration">–</p>
+</div>
+</div>
+<div class="bg-surface-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+<div class="p-6 border-b border-outline-variant/30 bg-surface-container-low flex flex-wrap gap-4 items-center">
+<div class="flex-1 min-w-[260px] relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" id="search-input" placeholder="Search by name, ID, or department..." type="text"/>
+</div>
+<select class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" id="action-filter">
+<option value="">All Actions</option>
+<option value="in">Check In</option>
+<option value="out">Check Out</option>
+</select>
+<input class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" id="date-filter" type="date"/>
+<button class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 hover:bg-surface-container-high transition-colors font-bold text-primary" id="date-apply" type="button">Apply Date</button>
+<button class="bg-surface-white border border-outline-variant rounded-lg px-4 py-3 hover:bg-surface-container-high transition-colors font-bold" id="date-clear" type="button">This Month</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high">
+<tr>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Timestamp</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Student Name</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Student ID</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Department</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-primary uppercase tracking-wider">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30" id="log-rows">
+<tr><td class="px-6 py-6 text-on-surface-variant" colspan="5">Loading…</td></tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 bg-surface-container-low">
+<p class="text-label-caps font-label-caps text-text-secondary" id="row-count-label">Showing 0 entries</p>
+</div>
+</div>
+</div>
+<footer class="w-full py-8 mt-auto bg-surface-container-highest border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<p class="text-label-caps font-label-caps font-bold text-primary">NNTC Library</p>
+<p class="text-body-md font-body-md text-on-surface-variant">© 2026 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+</footer>
+</main>
+<script src="/static/js/api.js"></script>
+<script>
+        let allRows = [];
+
+        function applyClientFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const action = document.getElementById('action-filter').value;
+            return allRows.filter(r => {
+                if (action && r.type !== action) return false;
+                if (!search) return true;
+                const haystack = `${r.first_name} ${r.last_name} ${r.student_id} ${r.department || ''}`.toLowerCase();
+                return haystack.includes(search);
+            });
+        }
+
+        function computeStats(rows) {
+            const lastByUser = {};
+            rows.forEach(r => {
+                const prev = lastByUser[r.student_id];
+                if (!prev || new Date(r.timestamp) > new Date(prev.timestamp)) lastByUser[r.student_id] = r;
+            });
+            const currentlyInside = Object.values(lastByUser).filter(r => r.type === 'in').length;
+
+            const byUser = {};
+            rows.forEach(r => {
+                (byUser[r.student_id] = byUser[r.student_id] || []).push(r);
+            });
+            const durations = [];
+            Object.values(byUser).forEach(events => {
+                events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                let openIn = null;
+                events.forEach(ev => {
+                    if (ev.type === 'in') {
+                        openIn = ev.timestamp;
+                    } else if (ev.type === 'out' && openIn) {
+                        durations.push((new Date(ev.timestamp) - new Date(openIn)) / 60000);
+                        openIn = null;
+                    }
+                });
+            });
+            const avgMinutes = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+
+            document.getElementById('stat-total').textContent = rows.length.toLocaleString();
+            document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
+            document.getElementById('stat-duration').textContent = durations.length ? `${avgMinutes}m` : '–';
+        }
+
+        function renderTable() {
+            const rows = applyClientFilters();
+            computeStats(allRows);
+            const tbody = document.getElementById('log-rows');
+            document.getElementById('row-count-label').textContent = `Showing ${rows.length} entr${rows.length === 1 ? 'y' : 'ies'}`;
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant" colspan="5">No matching events.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = rows.map(r => {
+                const isIn = r.type === 'in';
+                const initials = `${(r.first_name || '?')[0]}${(r.last_name || '?')[0]}`.toUpperCase();
+                const formatted = new Date(r.timestamp).toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(',', '');
+                return `
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="px-6 py-4 font-label-code text-label-code text-text-primary whitespace-nowrap">${formatted}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">${initials}</div>
+                                <span class="font-body-md text-body-md font-bold">${r.prefix || ''}${r.first_name} ${r.last_name}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-label-code text-label-code text-text-secondary">${r.student_id}</td>
+                        <td class="px-6 py-4 font-body-md text-body-md">${r.department || '-'}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-secondary/10 text-secondary'}">
+                                <span class="w-1.5 h-1.5 rounded-full ${isIn ? 'bg-status-success' : 'bg-secondary'}"></span>
+                                ${isIn ? 'CHECK-IN' : 'CHECK-OUT'}
+                            </span>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        async function loadReports(params) {
+            allRows = await apiFetch(`/admin/reports?${params.toString()}`);
+            renderTable();
+        }
+
+        document.getElementById('date-apply').addEventListener('click', () => {
+            const date = document.getElementById('date-filter').value;
+            if (!date) return;
+            loadReports(new URLSearchParams({ date }));
+        });
+        document.getElementById('date-clear').addEventListener('click', () => {
+            document.getElementById('date-filter').value = '';
+            loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
+        });
+        document.getElementById('search-input').addEventListener('input', renderTable);
+        document.getElementById('action-filter').addEventListener('change', renderTable);
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await apiFetch('/logout', { method: 'POST' });
+            window.location.href = '/login';
+        });
+
+        async function init() {
+            try {
+                const me = await apiFetch('/me');
+                if (me.role !== 'admin') { window.location.href = '/dashboard'; return; }
+            } catch (_err) { window.location.href = '/login'; return; }
+            loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
+        }
+        init();
+    </script>
+</body></html>

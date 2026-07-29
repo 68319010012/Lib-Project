@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}รายงาน{% endblock %}</title>
+<style>
+  body { font-family: 'Tahoma', 'Leelawadee UI', sans-serif; margin: 24px; color: #111; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  h2 { font-size: 15px; font-weight: normal; margin: 0 0 16px; color: #444; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { border: 1px solid #999; padding: 6px 8px; font-size: 13px; text-align: left; }
+  th { background: #f0f0f0; }
+  .meta { margin-bottom: 8px; font-size: 13px; color: #333; }
+  .toolbar { margin-bottom: 20px; }
+  .toolbar a, .toolbar button { font-size: 13px; margin-right: 8px; }
+  .empty { color: #777; font-style: italic; margin-top: 16px; }
+  @media print {
+    .toolbar { display: none; }
+    body { margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button>
+  <a href="{{ url_for('admin_reports_select') }}">&larr; เลือกเทมเพลตอื่น</a>
+</div>
+<h1>วิทยาลัยเทคนิคนครนายก</h1>
+<h2>{% block subtitle %}{% endblock %}</h2>
+{% block content %}{% endblock %}
+</body>
+</html>

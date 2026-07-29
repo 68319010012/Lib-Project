@@ -1,0 +1,17 @@
+# Secrets / local config
+BackEnd/.env
+.claude/settings.local.json
+BackEnd/.claude/settings.local.json
+
+# Real student personal data — never commit (names + student IDs of real people)
+BackEnd/Student.xlsx
+
+# Python
+BackEnd/venv/
+BackEnd/__pycache__/
+BackEnd/**/__pycache__/
+*.pyc
+BackEnd/.pytest_cache/
+
+# Uploaded files (user-generated at runtime, not source)
+BackEnd/uploads/

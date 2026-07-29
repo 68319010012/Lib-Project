@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>เลือกเทมเพลตรายงาน</title>
+<style>
+  body { font-family: 'Tahoma', 'Leelawadee UI', sans-serif; margin: 24px; color: #111; max-width: 480px; }
+  h1 { font-size: 18px; }
+  form { border: 1px solid #ccc; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+  label { display: block; margin: 8px 0 4px; font-size: 13px; }
+  input, button { font-size: 14px; padding: 6px; }
+  button { margin-top: 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>เลือกเทมเพลตรายงานเช็คชื่อ</h1>
+
+<form action="{{ url_for('admin_report_daily') }}" method="get">
+  <strong>รายงานประจำวัน</strong> — รายชื่อนักศึกษาที่เช็คชื่อในวันที่เลือก พร้อมเวลาเข้า/ออก
+  <label for="date">วันที่</label>
+  <input type="date" id="date" name="date" value="{{ today }}">
+  <button type="submit">ดูรายงาน</button>
+</form>
+
+<form action="{{ url_for('admin_report_monthly') }}" method="get">
+  <strong>รายงานสรุปรายเดือน</strong> — จำนวนครั้งที่เช็คชื่อของนักศึกษาแต่ละคนในเดือนที่เลือก
+  <label for="month">เดือน</label>
+  <input type="month" id="month" name="month" value="{{ this_month }}">
+  <button type="submit">ดูรายงาน</button>
+</form>
+
+<form action="{{ url_for('admin_report_department') }}" method="get">
+  <strong>รายงานสรุปตามแผนกวิชา</strong> — ยอดรวมการเช็คชื่อแยกตามแผนก (กรองตามปีการศึกษาได้)
+  <label for="academic_year">ปีการศึกษา (ไม่ใส่ = ทั้งหมด)</label>
+  <input type="text" id="academic_year" name="academic_year" placeholder="เช่น 2568">
+  <button type="submit">ดูรายงาน</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Profile | NNTC Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hero-pattern {
+            background-image: linear-gradient(to bottom, rgba(92, 16, 31, 0.95), rgba(92, 16, 31, 1));
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-pattern::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 40px);
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+        .stamp-button {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stamp-button:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .faded-input {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#ffb2b8",
+                    "outline": "#887273",
+                    "on-tertiary-fixed": "#002110",
+                    "tertiary": "#00361d",
+                    "surface-dim": "#d9dadc",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#91d5a8",
+                    "tertiary-container": "#004f2d",
+                    "primary-fixed": "#ffdadb",
+                    "on-surface-variant": "#554243",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff",
+                    "status-success": "#4A7C3F",
+                    "text-secondary": "#6B7280",
+                    "secondary": "#a53d00",
+                    "background": "#f8f9fb",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#7cc094",
+                    "surface-container-highest": "#e1e2e4",
+                    "secondary-fixed": "#ffdbcd",
+                    "surface-tint": "#9b404d",
+                    "surface": "#f8f9fb",
+                    "on-tertiary": "#ffffff",
+                    "text-primary": "#1F2328",
+                    "on-surface": "#191c1e",
+                    "on-background": "#191c1e",
+                    "on-primary-container": "#ff929d",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#dbc0c1",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#acf2c3",
+                    "primary": "#5c101f",
+                    "surface-variant": "#e1e2e4",
+                    "secondary-container": "#ff7e44",
+                    "on-secondary-container": "#682300",
+                    "secondary-fixed-dim": "#ffb597",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f8f9fb",
+                    "inverse-surface": "#2e3132",
+                    "primary-container": "#7a2734",
+                    "accent-stats": "#8B5FA3",
+                    "on-secondary-fixed-variant": "#7e2c00",
+                    "surface-container": "#edeef0",
+                    "on-tertiary-fixed-variant": "#05522f",
+                    "inverse-on-surface": "#f0f1f3",
+                    "on-primary-fixed": "#40000f",
+                    "surface-container-low": "#f3f4f6",
+                    "on-primary-fixed-variant": "#7d2936",
+                    "primary-fixed-dim": "#ffb2b8",
+                    "surface-container-high": "#e7e8ea",
+                    "surface-white": "#FFFFFF",
+                    "on-secondary-fixed": "#360f00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "hero-height": "400px",
+                    "margin-desktop": "48px",
+                    "base": "8px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Noto Sans Thai"],
+                    "headline-xl-mobile": ["Noto Sans Thai"],
+                    "headline-xl": ["Noto Sans Thai"],
+                    "body-md": ["Noto Sans Thai"],
+                    "label-code": ["IBM Plex Mono"],
+                    "headline-md": ["Noto Sans Thai"],
+                    "headline-lg": ["Noto Sans Thai"],
+                    "label-caps": ["IBM Plex Mono"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<nav class="bg-primary shadow-md flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto fixed top-0 left-0 right-0 z-50">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
+<div class="hidden md:flex gap-6">
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Dashboard</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Catalog</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">History</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Members</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-primary hover:bg-primary-container/50 p-2 rounded-full transition-all">notifications</button>
+<div class="flex items-center gap-2 border-b-2 border-secondary-container pb-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a Thai technical college student wearing a clean white uniform. The background is a soft-focus academic hallway with warm morning lighting. The style is crisp and clean, reflecting a professional institutional environment with a focus on education and student success." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCErc4kTA9f8iJ_MW1psQDOe3TtCviQc5OW8KUZvKnOKiUwCcUvfMtOVtxBzaE3FSNykcfkM3SomRUghG81SqnZ3xfQf5O9JLwlqpghA_qEjWPQg9Wog5uKoeoSoiWghdOXSrXk-qwh26ayavTT0pLTGeQm6ZNPzIBGLdQNwL-XuFHsCVIfaS_ftGsz72Gyxy-yiZu0ik_aOCuhnpx5WiHezDH2VXSmDqrnFRNFszILjhoZNowdvCpw3w"/>
+</div>
+<span class="material-symbols-outlined text-on-primary">account_circle</span>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant pt-20 pb-6 px-4 z-40">
+<div class="mb-8 px-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary">school</span>
+</div>
+<div>
+<h2 class="text-primary font-headline-sm text-headline-md font-bold leading-tight">NNTC</h2>
+<p class="text-on-surface-variant text-label-caps font-label-caps uppercase tracking-wider">Student Portal</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Home</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined">sync_alt</span>
+<span class="font-body-md">Borrow/Return</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-body-md">Inventory</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-md">Analytics</span>
+</a>
+<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 border-t border-outline-variant pt-4">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md">Help</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 pt-16">
+<!-- Hero Section -->
+<section class="hero-pattern h-[300px] flex items-center px-gutter">
+<div class="max-w-4xl mx-auto w-full text-white">
+<h1 class="font-headline-xl text-headline-xl mb-2">Edit Student Profile</h1>
+<p class="text-body-lg font-body-lg opacity-80">Update your academic information and security settings.</p>
+</div>
+</section>
+<!-- Profile Card (Floating Effect) -->
+<div class="max-w-4xl mx-auto px-gutter -mt-24 mb-12 relative z-10">
+<div class="bg-surface-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden border border-outline-variant/30">
+<div class="p-8">
+<form class="space-y-10">
+<!-- Read Only Section -->
+<div class="grid md:grid-cols-2 gap-8">
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+                                    STUDENT ID
+                                </label>
+<input class="w-full px-4 py-3 rounded-lg border border-outline-variant faded-input font-label-code text-label-code" readonly="" type="text" value="65301010042"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+                                    FULL NAME
+                                </label>
+<input class="w-full px-4 py-3 rounded-lg border border-outline-variant faded-input font-body-md" readonly="" type="text" value="Chaiwat Rattanakul"/>
+</div>
+</div>
+<hr class="border-outline-variant/30"/>
+<!-- Editable Academic Info -->
+<div class="space-y-6">
+<h3 class="text-headline-md font-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">school</span>
+                                Academic Information
+                            </h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant">DEPARTMENT</label>
+<select class="w-full px-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white font-body-md transition-all">
+<option>Information Technology</option>
+<option>Electronics</option>
+<option>Mechanical Engineering</option>
+<option>Business Administration</option>
+<option>Architecture</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant">LEVEL</label>
+<select class="w-full px-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white font-body-md transition-all">
+<option>Vocational Certificate (VC)</option>
+<option selected="">High Vocational Certificate (HVC)</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant">YEAR</label>
+<select class="w-full px-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white font-body-md transition-all">
+<option>Year 1</option>
+<option selected="">Year 2</option>
+<option>Year 3</option>
+</select>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant/30"/>
+<!-- Security Section -->
+<div class="space-y-6">
+<h3 class="text-headline-md font-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">security</span>
+                                Security Settings
+                            </h3>
+<div class="grid md:grid-cols-2 gap-8">
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant">CURRENT PASSWORD</label>
+<input class="w-full px-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white font-body-md transition-all" placeholder="Verify identity to change" type="password"/>
+<p class="text-[12px] text-text-secondary">Required for any profile updates.</p>
+</div>
+<div class="space-y-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant">NEW PASSWORD</label>
+<input class="w-full px-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white font-body-md transition-all" placeholder="Leave blank to keep current" type="password"/>
+</div>
+</div>
+</div>
+<!-- Submit Button Container -->
+<div class="flex justify-end pt-4">
+<button class="stamp-button bg-secondary text-white font-headline-md text-headline-md px-10 py-4 rounded-full shadow-[0px_8px_24px_rgba(165,61,0,0.3)] hover:brightness-110 flex items-center gap-3" type="submit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+                                Save Changes
+                            </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Additional Help Card -->
+<div class="mt-8 grid md:grid-cols-2 gap-6">
+<div class="bg-tertiary-fixed p-6 rounded-xl border border-tertiary-container/10 flex items-start gap-4">
+<span class="material-symbols-outlined text-tertiary-container text-4xl">info</span>
+<div>
+<h4 class="font-bold text-on-tertiary-fixed mb-1">Locked Information</h4>
+<p class="text-on-tertiary-fixed-variant text-body-md">Some fields are managed by the registrar. Please visit the main office if your ID or Name is incorrect.</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-6 rounded-xl border border-outline-variant flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-4xl">history</span>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Last Update</h4>
+<p class="text-on-surface-variant text-body-md">Profile last modified: Oct 24, 2023. All changes are logged for security.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest w-full py-8 border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<div class="flex flex-col items-center md:items-start">
+<span class="text-label-caps font-label-caps font-bold text-primary mb-2">NNTC LIBRARY</span>
+<p class="text-on-surface-variant text-body-md text-center md:text-left">© 2024 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+<div class="flex gap-6 text-on-surface-variant font-label-caps text-label-caps">
+<span class="hover:text-primary cursor-default">Total Students: 2,450</span>
+<span class="hover:text-primary cursor-default">Hours: 08:00 - 18:00</span>
+<a class="hover:text-primary hover:underline transition-all" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<script>
+        // Form Interactivity
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            
+            // Tactile feedback
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Saving...';
+            btn.classList.add('opacity-80');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Updated Successfully';
+                btn.classList.remove('bg-secondary');
+                btn.classList.add('bg-status-success');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('bg-status-success', 'opacity-80');
+                    btn.classList.add('bg-secondary');
+                }, 2000);
+            }, 1200);
+        });
+
+        // Hover animation for inputs
+        const inputs = document.querySelectorAll('input:not([readonly]), select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('label').classList.add('text-primary');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('label').classList.remove('text-primary');
+            });
+        });
+    </script>
+</body></html>

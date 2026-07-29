@@ -1,0 +1,38 @@
+{% extends "base_print.html" %}
+{% block title %}รายงานสรุปรายเดือน{% endblock %}
+{% block subtitle %}รายงานสรุปการเช็คชื่อประจำเดือน {{ month }}{% endblock %}
+{% block content %}
+<div class="meta">จำนวนนักศึกษาที่มีการเช็คชื่อ: {{ rows|length }} คน</div>
+{% if rows %}
+<table>
+  <thead>
+    <tr>
+      <th>ลำดับ</th>
+      <th>รหัสนักศึกษา</th>
+      <th>ชื่อ-สกุล</th>
+      <th>เพศ</th>
+      <th>แผนกวิชา</th>
+      <th>ระดับชั้น/ปี</th>
+      <th>จำนวนครั้งที่เช็คอิน</th>
+      <th>เช็คอินล่าสุด</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ row.student_id }}</td>
+      <td>{{ row.prefix }}{{ row.first_name }} {{ row.last_name }}</td>
+      <td>{{ row.gender }}</td>
+      <td>{{ row.department }}</td>
+      <td>{{ row.level }} ปีที่ {{ row.year_level }}</td>
+      <td>{{ row.checkin_count }}</td>
+      <td>{{ row.last_checkin }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">ไม่มีข้อมูลการเช็คชื่อในเดือนที่เลือก</p>
+{% endif %}
+{% endblock %}

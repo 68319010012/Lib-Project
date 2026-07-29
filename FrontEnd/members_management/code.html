@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Member List | NNTC Library Staff Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .stamp-shadow {
+            box-shadow: 0px 8px 24px rgba(122, 39, 52, 0.2);
+        }
+        .vertical-pattern {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 12px 100%;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+        }
+        /* Custom scrollbar for data tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dbc0c1;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#ffb2b8",
+                        "outline": "#887273",
+                        "on-tertiary-fixed": "#002110",
+                        "tertiary": "#00361d",
+                        "surface-dim": "#d9dadc",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#91d5a8",
+                        "tertiary-container": "#004f2d",
+                        "primary-fixed": "#ffdadb",
+                        "on-surface-variant": "#554243",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "status-success": "#4A7C3F",
+                        "text-secondary": "#6B7280",
+                        "secondary": "#a53d00",
+                        "background": "#f8f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#7cc094",
+                        "surface-container-highest": "#e1e2e4",
+                        "secondary-fixed": "#ffdbcd",
+                        "surface-tint": "#9b404d",
+                        "surface": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "text-primary": "#1F2328",
+                        "on-surface": "#191c1e",
+                        "on-background": "#191c1e",
+                        "on-primary-container": "#ff929d",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#dbc0c1",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#acf2c3",
+                        "primary": "#5c101f",
+                        "surface-variant": "#e1e2e4",
+                        "secondary-container": "#ff7e44",
+                        "on-secondary-container": "#682300",
+                        "secondary-fixed-dim": "#ffb597",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f8f9fb",
+                        "inverse-surface": "#2e3132",
+                        "primary-container": "#7a2734",
+                        "accent-stats": "#8B5FA3",
+                        "on-secondary-fixed-variant": "#7e2c00",
+                        "surface-container": "#edeef0",
+                        "on-tertiary-fixed-variant": "#05522f",
+                        "inverse-on-surface": "#f0f1f3",
+                        "on-primary-fixed": "#40000f",
+                        "surface-container-low": "#f3f4f6",
+                        "on-primary-fixed-variant": "#7d2936",
+                        "primary-fixed-dim": "#ffb2b8",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-white": "#FFFFFF",
+                        "on-secondary-fixed": "#360f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "hero-height": "400px",
+                        "margin-desktop": "48px",
+                        "base": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Noto Sans Thai"],
+                        "headline-xl": ["Noto Sans Thai"],
+                        "body-md": ["Noto Sans Thai"],
+                        "label-code": ["IBM Plex Mono"],
+                        "headline-md": ["Noto Sans Thai"],
+                        "headline-lg": ["Noto Sans Thai"],
+                        "label-caps": ["IBM Plex Mono"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col">
+<!-- SideNavBar Anchor -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant shadow-sm py-6 px-4 z-50">
+<div class="flex flex-col gap-1 mb-8 px-4">
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary">NNTC Library</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant">Staff Portal</p>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Home</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="sync_alt">sync_alt</span>
+<span class="font-body-md">Borrow/Return</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-body-md">Inventory</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-body-md">Analytics</span>
+</a>
+<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md">Members</span>
+</a>
+</div>
+<button class="mb-8 w-full bg-primary text-on-primary py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            New Transaction
+        </button>
+<div class="flex flex-col gap-2 border-t border-outline-variant pt-6">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md">Help</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="md:ml-64 flex-grow flex flex-col min-h-screen">
+<!-- Hero Header -->
+<header class="bg-primary text-on-primary relative overflow-hidden h-[240px] flex items-end pb-20 px-gutter">
+<div class="absolute inset-0 vertical-pattern opacity-10"></div>
+<div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary-container/40 to-transparent"></div>
+<div class="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">
+<div>
+<h2 class="font-headline-xl text-headline-xl mb-2">Member Directory</h2>
+<p class="font-body-lg text-body-lg text-on-primary/80">Manage and oversee the Nakhon Nayok Technical College student registry.</p>
+</div>
+<div class="hidden md:flex gap-4 mb-2">
+<div class="bg-primary-container/40 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+<p class="text-label-caps font-label-caps opacity-70">TOTAL MEMBERS</p>
+<p class="text-headline-md font-label-code">2,450</p>
+</div>
+<div class="bg-primary-container/40 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+<p class="text-label-caps font-label-caps opacity-70">ACTIVE TODAY</p>
+<p class="text-headline-md font-label-code">184</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Search & Filter Bar (Floating) -->
+<section class="max-w-7xl w-full mx-auto px-gutter -mt-10 relative z-20">
+<div class="bg-surface-white p-6 rounded-xl shadow-md border border-outline-variant/30 flex flex-col lg:flex-row gap-6 items-center">
+<!-- Search Input -->
+<div class="w-full lg:flex-1 relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="Search by Student ID, Name or Department..." type="text"/>
+</div>
+<!-- Filters -->
+<div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+<div class="flex flex-col gap-1 min-w-[180px]">
+<label class="text-label-caps font-label-caps text-on-surface-variant ml-1">Department</label>
+<select class="bg-surface-container-low border border-outline-variant rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+<option>All Departments</option>
+<option>Information Technology</option>
+<option>Mechanical Engineering</option>
+<option>Electrical Technology</option>
+<option>Business Administration</option>
+</select>
+</div>
+<div class="flex flex-col gap-1 min-w-[180px]">
+<label class="text-label-caps font-label-caps text-on-surface-variant ml-1">Education Level</label>
+<select class="bg-surface-container-low border border-outline-variant rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+<option>All Levels</option>
+<option>Vocational Certificate (ปวช.)</option>
+<option>High Voc. Certificate (ปวส.)</option>
+</select>
+</div>
+<button class="self-end px-6 py-3 bg-surface-container-high hover:bg-surface-container-highest rounded-lg font-bold text-primary flex items-center gap-2 transition-colors h-[46px]">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+                        Apply
+                    </button>
+</div>
+</div>
+</section>
+<!-- Table Section -->
+<section class="max-w-7xl w-full mx-auto px-gutter py-8 flex-grow">
+<div class="bg-surface-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Student ID</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Name</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Department</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary text-center">Year</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Status</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary text-right">Last Visit</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-label-code text-primary">66209010012</td>
+<td class="px-6 py-4 font-bold text-on-surface">Somchai Rakthai</td>
+<td class="px-6 py-4 text-on-surface-variant">Information Technology</td>
+<td class="px-6 py-4 text-center font-label-code">2</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-success/10 text-status-success text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-sm">Oct 24, 2024</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-label-code text-primary">66209010045</td>
+<td class="px-6 py-4 font-bold text-on-surface">Kanya Siriwat</td>
+<td class="px-6 py-4 text-on-surface-variant">Business Administration</td>
+<td class="px-6 py-4 text-center font-label-code">3</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-success/10 text-status-success text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-sm">Oct 22, 2024</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-label-code text-primary">66209010098</td>
+<td class="px-6 py-4 font-bold text-on-surface">Arthit Meechai</td>
+<td class="px-6 py-4 text-on-surface-variant">Mechanical Engineering</td>
+<td class="px-6 py-4 text-center font-label-code">1</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-outline-variant/30 text-outline text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                                        Suspended
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-sm">Sep 15, 2024</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-label-code text-primary">66209010156</td>
+<td class="px-6 py-4 font-bold text-on-surface">Nidnoi Jaidee</td>
+<td class="px-6 py-4 text-on-surface-variant">Electrical Technology</td>
+<td class="px-6 py-4 text-center font-label-code">2</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-success/10 text-status-success text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-sm">Today, 09:15</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-label-code text-primary">66209010211</td>
+<td class="px-6 py-4 font-bold text-on-surface">Preecha Wongsuwan</td>
+<td class="px-6 py-4 text-on-surface-variant">Information Technology</td>
+<td class="px-6 py-4 text-center font-label-code">1</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-success/10 text-status-success text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                                        Active
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-sm">Oct 20, 2024</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-label-code text-primary">66209010243</td>
+<td class="px-6 py-4 font-bold text-on-surface">Sopa Maliwan</td>
+<td class="px-6 py-4 text-on-surface-variant">Information Technology</td>
+<td class="px-6 py-4 text-center font-label-code">4</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/20 text-on-secondary-container text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                        Graduating
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right text-on-surface-variant text-sm">Oct 18, 2024</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-6 py-4 bg-surface-container-low flex justify-between items-center">
+<p class="text-sm text-on-surface-variant">Showing 1 to 6 of 2,450 results</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-surface-white border border-outline-variant rounded hover:bg-surface-container-high disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-3 py-1 bg-primary text-on-primary rounded font-bold">1</button>
+<button class="px-3 py-1 bg-surface-white border border-outline-variant rounded hover:bg-surface-container-high">2</button>
+<button class="px-3 py-1 bg-surface-white border border-outline-variant rounded hover:bg-surface-container-high">3</button>
+<button class="px-3 py-1 bg-surface-white border border-outline-variant rounded hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Anchor -->
+<footer class="w-full py-8 bg-surface-container-highest border-t border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<div class="flex flex-col gap-1 items-center md:items-start">
+<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY STAFF PORTAL</span>
+<p class="text-body-md text-on-surface-variant text-sm">© 2024 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+<div class="flex gap-8">
+<span class="text-label-caps font-label-caps text-on-surface-variant">Total Students: 2,450</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant">Hours: 08:00 - 18:00</span>
+<a class="text-label-caps font-label-caps text-primary font-bold hover:underline decoration-secondary transition-opacity opacity-80 hover:opacity-100" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Mobile Navigation (Anchor) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-white shadow-[0_-4px_10px_rgba(0,0,0,0.05)] grid grid-cols-4 px-2 py-3 z-50">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60" href="#">
+<span class="material-symbols-outlined" data-icon="sync_alt">sync_alt</span>
+<span class="text-[10px] font-bold">Transfer</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="text-[10px] font-bold">Books</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-[10px] font-bold">Members</span>
+</a>
+</nav>
+<script>
+        // Simple search interactivity simulation
+        const searchInput = document.querySelector('input[type="text"]');
+        const rows = document.querySelectorAll('tbody tr');
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Toggle mobile nav items active state (visual only)
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.closest('.md\\:hidden')) {
+                    document.querySelectorAll('.md\\:hidden a').forEach(l => {
+                        l.classList.remove('text-primary');
+                        l.classList.add('text-on-surface-variant', 'opacity-60');
+                    });
+                    this.classList.add('text-primary');
+                    this.classList.remove('text-on-surface-variant', 'opacity-60');
+                }
+            });
+        });
+    </script>
+</body></html>

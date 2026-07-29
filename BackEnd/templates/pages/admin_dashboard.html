@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NNTC Library Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
+                        "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
+                        "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
+                        "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
+                        "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
+                        "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
+                        "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
+                        "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
+                        "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
+                        "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
+                        "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
+                        "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
+                        "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
+                        "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
+                        "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
+                        "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
+                        "on-secondary-fixed": "#360f00"
+                    },
+                    "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
+                    "fontFamily": {
+                        "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
+                        "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
+                        "label-caps": ["IBM Plex Mono"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .hero-pattern {
+            background-image: linear-gradient(180deg, rgba(122, 39, 52, 1) 0%, rgba(92, 16, 31, 1) 100%);
+            position: relative; overflow: hidden;
+        }
+        .hero-pattern::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 24px);
+            opacity: 0.4;
+        }
+        .stamp-pulse { animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(122, 39, 52, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(122, 39, 52, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(122, 39, 52, 0); }
+        }
+        .heatmap-cell { aspect-ratio: 1/1; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-background font-body-md text-text-primary min-h-screen flex">
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant shadow-sm py-6 px-4 z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-on-primary">library_books</span>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary leading-tight">NNTC Library</h1>
+<p class="text-[10px] uppercase tracking-widest text-outline font-bold">Staff Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2" href="/admin/dashboard">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="/admin/members-management">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md">Members</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="/admin/attendance-logs">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md">Attendance Logs</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant space-y-2">
+<button class="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors group" id="logout-btn" type="button">
+<span class="material-symbols-outlined group-hover:text-error">logout</span>
+<span class="font-body-md">Logout</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<header class="hero-pattern pt-8 pb-32 px-gutter">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<div>
+<h2 class="text-white font-headline-xl text-headline-xl mb-2">Library Performance</h2>
+<p class="text-on-primary-container font-body-lg text-body-lg" id="hero-subtitle">Loading attendance data…</p>
+</div>
+<div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
+<div class="px-4 py-2">
+<p class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">Filter View</p>
+<select class="bg-transparent text-white border-none focus:ring-0 font-bold p-0 text-body-md cursor-pointer" id="filter-view">
+<option value="month">This Month</option>
+<option value="week">Last 7 Days</option>
+<option value="today">Today</option>
+</select>
+</div>
+<div class="h-10 w-[1px] bg-white/20"></div>
+<a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank">
+<span class="material-symbols-outlined">print</span>
+<span class="font-label-caps">Print Report</span>
+</a>
+</div>
+</div>
+<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
+<div class="bg-white rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">group</span>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase text-xs mb-1">Total Entries</p>
+<h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-total">–</h3>
+</div>
+<div class="bg-white rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined">person_search</span>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase text-xs mb-1">Unique Users</p>
+<h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-unique">–</h3>
+</div>
+<div class="bg-white rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-accent-stats/10 flex items-center justify-center text-accent-stats mb-4">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<p class="text-on-surface-variant font-label-caps uppercase text-xs mb-1">Avg Daily Entries</p>
+<h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-avg">–</h3>
+</div>
+<div class="bg-primary-container rounded-xl p-6 shadow-[0px_8px_24px_rgba(122,39,52,0.2)] border border-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<div class="w-3 h-3 bg-white rounded-full stamp-pulse"></div>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
+<span class="material-symbols-outlined">meeting_room</span>
+</div>
+<p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">Currently Inside (est.)</p>
+<h3 class="text-headline-lg font-headline-lg text-white font-bold font-label-code" id="stat-inside">–</h3>
+</div>
+</div>
+</header>
+<div class="max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<section class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-outline-variant/30 p-8">
+<div class="mb-8">
+<h4 class="text-headline-md font-headline-md text-primary">Traffic Trends</h4>
+<p class="text-on-surface-variant text-body-md">Daily check-in/out events for the selected period</p>
+</div>
+<div class="h-64 flex items-end justify-between gap-1 px-2 relative" id="trend-chart">
+<p class="text-body-md text-text-secondary m-auto">Loading…</p>
+</div>
+<div class="flex justify-between mt-4 text-xs font-label-caps text-outline uppercase tracking-wider" id="trend-labels"></div>
+</section>
+<section class="bg-white rounded-2xl shadow-sm border border-outline-variant/30 p-8">
+<h4 class="text-headline-md font-headline-md text-primary mb-6">Top Departments</h4>
+<div class="space-y-6" id="department-breakdown">
+<p class="text-body-md text-text-secondary">Loading…</p>
+</div>
+<div class="mt-10 p-4 bg-surface-container-low rounded-xl border border-dashed border-outline-variant flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">lightbulb</span>
+<p class="text-sm text-on-surface-variant italic" id="peak-insight">Calculating peak hours…</p>
+</div>
+</section>
+<section class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-outline-variant/30 p-8">
+<div class="mb-8">
+<h4 class="text-headline-md font-headline-md text-primary">Attendance by Day &amp; Hour</h4>
+<p class="text-on-surface-variant text-body-md">Event density for the selected period (rows = weekday, columns = hour of day)</p>
+</div>
+<div class="overflow-x-auto pb-4">
+<div class="min-w-[900px] grid grid-cols-[auto_1fr] gap-4">
+<div class="grid grid-rows-7 gap-1 text-[10px] text-outline font-label-caps pt-6">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+<div>
+<div class="flex justify-between text-[10px] text-outline font-label-caps mb-2 px-1">
+<span>0h</span><span>4h</span><span>8h</span><span>12h</span><span>16h</span><span>20h</span><span>24h</span>
+</div>
+<div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr));"></div>
+</div>
+</div>
+</div>
+<div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline font-label-caps uppercase">
+<span>Less</span>
+<div class="w-3 h-3 bg-surface-container rounded-sm"></div>
+<div class="w-3 h-3 bg-primary/20 rounded-sm"></div>
+<div class="w-3 h-3 bg-primary/40 rounded-sm"></div>
+<div class="w-3 h-3 bg-primary/70 rounded-sm"></div>
+<div class="w-3 h-3 bg-primary rounded-sm"></div>
+<span>More</span>
+</div>
+</section>
+</div>
+<footer class="w-full py-8 mt-auto bg-surface-container-highest border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY</span>
+<p class="text-label-caps font-label-caps text-on-surface-variant opacity-80">© 2026 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+</footer>
+</main>
+<script src="/static/js/api.js"></script>
+<script>
+        const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        let allRows = [];
+
+        function isoWeekdayIndex(date) {
+            return (date.getDay() + 6) % 7; // 0=Mon .. 6=Sun
+        }
+
+        function filterRows(view) {
+            const now = new Date();
+            if (view === 'today') {
+                const todayStr = now.toISOString().slice(0, 10);
+                return allRows.filter(r => r.timestamp.slice(0, 10) === todayStr);
+            }
+            if (view === 'week') {
+                const cutoff = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+                return allRows.filter(r => new Date(r.timestamp) >= cutoff);
+            }
+            return allRows;
+        }
+
+        function render(view) {
+            const rows = filterRows(view);
+            const total = rows.length;
+            const uniqueUsers = new Set(rows.map(r => r.student_id)).size;
+            const dayBuckets = {};
+            rows.forEach(r => {
+                const day = r.timestamp.slice(0, 10);
+                dayBuckets[day] = (dayBuckets[day] || 0) + 1;
+            });
+            const dayKeys = Object.keys(dayBuckets).sort();
+            const avgDaily = dayKeys.length ? Math.round(total / dayKeys.length) : 0;
+
+            const lastByUser = {};
+            rows.forEach(r => {
+                const prev = lastByUser[r.student_id];
+                if (!prev || new Date(r.timestamp) > new Date(prev.timestamp)) lastByUser[r.student_id] = r;
+            });
+            const currentlyInside = Object.values(lastByUser).filter(r => r.type === 'in').length;
+
+            document.getElementById('stat-total').textContent = total.toLocaleString();
+            document.getElementById('stat-unique').textContent = uniqueUsers.toLocaleString();
+            document.getElementById('stat-avg').textContent = avgDaily.toLocaleString();
+            document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
+            document.getElementById('hero-subtitle').textContent =
+                total ? `${total.toLocaleString()} events across ${uniqueUsers.toLocaleString()} students in the selected period.` : 'No attendance events in the selected period.';
+
+            // Trend chart
+            const chart = document.getElementById('trend-chart');
+            const labels = document.getElementById('trend-labels');
+            chart.innerHTML = '';
+            labels.innerHTML = '';
+            if (dayKeys.length) {
+                const max = Math.max(...dayKeys.map(k => dayBuckets[k]));
+                dayKeys.forEach(day => {
+                    const bar = document.createElement('div');
+                    const pct = max ? Math.max(4, Math.round((dayBuckets[day] / max) * 100)) : 4;
+                    bar.className = 'flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-all cursor-help relative group';
+                    bar.style.height = pct + '%';
+                    bar.title = `${day}: ${dayBuckets[day]} events`;
+                    chart.appendChild(bar);
+                });
+                labels.innerHTML = `<span>${dayKeys[0]}</span><span>${dayKeys[dayKeys.length - 1]}</span>`;
+            } else {
+                chart.innerHTML = '<p class="text-body-md text-text-secondary m-auto">No data for this period.</p>';
+            }
+
+            // Department breakdown
+            const deptCounts = {};
+            rows.forEach(r => {
+                const dept = r.department || 'Unspecified';
+                deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+            });
+            const deptEntries = Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const deptBox = document.getElementById('department-breakdown');
+            const colors = ['bg-primary', 'bg-secondary', 'bg-accent-stats', 'bg-status-success', 'bg-outline'];
+            if (deptEntries.length) {
+                deptBox.innerHTML = deptEntries.map(([dept, count], i) => {
+                    const pct = total ? Math.round((count / total) * 100) : 0;
+                    return `
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-sm font-bold">
+                                <span>${dept}</span>
+                                <span class="font-label-code">${pct}%</span>
+                            </div>
+                            <div class="w-full bg-surface-container rounded-full h-2">
+                                <div class="${colors[i % colors.length]} h-2 rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                        </div>`;
+                }).join('');
+            } else {
+                deptBox.innerHTML = '<p class="text-body-md text-text-secondary">No data for this period.</p>';
+            }
+
+            // Day/hour heatmap + peak insight
+            const grid = document.getElementById('heatmap-grid');
+            const counts = Array.from({ length: 7 }, () => Array(24).fill(0));
+            rows.forEach(r => {
+                const d = new Date(r.timestamp);
+                counts[isoWeekdayIndex(d)][d.getHours()]++;
+            });
+            const maxCell = Math.max(1, ...counts.flat());
+            grid.innerHTML = '';
+            let peak = { count: -1, day: 0, hour: 0 };
+            for (let day = 0; day < 7; day++) {
+                for (let hour = 0; hour < 24; hour++) {
+                    const count = counts[day][hour];
+                    if (count > peak.count) peak = { count, day, hour };
+                    const ratio = count / maxCell;
+                    let shade = 'bg-surface-container';
+                    if (ratio > 0.75) shade = 'bg-primary';
+                    else if (ratio > 0.5) shade = 'bg-primary/70';
+                    else if (ratio > 0.25) shade = 'bg-primary/40';
+                    else if (ratio > 0) shade = 'bg-primary/20';
+                    const cell = document.createElement('div');
+                    cell.className = `heatmap-cell hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer ${shade}`;
+                    cell.title = `${WEEKDAY_LABELS[day]} ${hour}:00 — ${count} events`;
+                    grid.appendChild(cell);
+                }
+            }
+            document.getElementById('peak-insight').textContent = peak.count > 0
+                ? `Busiest so far: ${WEEKDAY_LABELS[peak.day]} around ${peak.hour}:00 (${peak.count} events).`
+                : 'Not enough data yet to identify a peak time.';
+        }
+
+        async function init() {
+            try {
+                const me = await apiFetch('/me');
+                if (me.role !== 'admin') {
+                    window.location.href = '/dashboard';
+                    return;
+                }
+            } catch (_err) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const month = new Date().toISOString().slice(0, 7);
+            allRows = await apiFetch(`/admin/reports?month=${month}`);
+            render(document.getElementById('filter-view').value);
+        }
+
+        document.getElementById('filter-view').addEventListener('change', (e) => render(e.target.value));
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await apiFetch('/logout', { method: 'POST' });
+            window.location.href = '/login';
+        });
+
+        init();
+    </script>
+</body></html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NNTC Library - Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@100..900&amp;family=Noto+Sans+Thai:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stamp-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .book-spine-pattern {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 12px 100%;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-primary": "#ffb2b8",
+                      "outline": "#887273",
+                      "on-tertiary-fixed": "#002110",
+                      "tertiary": "#00361d",
+                      "surface-dim": "#d9dadc",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#91d5a8",
+                      "tertiary-container": "#004f2d",
+                      "primary-fixed": "#ffdadb",
+                      "on-surface-variant": "#554243",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "status-success": "#4A7C3F",
+                      "text-secondary": "#6B7280",
+                      "secondary": "#a53d00",
+                      "background": "#f8f9fb",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#7cc094",
+                      "surface-container-highest": "#e1e2e4",
+                      "secondary-fixed": "#ffdbcd",
+                      "surface-tint": "#9b404d",
+                      "surface": "#f8f9fb",
+                      "on-tertiary": "#ffffff",
+                      "text-primary": "#1F2328",
+                      "on-surface": "#191c1e",
+                      "on-background": "#191c1e",
+                      "on-primary-container": "#ff929d",
+                      "on-primary": "#ffffff",
+                      "outline-variant": "#dbc0c1",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#acf2c3",
+                      "primary": "#5c101f",
+                      "surface-variant": "#e1e2e4",
+                      "secondary-container": "#ff7e44",
+                      "on-secondary-container": "#682300",
+                      "secondary-fixed-dim": "#ffb597",
+                      "on-error-container": "#93000a",
+                      "surface-bright": "#f8f9fb",
+                      "inverse-surface": "#2e3132",
+                      "primary-container": "#7a2734",
+                      "accent-stats": "#8B5FA3",
+                      "on-secondary-fixed-variant": "#7e2c00",
+                      "surface-container": "#edeef0",
+                      "on-tertiary-fixed-variant": "#05522f",
+                      "inverse-on-surface": "#f0f1f3",
+                      "on-primary-fixed": "#40000f",
+                      "surface-container-low": "#f3f4f6",
+                      "on-primary-fixed-variant": "#7d2936",
+                      "primary-fixed-dim": "#ffb2b8",
+                      "surface-container-high": "#e7e8ea",
+                      "surface-white": "#FFFFFF",
+                      "on-secondary-fixed": "#360f00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "hero-height": "400px",
+                      "margin-desktop": "48px",
+                      "base": "8px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Noto Sans Thai"],
+                      "headline-xl": ["Noto Sans Thai"],
+                      "body-md": ["Noto Sans Thai"],
+                      "label-code": ["IBM Plex Mono"],
+                      "headline-md": ["Noto Sans Thai"],
+                      "headline-lg": ["Noto Sans Thai"],
+                      "label-caps": ["IBM Plex Mono"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                      "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface font-body-md text-text-primary min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-primary dark:bg-primary-container shadow-md fixed top-0 z-50 w-full">
+<div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
+<nav class="hidden md:flex items-center gap-6 ml-8">
+<a class="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" href="#">Dashboard</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Catalog</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">History</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="#">Members</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-primary-container/50 rounded-full transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="font-bold text-sm">Somchai K.</p>
+<p class="text-xs opacity-75">ID: 652010101</p>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-on-primary/20">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young Thai male student wearing a clean white college uniform, smiling confidently. The lighting is soft and studio-quality, emphasizing a professional academic atmosphere. The background is a blurred university setting with neutral tones and a hint of dark maroon, matching the college brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfeAlhlqsMxUmomU3ISP-wA00vCVsiRcq4jPfmbiSpL_0kiyCHeRH_vXARek5E9TJKYzELya29NrT4K0iAyMrMA6cbb9SIC3tKpJet3396RWl0PWlMMGqsRYQYuRhV1UzAsgcMeVmUp_sqdiMqrUFJdAgzsEfoF9Xb5RaRPOJ6wGpNGqDAYPAP2Bysa6PXXA-ZI8azlJRnVlVuFD_R1CLPxBaQOWupmZ02yzNjGud0em8ghH9Z-ooKqA"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-16">
+<!-- Hero Section -->
+<section class="relative bg-primary-container h-80 overflow-hidden flex flex-col justify-center">
+<!-- Animated Shader Background (Background effect) -->
+
+<!-- Book Spine Pattern Overlay -->
+<div class="absolute inset-0 book-spine-pattern opacity-20"></div>
+<div class="relative z-10 max-w-7xl mx-auto px-gutter w-full">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<div class="inline-flex items-center gap-2 bg-surface-container-highest/20 text-on-primary px-3 py-1 rounded-full mb-4 border border-on-primary/20" id="status-badge">
+<span class="w-2.5 h-2.5 rounded-full bg-outline" id="status-dot"></span>
+<span class="text-label-caps font-label-caps" id="status-text">Not checked in today</span>
+</div>
+<h1 class="text-headline-xl font-headline-xl text-on-primary mb-2">Somchai Kemkla</h1>
+<p class="text-on-primary/80 font-body-lg text-body-lg">Department of Information Technology • ID: 652010101</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Content Canvas -->
+<div class="max-w-7xl mx-auto px-gutter -mt-16 relative z-20 pb-12">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Main Action Column -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<!-- Central Action Card -->
+<div class="bg-surface-white rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-9xl" data-icon="library_books">library_books</span>
+</div>
+<div class="hidden mb-6" id="timer-display">
+<p class="text-label-caps font-label-caps text-secondary mb-1">CURRENT SESSION DURATION</p>
+<span class="text-headline-xl font-label-code text-primary tracking-widest" id="clock">00:00:00</span>
+</div>
+<!-- Stamp Button Wrapper -->
+<div class="relative mb-8">
+<div class="absolute -inset-4 rounded-full stamp-pulse bg-status-success/20 hidden" id="pulse-ring"></div>
+<button class="relative w-48 h-48 rounded-full bg-status-success text-on-primary shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2 group" id="stamp-button" onclick="toggleCheckIn()">
+<span class="material-symbols-outlined text-6xl group-hover:rotate-12 transition-transform" data-icon="sync_alt" id="stamp-icon">sync_alt</span>
+<span class="font-headline-md text-headline-md" id="stamp-text">Check In</span>
+</button>
+</div>
+<p class="text-body-md text-text-secondary max-w-sm mx-auto">
+                            Please tap the button above to register your arrival or departure from the NNTC Library facilities.
+                        </p>
+</div>
+<!-- Recent History Bento -->
+<div class="bg-surface-white rounded-xl shadow-md p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Recent Attendance</h3>
+<button class="text-primary font-label-caps text-label-caps hover:underline">View All</button>
+</div>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors border-l-4 border-status-success">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-status-success/10 text-status-success flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<p class="font-bold text-text-primary">Regular Session</p>
+<p class="text-xs text-text-secondary">24 May 2024 • 08:30 AM - 12:45 PM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-code text-primary font-bold">4h 15m</p>
+<p class="text-[10px] font-label-caps uppercase text-text-secondary">Completed</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors border-l-4 border-status-success">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-status-success/10 text-status-success flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<p class="font-bold text-text-primary">Self-Study</p>
+<p class="text-xs text-text-secondary">23 May 2024 • 15:00 PM - 17:30 PM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-code text-primary font-bold">2h 30m</p>
+<p class="text-[10px] font-label-caps uppercase text-text-secondary">Completed</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors border-l-4 border-accent-stats">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-accent-stats/10 text-accent-stats flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</div>
+<div>
+<p class="font-bold text-text-primary">Weekend Study</p>
+<p class="text-xs text-text-secondary">19 May 2024 • 09:00 AM - 11:00 AM</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-label-code text-primary font-bold">2h 00m</p>
+<p class="text-[10px] font-label-caps uppercase text-text-secondary">Completed</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Content -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-3 gap-4">
+<a class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="#">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<span class="text-label-caps font-label-caps text-[10px]">History</span>
+</a>
+<a class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="#">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="person_edit">person_edit</span>
+</div>
+<span class="text-label-caps font-label-caps text-[10px]">Profile</span>
+</a>
+<a class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="#">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</div>
+<span class="text-label-caps font-label-caps text-[10px]">Settings</span>
+</a>
+</div>
+<!-- Quick Stats Card -->
+<div class="bg-surface-white rounded-xl shadow-md p-6 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-24 h-24 bg-accent-stats/5 rounded-full -mr-8 -mt-8"></div>
+<h4 class="font-headline-md text-headline-md text-primary mb-4">Library Summary</h4>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="p-2 bg-accent-stats/10 rounded-lg text-accent-stats">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+</div>
+<div>
+<p class="text-xs text-text-secondary font-label-caps">BOOKS BORROWED</p>
+<p class="font-headline-md text-primary font-label-code">03</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="hourglass_empty">hourglass_empty</span>
+</div>
+<div>
+<p class="text-xs text-text-secondary font-label-caps">TOTAL STUDY TIME</p>
+<p class="font-headline-md text-primary font-label-code">142h</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="p-2 bg-error/10 rounded-lg text-error">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+<div>
+<p class="text-xs text-text-secondary font-label-caps">OVERDUE PENALTY</p>
+<p class="font-headline-md text-primary font-label-code">฿0.00</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Announcements -->
+<div class="bg-primary-container rounded-xl shadow-md p-6 text-on-primary">
+<h4 class="font-headline-md text-headline-md mb-2">Staff Notice</h4>
+<p class="text-body-md opacity-80 mb-4">
+                            The library will be closed this weekend for inventory audit. Please return all borrowed items by Friday 16:00.
+                        </p>
+<button class="w-full py-2 rounded-lg bg-surface-white text-primary font-bold hover:bg-secondary-container hover:text-on-secondary-container transition-colors">
+                            Read More
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-surface-container-lowest border-t border-outline-variant w-full py-8 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+<div class="flex flex-col md:flex-row items-center gap-6">
+<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY</span>
+<p class="text-body-md text-on-surface-variant text-sm">© 2024 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+</div>
+<div class="flex gap-6">
+<span class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Total Students: 2,450</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Hours: 08:00 - 18:00</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors cursor-pointer underline decoration-secondary">Contact Support</span>
+</div>
+</div>
+</footer>
+<script>
+        let isCheckedIn = false;
+        let timerInterval;
+        let seconds = 0;
+
+        function toggleCheckIn() {
+            const btn = document.getElementById('stamp-button');
+            const icon = document.getElementById('stamp-icon');
+            const text = document.getElementById('stamp-text');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const timerDisplay = document.getElementById('timer-display');
+            const pulseRing = document.getElementById('pulse-ring');
+
+            isCheckedIn = !isCheckedIn;
+
+            if (isCheckedIn) {
+                // Change to Checked In State
+                btn.classList.remove('bg-status-success');
+                btn.classList.add('bg-secondary');
+                icon.textContent = 'logout';
+                text.textContent = 'Check Out';
+                
+                statusDot.classList.remove('bg-outline');
+                statusDot.classList.add('bg-status-success');
+                statusText.textContent = 'Currently in Library';
+                
+                timerDisplay.classList.remove('hidden');
+                pulseRing.classList.remove('hidden');
+                
+                startTimer();
+            } else {
+                // Change back to Check In State
+                btn.classList.remove('bg-secondary');
+                btn.classList.add('bg-status-success');
+                icon.textContent = 'sync_alt';
+                text.textContent = 'Check In';
+                
+                statusDot.classList.remove('bg-status-success');
+                statusDot.classList.add('bg-outline');
+                statusText.textContent = 'Not checked in today';
+                
+                timerDisplay.classList.add('hidden');
+                pulseRing.classList.add('hidden');
+                
+                stopTimer();
+            }
+        }
+
+        function startTimer() {
+            seconds = 0;
+            updateDisplay();
+            timerInterval = setInterval(() => {
+                seconds++;
+                updateDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function updateDisplay() {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            document.getElementById('clock').textContent = 
+                `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body></html>

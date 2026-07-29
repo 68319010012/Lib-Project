@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="th"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NNTC Library - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@100..900&family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#ffb2b8",
+                        "outline": "#887273",
+                        "on-tertiary-fixed": "#002110",
+                        "tertiary": "#00361d",
+                        "surface-dim": "#d9dadc",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#91d5a8",
+                        "tertiary-container": "#004f2d",
+                        "primary-fixed": "#ffdadb",
+                        "on-surface-variant": "#554243",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "status-success": "#4A7C3F",
+                        "text-secondary": "#6B7280",
+                        "secondary": "#a53d00",
+                        "background": "#f8f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#7cc094",
+                        "surface-container-highest": "#e1e2e4",
+                        "secondary-fixed": "#ffdbcd",
+                        "surface-tint": "#9b404d",
+                        "surface": "#f8f9fb",
+                        "on-tertiary": "#ffffff",
+                        "text-primary": "#1F2328",
+                        "on-surface": "#191c1e",
+                        "on-background": "#191c1e",
+                        "on-primary-container": "#ff929d",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#dbc0c1",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#acf2c3",
+                        "primary": "#5c101f",
+                        "surface-variant": "#e1e2e4",
+                        "secondary-container": "#ff7e44",
+                        "on-secondary-container": "#682300",
+                        "secondary-fixed-dim": "#ffb597",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f8f9fb",
+                        "inverse-surface": "#2e3132",
+                        "primary-container": "#7a2734",
+                        "accent-stats": "#8B5FA3",
+                        "on-secondary-fixed-variant": "#7e2c00",
+                        "surface-container": "#edeef0",
+                        "on-tertiary-fixed-variant": "#05522f",
+                        "inverse-on-surface": "#f0f1f3",
+                        "on-primary-fixed": "#40000f",
+                        "surface-container-low": "#f3f4f6",
+                        "on-primary-fixed-variant": "#7d2936",
+                        "primary-fixed-dim": "#ffb2b8",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-white": "#FFFFFF",
+                        "on-secondary-fixed": "#360f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "hero-height": "400px",
+                        "margin-desktop": "48px",
+                        "base": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Noto Sans Thai"],
+                        "headline-xl-mobile": ["Noto Sans Thai"],
+                        "headline-xl": ["Noto Sans Thai"],
+                        "body-md": ["Noto Sans Thai"],
+                        "label-code": ["IBM Plex Mono"],
+                        "headline-md": ["Noto Sans Thai"],
+                        "headline-lg": ["Noto Sans Thai"],
+                        "label-caps": ["IBM Plex Mono"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-xl-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .book-spine-pattern {
+            background-image: repeating-linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.05) 0px,
+                rgba(255, 255, 255, 0.05) 1px,
+                transparent 1px,
+                transparent 12px
+            );
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #7a2734 0%, #40000f 100%);
+        }
+
+        .stamp-shadow {
+            box-shadow: 0px 8px 24px rgba(122, 39, 52, 0.2);
+        }
+
+        .pulse-effect {
+            position: relative;
+        }
+        .pulse-effect::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 9999px;
+            border: 2px solid #a53d00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .transition-all-200 {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-text-primary min-h-screen flex flex-col">
+<!-- Hero Section -->
+<header class="hero-gradient relative w-full h-[45vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+<!-- Book Spine Pattern Overlay -->
+<div class="absolute inset-0 book-spine-pattern opacity-40"></div>
+<!-- Decorative Elements -->
+<div class="absolute top-10 left-10 opacity-10">
+<span class="material-symbols-outlined text-[120px] text-on-primary">menu_book</span>
+</div>
+<div class="relative z-10 text-center px-gutter">
+<h1 class="font-headline-xl text-headline-xl text-on-primary mb-2">NNTC Library</h1>
+<p class="font-body-lg text-body-lg text-on-primary/80 max-w-xl mx-auto">
+                วิทยาลัยเทคนิคครนายก | Nakhon Nayok Technical College
+            </p>
+<div class="mt-4 h-1 w-24 bg-secondary-container mx-auto rounded-full"></div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow relative px-gutter -mt-32 pb-16">
+<div class="max-w-xl mx-auto">
+<!-- Login Card -->
+<div class="bg-surface-white rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 transition-all-200">
+<!-- Tabs -->
+<div class="flex border-b border-outline-variant/30">
+<button class="flex-1 py-5 text-center font-headline-md text-headline-md transition-all-200 border-b-4 border-primary text-primary bg-surface-container-low" id="tab-student" onclick="switchTab('student')">
+                        Student
+                    </button>
+<button class="flex-1 py-5 text-center font-headline-md text-headline-md transition-all-200 border-b-4 border-transparent text-text-secondary hover:bg-surface-container-low" id="tab-staff" onclick="switchTab('staff')">
+                        Staff
+                    </button>
+</div>
+<!-- Form Container -->
+<div class="p-8 md:p-12">
+<form class="space-y-6" id="login-form">
+<!-- Student View (Default) -->
+<div id="field-student">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">STUDENT ID</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">badge</span>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" placeholder="e.g. 6630001234" type="text"/>
+</div>
+</div>
+<!-- Staff View (Hidden initially) -->
+<div class="hidden" id="field-staff">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">STAFF USERNAME</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" placeholder="Enter staff account" type="text"/>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">PASSWORD</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">lock</span>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between py-2">
+<label class="flex items-center space-x-2 cursor-pointer">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-md text-on-surface-variant">Remember me</span>
+</label>
+<a class="text-body-md font-bold text-primary hover:underline" href="#">Forgot password?</a>
+</div>
+<button class="w-full h-14 bg-secondary text-on-secondary font-headline-md rounded-lg stamp-shadow hover:scale-[1.02] active:scale-[0.98] transition-all-200 flex items-center justify-center gap-2 group" type="submit">
+<span>Login to Library</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<div class="text-center pt-4" id="signup-link">
+<p class="text-body-md text-on-surface-variant">
+                                No account? <a class="text-primary font-bold hover:underline" href="#">Sign up</a>
+</p>
+</div>
+</form>
+</div>
+</div>
+<!-- Stats Bar -->
+<div class="mt-12 grid grid-cols-3 gap-4">
+<div class="bg-surface-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-full bg-accent-stats/10 flex items-center justify-center text-accent-stats mb-2">
+<span class="material-symbols-outlined" data-weight="fill">group</span>
+</div>
+<span class="font-label-code text-label-code text-text-secondary">STUDENTS</span>
+<span class="font-headline-md text-headline-md text-primary mt-1">2,450</span>
+</div>
+<div class="bg-surface-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mb-2">
+<span class="material-symbols-outlined" data-weight="fill">schedule</span>
+</div>
+<span class="font-label-code text-label-code text-text-secondary">HOURS</span>
+<span class="font-headline-md text-headline-md text-primary mt-1">08:00-18:00</span>
+</div>
+<div class="bg-surface-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col items-center text-center">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed/30 flex items-center justify-center text-tertiary-container mb-2">
+<span class="material-symbols-outlined" data-weight="fill">account_tree</span>
+</div>
+<span class="font-label-code text-label-code text-text-secondary">DEPTS</span>
+<span class="font-headline-md text-headline-md text-primary mt-1">14</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest py-8 mt-auto border-t border-outline-variant">
+<div class="max-w-7xl mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex flex-col items-center md:items-start">
+<span class="font-label-caps text-label-caps font-bold text-primary mb-2">NNTC LIBRARY</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-center md:text-left">
+                    © 2024 Nakhon Nayok Technical College Library. All Rights Reserved.
+                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:underline decoration-secondary transition-all-200" href="#">Total Students: 2,450</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:underline decoration-secondary transition-all-200" href="#">Hours: 08:00 - 18:00</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:underline decoration-secondary transition-all-200" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<script>
+        function switchTab(role) {
+            const studentTab = document.getElementById('tab-student');
+            const staffTab = document.getElementById('tab-staff');
+            const studentField = document.getElementById('field-student');
+            const staffField = document.getElementById('field-staff');
+            const signupLink = document.getElementById('signup-link');
+
+            if (role === 'student') {
+                studentTab.classList.add('border-primary', 'text-primary', 'bg-surface-container-low');
+                studentTab.classList.remove('border-transparent', 'text-text-secondary');
+                
+                staffTab.classList.remove('border-primary', 'text-primary', 'bg-surface-container-low');
+                staffTab.classList.add('border-transparent', 'text-text-secondary');
+                
+                studentField.classList.remove('hidden');
+                staffField.classList.add('hidden');
+                signupLink.classList.remove('hidden');
+            } else {
+                staffTab.classList.add('border-primary', 'text-primary', 'bg-surface-container-low');
+                staffTab.classList.remove('border-transparent', 'text-text-secondary');
+                
+                studentTab.classList.remove('border-primary', 'text-primary', 'bg-surface-container-low');
+                studentTab.classList.add('border-transparent', 'text-text-secondary');
+                
+                staffField.classList.remove('hidden');
+                studentField.classList.add('hidden');
+                signupLink.classList.add('hidden');
+            }
+        }
+
+        // Add a simple interaction to the "Stamp" button
+        document.querySelector('button[type="submit"]').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.classList.add('absolute', 'bg-white/30', 'rounded-full', 'animate-ping');
+            ripple.style.width = ripple.style.height = '100px';
+            ripple.style.left = (e.clientX - rect.left - 50) + 'px';
+            ripple.style.top = (e.clientY - rect.top - 50) + 'px';
+            ripple.style.pointerEvents = 'none';
+            this.style.position = 'relative';
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+    </script>
+</body></html>
