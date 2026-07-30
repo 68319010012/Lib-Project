@@ -1,3 +1,4 @@
+import calendar
 import os
 from datetime import datetime
 from functools import wraps
@@ -24,7 +25,7 @@ limiter = Limiter(get_remote_address, app=app, storage_uri="memory://")
 
 @app.errorhandler(429)
 def rate_limit_exceeded(_error):
-    return jsonify(error="too many login attempts, please wait and try again"), 429
+    return jsonify(error="เข้าสู่ระบบผิดพลาดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่"), 429
 
 def gender_from_prefix(prefix):
     prefix = (prefix or "").strip()
@@ -39,7 +40,7 @@ def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         if "user_id" not in session:
-            return jsonify(error="login required"), 401
+            return jsonify(error="กรุณาเข้าสู่ระบบ"), 401
         return view(*args, **kwargs)
 
     return wrapped
@@ -49,7 +50,7 @@ def admin_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         if session.get("role") != "admin":
-            return jsonify(error="admin access required"), 403
+            return jsonify(error="ต้องใช้สิทธิ์แอดมิน"), 403
         return view(*args, **kwargs)
 
     return wrapped
@@ -130,26 +131,44 @@ def edit_profile_page():
 def register():
     data = request.get_json(silent=True) or request.form
     student_id = (data.get("student_id") or "").strip()
-    username = (data.get("username") or "").strip()
+    username = student_id
     password = data.get("password") or ""
+    prefix = (data.get("prefix") or "").strip()
+    first_name = (data.get("first_name") or "").strip()
+    last_name = (data.get("last_name") or "").strip()
+    department = (data.get("department") or "").strip()
+    level = (data.get("level") or "").strip()
+    year_level = (data.get("year_level") or "").strip()
 
-    if not student_id or not username or not password:
-        return jsonify(error="student_id, username, and password are required"), 400
+    if not student_id or not password:
+        return jsonify(error="กรุณากรอกรหัสนักศึกษาและรหัสผ่าน"), 400
+    if not prefix or not first_name or not last_name or not department:
+        return jsonify(error="กรุณากรอกคำนำหน้า ชื่อ นามสกุล และแผนกวิชา"), 400
+    if level not in ("ปวช", "ปวส"):
+        return jsonify(error="ระดับชั้นต้องเป็น ปวช หรือ ปวส"), 400
+    valid_years = ("1", "2", "3") if level == "ปวช" else ("1", "2")
+    if year_level not in valid_years:
+        return jsonify(error=f"ชั้นปีของ {level} ต้องเป็นหนึ่งใน {', '.join(valid_years)}"), 400
 
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
     try:
-        cur.execute("SELECT student_id FROM students WHERE student_id = %s", (student_id,))
-        if cur.fetchone() is None:
-            return jsonify(error="student_id not found"), 404
-
-        cur.execute("SELECT user_id FROM users WHERE username = %s", (username,))
-        if cur.fetchone() is not None:
-            return jsonify(error="username already taken"), 409
-
         cur.execute("SELECT user_id FROM users WHERE student_id = %s", (student_id,))
         if cur.fetchone() is not None:
-            return jsonify(error="this student already has an account"), 409
+            return jsonify(error="นักศึกษาคนนี้มีบัญชีอยู่แล้ว"), 409
+
+        # Student profile is entered manually at signup — upsert rather than require
+        # the student_id to already exist in the imported roster.
+        cur.execute(
+            """
+            INSERT INTO students (student_id, prefix, first_name, last_name, department, level, year_level)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                prefix = VALUES(prefix), first_name = VALUES(first_name), last_name = VALUES(last_name),
+                department = VALUES(department), level = VALUES(level), year_level = VALUES(year_level)
+            """,
+            (student_id, prefix, first_name, last_name, department, level, year_level),
+        )
 
         password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -169,7 +188,7 @@ def register():
     session["user_id"] = user_id
     session["role"] = "student"
     session["student_id"] = student_id
-    return jsonify(message="account created", role="student"), 201
+    return jsonify(message="สร้างบัญชีสำเร็จ", role="student"), 201
 
 
 @app.route("/login", methods=["POST"])
@@ -180,7 +199,7 @@ def login():
     password = data.get("password") or ""
 
     if not username or not password:
-        return jsonify(error="username and password are required"), 400
+        return jsonify(error="กรุณากรอกชื่อผู้ใช้และรหัสผ่าน"), 400
 
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
@@ -192,20 +211,20 @@ def login():
         conn.close()
 
     if user is None or not bcrypt.checkpw(password.encode("utf-8"), user["password_hash"].encode("utf-8")):
-        return jsonify(error="invalid username or password"), 401
+        return jsonify(error="ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"), 401
     if user["account_status"] != "approved":
-        return jsonify(error="account is pending admin approval"), 403
+        return jsonify(error="บัญชียังไม่ได้รับการอนุมัติจากแอดมิน"), 403
 
     session["user_id"] = user["user_id"]
     session["role"] = user["role"]
     session["student_id"] = user["student_id"]
-    return jsonify(message="logged in", role=user["role"])
+    return jsonify(message="เข้าสู่ระบบสำเร็จ", role=user["role"])
 
 
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
-    return jsonify(message="logged out")
+    return jsonify(message="ออกจากระบบแล้ว")
 
 
 @app.route("/checkin", methods=["POST"])
@@ -227,7 +246,8 @@ def checkin():
             (user_id, next_type),
         )
         conn.commit()
-        return jsonify(message=f"checked {next_type}", type=next_type)
+        checkin_message = "เช็คอินสำเร็จ" if next_type == "in" else "เช็คเอาต์สำเร็จ"
+        return jsonify(message=checkin_message, type=next_type)
     finally:
         cur.close()
         conn.close()
@@ -264,9 +284,9 @@ def change_password():
     new_password = data.get("new_password") or ""
 
     if not current_password or not new_password:
-        return jsonify(error="current_password and new_password are required"), 400
+        return jsonify(error="กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่"), 400
     if len(new_password) < 8:
-        return jsonify(error="new_password must be at least 8 characters"), 400
+        return jsonify(error="รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร"), 400
 
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
@@ -276,12 +296,12 @@ def change_password():
         if user is None or not bcrypt.checkpw(
             current_password.encode("utf-8"), user["password_hash"].encode("utf-8")
         ):
-            return jsonify(error="current password is incorrect"), 401
+            return jsonify(error="รหัสผ่านปัจจุบันไม่ถูกต้อง"), 401
 
         new_hash = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         cur.execute("UPDATE users SET password_hash = %s WHERE user_id = %s", (new_hash, session["user_id"]))
         conn.commit()
-        return jsonify(message="password updated")
+        return jsonify(message="เปลี่ยนรหัสผ่านสำเร็จ")
     finally:
         cur.close()
         conn.close()
@@ -319,6 +339,7 @@ def admin_members():
     search = request.args.get("search", "").strip()
     department = request.args.get("department", "").strip()
     level = request.args.get("level", "").strip()
+    year_level = request.args.get("year_level", "").strip()
 
     conditions = ["u.account_status = 'approved'"]
     params = []
@@ -334,6 +355,9 @@ def admin_members():
     if level:
         conditions.append("s.level = %s")
         params.append(level)
+    if year_level:
+        conditions.append("s.year_level = %s")
+        params.append(year_level)
 
     where_clause = " AND ".join(conditions)
 
@@ -532,6 +556,75 @@ def admin_report_department():
         conn.close()
 
     return render_template("report_department.html", academic_year=academic_year, rows=rows)
+
+
+@app.route("/admin/reports/print/dashboard", methods=["GET"])
+@login_required
+@admin_required
+def admin_report_dashboard():
+    month = request.args.get("month") or datetime.now().strftime("%Y-%m")
+
+    sql = """
+        SELECT s.student_id, s.department, c.timestamp
+        FROM checkin_logs c
+        JOIN users u ON u.user_id = c.user_id
+        JOIN students s ON s.student_id = u.student_id
+        WHERE DATE_FORMAT(c.timestamp, '%Y-%m') = %s
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(sql, (month,))
+        rows = cur.fetchall()
+    finally:
+        cur.close()
+        conn.close()
+
+    total_events = len(rows)
+    unique_students = len({row["student_id"] for row in rows})
+
+    day_counts = {}
+    dept_counts = {}
+    for row in rows:
+        day_key = row["timestamp"].strftime("%d")
+        day_counts[day_key] = day_counts.get(day_key, 0) + 1
+        dept = row["department"] or "ไม่ระบุแผนก"
+        dept_counts[dept] = dept_counts.get(dept, 0) + 1
+
+    days_with_data = len(day_counts)
+    avg_daily = round(total_events / days_with_data) if days_with_data else 0
+
+    year, mon = (int(part) for part in month.split("-"))
+    days_in_month = calendar.monthrange(year, mon)[1]
+    daily_trend = [
+        {"day": f"{d:02d}", "count": day_counts.get(f"{d:02d}", 0)} for d in range(1, days_in_month + 1)
+    ]
+    max_daily = max((d["count"] for d in daily_trend), default=0)
+    for d in daily_trend:
+        d["pct"] = round((d["count"] / max_daily) * 100) if max_daily else 0
+
+    dept_breakdown = sorted(dept_counts.items(), key=lambda item: -item[1])[:8]
+    max_dept = dept_breakdown[0][1] if dept_breakdown else 0
+    dept_breakdown = [
+        {"name": name, "count": count, "pct": round((count / max_dept) * 100) if max_dept else 0}
+        for name, count in dept_breakdown
+    ]
+
+    busiest_day = None
+    if day_counts:
+        busiest_key, busiest_count = max(day_counts.items(), key=lambda item: item[1])
+        busiest_day = {"day": busiest_key, "count": busiest_count}
+
+    return render_template(
+        "report_dashboard.html",
+        month=month,
+        total_events=total_events,
+        unique_students=unique_students,
+        avg_daily=avg_daily,
+        busiest_day=busiest_day,
+        daily_trend=daily_trend,
+        dept_breakdown=dept_breakdown,
+    )
 
 
 if __name__ == "__main__":

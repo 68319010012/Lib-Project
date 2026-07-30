@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
+<html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NNTC Library - Student Dashboard</title>
+<title>ห้องสมุด NNTC - หน้าหลักนักศึกษา</title>
+<script>
+(function () {
+    try {
+        var stored = localStorage.getItem('nntc-theme');
+        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.classList.toggle('light', !dark);
+    } catch (e) {}
+})();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
@@ -46,7 +56,8 @@
                       "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
                       "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
                       "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                      "on-secondary-fixed": "#360f00"
+                      "on-secondary-fixed": "#360f00",
+                      "dm-bg": "#141112", "dm-surface": "#1f191b", "dm-border": "#4a3a3c", "dm-text-secondary": "#c9b8ba"
               },
               "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
               "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
@@ -69,22 +80,25 @@
         }
     </script>
 </head>
-<body class="bg-surface font-body-md text-text-primary min-h-screen flex flex-col overflow-x-hidden">
+<body class="bg-surface dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
 <header class="bg-primary dark:bg-primary-container shadow-md fixed top-0 z-50 w-full">
 <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary">
 <div class="flex items-center gap-4">
 <span class="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
 <nav class="hidden md:flex items-center gap-6 ml-8">
-<a class="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" href="/dashboard">Dashboard</a>
-<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="/profile">Profile</a>
+<a class="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" href="/dashboard">หน้าหลัก</a>
+<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="/profile">โปรไฟล์</a>
 </nav>
 </div>
 <div class="flex items-center gap-4">
-<button class="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" id="logout-btn" type="button">Logout</button>
+<button aria-label="สลับโหมดสว่าง/มืด" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors" id="theme-toggle" type="button">
+<span class="material-symbols-outlined text-xl">dark_mode</span>
+</button>
+<button class="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" id="logout-btn" type="button">ออกจากระบบ</button>
 <div class="flex items-center gap-3">
 <div class="text-right hidden sm:block">
 <p class="font-bold text-sm" id="user-name">...</p>
-<p class="text-xs opacity-75" id="user-id">ID: ...</p>
+<p class="text-xs opacity-75" id="user-id">รหัส: ...</p>
 </div>
 </div>
 </div>
@@ -98,9 +112,9 @@
 <div>
 <div class="inline-flex items-center gap-2 bg-surface-container-highest/20 text-on-primary px-3 py-1 rounded-full mb-4 border border-on-primary/20" id="status-badge">
 <span class="w-2.5 h-2.5 rounded-full bg-outline" id="status-dot"></span>
-<span class="text-label-caps font-label-caps" id="status-text">Loading...</span>
+<span class="text-label-caps font-label-caps" id="status-text">กำลังโหลด...</span>
 </div>
-<h1 class="text-headline-xl font-headline-xl text-on-primary mb-2" id="hero-name">Welcome</h1>
+<h1 class="text-headline-xl font-headline-xl text-on-primary mb-2" id="hero-name">ยินดีต้อนรับ</h1>
 <p class="text-on-primary/80 font-body-lg text-body-lg" id="hero-meta"></p>
 </div>
 </div>
@@ -109,69 +123,71 @@
 <div class="max-w-7xl mx-auto px-gutter -mt-16 relative z-20 pb-12">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 <div class="lg:col-span-8 flex flex-col gap-8">
-<div class="bg-surface-white rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
 <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
 <span class="material-symbols-outlined text-9xl">library_books</span>
 </div>
 <div class="hidden mb-6" id="timer-display">
-<p class="text-label-caps font-label-caps text-secondary mb-1">CHECKED IN SINCE</p>
+<p class="text-label-caps font-label-caps text-secondary mb-1">เช็คอินตั้งแต่</p>
 <span class="text-headline-xl font-label-code text-primary tracking-widest" id="clock">--:--:--</span>
 </div>
 <div class="relative mb-8">
 <div class="absolute -inset-4 rounded-full stamp-pulse bg-status-success/20 hidden" id="pulse-ring"></div>
 <button class="relative w-48 h-48 rounded-full bg-status-success text-on-primary shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2 group" id="stamp-button" type="button">
 <span class="material-symbols-outlined text-6xl group-hover:rotate-12 transition-transform" id="stamp-icon">sync_alt</span>
-<span class="font-headline-md text-headline-md" id="stamp-text">Check In</span>
+<span class="font-headline-md text-headline-md" id="stamp-text">เช็คอิน</span>
 </button>
 </div>
-<p class="text-body-md text-text-secondary max-w-sm mx-auto">
-                            Please tap the button above to register your arrival or departure from the NNTC Library facilities.
+<p class="text-body-md text-text-secondary dark:text-dm-text-secondary max-w-sm mx-auto">
+                            กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NNTC
                         </p>
 </div>
-<div class="bg-surface-white rounded-xl shadow-md p-6">
+<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-6">
 <div class="flex items-center justify-between mb-6">
-<h3 class="font-headline-md text-headline-md text-primary">Recent Attendance</h3>
+<h3 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">ประวัติการเข้าใช้ล่าสุด</h3>
 </div>
 <div class="space-y-4" id="history-list">
-<p class="text-body-md text-text-secondary">Loading...</p>
+<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด...</p>
 </div>
 </div>
 </div>
 <div class="lg:col-span-4 flex flex-col gap-6">
 <div class="grid grid-cols-2 gap-4">
-<a class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="/profile">
-<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<a class="bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="/profile">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
 <span class="material-symbols-outlined">person_edit</span>
 </div>
-<span class="text-label-caps font-label-caps text-[10px]">Profile</span>
+<span class="text-label-caps font-label-caps text-[10px]">โปรไฟล์</span>
 </a>
-<button class="bg-surface-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" id="logout-tile" type="button">
-<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<button class="bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" id="logout-tile" type="button">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
 <span class="material-symbols-outlined">logout</span>
 </div>
-<span class="text-label-caps font-label-caps text-[10px]">Logout</span>
+<span class="text-label-caps font-label-caps text-[10px]">ออกจากระบบ</span>
 </button>
 </div>
 <div class="bg-primary-container rounded-xl shadow-md p-6 text-on-primary">
-<h4 class="font-headline-md text-headline-md mb-2">Staff Notice</h4>
+<h4 class="font-headline-md text-headline-md mb-2">ประกาศจากเจ้าหน้าที่</h4>
 <p class="text-body-md opacity-80 mb-4">
-                            The library will be closed this weekend for a facilities inventory audit.
+                            ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์
                         </p>
 </div>
 </div>
 </div>
 </div>
 </main>
-<footer class="bg-surface-container-highest dark:bg-surface-container-lowest border-t border-outline-variant w-full py-8 mt-auto">
+<footer class="bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border w-full py-8 mt-auto">
 <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
 <div class="flex flex-col md:flex-row items-center gap-6">
-<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY</span>
-<p class="text-body-md text-on-surface-variant text-sm">© 2026 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</span>
+<p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-sm">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
 </div>
 </div>
 </footer>
 <script src="/static/js/api.js"></script>
 <script>
+        initThemeToggle('theme-toggle');
+
         let checkedInSince = null; // Date or null
         let timerInterval = null;
 
@@ -191,10 +207,10 @@
                 btn.classList.remove('bg-status-success');
                 btn.classList.add('bg-secondary');
                 icon.textContent = 'logout';
-                text.textContent = 'Check Out';
+                text.textContent = 'เช็คเอาต์';
                 statusDot.classList.remove('bg-outline');
                 statusDot.classList.add('bg-status-success');
-                statusText.textContent = 'Currently in Library';
+                statusText.textContent = 'อยู่ในห้องสมุดตอนนี้';
                 timerDisplay.classList.remove('hidden');
                 pulseRing.classList.remove('hidden');
                 updateClock();
@@ -203,10 +219,10 @@
                 btn.classList.remove('bg-secondary');
                 btn.classList.add('bg-status-success');
                 icon.textContent = 'sync_alt';
-                text.textContent = 'Check In';
+                text.textContent = 'เช็คอิน';
                 statusDot.classList.remove('bg-status-success');
                 statusDot.classList.add('bg-outline');
-                statusText.textContent = 'Not checked in today';
+                statusText.textContent = 'ยังไม่ได้เช็คอินวันนี้';
                 timerDisplay.classList.add('hidden');
                 pulseRing.classList.add('hidden');
             }
@@ -225,22 +241,22 @@
         function renderHistory(rows) {
             const list = document.getElementById('history-list');
             if (!rows.length) {
-                list.innerHTML = '<p class="text-body-md text-text-secondary">No check-in history yet.</p>';
+                list.innerHTML = '<p class="text-body-md text-text-secondary">ยังไม่มีประวัติการเช็คอิน</p>';
                 return;
             }
             list.innerHTML = rows.map(row => {
                 const isIn = row.type === 'in';
                 const date = new Date(row.timestamp);
-                const formatted = date.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const formatted = date.toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 return `
-                    <div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low border-l-4 ${isIn ? 'border-status-success' : 'border-secondary'}">
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low dark:bg-dm-bg border-l-4 ${isIn ? 'border-status-success' : 'border-secondary'}">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 rounded-full ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-secondary/10 text-secondary'} flex items-center justify-center">
                                 <span class="material-symbols-outlined">${isIn ? 'login' : 'logout'}</span>
                             </div>
                             <div>
-                                <p class="font-bold text-text-primary">${isIn ? 'Checked In' : 'Checked Out'}</p>
-                                <p class="text-xs text-text-secondary">${formatted}</p>
+                                <p class="font-bold text-text-primary dark:text-inverse-on-surface">${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}</p>
+                                <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${formatted}</p>
                             </div>
                         </div>
                     </div>`;
@@ -251,9 +267,9 @@
             try {
                 const me = await apiFetch('/me');
                 document.getElementById('user-name').textContent = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
-                document.getElementById('user-id').textContent = `ID: ${me.student_id || me.username}`;
+                document.getElementById('user-id').textContent = `รหัส: ${me.student_id || me.username}`;
                 document.getElementById('hero-name').textContent = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
-                document.getElementById('hero-meta').textContent = [me.department, me.student_id ? `ID: ${me.student_id}` : null].filter(Boolean).join(' • ');
+                document.getElementById('hero-meta').textContent = [me.department, me.student_id ? `รหัส: ${me.student_id}` : null].filter(Boolean).join(' • ');
             } catch (err) {
                 window.location.href = '/login';
                 return;

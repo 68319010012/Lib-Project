@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
+<html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NNTC Library Admin Dashboard</title>
+<title>แดชบอร์ดแอดมิน ห้องสมุด NNTC</title>
+<script>
+(function () {
+    try {
+        var stored = localStorage.getItem('nntc-theme');
+        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.classList.toggle('light', !dark);
+    } catch (e) {}
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -30,7 +40,8 @@
                         "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
                         "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
                         "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                        "on-secondary-fixed": "#360f00"
+                        "on-secondary-fixed": "#360f00",
+                        "dm-bg": "#141112", "dm-surface": "#1f191b", "dm-border": "#4a3a3c", "dm-text-secondary": "#c9b8ba"
                     },
                     "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
                     "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
@@ -63,35 +74,39 @@
         .heatmap-cell { aspect-ratio: 1/1; border-radius: 2px; }
     </style>
 </head>
-<body class="bg-background font-body-md text-text-primary min-h-screen flex">
-<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant shadow-sm py-6 px-4 z-50">
+<body class="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex transition-colors duration-200">
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border shadow-sm py-6 px-4 z-50">
 <div class="flex items-center gap-3 mb-10 px-2">
 <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
 <span class="material-symbols-outlined text-on-primary">library_books</span>
 </div>
 <div>
-<h1 class="text-headline-sm font-headline-sm font-bold text-primary leading-tight">NNTC Library</h1>
-<p class="text-[10px] uppercase tracking-widest text-outline font-bold">Staff Portal</p>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed-dim leading-tight">ห้องสมุด NNTC</h1>
+<p class="text-[10px] uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลเจ้าหน้าที่</p>
 </div>
 </div>
 <nav class="flex-1 space-y-2">
 <a class="flex items-center gap-3 bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2" href="/admin/dashboard">
 <span class="material-symbols-outlined">monitoring</span>
-<span class="font-body-md">Analytics</span>
+<span class="font-body-md">ภาพรวม</span>
 </a>
-<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="/admin/members-management">
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors" href="/admin/members-management">
 <span class="material-symbols-outlined">group</span>
-<span class="font-body-md">Members</span>
+<span class="font-body-md">สมาชิก</span>
 </a>
-<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="/admin/attendance-logs">
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors" href="/admin/attendance-logs">
 <span class="material-symbols-outlined">history</span>
-<span class="font-body-md">Attendance Logs</span>
+<span class="font-body-md">ประวัติการเข้าใช้</span>
 </a>
 </nav>
-<div class="mt-auto pt-6 border-t border-outline-variant space-y-2">
-<button class="w-full flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors group" id="logout-btn" type="button">
+<div class="mt-auto pt-6 border-t border-outline-variant dark:border-dm-border space-y-2">
+<button class="w-full flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors group" id="theme-toggle" type="button">
+<span class="material-symbols-outlined">dark_mode</span>
+<span class="font-body-md">โหมดมืด/สว่าง</span>
+</button>
+<button class="w-full flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors group" id="logout-btn" type="button">
 <span class="material-symbols-outlined group-hover:text-error">logout</span>
-<span class="font-body-md">Logout</span>
+<span class="font-body-md">ออกจากระบบ</span>
 </button>
 </div>
 </aside>
@@ -99,45 +114,45 @@
 <header class="hero-pattern pt-8 pb-32 px-gutter">
 <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
 <div>
-<h2 class="text-white font-headline-xl text-headline-xl mb-2">Library Performance</h2>
-<p class="text-on-primary-container font-body-lg text-body-lg" id="hero-subtitle">Loading attendance data…</p>
+<h2 class="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h2>
+<p class="text-on-primary-container font-body-lg text-body-lg" id="hero-subtitle">กำลังโหลดข้อมูลการเข้าใช้…</p>
 </div>
 <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
 <div class="px-4 py-2">
-<p class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">Filter View</p>
+<p class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">ช่วงเวลา</p>
 <select class="bg-transparent text-white border-none focus:ring-0 font-bold p-0 text-body-md cursor-pointer" id="filter-view">
-<option value="month">This Month</option>
-<option value="week">Last 7 Days</option>
-<option value="today">Today</option>
+<option value="month">เดือนนี้</option>
+<option value="week">7 วันล่าสุด</option>
+<option value="today">วันนี้</option>
 </select>
 </div>
 <div class="h-10 w-[1px] bg-white/20"></div>
 <a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank">
 <span class="material-symbols-outlined">print</span>
-<span class="font-label-caps">Print Report</span>
+<span class="font-label-caps">พิมพ์รายงาน</span>
 </a>
 </div>
 </div>
 <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
-<div class="bg-white rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30">
+<div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
 <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
 <span class="material-symbols-outlined">group</span>
 </div>
-<p class="text-on-surface-variant font-label-caps uppercase text-xs mb-1">Total Entries</p>
+<p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
 <h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-total">–</h3>
 </div>
-<div class="bg-white rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30">
+<div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
 <div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center text-secondary mb-4">
 <span class="material-symbols-outlined">person_search</span>
 </div>
-<p class="text-on-surface-variant font-label-caps uppercase text-xs mb-1">Unique Users</p>
+<p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
 <h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-unique">–</h3>
 </div>
-<div class="bg-white rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30">
+<div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
 <div class="w-12 h-12 rounded-full bg-accent-stats/10 flex items-center justify-center text-accent-stats mb-4">
 <span class="material-symbols-outlined">calendar_today</span>
 </div>
-<p class="text-on-surface-variant font-label-caps uppercase text-xs mb-1">Avg Daily Entries</p>
+<p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
 <h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-avg">–</h3>
 </div>
 <div class="bg-primary-container rounded-xl p-6 shadow-[0px_8px_24px_rgba(122,39,52,0.2)] border border-primary relative overflow-hidden">
@@ -147,71 +162,73 @@
 <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
 <span class="material-symbols-outlined">meeting_room</span>
 </div>
-<p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">Currently Inside (est.)</p>
+<p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
 <h3 class="text-headline-lg font-headline-lg text-white font-bold font-label-code" id="stat-inside">–</h3>
 </div>
 </div>
 </header>
 <div class="max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-<section class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-outline-variant/30 p-8">
+<section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
 <div class="mb-8">
-<h4 class="text-headline-md font-headline-md text-primary">Traffic Trends</h4>
-<p class="text-on-surface-variant text-body-md">Daily check-in/out events for the selected period</p>
+<h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h4>
+<p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก</p>
 </div>
 <div class="h-64 flex items-end justify-between gap-1 px-2 relative" id="trend-chart">
-<p class="text-body-md text-text-secondary m-auto">Loading…</p>
+<p class="text-body-md text-text-secondary m-auto">กำลังโหลด…</p>
 </div>
 <div class="flex justify-between mt-4 text-xs font-label-caps text-outline uppercase tracking-wider" id="trend-labels"></div>
 </section>
-<section class="bg-white rounded-2xl shadow-sm border border-outline-variant/30 p-8">
-<h4 class="text-headline-md font-headline-md text-primary mb-6">Top Departments</h4>
+<section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
+<h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h4>
 <div class="space-y-6" id="department-breakdown">
-<p class="text-body-md text-text-secondary">Loading…</p>
+<p class="text-body-md text-text-secondary">กำลังโหลด…</p>
 </div>
-<div class="mt-10 p-4 bg-surface-container-low rounded-xl border border-dashed border-outline-variant flex items-center gap-4">
-<span class="material-symbols-outlined text-primary text-3xl">lightbulb</span>
-<p class="text-sm text-on-surface-variant italic" id="peak-insight">Calculating peak hours…</p>
+<div class="mt-10 p-4 bg-surface-container-low dark:bg-dm-bg rounded-xl border border-dashed border-outline-variant dark:border-dm-border flex items-center gap-4">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-3xl">lightbulb</span>
+<p class="text-sm text-on-surface-variant dark:text-dm-text-secondary italic" id="peak-insight">กำลังคำนวณช่วงเวลาที่มีคนใช้มากที่สุด…</p>
 </div>
 </section>
-<section class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-outline-variant/30 p-8">
+<section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
 <div class="mb-8">
-<h4 class="text-headline-md font-headline-md text-primary">Attendance by Day &amp; Hour</h4>
-<p class="text-on-surface-variant text-body-md">Event density for the selected period (rows = weekday, columns = hour of day)</p>
+<h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">การเข้าใช้ตามวันและเวลา</h4>
+<p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">ความหนาแน่นของการเข้าใช้ในช่วงเวลาที่เลือก (แถว = วันในสัปดาห์, คอลัมน์ = ชั่วโมง)</p>
 </div>
 <div class="overflow-x-auto pb-4">
 <div class="min-w-[900px] grid grid-cols-[auto_1fr] gap-4">
 <div class="grid grid-rows-7 gap-1 text-[10px] text-outline font-label-caps pt-6">
-<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+<span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
 </div>
 <div>
 <div class="flex justify-between text-[10px] text-outline font-label-caps mb-2 px-1">
-<span>0h</span><span>4h</span><span>8h</span><span>12h</span><span>16h</span><span>20h</span><span>24h</span>
+<span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
 </div>
 <div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr));"></div>
 </div>
 </div>
 </div>
 <div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline font-label-caps uppercase">
-<span>Less</span>
+<span>น้อย</span>
 <div class="w-3 h-3 bg-surface-container rounded-sm"></div>
 <div class="w-3 h-3 bg-primary/20 rounded-sm"></div>
 <div class="w-3 h-3 bg-primary/40 rounded-sm"></div>
 <div class="w-3 h-3 bg-primary/70 rounded-sm"></div>
 <div class="w-3 h-3 bg-primary rounded-sm"></div>
-<span>More</span>
+<span>มาก</span>
 </div>
 </section>
 </div>
-<footer class="w-full py-8 mt-auto bg-surface-container-highest border-t border-outline-variant">
+<footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
 <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY</span>
-<p class="text-label-caps font-label-caps text-on-surface-variant opacity-80">© 2026 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</span>
+<p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary opacity-80">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
 </div>
 </footer>
 </main>
 <script src="/static/js/api.js"></script>
 <script>
-        const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        initThemeToggle('theme-toggle');
+
+        const WEEKDAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'];
         let allRows = [];
 
         function isoWeekdayIndex(date) {
@@ -255,7 +272,7 @@
             document.getElementById('stat-avg').textContent = avgDaily.toLocaleString();
             document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
             document.getElementById('hero-subtitle').textContent =
-                total ? `${total.toLocaleString()} events across ${uniqueUsers.toLocaleString()} students in the selected period.` : 'No attendance events in the selected period.';
+                total ? `มีการเข้าใช้ ${total.toLocaleString()} ครั้ง จากนักศึกษา ${uniqueUsers.toLocaleString()} คน ในช่วงเวลาที่เลือก` : 'ไม่มีข้อมูลการเข้าใช้ในช่วงเวลาที่เลือก';
 
             // Trend chart
             const chart = document.getElementById('trend-chart');
@@ -269,18 +286,18 @@
                     const pct = max ? Math.max(4, Math.round((dayBuckets[day] / max) * 100)) : 4;
                     bar.className = 'flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-all cursor-help relative group';
                     bar.style.height = pct + '%';
-                    bar.title = `${day}: ${dayBuckets[day]} events`;
+                    bar.title = `${day}: ${dayBuckets[day]} ครั้ง`;
                     chart.appendChild(bar);
                 });
                 labels.innerHTML = `<span>${dayKeys[0]}</span><span>${dayKeys[dayKeys.length - 1]}</span>`;
             } else {
-                chart.innerHTML = '<p class="text-body-md text-text-secondary m-auto">No data for this period.</p>';
+                chart.innerHTML = '<p class="text-body-md text-text-secondary m-auto">ไม่มีข้อมูลในช่วงเวลานี้</p>';
             }
 
             // Department breakdown
             const deptCounts = {};
             rows.forEach(r => {
-                const dept = r.department || 'Unspecified';
+                const dept = r.department || 'ไม่ระบุแผนก';
                 deptCounts[dept] = (deptCounts[dept] || 0) + 1;
             });
             const deptEntries = Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -301,7 +318,7 @@
                         </div>`;
                 }).join('');
             } else {
-                deptBox.innerHTML = '<p class="text-body-md text-text-secondary">No data for this period.</p>';
+                deptBox.innerHTML = '<p class="text-body-md text-text-secondary">ไม่มีข้อมูลในช่วงเวลานี้</p>';
             }
 
             // Day/hour heatmap + peak insight
@@ -326,13 +343,13 @@
                     else if (ratio > 0) shade = 'bg-primary/20';
                     const cell = document.createElement('div');
                     cell.className = `heatmap-cell hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer ${shade}`;
-                    cell.title = `${WEEKDAY_LABELS[day]} ${hour}:00 — ${count} events`;
+                    cell.title = `${WEEKDAY_LABELS[day]} ${hour}:00 — ${count} ครั้ง`;
                     grid.appendChild(cell);
                 }
             }
             document.getElementById('peak-insight').textContent = peak.count > 0
-                ? `Busiest so far: ${WEEKDAY_LABELS[peak.day]} around ${peak.hour}:00 (${peak.count} events).`
-                : 'Not enough data yet to identify a peak time.';
+                ? `ช่วงที่มีคนใช้มากที่สุด: วัน${WEEKDAY_LABELS[peak.day]} ประมาณ ${peak.hour}:00 น. (${peak.count} ครั้ง)`
+                : 'ข้อมูลยังไม่เพียงพอที่จะระบุช่วงเวลาที่มีคนใช้มากที่สุด';
         }
 
         async function init() {

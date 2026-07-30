@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
+<html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Member List | NNTC Library Staff Portal</title>
+<title>รายชื่อสมาชิก | พอร์ทัลเจ้าหน้าที่ห้องสมุด NNTC</title>
+<script>
+(function () {
+    try {
+        var stored = localStorage.getItem('nntc-theme');
+        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.classList.toggle('light', !dark);
+    } catch (e) {}
+})();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -37,7 +47,8 @@
                         "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
                         "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
                         "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                        "on-secondary-fixed": "#360f00"
+                        "on-secondary-fixed": "#360f00",
+                        "dm-bg": "#141112", "dm-surface": "#1f191b", "dm-border": "#4a3a3c", "dm-text-secondary": "#c9b8ba"
                     },
                     "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
                     "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
@@ -51,30 +62,34 @@
         }
     </script>
 </head>
-<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col">
-<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white border-r border-outline-variant shadow-sm py-6 px-4 z-50">
+<body class="bg-background dark:bg-dm-bg font-body-md text-on-background dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border shadow-sm py-6 px-4 z-50">
 <div class="flex flex-col gap-1 mb-8 px-4">
-<h1 class="text-headline-sm font-headline-sm font-bold text-primary">NNTC Library</h1>
-<p class="text-label-caps font-label-caps text-on-surface-variant">Staff Portal</p>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">พอร์ทัลเจ้าหน้าที่</p>
 </div>
 <div class="flex flex-col gap-2 flex-grow">
-<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/dashboard">
+<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/dashboard">
 <span class="material-symbols-outlined">monitoring</span>
-<span class="font-body-md">Analytics</span>
+<span class="font-body-md">ภาพรวม</span>
 </a>
 <a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="/admin/members-management">
 <span class="material-symbols-outlined">group</span>
-<span class="font-body-md">Members</span>
+<span class="font-body-md">สมาชิก</span>
 </a>
-<a class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/attendance-logs">
+<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/attendance-logs">
 <span class="material-symbols-outlined">history</span>
-<span class="font-body-md">Attendance Logs</span>
+<span class="font-body-md">ประวัติการเข้าใช้</span>
 </a>
 </div>
-<div class="flex flex-col gap-2 border-t border-outline-variant pt-6">
-<button class="text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="logout-btn" type="button">
+<div class="flex flex-col gap-2 border-t border-outline-variant dark:border-dm-border pt-6">
+<button class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="theme-toggle" type="button">
+<span class="material-symbols-outlined">dark_mode</span>
+<span class="font-body-md">โหมดมืด/สว่าง</span>
+</button>
+<button class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="logout-btn" type="button">
 <span class="material-symbols-outlined">logout</span>
-<span class="font-body-md">Logout</span>
+<span class="font-body-md">ออกจากระบบ</span>
 </button>
 </div>
 </nav>
@@ -83,12 +98,12 @@
 <div class="absolute inset-0 vertical-pattern opacity-10"></div>
 <div class="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">
 <div>
-<h2 class="font-headline-xl text-headline-xl mb-2">Member Directory</h2>
-<p class="font-body-lg text-body-lg text-on-primary/80">Browse the approved student registry. Accounts are created automatically when students sign up.</p>
+<h2 class="font-headline-xl text-headline-xl mb-2">ทำเนียบสมาชิก</h2>
+<p class="font-body-lg text-body-lg text-on-primary/80">รายชื่อนักศึกษาที่ได้รับการอนุมัติ บัญชีจะถูกสร้างขึ้นอัตโนมัติเมื่อนักศึกษาสมัครสมาชิก</p>
 </div>
 <div class="hidden md:flex gap-4 mb-2">
 <div class="bg-primary-container/40 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
-<p class="text-label-caps font-label-caps opacity-70">TOTAL MEMBERS</p>
+<p class="text-label-caps font-label-caps opacity-70">สมาชิกทั้งหมด</p>
 <p class="text-headline-md font-label-code" id="stat-approved">–</p>
 </div>
 </div>
@@ -96,87 +111,100 @@
 </header>
 
 <section class="max-w-7xl w-full mx-auto px-gutter -mt-10 relative z-20 py-8 flex-grow" id="members-section">
-<div class="bg-surface-white p-6 rounded-xl shadow-md border border-outline-variant/30 flex flex-col lg:flex-row gap-6 items-center mb-8">
+<div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-center mb-8">
 <div class="w-full lg:flex-1 relative">
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" id="member-search" placeholder="Search by Student ID, name, or username..." type="text"/>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" id="member-search" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text"/>
 </div>
 <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
 <div class="flex flex-col gap-1 min-w-[180px]">
-<label class="text-label-caps font-label-caps text-on-surface-variant ml-1">Department</label>
-<input class="bg-surface-container-low border border-outline-variant rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-department" placeholder="Any" type="text"/>
+<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
+<input class="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-department" placeholder="ทั้งหมด" type="text"/>
 </div>
 <div class="flex flex-col gap-1 min-w-[140px]">
-<label class="text-label-caps font-label-caps text-on-surface-variant ml-1">Level</label>
-<select class="bg-surface-container-low border border-outline-variant rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-level">
-<option value="">All Levels</option>
+<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ระดับชั้น</label>
+<select class="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-level">
+<option value="">ทุกระดับชั้น</option>
 <option value="ปวช">ปวช.</option>
 <option value="ปวส">ปวส.</option>
 </select>
 </div>
-<button class="self-end px-6 py-3 bg-surface-container-high hover:bg-surface-container-highest rounded-lg font-bold text-primary flex items-center gap-2 transition-colors h-[46px]" id="member-filter-apply" type="button">
+<div class="flex flex-col gap-1 min-w-[140px]">
+<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
+<select class="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-year-level">
+<option value="">ทุกชั้นปี</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+</select>
+</div>
+<button class="self-end px-6 py-3 bg-surface-container-high dark:bg-dm-bg hover:bg-surface-container-highest dark:hover:bg-dm-border rounded-lg font-bold text-primary dark:text-primary-fixed-dim flex items-center gap-2 transition-colors h-[46px]" id="member-filter-apply" type="button">
 <span class="material-symbols-outlined">filter_list</span>
-                        Apply
+                        กรองข้อมูล
                     </button>
 </div>
 </div>
-<div class="bg-surface-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline-variant dark:border-dm-border overflow-hidden">
 <div class="overflow-x-auto">
 <table class="w-full text-left border-collapse">
 <thead>
-<tr class="bg-surface-container-low border-b border-outline-variant">
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Student ID</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Name</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary">Department</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary text-center">Year</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary text-right">Last Visit</th>
+<tr class="bg-surface-container-low dark:bg-dm-bg border-b border-outline-variant dark:border-dm-border">
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">รหัสนักศึกษา</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">ชื่อ-สกุล</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">แผนกวิชา</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-center">ชั้นปี</th>
+<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-right">เข้าใช้ล่าสุด</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/30" id="member-rows">
-<tr><td class="px-6 py-6 text-on-surface-variant" colspan="5">Loading…</td></tr>
+<tbody class="divide-y divide-outline-variant/30 dark:divide-dm-border" id="member-rows">
+<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">กำลังโหลด…</td></tr>
 </tbody>
 </table>
 </div>
-<div class="px-6 py-4 bg-surface-container-low">
-<p class="text-sm text-on-surface-variant" id="member-count-label">Showing 0 results</p>
+<div class="px-6 py-4 bg-surface-container-low dark:bg-dm-bg">
+<p class="text-sm text-on-surface-variant dark:text-dm-text-secondary" id="member-count-label">พบ 0 รายการ</p>
 </div>
 </div>
 </section>
 
-<footer class="w-full py-8 bg-surface-container-highest border-t border-outline-variant mt-auto">
+<footer class="w-full py-8 bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border mt-auto">
 <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<span class="text-label-caps font-label-caps font-bold text-primary">NNTC LIBRARY STAFF PORTAL</span>
-<p class="text-body-md text-on-surface-variant text-sm">© 2026 Nakhon Nayok Technical College Library. All Rights Reserved.</p>
+<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">พอร์ทัลเจ้าหน้าที่ห้องสมุด NNTC</span>
+<p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-sm">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
 </div>
 </footer>
 </main>
 <script src="/static/js/api.js"></script>
 <script>
+        initThemeToggle('theme-toggle');
+
         async function loadMembers() {
             const tbody = document.getElementById('member-rows');
             const params = new URLSearchParams();
             const search = document.getElementById('member-search').value.trim();
             const department = document.getElementById('member-department').value.trim();
             const level = document.getElementById('member-level').value;
+            const yearLevel = document.getElementById('member-year-level').value;
             if (search) params.set('search', search);
             if (department) params.set('department', department);
             if (level) params.set('level', level);
+            if (yearLevel) params.set('year_level', yearLevel);
 
-            tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant" colspan="5">Loading…</td></tr>';
+            tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">กำลังโหลด…</td></tr>';
             const rows = await apiFetch(`/admin/members?${params.toString()}`);
             document.getElementById('stat-approved').textContent = rows.length;
-            document.getElementById('member-count-label').textContent = `Showing ${rows.length} result${rows.length === 1 ? '' : 's'}`;
+            document.getElementById('member-count-label').textContent = `พบ ${rows.length} รายการ`;
             if (!rows.length) {
-                tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant" colspan="5">No members match this filter.</td></tr>';
+                tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
                 return;
             }
             tbody.innerHTML = rows.map(r => `
-                <tr class="hover:bg-surface-container-low/50 transition-colors">
-                    <td class="px-6 py-4 font-label-code text-primary">${r.student_id}</td>
-                    <td class="px-6 py-4 font-bold text-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
-                    <td class="px-6 py-4 text-on-surface-variant">${r.department || '-'}</td>
-                    <td class="px-6 py-4 text-center font-label-code">${r.year_level || '-'}</td>
-                    <td class="px-6 py-4 text-right text-on-surface-variant text-sm">${r.last_visit ? new Date(r.last_visit).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never'}</td>
+                <tr class="hover:bg-surface-container-low/50 dark:hover:bg-dm-bg transition-colors">
+                    <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${r.student_id}</td>
+                    <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
+                    <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">${r.department || '-'}</td>
+                    <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${r.year_level || '-'}</td>
+                    <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${r.last_visit ? new Date(r.last_visit).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ยังไม่เคยเข้าใช้'}</td>
                 </tr>`).join('');
         }
 

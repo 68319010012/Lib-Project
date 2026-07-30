@@ -3,7 +3,17 @@
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NNTC Library - Login</title>
+<title>ห้องสมุด NNTC - เข้าสู่ระบบ</title>
+<script>
+(function () {
+    try {
+        var stored = localStorage.getItem('nntc-theme');
+        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.classList.toggle('light', !dark);
+    } catch (e) {}
+})();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -65,7 +75,11 @@
                         "primary-fixed-dim": "#ffb2b8",
                         "surface-container-high": "#e7e8ea",
                         "surface-white": "#FFFFFF",
-                        "on-secondary-fixed": "#360f00"
+                        "on-secondary-fixed": "#360f00",
+                        "dm-bg": "#141112",
+                        "dm-surface": "#1f191b",
+                        "dm-border": "#4a3a3c",
+                        "dm-text-secondary": "#c9b8ba"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -128,7 +142,10 @@
         }
     </style>
 </head>
-<body class="bg-background font-body-md text-text-primary min-h-screen flex flex-col">
+<body class="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
+<button aria-label="สลับโหมดสว่าง/มืด" class="fixed top-4 right-4 z-[60] w-11 h-11 rounded-full bg-surface-white/90 dark:bg-dm-surface/90 backdrop-blur border border-outline-variant dark:border-dm-border shadow-md flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:scale-105 active:scale-95 transition-all" id="theme-toggle" type="button">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
 <header class="hero-gradient relative w-full h-[45vh] min-h-[400px] flex items-center justify-center overflow-hidden">
 <div class="absolute inset-0 book-spine-pattern opacity-40"></div>
 <div class="absolute top-10 left-10 opacity-10">
@@ -144,31 +161,41 @@
 </header>
 <main class="flex-grow relative px-gutter -mt-32 pb-16">
 <div class="max-w-xl mx-auto">
-<div class="bg-surface-white rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 transition-all-200">
+<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
 <div class="p-8 md:p-12">
+<div class="flex mb-8 bg-surface-container-low dark:bg-dm-bg rounded-lg p-1" id="login-role-tabs">
+<button class="flex-1 h-11 rounded-md font-headline-md text-body-md flex items-center justify-center gap-2 transition-all-200 bg-surface-white dark:bg-dm-surface text-primary dark:text-primary-fixed-dim shadow-sm" data-role="student" type="button">
+<span class="material-symbols-outlined text-xl">school</span>
+                                นักศึกษา
+                            </button>
+<button class="flex-1 h-11 rounded-md font-headline-md text-body-md flex items-center justify-center gap-2 transition-all-200 text-on-surface-variant dark:text-dm-text-secondary" data-role="admin" type="button">
+<span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+                                แอดมิน
+                            </button>
+</div>
 <p id="login-error" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
 <form class="space-y-6" id="login-form">
 <div>
-<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">USERNAME</label>
+<label class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2" id="username-label">ชื่อผู้ใช้ (รหัสนักศึกษา)</label>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
-<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" id="username" name="username" placeholder="Your account username" required type="text"/>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" id="username" name="username" placeholder="ชื่อผู้ใช้บัญชีของคุณ" required type="text"/>
 </div>
 </div>
 <div>
-<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">PASSWORD</label>
+<label class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">lock</span>
-<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" id="password" name="password" placeholder="••••••••" required type="password"/>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200" id="password" name="password" placeholder="••••••••" required type="password"/>
 </div>
 </div>
 <button class="w-full h-14 bg-secondary text-on-secondary font-headline-md rounded-lg stamp-shadow hover:scale-[1.02] active:scale-[0.98] transition-all-200 flex items-center justify-center gap-2 group" id="login-submit" type="submit">
-<span>Login to Library</span>
+<span>เข้าสู่ระบบห้องสมุด</span>
 <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </button>
-<div class="text-center pt-4">
-<p class="text-body-md text-on-surface-variant">
-                                No account? <a class="text-primary font-bold hover:underline" href="/signup">Sign up</a>
+<div class="text-center pt-4" id="signup-prompt">
+<p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary">
+                                ยังไม่มีบัญชี? <a class="text-primary dark:text-primary-fixed-dim font-bold hover:underline" href="/signup">สมัครสมาชิก</a>
 </p>
 </div>
 </form>
@@ -176,18 +203,52 @@
 </div>
 </div>
 </main>
-<footer class="bg-surface-container-highest py-8 mt-auto border-t border-outline-variant">
+<footer class="bg-surface-container-highest dark:bg-dm-surface py-8 mt-auto border-t border-outline-variant dark:border-dm-border">
 <div class="max-w-7xl mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-6">
 <div class="flex flex-col items-center md:items-start">
-<span class="font-label-caps text-label-caps font-bold text-primary mb-2">NNTC LIBRARY</span>
-<p class="font-body-md text-body-md text-on-surface-variant text-center md:text-left">
-                    © 2026 Nakhon Nayok Technical College Library. All Rights Reserved.
+<span class="font-label-caps text-label-caps font-bold text-primary dark:text-primary-fixed-dim mb-2">ห้องสมุด NNTC</span>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-dm-text-secondary text-center md:text-left">
+                    © 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์
                 </p>
 </div>
 </div>
 </footer>
 <script src="/static/js/api.js"></script>
 <script>
+        initThemeToggle('theme-toggle');
+
+        let selectedRole = 'student';
+        const ROLE_LABEL_TH = { student: 'นักศึกษา', admin: 'แอดมิน' };
+        const usernameLabel = document.getElementById('username-label');
+        const usernameInput = document.getElementById('username');
+        const signupPrompt = document.getElementById('signup-prompt');
+
+        function applyRoleUi(role) {
+            if (role === 'admin') {
+                usernameLabel.textContent = 'ชื่อผู้ใช้แอดมิน';
+                usernameInput.placeholder = 'ชื่อผู้ใช้แอดมิน';
+                signupPrompt.classList.add('hidden');
+            } else {
+                usernameLabel.textContent = 'ชื่อผู้ใช้ (รหัสนักศึกษา)';
+                usernameInput.placeholder = 'ชื่อผู้ใช้บัญชีของคุณ';
+                signupPrompt.classList.remove('hidden');
+            }
+        }
+        applyRoleUi(selectedRole);
+
+        document.querySelectorAll('#login-role-tabs button').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                selectedRole = btn.dataset.role;
+                document.querySelectorAll('#login-role-tabs button').forEach((b) => {
+                    b.classList.toggle('bg-surface-white', b === btn);
+                    b.classList.toggle('shadow-sm', b === btn);
+                    b.classList.toggle('text-primary', b === btn);
+                    b.classList.toggle('text-on-surface-variant', b !== btn);
+                });
+                applyRoleUi(selectedRole);
+            });
+        });
+
         document.getElementById('login-form').addEventListener('submit', async function (e) {
             e.preventDefault();
             const errorBox = document.getElementById('login-error');
@@ -200,6 +261,10 @@
                     username: document.getElementById('username').value.trim(),
                     password: document.getElementById('password').value,
                 });
+                if (data.role !== selectedRole) {
+                    errorBox.textContent = `บัญชีนี้เป็นบัญชี${ROLE_LABEL_TH[data.role] || data.role} — กำลังพาไปยังหน้าที่ถูกต้อง`;
+                    errorBox.classList.remove('hidden');
+                }
                 window.location.href = data.role === 'admin' ? '/admin/dashboard' : '/dashboard';
             } catch (err) {
                 errorBox.textContent = err.message;

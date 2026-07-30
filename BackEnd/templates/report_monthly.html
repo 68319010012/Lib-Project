@@ -4,6 +4,7 @@
 {% block content %}
 <div class="meta">จำนวนนักศึกษาที่มีการเช็คชื่อ: {{ rows|length }} คน</div>
 {% if rows %}
+<div class="table-wrap"><div class="table-scroll">
 <table>
   <thead>
     <tr>
@@ -32,6 +33,7 @@
     {% endfor %}
   </tbody>
 </table>
+</div></div>
 {% else %}
 <p class="empty">ไม่มีข้อมูลการเช็คชื่อในเดือนที่เลือก</p>
 {% endif %}

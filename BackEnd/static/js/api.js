@@ -28,3 +28,28 @@ async function apiFetch(path, options = {}) {
 function apiPostJson(path, body) {
     return apiFetch(path, { method: "POST", body: JSON.stringify(body) });
 }
+
+// Wires a sun/moon icon button to toggle <html class="dark|light">, persisted in
+// localStorage. The initial class is already set by the inline anti-flash script
+// in each page's <head> (runs before paint) — this just handles the click + icon sync.
+function initThemeToggle(buttonId) {
+    const btn = document.getElementById(buttonId);
+    if (!btn) return;
+    const icon = btn.querySelector(".material-symbols-outlined");
+
+    function sync() {
+        const isDark = document.documentElement.classList.contains("dark");
+        if (icon) icon.textContent = isDark ? "light_mode" : "dark_mode";
+        btn.setAttribute("aria-label", isDark ? "สลับเป็นโหมดสว่าง" : "สลับเป็นโหมดมืด");
+        btn.title = isDark ? "สลับเป็นโหมดสว่าง" : "สลับเป็นโหมดมืด";
+    }
+
+    sync();
+    btn.addEventListener("click", () => {
+        const isDark = !document.documentElement.classList.contains("dark");
+        document.documentElement.classList.toggle("dark", isDark);
+        document.documentElement.classList.toggle("light", !isDark);
+        localStorage.setItem("nntc-theme", isDark ? "dark" : "light");
+        sync();
+    });
+}
