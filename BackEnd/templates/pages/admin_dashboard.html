@@ -41,7 +41,7 @@
                         "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
                         "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
                         "on-secondary-fixed": "#360f00",
-                        "dm-bg": "#141112", "dm-surface": "#1f191b", "dm-border": "#4a3a3c", "dm-text-secondary": "#c9b8ba"
+                        "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
                     },
                     "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
                     "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
@@ -135,25 +135,25 @@
 </div>
 <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
 <div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
-<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
 <span class="material-symbols-outlined">group</span>
 </div>
 <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
-<h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-total">–</h3>
+<h3 class="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code" id="stat-total">–</h3>
 </div>
 <div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
-<div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center text-secondary mb-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
 <span class="material-symbols-outlined">person_search</span>
 </div>
 <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
-<h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-unique">–</h3>
+<h3 class="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code" id="stat-unique">–</h3>
 </div>
 <div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
-<div class="w-12 h-12 rounded-full bg-accent-stats/10 flex items-center justify-center text-accent-stats mb-4">
+<div class="w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
 <span class="material-symbols-outlined">calendar_today</span>
 </div>
 <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
-<h3 class="text-headline-lg font-headline-lg text-primary font-bold font-label-code" id="stat-avg">–</h3>
+<h3 class="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code" id="stat-avg">–</h3>
 </div>
 <div class="bg-primary-container rounded-xl p-6 shadow-[0px_8px_24px_rgba(122,39,52,0.2)] border border-primary relative overflow-hidden">
 <div class="absolute top-0 right-0 p-4">
@@ -174,14 +174,14 @@
 <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก</p>
 </div>
 <div class="h-64 flex items-end justify-between gap-1 px-2 relative" id="trend-chart">
-<p class="text-body-md text-text-secondary m-auto">กำลังโหลด…</p>
+<p class="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">กำลังโหลด…</p>
 </div>
-<div class="flex justify-between mt-4 text-xs font-label-caps text-outline uppercase tracking-wider" id="trend-labels"></div>
+<div class="flex justify-between mt-4 text-xs font-label-caps text-outline dark:text-dm-text-secondary uppercase tracking-wider" id="trend-labels"></div>
 </section>
 <section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
 <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h4>
 <div class="space-y-6" id="department-breakdown">
-<p class="text-body-md text-text-secondary">กำลังโหลด…</p>
+<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด…</p>
 </div>
 <div class="mt-10 p-4 bg-surface-container-low dark:bg-dm-bg rounded-xl border border-dashed border-outline-variant dark:border-dm-border flex items-center gap-4">
 <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-3xl">lightbulb</span>
@@ -195,24 +195,24 @@
 </div>
 <div class="overflow-x-auto pb-4">
 <div class="min-w-[900px] grid grid-cols-[auto_1fr] gap-4">
-<div class="grid grid-rows-7 gap-1 text-[10px] text-outline font-label-caps pt-6">
+<div class="grid grid-rows-7 gap-1 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps pt-6">
 <span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
 </div>
 <div>
-<div class="flex justify-between text-[10px] text-outline font-label-caps mb-2 px-1">
+<div class="flex justify-between text-[10px] text-outline dark:text-dm-text-secondary font-label-caps mb-2 px-1">
 <span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
 </div>
 <div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr));"></div>
 </div>
 </div>
 </div>
-<div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline font-label-caps uppercase">
+<div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps uppercase">
 <span>น้อย</span>
-<div class="w-3 h-3 bg-surface-container rounded-sm"></div>
-<div class="w-3 h-3 bg-primary/20 rounded-sm"></div>
-<div class="w-3 h-3 bg-primary/40 rounded-sm"></div>
-<div class="w-3 h-3 bg-primary/70 rounded-sm"></div>
-<div class="w-3 h-3 bg-primary rounded-sm"></div>
+<div class="w-3 h-3 bg-surface-container dark:bg-dm-border rounded-sm"></div>
+<div class="w-3 h-3 bg-primary/20 dark:bg-primary-fixed-dim/35 rounded-sm"></div>
+<div class="w-3 h-3 bg-primary/40 dark:bg-primary-fixed-dim/50 rounded-sm"></div>
+<div class="w-3 h-3 bg-primary/70 dark:bg-primary-fixed-dim/70 rounded-sm"></div>
+<div class="w-3 h-3 bg-primary dark:bg-primary-fixed-dim rounded-sm"></div>
 <span>มาก</span>
 </div>
 </section>
@@ -284,14 +284,14 @@
                 dayKeys.forEach(day => {
                     const bar = document.createElement('div');
                     const pct = max ? Math.max(4, Math.round((dayBuckets[day] / max) * 100)) : 4;
-                    bar.className = 'flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-all cursor-help relative group';
+                    bar.className = 'flex-1 bg-primary/20 dark:bg-primary-fixed-dim/40 hover:bg-primary/40 dark:hover:bg-primary-fixed-dim/60 rounded-t transition-all cursor-help relative group';
                     bar.style.height = pct + '%';
                     bar.title = `${day}: ${dayBuckets[day]} ครั้ง`;
                     chart.appendChild(bar);
                 });
                 labels.innerHTML = `<span>${dayKeys[0]}</span><span>${dayKeys[dayKeys.length - 1]}</span>`;
             } else {
-                chart.innerHTML = '<p class="text-body-md text-text-secondary m-auto">ไม่มีข้อมูลในช่วงเวลานี้</p>';
+                chart.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">ไม่มีข้อมูลในช่วงเวลานี้</p>';
             }
 
             // Department breakdown
@@ -312,7 +312,7 @@
                                 <span>${dept}</span>
                                 <span class="font-label-code">${pct}%</span>
                             </div>
-                            <div class="w-full bg-surface-container rounded-full h-2">
+                            <div class="w-full bg-surface-container dark:bg-dm-border rounded-full h-2">
                                 <div class="${colors[i % colors.length]} h-2 rounded-full" style="width: ${pct}%"></div>
                             </div>
                         </div>`;
@@ -336,11 +336,11 @@
                     const count = counts[day][hour];
                     if (count > peak.count) peak = { count, day, hour };
                     const ratio = count / maxCell;
-                    let shade = 'bg-surface-container';
-                    if (ratio > 0.75) shade = 'bg-primary';
-                    else if (ratio > 0.5) shade = 'bg-primary/70';
-                    else if (ratio > 0.25) shade = 'bg-primary/40';
-                    else if (ratio > 0) shade = 'bg-primary/20';
+                    let shade = 'bg-surface-container dark:bg-dm-border';
+                    if (ratio > 0.75) shade = 'bg-primary dark:bg-primary-fixed-dim';
+                    else if (ratio > 0.5) shade = 'bg-primary/70 dark:bg-primary-fixed-dim/70';
+                    else if (ratio > 0.25) shade = 'bg-primary/40 dark:bg-primary-fixed-dim/50';
+                    else if (ratio > 0) shade = 'bg-primary/20 dark:bg-primary-fixed-dim/35';
                     const cell = document.createElement('div');
                     cell.className = `heatmap-cell hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer ${shade}`;
                     cell.title = `${WEEKDAY_LABELS[day]} ${hour}:00 — ${count} ครั้ง`;
