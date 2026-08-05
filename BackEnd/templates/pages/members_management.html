@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -14,215 +13,285 @@
     } catch (e) {}
 })();
 </script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-        .vertical-pattern {
-            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 12px 100%;
-        }
-    </style>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
-                        "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
-                        "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
-                        "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
-                        "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
-                        "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
-                        "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
-                        "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
-                        "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
-                        "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
-                        "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
-                        "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
-                        "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
-                        "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
-                        "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
-                        "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
-                        "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                        "on-secondary-fixed": "#360f00",
-                        "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
-                    },
-                    "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                    "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
-                    "fontFamily": {
-                        "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
-                        "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
-                        "label-caps": ["IBM Plex Mono"]
-                    }
-                }
-            }
-        }
-    </script>
+  :root {
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e;
+    --ink:#1f2328; --gray:#6b7280; --border:#e5e7eb; --bg:#f5f6f8;
+    --card-bg:#ffffff; --input-bg:#f9fafb; --maroon-text:#7a2734; --sidebar-bg:#ffffff;
+  }
+  html.dark {
+    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
+    --ink:#f0f1f3; --gray:#c9b8ba; --maroon-text:#ffb2b8; --sidebar-bg:#1f191b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
+    background: var(--bg); color: var(--ink); min-height: 100vh;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  a { text-decoration: none; }
+
+  .sidebar {
+    display: none;
+    position: fixed; left: 0; top: 0; height: 100vh; width: 240px;
+    background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    flex-direction: column; padding: 24px 16px; z-index: 40;
+    transition: background-color .2s ease, border-color .2s ease;
+  }
+  @media (min-width: 900px) { .sidebar { display: flex; } }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; margin-bottom: 32px; }
+  .logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--maroon); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .sidebar-brand h1 { font-size: 15px; font-weight: 700; color: var(--maroon-text); margin: 0; line-height: 1.2; }
+  .sidebar-brand p { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; margin: 2px 0 0; }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    color: var(--gray); font-size: 14px; font-weight: 600; margin-bottom: 4px; transition: background .15s, color .15s;
+  }
+  .nav-link:hover { background: var(--bg); }
+  .nav-link.active { background: var(--maroon); color: #fff; }
+  .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    color: var(--gray); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer;
+    font-family: inherit; text-align: left; width: 100%;
+  }
+  .nav-btn:hover { background: var(--bg); }
+
+  main { min-height: 100vh; display: flex; flex-direction: column; }
+  @media (min-width: 900px) { main { margin-left: 240px; } }
+
+  .hero {
+    position: relative; overflow: hidden; padding: 40px 24px 72px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .hero h2 { color: #fff; font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+  .hero p { color: rgba(255,255,255,.75); font-size: 13.5px; margin: 0; max-width: 480px; }
+  .hero-stat { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: 12px 20px; text-align: right; }
+  .hero-stat p:first-child { font-size: 10px; color: #f3c6b0; text-transform: uppercase; letter-spacing: .05em; margin: 0 0 4px; }
+  .hero-stat p:last-child { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 700; color: #fff; margin: 0; }
+
+  .body-wrap { flex: 1; max-width: 1100px; margin: -40px auto 0; padding: 0 24px 48px; width: 100%; box-sizing: border-box; }
+
+  .filter-card {
+    background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border);
+    box-shadow: 0 10px 30px -12px rgba(31,35,40,.15); padding: 20px; margin-bottom: 20px;
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;
+    transition: background-color .2s ease, border-color .2s ease;
+  }
+  .search-field { flex: 1; min-width: 220px; position: relative; }
+  .search-field .material-symbols-outlined { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9aa1ab; font-size: 20px; }
+  .search-field input { width: 100%; padding: 11px 16px 11px 44px; }
+  .field-sm { min-width: 150px; }
+  .field-sm label, .search-field label { display: block; font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+  input, select {
+    border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg);
+    padding: 11px 14px; font-size: 14px; color: var(--ink); font-family: inherit; width: 100%;
+  }
+  input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1px; border-color: var(--maroon); }
+  .btn-primary {
+    background: var(--orange); color: #fff; font-weight: 700; font-size: 14px;
+    border: none; border-radius: 10px; padding: 11px 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: transform .15s, box-shadow .15s; font-family: inherit;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 16px -6px rgba(224,103,46,.5); }
+
+  .table-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,.04); overflow: hidden; transition: background-color .2s ease, border-color .2s ease; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px 20px; text-align: left; font-size: 13px; }
+  th { background: var(--bg); color: var(--maroon-text); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; font-weight: 700; white-space: nowrap; }
+  td { border-top: 1px solid var(--border); color: var(--ink); }
+  tbody tr:nth-child(even) { background: var(--bg); }
+  tbody tr:hover { filter: brightness(.98); }
+  .muted { color: var(--gray); }
+  .col-center { text-align: center; }
+  .col-right { text-align: right; }
+  .table-footer { padding: 14px 20px; font-size: 13px; color: var(--gray); border-top: 1px solid var(--border); }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; margin-top: auto; }
+  footer p { font-size: 12px; color: var(--gray); margin: 0; }
+  footer .brand { font-weight: 700; color: var(--maroon-text); display: block; margin-bottom: 4px; }
+</style>
 </head>
-<body class="bg-background dark:bg-dm-bg font-body-md text-on-background dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
-<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border shadow-sm py-6 px-4 z-50">
-<div class="flex flex-col gap-1 mb-8 px-4">
-<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</h1>
-<p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">พอร์ทัลเจ้าหน้าที่</p>
-</div>
-<div class="flex flex-col gap-2 flex-grow">
-<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/dashboard">
-<span class="material-symbols-outlined">monitoring</span>
-<span class="font-body-md">ภาพรวม</span>
-</a>
-<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="/admin/members-management">
-<span class="material-symbols-outlined">group</span>
-<span class="font-body-md">สมาชิก</span>
-</a>
-<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/attendance-logs">
-<span class="material-symbols-outlined">history</span>
-<span class="font-body-md">ประวัติการเข้าใช้</span>
-</a>
-</div>
-<div class="flex flex-col gap-2 border-t border-outline-variant dark:border-dm-border pt-6">
-<button class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="theme-toggle" type="button">
-<span class="material-symbols-outlined">dark_mode</span>
-<span class="font-body-md">โหมดมืด/สว่าง</span>
-</button>
-<button class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="logout-btn" type="button">
-<span class="material-symbols-outlined">logout</span>
-<span class="font-body-md">ออกจากระบบ</span>
-</button>
-</div>
-</nav>
-<main class="md:ml-64 flex-grow flex flex-col min-h-screen">
-<header class="bg-primary text-on-primary relative overflow-hidden h-[240px] flex items-end pb-20 px-gutter">
-<div class="absolute inset-0 vertical-pattern opacity-10"></div>
-<div class="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">
-<div>
-<h2 class="font-headline-xl text-headline-xl mb-2">ทำเนียบสมาชิก</h2>
-<p class="font-body-lg text-body-lg text-on-primary/80">รายชื่อนักศึกษาที่ได้รับการอนุมัติ บัญชีจะถูกสร้างขึ้นอัตโนมัติเมื่อนักศึกษาสมัครสมาชิก</p>
-</div>
-<div class="hidden md:flex gap-4 mb-2">
-<div class="bg-primary-container/40 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
-<p class="text-label-caps font-label-caps opacity-70">สมาชิกทั้งหมด</p>
-<p class="text-headline-md font-label-code" id="stat-approved">–</p>
-</div>
-</div>
-</div>
-</header>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-box"><span class="material-symbols-outlined" style="font-size:18px;">library_books</span></div>
+    <div>
+      <h1>ห้องสมุด NNTC</h1>
+      <p>พอร์ทัลเจ้าหน้าที่</p>
+    </div>
+  </div>
+  <nav>
+    <a class="nav-link" href="/admin/dashboard">
+      <span class="material-symbols-outlined" style="font-size:20px;">monitoring</span> ภาพรวม
+    </a>
+    <a class="nav-link active" href="/admin/members-management">
+      <span class="material-symbols-outlined" style="font-size:20px;">group</span> สมาชิก
+    </a>
+    <a class="nav-link" href="/admin/attendance-logs">
+      <span class="material-symbols-outlined" style="font-size:20px;">history</span> ประวัติการเข้าใช้
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="nav-btn" id="theme-toggle" type="button">
+      <span class="material-symbols-outlined" style="font-size:20px;">dark_mode</span> โหมดมืด/สว่าง
+    </button>
+    <button class="nav-btn" id="logout-btn" type="button">
+      <span class="material-symbols-outlined" style="font-size:20px;">logout</span> ออกจากระบบ
+    </button>
+  </div>
+</aside>
 
-<section class="max-w-7xl w-full mx-auto px-gutter -mt-10 relative z-20 py-8 flex-grow" id="members-section">
-<div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-center mb-8">
-<div class="w-full lg:flex-1 relative">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" id="member-search" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text"/>
-</div>
-<div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-<div class="flex flex-col gap-1 min-w-[180px]">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
-<input class="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-department" placeholder="ทั้งหมด" type="text"/>
-</div>
-<div class="flex flex-col gap-1 min-w-[140px]">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ระดับชั้น</label>
-<select class="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-level">
-<option value="">ทุกระดับชั้น</option>
-<option value="ปวช">ปวช.</option>
-<option value="ปวส">ปวส.</option>
-</select>
-</div>
-<div class="flex flex-col gap-1 min-w-[140px]">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
-<select class="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" id="member-year-level">
-<option value="">ทุกชั้นปี</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-</select>
-</div>
-<button class="self-end px-6 py-3 bg-surface-container-high dark:bg-dm-bg hover:bg-surface-container-highest dark:hover:bg-dm-border rounded-lg font-bold text-primary dark:text-primary-fixed-dim flex items-center gap-2 transition-colors h-[46px]" id="member-filter-apply" type="button">
-<span class="material-symbols-outlined">filter_list</span>
-                        กรองข้อมูล
-                    </button>
-</div>
-</div>
-<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline-variant dark:border-dm-border overflow-hidden">
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="bg-surface-container-low dark:bg-dm-bg border-b border-outline-variant dark:border-dm-border">
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">รหัสนักศึกษา</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">ชื่อ-สกุล</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">แผนกวิชา</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-center">ชั้นปี</th>
-<th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-right">เข้าใช้ล่าสุด</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-outline-variant/30 dark:divide-dm-border" id="member-rows">
-<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">กำลังโหลด…</td></tr>
-</tbody>
-</table>
-</div>
-<div class="px-6 py-4 bg-surface-container-low dark:bg-dm-bg">
-<p class="text-sm text-on-surface-variant dark:text-dm-text-secondary" id="member-count-label">พบ 0 รายการ</p>
-</div>
-</div>
-</section>
+<main>
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <h2>ทำเนียบสมาชิก</h2>
+        <p>รายชื่อนักศึกษาที่ได้รับการอนุมัติ บัญชีจะถูกสร้างขึ้นอัตโนมัติเมื่อนักศึกษาสมัครสมาชิก</p>
+      </div>
+      <div class="hero-stat">
+        <p>สมาชิกทั้งหมด</p>
+        <p id="stat-approved">–</p>
+      </div>
+    </div>
+  </div>
 
-<footer class="w-full py-8 bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border mt-auto">
-<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">พอร์ทัลเจ้าหน้าที่ห้องสมุด NNTC</span>
-<p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-sm">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-</div>
-</footer>
+  <div class="body-wrap">
+    <div class="filter-card">
+      <div class="search-field">
+        <label>ค้นหา</label>
+        <span class="material-symbols-outlined">search</span>
+        <input id="member-search" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text"/>
+      </div>
+      <div class="field-sm">
+        <label>แผนกวิชา</label>
+        <select id="member-department">
+          <option value="">ทุกแผนก</option>
+          <option value="การจัดการสำนักงาน">การจัดการสำนักงาน</option>
+          <option value="การจัดการโลจีสติกส์และซับพลายเซน">การจัดการโลจีสติกส์และซับพลายเซน</option>
+          <option value="การตลาด">การตลาด</option>
+          <option value="การบัญชี">การบัญชี</option>
+          <option value="การโรงแรม">การโรงแรม</option>
+          <option value="เทคโนโลยีธุรกิจดิจิทัล">เทคโนโลยีธุรกิจดิจิทัล</option>
+          <option value="ช่างกลโรงงาน">ช่างกลโรงงาน</option>
+          <option value="ช่างก่อสร้าง">ช่างก่อสร้าง</option>
+          <option value="ช่างยนต์">ช่างยนต์</option>
+          <option value="ช่างอิเล็กทรอนิกส์">ช่างอิเล็กทรอนิกส์</option>
+          <option value="ช่างเชื่อมโลหะ">ช่างเชื่อมโลหะ</option>
+          <option value="ช่างไฟฟ้ากำลัง">ช่างไฟฟ้ากำลัง</option>
+          <option value="ศิลปกรรม">ศิลปกรรม</option>
+          <option value="เทคโนโลยีสารสนเทศ">เทคโนโลยีสารสนเทศ</option>
+          <option value="เทคโนโลยีสารสนเทศ (ม.6)">เทคโนโลยีสารสนเทศ (ม.6)</option>
+        </select>
+      </div>
+      <div class="field-sm" style="min-width:120px;">
+        <label>ระดับชั้น</label>
+        <select id="member-level">
+          <option value="">ทุกระดับชั้น</option>
+          <option value="ปวช">ปวช.</option>
+          <option value="ปวส">ปวส.</option>
+        </select>
+      </div>
+      <div class="field-sm" style="min-width:110px;">
+        <label>ชั้นปี</label>
+        <select id="member-year-level">
+          <option value="">ทุกชั้นปี</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="member-filter-apply" type="button">
+        <span class="material-symbols-outlined" style="font-size:18px;">filter_list</span> กรองข้อมูล
+      </button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสนักศึกษา</th>
+              <th>ชื่อ-สกุล</th>
+              <th>แผนกวิชา</th>
+              <th class="col-center">ระดับ/ชั้นปี</th>
+              <th class="col-right">เข้าใช้ล่าสุด</th>
+            </tr>
+          </thead>
+          <tbody id="member-rows">
+            <tr><td colspan="5" class="muted">กำลังโหลด…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="member-count-label">พบ 0 รายการ</div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="brand">พอร์ทัลเจ้าหน้าที่ห้องสมุด NNTC</span>
+    <p>© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
+  </footer>
 </main>
+
 <script src="/static/js/api.js"></script>
 <script>
-        initThemeToggle('theme-toggle');
+    initThemeToggle('theme-toggle');
 
-        async function loadMembers() {
-            const tbody = document.getElementById('member-rows');
-            const params = new URLSearchParams();
-            const search = document.getElementById('member-search').value.trim();
-            const department = document.getElementById('member-department').value.trim();
-            const level = document.getElementById('member-level').value;
-            const yearLevel = document.getElementById('member-year-level').value;
-            if (search) params.set('search', search);
-            if (department) params.set('department', department);
-            if (level) params.set('level', level);
-            if (yearLevel) params.set('year_level', yearLevel);
+    async function loadMembers() {
+        const tbody = document.getElementById('member-rows');
+        const params = new URLSearchParams();
+        const search = document.getElementById('member-search').value.trim();
+        const department = document.getElementById('member-department').value.trim();
+        const level = document.getElementById('member-level').value;
+        const yearLevel = document.getElementById('member-year-level').value;
+        if (search) params.set('search', search);
+        if (department) params.set('department', department);
+        if (level) params.set('level', level);
+        if (yearLevel) params.set('year_level', yearLevel);
 
-            tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">กำลังโหลด…</td></tr>';
-            const rows = await apiFetch(`/admin/members?${params.toString()}`);
-            document.getElementById('stat-approved').textContent = rows.length;
-            document.getElementById('member-count-label').textContent = `พบ ${rows.length} รายการ`;
-            if (!rows.length) {
-                tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
-                return;
-            }
-            tbody.innerHTML = rows.map(r => `
-                <tr class="hover:bg-surface-container-low/50 dark:hover:bg-dm-bg transition-colors">
-                    <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${r.student_id}</td>
-                    <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
-                    <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">${r.department || '-'}</td>
-                    <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${r.year_level || '-'}</td>
-                    <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${r.last_visit ? new Date(r.last_visit).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ยังไม่เคยเข้าใช้'}</td>
-                </tr>`).join('');
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">กำลังโหลด…</td></tr>';
+        const rows = await apiFetch(`/admin/members?${params.toString()}`);
+        document.getElementById('stat-approved').textContent = rows.length;
+        document.getElementById('member-count-label').textContent = `พบ ${rows.length} รายการ`;
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
+            return;
         }
+        tbody.innerHTML = rows.map(r => `
+            <tr>
+                <td class="mono" style="color:var(--maroon-text);">${r.student_id}</td>
+                <td style="font-weight:700;">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
+                <td class="muted">${r.department || '-'}</td>
+                <td class="col-center mono">${r.level && r.year_level ? `${r.level}.${r.year_level}` : (r.year_level || '-')}</td>
+                <td class="col-right muted" style="font-size:12.5px;">${r.last_visit ? new Date(r.last_visit).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'ยังไม่เคยเข้าใช้'}</td>
+            </tr>`).join('');
+    }
 
-        document.getElementById('member-filter-apply').addEventListener('click', loadMembers);
-        document.getElementById('member-search').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadMembers(); });
+    document.getElementById('member-filter-apply').addEventListener('click', loadMembers);
+    document.getElementById('member-search').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadMembers(); });
 
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await apiFetch('/logout', { method: 'POST' });
-            window.location.href = '/login';
-        });
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await apiFetch('/logout', { method: 'POST' });
+        window.location.href = '/login';
+    });
 
-        async function init() {
-            try {
-                const me = await apiFetch('/me');
-                if (me.role !== 'admin') { window.location.href = '/dashboard'; return; }
-            } catch (_err) { window.location.href = '/login'; return; }
-            loadMembers();
-        }
-        init();
-    </script>
+    async function init() {
+        try {
+            const me = await apiFetch('/me');
+            if (me.role !== 'admin') { window.location.href = '/dashboard'; return; }
+        } catch (_err) { window.location.href = '/login'; return; }
+        loadMembers();
+    }
+    init();
+</script>
 </body></html>

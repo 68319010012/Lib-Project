@@ -1,0 +1,113 @@
+{% extends "base_print.html" %}
+{% block title %}สรุปสำหรับผู้บริหาร{% endblock %}
+{% block subtitle %}สรุปสำหรับผู้บริหาร — เดือน {{ month }}{% endblock %}
+{% block extra_style %}
+<style>
+  .month-filter {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    margin-bottom: 24px; background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #ccc);
+    border-radius: 999px; padding: 8px 8px 8px 16px; width: fit-content;
+  }
+  .month-filter label { font-size: 12px; color: var(--on-surface-variant, #555); font-weight: 600; }
+  .month-filter input { border: 1px solid var(--outline-variant, #ccc); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+  .month-filter button { border: none; background: #7a2734; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .month-filter button:hover { filter: brightness(1.1); }
+
+  .headline-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 28px;
+  }
+  .headline-card {
+    background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #ccc); border-radius: 16px;
+    padding: 28px 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,.05);
+  }
+  .headline-card .label { font-size: 13px; color: #666; font-weight: 700; margin-bottom: 10px; }
+  .headline-card .value { font-family: 'IBM Plex Mono', monospace; font-size: 42px; font-weight: 800; color: #7a2734; line-height: 1; }
+  .headline-card .delta { font-size: 13px; font-weight: 700; margin-top: 10px; }
+  .headline-card .delta.up { color: #4a7c3f; }
+  .headline-card .delta.down { color: #e0672e; }
+  .headline-card .delta.flat { color: #888; }
+
+  .story-box {
+    background: linear-gradient(135deg, #fbe9e2, #f7f0e6);
+    border: 1px solid #f0d9c8; border-radius: 16px; padding: 24px 28px; margin-bottom: 28px;
+  }
+  .story-box p { font-size: 16px; line-height: 1.8; color: #3a2c25; margin: 0; }
+  .story-box b { color: #7a2734; }
+
+  .rank-list { display: flex; flex-direction: column; gap: 10px; }
+  .rank-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #ccc);
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .rank-num {
+    width: 30px; height: 30px; border-radius: 9999px; background: #7a2734; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0;
+  }
+  .rank-row .name { flex: 1; font-weight: 700; font-size: 14px; }
+  .rank-row .count { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #7a2734; font-size: 15px; }
+
+  .empty-note { color: #888; font-size: 13px; font-style: italic; }
+  @page { size: A4 portrait; margin: 14mm; }
+  @media print { .month-filter { display: none; } }
+</style>
+{% endblock %}
+{% block content %}
+
+<form class="month-filter" method="get">
+  <label for="month">เดือน</label>
+  <input type="month" id="month" name="month" value="{{ month }}">
+  <button type="submit">ดูเดือนอื่น</button>
+</form>
+
+<div class="headline-grid">
+  <div class="headline-card">
+    <div class="label">จำนวนรายการเช็คชื่อทั้งหมด</div>
+    <div class="value">{{ total_events }}</div>
+    {% if total_delta is not none %}
+    <div class="delta {{ 'up' if total_delta > 0 else ('down' if total_delta < 0 else 'flat') }}">
+      {{ '▲' if total_delta > 0 else ('▼' if total_delta < 0 else '—') }} {{ total_delta|abs }}% จากเดือนก่อน
+    </div>
+    {% endif %}
+  </div>
+  <div class="headline-card">
+    <div class="label">นักศึกษาที่มาใช้บริการ</div>
+    <div class="value">{{ unique_students }}</div>
+    {% if unique_delta is not none %}
+    <div class="delta {{ 'up' if unique_delta > 0 else ('down' if unique_delta < 0 else 'flat') }}">
+      {{ '▲' if unique_delta > 0 else ('▼' if unique_delta < 0 else '—') }} {{ unique_delta|abs }}% จากเดือนก่อน
+    </div>
+    {% endif %}
+  </div>
+  <div class="headline-card">
+    <div class="label">เฉลี่ยต่อวัน</div>
+    <div class="value">{{ avg_daily }}</div>
+    <div class="delta flat">รายการ / วันที่มีข้อมูล</div>
+  </div>
+</div>
+
+<div class="story-box">
+  <p>
+    ในเดือน <b>{{ month }}</b> ห้องสมุดมีการเช็คชื่อเข้า-ออกรวม <b>{{ total_events }} รายการ</b>
+    จากนักศึกษา <b>{{ unique_students }} คน</b> เฉลี่ย <b>{{ avg_daily }} รายการต่อวัน</b>
+    {% if busiest_day %}โดยวันที่มีผู้ใช้บริการมากที่สุดคือ <b>{{ busiest_day.day }}</b> ({{ busiest_day.count }} รายการ){% endif %}
+    {% if top_depts %} และแผนกที่เข้าใช้บริการมากที่สุดคือ <b>{{ top_depts[0].name }}</b> ({{ top_depts[0].count }} รายการ){% endif %}
+  </p>
+</div>
+
+<h3 style="font-size:15px; margin:0 0 12px; color:#333;">แผนกที่เข้าใช้บริการมากที่สุด</h3>
+{% if top_depts %}
+<div class="rank-list">
+  {% for dept in top_depts %}
+  <div class="rank-row">
+    <div class="rank-num">{{ loop.index }}</div>
+    <div class="name">{{ dept.name }}</div>
+    <div class="count">{{ dept.count }} รายการ</div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในเดือนนี้</p>
+{% endif %}
+
+{% endblock %}

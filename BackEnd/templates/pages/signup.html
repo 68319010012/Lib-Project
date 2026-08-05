@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -14,258 +13,302 @@
     } catch (e) {}
 })();
 </script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .hero-pattern {
-            background-image:
-                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 24px 100%;
-        }
-        .stamp-button:active {
-            transform: scale(0.95);
-        }
-        .stamp-button:hover {
-            box-shadow: 0px 8px 24px rgba(165, 61, 0, 0.3);
-        }
-    </style>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
-                        "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
-                        "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
-                        "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
-                        "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
-                        "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
-                        "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
-                        "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
-                        "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
-                        "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
-                        "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
-                        "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
-                        "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
-                        "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
-                        "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
-                        "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
-                        "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                        "on-secondary-fixed": "#360f00",
-                        "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
-                    },
-                    "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                    "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
-                    "fontFamily": {
-                        "body-lg": ["Noto Sans Thai"], "headline-xl-mobile": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"],
-                        "body-md": ["Noto Sans Thai"], "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"],
-                        "headline-lg": ["Noto Sans Thai"], "label-caps": ["IBM Plex Mono"]
-                    },
-                    "fontSize": {
-                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                        "headline-xl-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
-                        "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
-                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
-                        "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
-                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
-                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
-                        "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
-                    }
-                }
-            }
-        }
-    </script>
+  :root {
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e;
+    --ink:#1f2328; --gray:#6b7280; --border:#e5e7eb; --bg:#f5f6f8;
+    --card-bg:#ffffff; --input-bg:#f9fafb; --maroon-text:#7a2734;
+  }
+  html.dark {
+    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
+    --ink:#f0f1f3; --gray:#c9b8ba; --maroon-text:#ffb2b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
+    background: var(--bg); color: var(--ink); min-height: 100vh;
+    display: flex; flex-direction: column;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .hidden { display: none !important; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+
+  .theme-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 60;
+    width: 42px; height: 42px; border-radius: 9999px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    color: var(--maroon-text); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform .15s ease; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  }
+  .theme-toggle:hover { transform: scale(1.05); }
+  .theme-toggle:active { transform: scale(.95); }
+
+  .topbar { background: var(--card-bg); border-bottom: 1px solid var(--border); }
+  .topbar-inner { max-width: 960px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--maroon); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
+  .brand-title { font-weight: 700; font-size: 15px; color: var(--ink); margin: 0; }
+  .topbar a { font-size: 13px; font-weight: 700; color: var(--maroon-text); text-decoration: none; }
+  .topbar a:hover { text-decoration: underline; }
+
+  .hero {
+    position: relative; overflow: hidden;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 75%, rgba(0,0,0,0.18), transparent 50%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-inner { max-width: 960px; margin: 0 auto; padding: 48px 24px 96px; text-align: center; }
+  .eyebrow { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: #f3c6b0; margin: 0 0 12px; }
+  .hero h1 { color: #fff; font-size: 28px; font-weight: 800; margin: 0; }
+
+  main { flex: 1; max-width: 560px; margin: -64px auto 0; padding: 0 24px 64px; width: 100%; box-sizing: border-box; }
+  .card { background: var(--card-bg); border-radius: 18px; box-shadow: 0 20px 45px -12px rgba(31,35,40,0.22); border: 1px solid var(--border); transition: background-color .2s ease, border-color .2s ease; }
+
+  .step-row { padding: 24px 28px 6px; display: flex; align-items: center; gap: 8px; }
+  .step-badge { background: #fbe9e2; color: var(--orange); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; }
+  html.dark .step-badge { background: rgba(224,103,46,.2); }
+  .step-row p { font-size: 12px; color: var(--gray); margin: 0; }
+
+  form { padding: 16px 28px 32px; }
+  .row2 { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 12px; }
+  .row2b { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg);
+    padding: 12px 16px; font-size: 15px; color: var(--ink); font-family: inherit;
+  }
+  .field select {
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  .field .input-wrap { position: relative; }
+  .field .input-wrap .material-symbols-outlined { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9aa1ab; font-size: 20px; }
+  .field .input-wrap input { padding-left: 44px; }
+  .field input::placeholder { color: #b0b5bd; }
+  .field input:focus, .field select:focus { outline: 3px solid var(--orange); outline-offset: 2px; border-color: var(--maroon); }
+  .divider { border-top: 1px solid var(--border); margin: 6px 0 18px; }
+  .hint-line { font-size: 12px; color: var(--gray); margin: -8px 0 16px; }
+
+  .msg-box { padding: 12px 14px; border-radius: 10px; font-size: 13.5px; line-height: 1.5; margin-bottom: 16px; }
+  .msg-box.error { background: #fbe4e4; color: #a3312f; }
+  .msg-box.success { background: #eaf1e8; color: #2f6b28; }
+  html.dark .msg-box.error { background: rgba(186,26,26,.2); color: #ffb4ab; }
+  html.dark .msg-box.success { background: rgba(74,124,63,.2); color: #a8d89e; }
+
+  .btn-primary {
+    width: 100%; background: var(--orange); color: #fff; font-weight: 700; font-size: 15px;
+    border: none; border-radius: 12px; padding: 14px 0; cursor: pointer; margin-top: 4px;
+    transition: transform .15s, box-shadow .15s; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -8px rgba(224,103,46,.5); }
+  .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+  .reg-line { text-align: center; font-size: 14px; color: var(--gray); margin-top: 16px; }
+  .reg-line a { color: var(--maroon-text); font-weight: 700; text-decoration: none; }
+  .reg-line a:hover { text-decoration: underline; }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--gray); margin: 0; }
+  footer .brand { font-weight: 700; color: var(--maroon-text); display: block; margin-bottom: 4px; }
+
+  @media (max-width: 480px) {
+    .row2 { grid-template-columns: 90px 1fr 1fr; gap: 8px; }
+  }
+
+  @keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rise-in { animation: riseIn .6s cubic-bezier(.2,.7,.3,1) both; }
+  .fade-in { animation: fadeIn .8s ease both; }
+  .spin { display: inline-block; animation: spin 1s linear infinite; }
+</style>
 </head>
-<body class="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
-<button aria-label="สลับโหมดสว่าง/มืด" class="fixed top-4 right-4 z-[60] w-11 h-11 rounded-full bg-surface-white/90 dark:bg-dm-surface/90 backdrop-blur border border-outline-variant dark:border-dm-border shadow-md flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:scale-105 active:scale-95 transition-all" id="theme-toggle" type="button">
+<body>
+<button aria-label="สลับโหมดสว่าง/มืด" class="theme-toggle" id="theme-toggle" type="button">
 <span class="material-symbols-outlined">dark_mode</span>
 </button>
-<nav class="bg-primary shadow-md z-50">
-<div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 bg-surface-white rounded-lg flex items-center justify-center">
-<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+
+<div class="topbar fade-in">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <div class="logo-box"><span class="material-symbols-outlined" style="font-size:18px;">menu_book</span></div>
+      <p class="brand-title">ห้องสมุด NNTC</p>
+    </div>
+    <a href="/login">เข้าสู่ระบบ</a>
+  </div>
 </div>
-<h1 class="text-headline-md font-headline-md font-bold text-on-primary">ห้องสมุด NNTC</h1>
+
+<div class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow mono">New Member Registration</p>
+    <h1 class="rise-in">สมัครสมาชิกห้องสมุด</h1>
+  </div>
 </div>
-<a class="text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login">เข้าสู่ระบบ</a>
-</div>
-</nav>
-<main class="flex-grow relative">
-<section class="bg-gradient-to-br from-primary to-primary-container h-80 relative overflow-hidden flex items-center">
-<div class="absolute inset-0 hero-pattern opacity-20"></div>
-<div class="max-w-7xl mx-auto w-full px-gutter z-10">
-<div class="max-w-2xl">
-<h2 class="text-headline-xl font-headline-xl text-on-primary mb-2">สร้างบัญชีของคุณ</h2>
-<p class="text-on-primary/70 text-body-lg">สมัครสมาชิกระบบห้องสมุดวิทยาลัยเทคนิคนครนายก เพื่อใช้งานเช็คชื่อเข้า-ออกห้องสมุด</p>
-</div>
-</div>
-<div class="absolute bottom-0 right-0 flex gap-2 pr-gutter opacity-10">
-<div class="w-2 h-48 bg-surface-white rounded-t-full"></div>
-<div class="w-2 h-64 bg-surface-white rounded-t-full"></div>
-<div class="w-2 h-32 bg-surface-white rounded-t-full"></div>
-<div class="w-2 h-56 bg-surface-white rounded-t-full"></div>
-</div>
-</section>
-<section class="max-w-7xl mx-auto px-gutter -mt-24 mb-16 relative z-20">
-<div class="bg-surface-white dark:bg-dm-surface shadow-[0px_4px_20px_rgba(0,0,0,0.05)] rounded-xl overflow-hidden border border-outline-variant/30 dark:border-dm-border max-w-3xl mx-auto">
-<div class="p-8 md:p-12">
-<p id="signup-error" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
-<p id="signup-success" class="hidden mb-6 rounded-lg bg-status-success/10 text-status-success px-4 py-3 text-body-md"></p>
-<form class="space-y-8" id="signup-form">
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสนักศึกษา</label>
-<input class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-label-code text-primary dark:text-primary-fixed-dim" id="student_id" name="student_id" placeholder="6XXXXXXX" required type="text"/>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-[140px_1fr_1fr] gap-6">
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">คำนำหน้า</label>
-<select class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" id="prefix" name="prefix" required>
-<option value="">--</option>
-<option value="นาย">นาย</option>
-<option value="นาง">นาง</option>
-<option value="นางสาว">นางสาว</option>
-</select>
-</div>
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชื่อ</label>
-<input class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" id="first_name" name="first_name" placeholder="ชื่อ" required type="text"/>
-</div>
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">นามสกุล</label>
-<input class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" id="last_name" name="last_name" placeholder="นามสกุล" required type="text"/>
-</div>
-</div>
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">แผนกวิชา</label>
-<select class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" id="department" name="department" required>
-<option value="">-- เลือกแผนกวิชา --</option>
-<option value="การจัดการสำนักงาน">การจัดการสำนักงาน</option>
-<option value="การจัดการโลจีสติกส์และซับพลายเซน">การจัดการโลจีสติกส์และซับพลายเซน</option>
-<option value="การตลาด">การตลาด</option>
-<option value="การบัญชี">การบัญชี</option>
-<option value="การโรงแรม">การโรงแรม</option>
-<option value="เทคโนโลยีธุรกิจดิจิทัล">เทคโนโลยีธุรกิจดิจิทัล</option>
-<option value="ช่างกลโรงงาน">ช่างกลโรงงาน</option>
-<option value="ช่างก่อสร้าง">ช่างก่อสร้าง</option>
-<option value="ช่างยนต์">ช่างยนต์</option>
-<option value="ช่างอิเล็กทรอนิกส์">ช่างอิเล็กทรอนิกส์</option>
-<option value="ช่างเชื่อมโลหะ">ช่างเชื่อมโลหะ</option>
-<option value="ช่างไฟฟ้ากำลัง">ช่างไฟฟ้ากำลัง</option>
-<option value="ศิลปกรรม">ศิลปกรรม</option>
-<option value="เทคโนโลยีสารสนเทศ">เทคโนโลยีสารสนเทศ</option>
-</select>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ระดับชั้น</label>
-<select class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" id="level" name="level" required>
-<option value="">-- เลือกระดับชั้น --</option>
-<option value="ปวช">ปวช.</option>
-<option value="ปวส">ปวส.</option>
-</select>
-</div>
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชั้นปีที่</label>
-<select class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" id="year_level" name="year_level" required>
-<option value="">-- เลือกระดับชั้นก่อน --</option>
-</select>
-</div>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
-<div class="relative">
-<input class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" id="password" name="password" placeholder="••••••••" required type="password"/>
-<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">lock</span>
-</div>
-</div>
-<div>
-<label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ยืนยันรหัสผ่าน</label>
-<div class="relative">
-<input class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" id="confirm_password" name="confirm_password" placeholder="••••••••" required type="password"/>
-<span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">verified_user</span>
-</div>
-</div>
-</div>
-<p class="text-xs text-on-surface-variant dark:text-dm-text-secondary -mt-2">ใช้รหัสนักศึกษาเป็นชื่อผู้ใช้สำหรับเข้าสู่ระบบ ไม่ต้องตั้งชื่อผู้ใช้เอง</p>
-<div class="pt-6">
-<button class="stamp-button w-full h-14 bg-secondary text-on-secondary font-headline-md rounded-full shadow-[0px_8px_24px_rgba(165,39,52,0.2)] flex items-center justify-center gap-3 transition-all duration-200" id="signup-submit" type="submit">
-                                สมัครสมาชิก
-                                <span class="material-symbols-outlined">arrow_forward</span>
-</button>
-</div>
-</form>
-</div>
-</div>
-</section>
+
+<main>
+  <div class="card rise-in" style="animation-delay:.08s">
+    <div class="step-row">
+      <span class="step-badge">ขั้นตอนเดียว</span>
+      <p>กรอกให้ตรงกับข้อมูลของวิทยาลัย</p>
+    </div>
+
+    <form id="signup-form">
+      <p class="msg-box error hidden" id="signup-error"></p>
+      <p class="msg-box success hidden" id="signup-success"></p>
+
+      <div class="field">
+        <label>รหัสนักศึกษา</label>
+        <input class="mono" id="student_id" name="student_id" placeholder="6XXXXXXX" required type="text"/>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>คำนำหน้า</label>
+          <select id="prefix" name="prefix" required>
+            <option value="">--</option>
+            <option value="นาย">นาย</option>
+            <option value="นาง">นาง</option>
+            <option value="นางสาว">นางสาว</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ชื่อ</label>
+          <input id="first_name" name="first_name" placeholder="ชื่อ" required type="text"/>
+        </div>
+        <div class="field">
+          <label>นามสกุล</label>
+          <input id="last_name" name="last_name" placeholder="นามสกุล" required type="text"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>แผนกวิชา</label>
+        <select id="department" name="department" required>
+          <option value="">— เลือกแผนกวิชา —</option>
+          <option value="การจัดการสำนักงาน">การจัดการสำนักงาน</option>
+          <option value="การจัดการโลจีสติกส์และซับพลายเซน">การจัดการโลจีสติกส์และซับพลายเซน</option>
+          <option value="การตลาด">การตลาด</option>
+          <option value="การบัญชี">การบัญชี</option>
+          <option value="การโรงแรม">การโรงแรม</option>
+          <option value="เทคโนโลยีธุรกิจดิจิทัล">เทคโนโลยีธุรกิจดิจิทัล</option>
+          <option value="ช่างกลโรงงาน">ช่างกลโรงงาน</option>
+          <option value="ช่างก่อสร้าง">ช่างก่อสร้าง</option>
+          <option value="ช่างยนต์">ช่างยนต์</option>
+          <option value="ช่างอิเล็กทรอนิกส์">ช่างอิเล็กทรอนิกส์</option>
+          <option value="ช่างเชื่อมโลหะ">ช่างเชื่อมโลหะ</option>
+          <option value="ช่างไฟฟ้ากำลัง">ช่างไฟฟ้ากำลัง</option>
+          <option value="ศิลปกรรม">ศิลปกรรม</option>
+          <option value="เทคโนโลยีสารสนเทศ">เทคโนโลยีสารสนเทศ</option>
+        </select>
+      </div>
+
+      <div class="row2b">
+        <div class="field">
+          <label>ระดับ</label>
+          <select id="level" name="level" required>
+            <option value="">-- เลือก --</option>
+            <option value="ปวช">ปวช.</option>
+            <option value="ปวส">ปวส.</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ชั้นปีที่</label>
+          <select id="year_level" name="year_level" required>
+            <option value="">-- เลือกระดับก่อน --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>ตั้งรหัสผ่าน</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined">lock</span>
+          <input id="password" name="password" placeholder="อย่างน้อย 8 ตัวอักษร" required type="password"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>ยืนยันรหัสผ่าน</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined">verified_user</span>
+          <input id="confirm_password" name="confirm_password" placeholder="กรอกรหัสผ่านอีกครั้ง" required type="password"/>
+        </div>
+      </div>
+      <p class="hint-line">ใช้รหัสนักศึกษาเป็นชื่อผู้ใช้สำหรับเข้าสู่ระบบ ไม่ต้องตั้งชื่อผู้ใช้เอง</p>
+
+      <button class="btn-primary" id="signup-submit" type="submit">สมัครสมาชิก</button>
+      <p class="reg-line">มีบัญชีอยู่แล้ว? <a href="/login">เข้าสู่ระบบ</a></p>
+    </form>
+  </div>
 </main>
-<footer class="bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border py-8 mt-auto">
-<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<div class="flex flex-col items-center md:items-start">
-<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim mb-1">ห้องสมุด NNTC</span>
-<p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-center md:text-left">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-</div>
-</div>
+
+<footer>
+  <span class="brand">ห้องสมุด NNTC</span>
+  <p>© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
 </footer>
+
 <script src="/static/js/api.js"></script>
 <script>
-        initThemeToggle('theme-toggle');
+    initThemeToggle('theme-toggle');
 
-        const YEAR_OPTIONS = { 'ปวช': ['1', '2', '3'], 'ปวส': ['1', '2'] };
-        document.getElementById('level').addEventListener('change', (e) => {
-            const yearSelect = document.getElementById('year_level');
-            const years = YEAR_OPTIONS[e.target.value] || [];
-            yearSelect.innerHTML = years.length
-                ? years.map(y => `<option value="${y}">${y}</option>`).join('')
-                : '<option value="">-- เลือกระดับชั้นก่อน --</option>';
-        });
+    const YEAR_OPTIONS = { 'ปวช': ['1', '2', '3'], 'ปวส': ['1', '2'] };
+    document.getElementById('level').addEventListener('change', (e) => {
+        const yearSelect = document.getElementById('year_level');
+        const years = YEAR_OPTIONS[e.target.value] || [];
+        yearSelect.innerHTML = years.length
+            ? years.map(y => `<option value="${y}">${y}</option>`).join('')
+            : '<option value="">-- เลือกระดับชั้นก่อน --</option>';
+    });
 
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const errorBox = document.getElementById('signup-error');
-            const successBox = document.getElementById('signup-success');
-            const btn = document.getElementById('signup-submit');
-            errorBox.classList.add('hidden');
-            successBox.classList.add('hidden');
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorBox = document.getElementById('signup-error');
+        const successBox = document.getElementById('signup-success');
+        const btn = document.getElementById('signup-submit');
+        errorBox.classList.add('hidden');
+        successBox.classList.add('hidden');
 
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-            if (password !== confirmPassword) {
-                errorBox.textContent = 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน';
-                errorBox.classList.remove('hidden');
-                return;
-            }
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        if (password !== confirmPassword) {
+            errorBox.textContent = 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน';
+            errorBox.classList.remove('hidden');
+            return;
+        }
 
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> กำลังส่งข้อมูล...';
-            btn.disabled = true;
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined spin" style="font-size:18px;">sync</span> กำลังส่งข้อมูล...';
+        btn.disabled = true;
 
-            try {
-                const data = await apiPostJson('/register', {
-                    student_id: document.getElementById('student_id').value.trim(),
-                    prefix: document.getElementById('prefix').value,
-                    first_name: document.getElementById('first_name').value.trim(),
-                    last_name: document.getElementById('last_name').value.trim(),
-                    department: document.getElementById('department').value,
-                    level: document.getElementById('level').value,
-                    year_level: document.getElementById('year_level').value,
-                    password,
-                });
-                successBox.textContent = 'สร้างบัญชีสำเร็จ กำลังพาไปยังหน้าหลัก...';
-                successBox.classList.remove('hidden');
-                window.location.href = data.role === 'admin' ? '/admin/dashboard' : '/dashboard';
-            } catch (err) {
-                errorBox.textContent = err.message;
-                errorBox.classList.remove('hidden');
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }
-        });
-    </script>
+        try {
+            const data = await apiPostJson('/register', {
+                student_id: document.getElementById('student_id').value.trim(),
+                prefix: document.getElementById('prefix').value,
+                first_name: document.getElementById('first_name').value.trim(),
+                last_name: document.getElementById('last_name').value.trim(),
+                department: document.getElementById('department').value,
+                level: document.getElementById('level').value,
+                year_level: document.getElementById('year_level').value,
+                password,
+            });
+            successBox.textContent = 'สร้างบัญชีสำเร็จ กำลังพาไปยังหน้าหลัก...';
+            successBox.classList.remove('hidden');
+            window.location.href = data.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+        } catch (err) {
+            errorBox.textContent = err.message;
+            errorBox.classList.remove('hidden');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+    });
+</script>
 </body></html>

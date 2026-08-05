@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -14,293 +13,630 @@
     } catch (e) {}
 })();
 </script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .stamp-pulse {
-            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.3; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-        }
-        .book-spine-pattern {
-            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 12px 100%;
-        }
-    </style>
-<script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              "colors": {
-                      "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
-                      "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
-                      "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
-                      "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
-                      "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
-                      "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
-                      "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
-                      "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
-                      "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
-                      "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
-                      "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
-                      "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
-                      "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
-                      "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
-                      "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
-                      "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
-                      "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                      "on-secondary-fixed": "#360f00",
-                      "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
-              },
-              "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-              "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
-              "fontFamily": {
-                      "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
-                      "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
-                      "label-caps": ["IBM Plex Mono"]
-              },
-              "fontSize": {
-                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                      "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
-                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
-                      "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
-                      "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
-                      "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
-                      "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
-              }
-            }
-          }
-        }
-    </script>
+  :root {
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e; --green:#4a7c3f; --purple:#8b5fa3;
+    --ink:#1f2328; --gray:#6b7280; --gray-light:#9aa1ab; --border:#e5e7eb; --bg:#f5f6f8;
+    --card-bg:#ffffff; --input-bg:#f9fafb; --maroon-text:#7a2734;
+  }
+  html.dark {
+    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
+    --ink:#f0f1f3; --gray:#c9b8ba; --gray-light:#c9b8ba; --maroon-text:#ffb2b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
+    background: var(--bg); color: var(--ink); min-height: 100vh;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .hidden { display: none !important; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  a { text-decoration: none; }
+
+  .topbar { background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; transition: background-color .2s ease, border-color .2s ease; }
+  .topbar-inner { max-width: 760px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topbar-left { display: flex; align-items: center; gap: 24px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo-box { width: 34px; height: 34px; border-radius: 10px; background: var(--maroon); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .brand p { font-weight: 700; font-size: 15px; color: var(--ink); margin: 0; }
+  .topbar-nav { display: none; gap: 20px; }
+  @media (min-width: 640px) { .topbar-nav { display: flex; } }
+  .topbar-nav a { font-size: 13.5px; font-weight: 600; color: var(--gray); }
+  .topbar-nav a.active { color: var(--maroon-text); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .user-mini { text-align: right; display: none; }
+  @media (min-width: 480px) { .user-mini { display: block; } }
+  .user-mini p { margin: 0; }
+  .user-mini .name { font-weight: 700; font-size: 13px; }
+  .user-mini .id { font-size: 11px; color: var(--gray); }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 9999px; border: 1px solid var(--border); background: var(--card-bg);
+    color: var(--maroon-text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s;
+  }
+  .icon-btn:hover { transform: scale(1.05); }
+  .logout-btn { background: none; border: none; font-size: 12.5px; font-weight: 700; color: var(--gray); cursor: pointer; font-family: inherit; }
+  .logout-btn:hover { color: var(--maroon-text); }
+
+  .hero {
+    position: relative; overflow: hidden;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 75%, rgba(0,0,0,0.18), transparent 50%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-inner { max-width: 760px; margin: 0 auto; padding: 32px 24px 96px; display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 48px; height: 48px; border-radius: 9999px; background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.4); color: #fff; font-weight: 800; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hero-inner p:first-of-type { color: #fff; font-weight: 700; margin: 0; }
+  .hero-inner .sub { font-size: 11px; color: #f3c6b0; margin: 2px 0 0; }
+
+  main { max-width: 760px; margin: -64px auto 0; padding: 0 24px 64px; position: relative; }
+
+  .stamp-card { background: var(--card-bg); border-radius: 18px; box-shadow: 0 20px 45px -12px rgba(31,35,40,0.22); border: 1px solid var(--border); padding: 40px 32px; text-align: center; transition: background-color .2s ease, border-color .2s ease; }
+  .status-pill { display: inline-flex; align-items: center; gap: 8px; border-radius: 9999px; background: var(--bg); padding: 6px 16px; margin-bottom: 28px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--gray-light); }
+  .status-dot.active { background: var(--green); animation: dotBlink 1.6s ease-in-out infinite; }
+  @keyframes dotBlink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  .status-text { font-size: 12px; font-weight: 700; color: var(--gray); letter-spacing: .03em; }
+
+  .pulse-wrap { position: relative; display: inline-block; }
+  .pulse-wrap.active::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; animation: stampPulse 2.2s ease-out infinite; }
+  @keyframes stampPulse { 0% { box-shadow: 0 0 0 0 rgba(122,39,52,.35); } 100% { box-shadow: 0 0 0 22px rgba(122,39,52,0); } }
+  .stamp-btn {
+    position: relative; width: 160px; height: 160px; border-radius: 9999px; background: var(--maroon); color: #fff;
+    box-shadow: 0 18px 30px -10px rgba(122,39,52,.5); border: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    transition: transform .12s ease, background .2s; margin: 0 auto; font-family: inherit;
+  }
+  .stamp-btn.active { background: var(--green); }
+  .stamp-btn:active { transform: scale(.94); }
+  .stamp-btn:disabled { opacity: .7; cursor: not-allowed; }
+  .stamp-btn .material-symbols-outlined { font-size: 40px; }
+  .stamp-btn span.label { font-weight: 700; font-size: 18px; }
+
+  .timer-text { font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--gray); margin-top: 24px; }
+  .timer-value { color: var(--maroon-text); font-weight: 700; }
+  .helper-text { font-size: 14px; color: var(--gray-light); margin-top: 24px; }
+
+  .planned-checkout { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 20px 0 0; }
+  .planned-checkout p { font-size: 13px; color: var(--gray); margin: 0; }
+  .pill-btn {
+    padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 9999px;
+    background: var(--input-bg); color: var(--maroon-text); border: 1px solid var(--border);
+    cursor: pointer; transition: background .15s; font-family: inherit;
+  }
+  .pill-btn:hover { background: var(--bg); }
+
+  .quick-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 24px; }
+  .quick-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(31,35,40,.05); padding: 20px 10px; text-align: center; display: block; transition: transform .15s, box-shadow .15s, background-color .2s; cursor: pointer; font-family: inherit; width: 100%; }
+  .quick-card:hover { transform: translateY(-3px); box-shadow: 0 12px 22px -10px rgba(31,35,40,.18); }
+  .quick-icon { width: 44px; height: 44px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+  .quick-card p { font-size: 12.5px; font-weight: 700; color: var(--ink); margin: 0; }
+
+  .notice-card { background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); border-radius: 14px; padding: 20px; color: #fff; margin-top: 24px; }
+  .notice-card h4 { font-size: 15px; font-weight: 700; margin: 0 0 8px; }
+  .notice-card p { font-size: 13px; opacity: .85; margin: 0; line-height: 1.5; }
+
+  .hist-section { margin-top: 32px; }
+  .hist-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .hist-header h2 { font-size: 17px; font-weight: 700; margin: 0; }
+  .hist-row { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(31,35,40,.05); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; transition: background-color .2s ease, border-color .2s ease; }
+  .hist-left { display: flex; align-items: center; gap: 12px; }
+  .hist-icon { width: 36px; height: 36px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hist-row .title { font-size: 14px; font-weight: 600; margin: 0; }
+  .hist-row .date { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gray-light); margin: 0; }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--gray); margin: 0; }
+  footer .brand-text { font-weight: 700; color: var(--maroon-text); display: block; margin-bottom: 4px; }
+
+  /* ---- Check-in duration modal ---- */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--card-bg); border-radius: 18px; box-shadow: 0 20px 45px -12px rgba(0,0,0,.4); width: 100%; max-width: 420px; padding: 24px; }
+  .modal-box h3 { font-size: 18px; font-weight: 700; color: var(--maroon-text); margin: 0 0 4px; }
+  .modal-box .sub { font-size: 13.5px; color: var(--gray); margin: 0 0 16px; }
+  .modal-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; background: var(--bg); border-radius: 12px; margin-bottom: 16px; }
+  .modal-tab { border: none; border-radius: 9px; padding: 10px 0; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--gray); font-family: inherit; transition: all .15s; }
+  .modal-tab.active { background: var(--card-bg); color: var(--maroon-text); box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+  .modal-box label { display: block; font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+  .modal-box select {
+    width: 100%; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg);
+    padding: 12px 16px; font-size: 15px; color: var(--ink); font-family: inherit;
+  }
+  .hour-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hour-btn {
+    padding: 12px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg);
+    color: var(--maroon-text); font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; transition: all .15s;
+  }
+  .hour-btn.selected { outline: 2px solid var(--maroon); outline-offset: 1px; }
+  .hour-btn.exceeds { color: var(--gray-light); opacity: .6; }
+  .hour-clamp-note { font-size: 11.5px; color: var(--orange); margin: 8px 0 0; }
+  .until-closing-btn { width: 100%; text-align: center; color: var(--maroon-text); font-weight: 700; font-size: 13.5px; margin-top: 14px; background: none; border: none; cursor: pointer; text-decoration: underline; font-family: inherit; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-outline { flex: 1; padding: 13px 0; border-radius: 9999px; border: 1px solid var(--border); background: var(--card-bg); color: var(--gray); font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .btn-solid-green { flex: 1; padding: 13px 0; border-radius: 9999px; border: none; background: var(--green); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
+
+  /* ---- Reminder banner ---- */
+  .reminder-banner { display: none; position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 90; width: calc(100% - 32px); max-width: 420px; background: linear-gradient(135deg, var(--orange), #c9601e); color: #fff; border-radius: 14px; box-shadow: 0 12px 30px -8px rgba(224,103,46,.5); padding: 16px; }
+  .reminder-banner.show { display: block; }
+  .reminder-banner p { font-weight: 700; font-size: 13.5px; margin: 0 0 10px; }
+  .reminder-actions { display: flex; gap: 8px; }
+  .reminder-actions button { font-family: inherit; cursor: pointer; border: none; border-radius: 9999px; font-size: 11.5px; font-weight: 700; padding: 9px 0; }
+  .reminder-actions .extend-btn { flex: 1; background: rgba(255,255,255,.9); color: var(--orange); }
+  .reminder-actions .dismiss-btn { padding: 9px 12px; background: transparent; color: rgba(255,255,255,.85); }
+
+  @keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  .rise-in { animation: riseIn .6s cubic-bezier(.2,.7,.3,1) both; }
+  .fade-in { animation: fadeIn .8s ease both; }
+</style>
 </head>
-<body class="bg-surface dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
-<header class="bg-primary dark:bg-primary-container shadow-md fixed top-0 z-50 w-full">
-<div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary">
-<div class="flex items-center gap-4">
-<span class="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
-<nav class="hidden md:flex items-center gap-6 ml-8">
-<a class="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" href="/dashboard">หน้าหลัก</a>
-<a class="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" href="/profile">โปรไฟล์</a>
-</nav>
+<body>
+<div class="topbar fade-in">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <div class="brand">
+        <div class="logo-box"><span class="material-symbols-outlined" style="font-size:16px;">menu_book</span></div>
+        <p>ห้องสมุด NNTC</p>
+      </div>
+      <nav class="topbar-nav">
+        <a class="active" href="/dashboard">หน้าหลัก</a>
+        <a href="/profile">โปรไฟล์</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <div class="user-mini">
+        <p class="name" id="user-name">...</p>
+        <p class="id mono" id="user-id">รหัส: ...</p>
+      </div>
+      <button aria-label="สลับโหมดสว่าง/มืด" class="icon-btn" id="theme-toggle" type="button">
+        <span class="material-symbols-outlined" style="font-size:18px;">dark_mode</span>
+      </button>
+      <button class="logout-btn" id="logout-btn" type="button">ออกจากระบบ</button>
+    </div>
+  </div>
 </div>
-<div class="flex items-center gap-4">
-<button aria-label="สลับโหมดสว่าง/มืด" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors" id="theme-toggle" type="button">
-<span class="material-symbols-outlined text-xl">dark_mode</span>
-</button>
-<button class="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" id="logout-btn" type="button">ออกจากระบบ</button>
-<div class="flex items-center gap-3">
-<div class="text-right hidden sm:block">
-<p class="font-bold text-sm" id="user-name">...</p>
-<p class="text-xs opacity-75" id="user-id">รหัส: ...</p>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="avatar" id="hero-avatar">?</div>
+    <div>
+      <p id="hero-name">ยินดีต้อนรับ</p>
+      <p class="sub mono" id="hero-meta"></p>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-</div>
-</header>
-<main class="flex-grow pt-16">
-<section class="relative bg-primary-container h-64 overflow-hidden flex flex-col justify-center">
-<div class="absolute inset-0 book-spine-pattern opacity-20"></div>
-<div class="relative z-10 max-w-7xl mx-auto px-gutter w-full">
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-<div>
-<div class="inline-flex items-center gap-2 bg-surface-container-highest/20 text-on-primary px-3 py-1 rounded-full mb-4 border border-on-primary/20" id="status-badge">
-<span class="w-2.5 h-2.5 rounded-full bg-outline" id="status-dot"></span>
-<span class="text-label-caps font-label-caps" id="status-text">กำลังโหลด...</span>
-</div>
-<h1 class="text-headline-xl font-headline-xl text-on-primary mb-2" id="hero-name">ยินดีต้อนรับ</h1>
-<p class="text-on-primary/80 font-body-lg text-body-lg" id="hero-meta"></p>
-</div>
-</div>
-</div>
-</section>
-<div class="max-w-7xl mx-auto px-gutter -mt-16 relative z-20 pb-12">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-<div class="lg:col-span-8 flex flex-col gap-8">
-<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-<div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-<span class="material-symbols-outlined text-9xl">library_books</span>
-</div>
-<div class="hidden mb-6" id="timer-display">
-<p class="text-label-caps font-label-caps text-secondary mb-1">เช็คอินตั้งแต่</p>
-<span class="text-headline-xl font-label-code text-primary tracking-widest" id="clock">--:--:--</span>
-</div>
-<div class="relative mb-8">
-<div class="absolute -inset-4 rounded-full stamp-pulse bg-status-success/20 hidden" id="pulse-ring"></div>
-<button class="relative w-48 h-48 rounded-full bg-status-success text-on-primary shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2 group" id="stamp-button" type="button">
-<span class="material-symbols-outlined text-6xl group-hover:rotate-12 transition-transform" id="stamp-icon">sync_alt</span>
-<span class="font-headline-md text-headline-md" id="stamp-text">เช็คอิน</span>
-</button>
-</div>
-<p class="text-body-md text-text-secondary dark:text-dm-text-secondary max-w-sm mx-auto">
-                            กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NNTC
-                        </p>
-</div>
-<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-6">
-<div class="flex items-center justify-between mb-6">
-<h3 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">ประวัติการเข้าใช้ล่าสุด</h3>
-</div>
-<div class="space-y-4" id="history-list">
-<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด...</p>
-</div>
-</div>
-</div>
-<div class="lg:col-span-4 flex flex-col gap-6">
-<div class="grid grid-cols-2 gap-4">
-<a class="bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" href="/profile">
-<div class="w-12 h-12 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined">person_edit</span>
-</div>
-<span class="text-label-caps font-label-caps text-[10px]">โปรไฟล์</span>
-</a>
-<button class="bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group" id="logout-tile" type="button">
-<div class="w-12 h-12 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined">logout</span>
-</div>
-<span class="text-label-caps font-label-caps text-[10px]">ออกจากระบบ</span>
-</button>
-</div>
-<div class="bg-primary-container rounded-xl shadow-md p-6 text-on-primary">
-<h4 class="font-headline-md text-headline-md mb-2">ประกาศจากเจ้าหน้าที่</h4>
-<p class="text-body-md opacity-80 mb-4">
-                            ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์
-                        </p>
-</div>
-</div>
-</div>
-</div>
+
+<main>
+  <section class="stamp-card rise-in" style="animation-delay:.08s">
+    <div class="status-pill" id="status-badge">
+      <span class="status-dot" id="status-dot"></span>
+      <span class="status-text" id="status-text">กำลังโหลด...</span>
+    </div>
+
+    <div class="pulse-wrap" id="pulse-ring">
+      <button class="stamp-btn" id="stamp-button" type="button">
+        <span class="material-symbols-outlined" id="stamp-icon">sync_alt</span>
+        <span class="label" id="stamp-text">เช็คอิน</span>
+      </button>
+    </div>
+
+    <p id="timer-display" class="timer-text hidden">เช็คอินตั้งแต่ <span class="timer-value mono" id="clock">--:--:--</span></p>
+
+    <div class="planned-checkout hidden" id="planned-checkout-display">
+      <p id="planned-checkout-text"></p>
+      <div style="display:flex; gap:8px;">
+        <button class="pill-btn" data-extend="30" type="button">ขอเวลาเพิ่ม 30 นาที</button>
+        <button class="pill-btn" data-extend="60" type="button">ขอเวลาเพิ่ม 60 นาที</button>
+      </div>
+    </div>
+
+    <p class="helper-text">แตะปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NNTC</p>
+  </section>
+
+  <section class="quick-grid rise-in" style="animation-delay:.16s">
+    <a class="quick-card" href="/profile">
+      <div class="quick-icon" style="background:#fbe9e2;"><span class="material-symbols-outlined" style="color:var(--orange); font-size:20px;">person_edit</span></div>
+      <p>โปรไฟล์</p>
+    </a>
+    <button class="quick-card" id="logout-tile" type="button">
+      <div class="quick-icon" style="background:#f3e5e7;"><span class="material-symbols-outlined" style="color:var(--maroon); font-size:20px;">logout</span></div>
+      <p>ออกจากระบบ</p>
+    </button>
+  </section>
+
+  <div class="notice-card rise-in hidden" id="notice-card" style="animation-delay:.2s;">
+    <h4>ประกาศจากเจ้าหน้าที่</h4>
+    <p id="notice-text"></p>
+  </div>
+
+  <section class="hist-section rise-in" style="animation-delay:.24s">
+    <div class="hist-header">
+      <h2>ประวัติการเข้าใช้ล่าสุด</h2>
+    </div>
+    <div id="history-list">
+      <p class="helper-text" style="margin:0;">กำลังโหลด...</p>
+    </div>
+  </section>
 </main>
-<footer class="bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border w-full py-8 mt-auto">
-<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<div class="flex flex-col md:flex-row items-center gap-6">
-<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</span>
-<p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-sm">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-</div>
-</div>
+
+<footer>
+  <span class="brand-text">ห้องสมุด NNTC</span>
+  <p>© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
 </footer>
+
+<div class="modal-overlay" id="checkin-modal">
+  <div class="modal-box">
+    <h3>จะอยู่นานแค่ไหน?</h3>
+    <p class="sub">เลือกเวลาที่ตั้งใจจะออกจากห้องสมุด</p>
+    <div class="modal-tabs" id="modal-tabs">
+      <button class="modal-tab active" data-tab="time" type="button">เลือกเวลาที่จะออก</button>
+      <button class="modal-tab" data-tab="hours" type="button">เลือกจำนวนชั่วโมง</button>
+    </div>
+    <div id="tab-time">
+      <label>เวลาที่จะออก</label>
+      <select id="checkout-time-select"></select>
+    </div>
+    <div class="hidden" id="tab-hours">
+      <label>จำนวนชั่วโมง</label>
+      <div class="hour-grid" id="hour-buttons"></div>
+      <p class="hour-clamp-note hidden" id="hour-clamp-note">เวลาที่เลือกเกินเวลาปิดห้องสมุด ระบบจะปรับให้ออกตอนปิดแทน</p>
+    </div>
+    <button class="until-closing-btn" id="until-closing-btn" type="button">หรือเลือก "จนกว่าจะปิด"</button>
+    <div class="modal-actions">
+      <button class="btn-outline" id="modal-cancel" type="button">ยกเลิก</button>
+      <button class="btn-solid-green" id="modal-confirm" type="button">ยืนยันเช็คอิน</button>
+    </div>
+  </div>
+</div>
+
+<div class="reminder-banner" id="checkout-reminder-banner">
+  <p id="reminder-text"></p>
+  <div class="reminder-actions">
+    <button class="extend-btn" data-extend="30" type="button">ขอเวลาเพิ่ม 30 นาที</button>
+    <button class="extend-btn" data-extend="60" type="button">ขอเวลาเพิ่ม 60 นาที</button>
+    <button class="dismiss-btn" id="reminder-dismiss" type="button">ไม่ต้อง</button>
+  </div>
+</div>
+
 <script src="/static/js/api.js"></script>
 <script>
-        initThemeToggle('theme-toggle');
+    initThemeToggle('theme-toggle');
 
-        let checkedInSince = null; // Date or null
-        let timerInterval = null;
+    let checkedInSince = null; // Date or null
+    let timerInterval = null;
+    let plannedCheckoutAt = null; // Date or null (null = "until closing" or not checked in)
+    let libraryClosingTime = '17:00'; // HH:MM, overwritten by /library-info
+    let reminderInterval = null;
+    let reminderNotifiedKey = null; // plannedCheckoutAt.toISOString() we've already shown a banner for
 
-        function setState(isCheckedIn, since) {
-            const btn = document.getElementById('stamp-button');
-            const icon = document.getElementById('stamp-icon');
-            const text = document.getElementById('stamp-text');
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
-            const timerDisplay = document.getElementById('timer-display');
-            const pulseRing = document.getElementById('pulse-ring');
+    function formatHM(date) {
+        return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    }
 
-            clearInterval(timerInterval);
-            checkedInSince = isCheckedIn ? since : null;
+    function toHHMM(date) {
+        return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
 
-            if (isCheckedIn) {
-                btn.classList.remove('bg-status-success');
-                btn.classList.add('bg-secondary');
-                icon.textContent = 'logout';
-                text.textContent = 'เช็คเอาต์';
-                statusDot.classList.remove('bg-outline');
-                statusDot.classList.add('bg-status-success');
-                statusText.textContent = 'อยู่ในห้องสมุดตอนนี้';
-                timerDisplay.classList.remove('hidden');
-                pulseRing.classList.remove('hidden');
-                updateClock();
-                timerInterval = setInterval(updateClock, 1000);
-            } else {
-                btn.classList.remove('bg-secondary');
-                btn.classList.add('bg-status-success');
-                icon.textContent = 'sync_alt';
-                text.textContent = 'เช็คอิน';
-                statusDot.classList.remove('bg-status-success');
-                statusDot.classList.add('bg-outline');
-                statusText.textContent = 'ยังไม่ได้เช็คอินวันนี้';
-                timerDisplay.classList.add('hidden');
-                pulseRing.classList.add('hidden');
-            }
+    function updatePlannedCheckoutDisplay() {
+        const wrap = document.getElementById('planned-checkout-display');
+        const text = document.getElementById('planned-checkout-text');
+        if (checkedInSince && plannedCheckoutAt) {
+            text.textContent = `ตั้งใจออก: ${formatHM(plannedCheckoutAt)}`;
+            wrap.classList.remove('hidden');
+        } else {
+            wrap.classList.add('hidden');
         }
+    }
 
-        function updateClock() {
-            if (!checkedInSince) return;
-            const diff = Math.max(0, Math.floor((Date.now() - checkedInSince.getTime()) / 1000));
-            const hrs = Math.floor(diff / 3600);
-            const mins = Math.floor((diff % 3600) / 60);
-            const secs = diff % 60;
-            document.getElementById('clock').textContent =
-                `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    function setState(isCheckedIn, since, plannedAt) {
+        const btn = document.getElementById('stamp-button');
+        const icon = document.getElementById('stamp-icon');
+        const text = document.getElementById('stamp-text');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const timerDisplay = document.getElementById('timer-display');
+        const pulseRing = document.getElementById('pulse-ring');
+
+        clearInterval(timerInterval);
+        checkedInSince = isCheckedIn ? since : null;
+        plannedCheckoutAt = isCheckedIn ? (plannedAt || null) : null;
+        updatePlannedCheckoutDisplay();
+
+        if (isCheckedIn) {
+            btn.classList.add('active');
+            icon.textContent = 'logout';
+            text.textContent = 'เช็คเอาต์';
+            statusDot.classList.add('active');
+            statusText.textContent = 'อยู่ในห้องสมุดตอนนี้';
+            timerDisplay.classList.remove('hidden');
+            pulseRing.classList.add('active');
+            updateClock();
+            timerInterval = setInterval(updateClock, 1000);
+        } else {
+            btn.classList.remove('active');
+            icon.textContent = 'sync_alt';
+            text.textContent = 'เช็คอิน';
+            statusDot.classList.remove('active');
+            statusText.textContent = 'ยังไม่ได้เช็คอินวันนี้';
+            timerDisplay.classList.add('hidden');
+            pulseRing.classList.remove('active');
+            hideReminderBanner();
         }
+    }
 
-        function renderHistory(rows) {
-            const list = document.getElementById('history-list');
-            if (!rows.length) {
-                list.innerHTML = '<p class="text-body-md text-text-secondary">ยังไม่มีประวัติการเช็คอิน</p>';
-                return;
-            }
-            list.innerHTML = rows.map(row => {
-                const isIn = row.type === 'in';
-                const date = new Date(row.timestamp);
-                const formatted = date.toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                return `
-                    <div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low dark:bg-dm-bg border-l-4 ${isIn ? 'border-status-success' : 'border-secondary'}">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-secondary/10 text-secondary'} flex items-center justify-center">
-                                <span class="material-symbols-outlined">${isIn ? 'login' : 'logout'}</span>
-                            </div>
-                            <div>
-                                <p class="font-bold text-text-primary dark:text-inverse-on-surface">${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}</p>
-                                <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${formatted}</p>
-                            </div>
+    function updateClock() {
+        if (!checkedInSince) return;
+        const diff = Math.max(0, Math.floor((Date.now() - checkedInSince.getTime()) / 1000));
+        const hrs = Math.floor(diff / 3600);
+        const mins = Math.floor((diff % 3600) / 60);
+        const secs = diff % 60;
+        document.getElementById('clock').textContent =
+            `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function renderHistory(rows) {
+        const list = document.getElementById('history-list');
+        if (!rows.length) {
+            list.innerHTML = '<p class="helper-text" style="margin:0;">ยังไม่มีประวัติการเช็คอิน</p>';
+            return;
+        }
+        list.innerHTML = rows.map(row => {
+            const isIn = row.type === 'in';
+            const date = new Date(row.timestamp);
+            const formatted = date.toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            return `
+                <div class="hist-row">
+                    <div class="hist-left">
+                        <div class="hist-icon" style="background:${isIn ? '#eaf1e8' : '#fbe9e2'};">
+                            <span class="material-symbols-outlined" style="font-size:18px; color:${isIn ? 'var(--green)' : 'var(--orange)'};">${isIn ? 'login' : 'logout'}</span>
                         </div>
-                    </div>`;
-            }).join('');
+                        <div>
+                            <p class="title">${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}</p>
+                            <p class="date">${formatted}</p>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    async function loadDashboard() {
+        try {
+            const info = await apiFetch('/library-info');
+            libraryClosingTime = info.closing_time;
+        } catch (err) {
+            // Keep the default '17:00' if this fails — non-fatal.
+        }
+        try {
+            const me = await apiFetch('/me');
+            const fullName = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
+            document.getElementById('user-name').textContent = fullName;
+            document.getElementById('user-id').textContent = `รหัส: ${me.student_id || me.username}`;
+            document.getElementById('hero-name').textContent = fullName;
+            document.getElementById('hero-meta').textContent = [me.department, me.student_id ? `รหัส: ${me.student_id}` : null].filter(Boolean).join(' · ');
+            document.getElementById('hero-avatar').textContent = (me.first_name || fullName || '?').charAt(0);
+        } catch (err) {
+            window.location.href = '/login';
+            return;
         }
 
-        async function loadDashboard() {
-            try {
-                const me = await apiFetch('/me');
-                document.getElementById('user-name').textContent = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
-                document.getElementById('user-id').textContent = `รหัส: ${me.student_id || me.username}`;
-                document.getElementById('hero-name').textContent = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
-                document.getElementById('hero-meta').textContent = [me.department, me.student_id ? `รหัส: ${me.student_id}` : null].filter(Boolean).join(' • ');
-            } catch (err) {
-                window.location.href = '/login';
+        const history = await apiFetch('/me/history?limit=20');
+        renderHistory(history);
+        const last = history[0];
+        const isIn = !!last && last.type === 'in';
+        setState(isIn, last ? new Date(last.timestamp) : null, isIn && last.planned_checkout_at ? new Date(last.planned_checkout_at) : null);
+
+        try {
+            const announcement = await apiFetch('/announcement');
+            if (announcement.message) {
+                document.getElementById('notice-text').textContent = announcement.message;
+                document.getElementById('notice-card').classList.remove('hidden');
+            }
+        } catch (err) {
+            // Non-fatal — just leave the notice card hidden.
+        }
+    }
+
+    // ---- Check-in duration modal ----
+    const modal = document.getElementById('checkin-modal');
+    const checkoutTimeSelect = document.getElementById('checkout-time-select');
+    const hourButtonsWrap = document.getElementById('hour-buttons');
+    const hourClampNote = document.getElementById('hour-clamp-note');
+    let selectedHours = null;
+
+    function closingDateFor(base) {
+        const [h, m] = libraryClosingTime.split(':').map(Number);
+        const d = new Date(base);
+        d.setHours(h, m, 0, 0);
+        return d;
+    }
+
+    function buildTimeOptions() {
+        const now = new Date();
+        const closing = closingDateFor(now);
+        checkoutTimeSelect.innerHTML = '';
+        if (closing <= now) {
+            checkoutTimeSelect.innerHTML = '<option value="">ห้องสมุดปิดแล้ว</option>';
+            return;
+        }
+        // Round up to the next 30-minute mark, then step by 30 minutes until closing.
+        let slot = new Date(now.getTime() + 30 * 60000);
+        slot.setSeconds(0, 0);
+        const remainder = slot.getMinutes() % 30;
+        if (remainder !== 0) slot = new Date(slot.getTime() + (30 - remainder) * 60000);
+
+        while (slot <= closing) {
+            const opt = document.createElement('option');
+            opt.value = toHHMM(slot);
+            opt.textContent = formatHM(slot);
+            checkoutTimeSelect.appendChild(opt);
+            slot = new Date(slot.getTime() + 30 * 60000);
+        }
+    }
+
+    function buildHourButtons() {
+        const now = new Date();
+        const closing = closingDateFor(now);
+        hourButtonsWrap.innerHTML = '';
+        selectedHours = null;
+        [1, 2, 3, 4, 5, 6].forEach((h) => {
+            const wouldExceed = new Date(now.getTime() + h * 3600000) > closing;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = `${h} ชม.`;
+            btn.dataset.hours = h;
+            btn.className = 'hour-btn' + (wouldExceed ? ' exceeds' : '');
+            btn.addEventListener('click', () => {
+                selectedHours = h;
+                hourClampNote.classList.toggle('hidden', !wouldExceed);
+                hourButtonsWrap.querySelectorAll('button').forEach((b) => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            });
+            hourButtonsWrap.appendChild(btn);
+        });
+    }
+
+    let activeModalTab = 'time';
+
+    function switchModalTab(tab) {
+        activeModalTab = tab;
+        document.querySelectorAll('.modal-tab').forEach((b) => {
+            b.classList.toggle('active', b.dataset.tab === tab);
+        });
+        document.getElementById('tab-time').classList.toggle('hidden', tab !== 'time');
+        document.getElementById('tab-hours').classList.toggle('hidden', tab !== 'hours');
+    }
+
+    document.querySelectorAll('.modal-tab').forEach((b) => {
+        b.addEventListener('click', () => switchModalTab(b.dataset.tab));
+    });
+
+    function openCheckinModal() {
+        buildTimeOptions();
+        buildHourButtons();
+        switchModalTab('time');
+        modal.classList.add('open');
+    }
+
+    function closeCheckinModal() {
+        modal.classList.remove('open');
+    }
+
+    document.getElementById('modal-cancel').addEventListener('click', closeCheckinModal);
+
+    document.getElementById('until-closing-btn').addEventListener('click', () => {
+        closeCheckinModal();
+        performCheckin({});
+    });
+
+    document.getElementById('modal-confirm').addEventListener('click', () => {
+        if (activeModalTab === 'time') {
+            if (!checkoutTimeSelect.value) {
+                showToast('ห้องสมุดปิดแล้ว ไม่สามารถเช็คอินได้', 'error');
                 return;
             }
-
-            const history = await apiFetch('/me/history?limit=20');
-            renderHistory(history);
-            const last = history[0];
-            setState(!!last && last.type === 'in', last ? new Date(last.timestamp) : null);
-        }
-
-        document.getElementById('stamp-button').addEventListener('click', async () => {
-            const btn = document.getElementById('stamp-button');
-            btn.disabled = true;
-            try {
-                await apiFetch('/checkin', { method: 'POST' });
-                await loadDashboard();
-            } catch (err) {
-                alert(err.message);
-            } finally {
-                btn.disabled = false;
+            closeCheckinModal();
+            performCheckin({ checkout_time: checkoutTimeSelect.value });
+        } else {
+            if (!selectedHours) {
+                showToast('กรุณาเลือกจำนวนชั่วโมง', 'error');
+                return;
             }
-        });
-
-        async function doLogout() {
-            await apiFetch('/logout', { method: 'POST' });
-            window.location.href = '/login';
+            closeCheckinModal();
+            performCheckin({ duration_minutes: selectedHours * 60 });
         }
-        document.getElementById('logout-btn').addEventListener('click', doLogout);
-        document.getElementById('logout-tile').addEventListener('click', doLogout);
+    });
 
-        loadDashboard();
-    </script>
+    async function performCheckin(body) {
+        const btn = document.getElementById('stamp-button');
+        btn.disabled = true;
+        try {
+            await apiPostJson('/checkin', body);
+            reminderNotifiedKey = null;
+            await loadDashboard();
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    document.getElementById('stamp-button').addEventListener('click', async () => {
+        if (!checkedInSince) {
+            openCheckinModal();
+            return;
+        }
+        // Checking out — no need for the duration picker.
+        const btn = document.getElementById('stamp-button');
+        btn.disabled = true;
+        try {
+            await apiFetch('/checkin', { method: 'POST' });
+            await loadDashboard();
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    // ---- Extend time (both the inline buttons and the reminder banner use this) ----
+    async function extendCheckout(minutes) {
+        try {
+            const data = await apiPostJson('/checkin/extend', { minutes });
+            plannedCheckoutAt = new Date(data.planned_checkout_at);
+            reminderNotifiedKey = null;
+            updatePlannedCheckoutDisplay();
+            hideReminderBanner();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    document.querySelectorAll('[data-extend]').forEach((b) => {
+        b.addEventListener('click', () => extendCheckout(parseInt(b.dataset.extend, 10)));
+    });
+
+    // ---- Reminder banner: only relevant when a specific planned_checkout_at is set.
+    // This only fires while this tab stays open — the backend auto-checkout job
+    // (runs every 2 minutes server-side) is the real backstop and works regardless.
+    function hideReminderBanner() {
+        document.getElementById('checkout-reminder-banner').classList.remove('show');
+    }
+
+    function showReminderBanner(minutesLeft) {
+        const banner = document.getElementById('checkout-reminder-banner');
+        document.getElementById('reminder-text').textContent =
+            `อีก ${minutesLeft} นาทีจะถึงเวลาที่ตั้งไว้ ต้องการขอเวลาเพิ่มไหม?`;
+        banner.classList.add('show');
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+    }
+
+    document.getElementById('reminder-dismiss').addEventListener('click', hideReminderBanner);
+
+    function checkReminderTick() {
+        if (!checkedInSince || !plannedCheckoutAt) return;
+        const minutesLeft = Math.ceil((plannedCheckoutAt.getTime() - Date.now()) / 60000);
+        const key = plannedCheckoutAt.toISOString();
+        if (minutesLeft <= 20 && minutesLeft > 0 && reminderNotifiedKey !== key) {
+            reminderNotifiedKey = key;
+            showReminderBanner(minutesLeft);
+        }
+    }
+    reminderInterval = setInterval(checkReminderTick, 30000);
+
+    async function doLogout() {
+        await apiFetch('/logout', { method: 'POST' });
+        window.location.href = '/login';
+    }
+    document.getElementById('logout-btn').addEventListener('click', doLogout);
+    document.getElementById('logout-tile').addEventListener('click', doLogout);
+
+    loadDashboard();
+</script>
 </body></html>

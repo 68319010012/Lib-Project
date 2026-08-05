@@ -7,14 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #5c101f;
-    --primary-container: #7a2734;
-    --secondary: #a53d00;
-    --secondary-container: #ff7e44;
-    --surface: #f8f9fb;
+    --primary: #7a2734;
+    --primary-container: #5c1c26;
+    --secondary: #e0672e;
+    --secondary-container: #e0672e;
+    --surface: #f5f6f8;
     --surface-white: #ffffff;
-    --outline-variant: #dbc0c1;
-    --on-surface-variant: #554243;
+    --outline-variant: #e5e7eb;
+    --on-surface-variant: #6b7280;
     --text-secondary: #6B7280;
   }
   * { box-sizing: border-box; }
@@ -35,13 +35,20 @@
        would paint above the card grid overlapping it below. */
     background-image:
       repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 1px, transparent 24px),
-      linear-gradient(135deg, var(--primary-container) 0%, #40000f 100%);
+      linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
     color: #fff;
     padding: 40px 24px 56px;
   }
   header .inner { max-width: 900px; margin: 0 auto; }
   header h1 { font-size: clamp(20px, 5vw, 26px); font-weight: 800; margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
   header p { margin: 0; opacity: .8; font-size: 14px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: #fff; opacity: .85; text-decoration: none;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
 
   main { max-width: 900px; margin: -32px auto 40px; padding: 0 24px; }
   .grid {
@@ -69,6 +76,8 @@
   .card.accent-secondary .icon-badge { background: var(--secondary); }
   .card.accent-teal .icon-badge { background: #2f7d6b; }
   .card.accent-purple .icon-badge { background: #8B5FA3; }
+  .card.accent-orange .icon-badge { background: #c9791f; }
+  .card.accent-blue .icon-badge { background: #3a6ea5; }
   .card h2 { font-size: 16px; margin: 0 0 6px; color: var(--primary); }
   .card p.desc { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; }
   .card label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--on-surface-variant); margin-bottom: 4px; font-weight: 600; }
@@ -100,6 +109,8 @@
   .card.accent-secondary button { background: var(--secondary); }
   .card.accent-teal button { background: #2f7d6b; }
   .card.accent-purple button { background: #8B5FA3; }
+  .card.accent-orange button { background: #c9791f; }
+  .card.accent-blue button { background: #3a6ea5; }
 
   @media (max-width: 640px) {
     header { padding: 28px 16px 44px; }
@@ -112,6 +123,7 @@
 <body>
 <header>
   <div class="inner">
+    <a class="back-link" href="/admin/dashboard"><span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span> กลับไปแดชบอร์ด</a>
     <h1><span class="material-symbols-outlined">receipt_long</span> เลือกเทมเพลตรายงานเช็คชื่อ</h1>
     <p>เลือกรูปแบบรายงานที่ต้องการ กรอกเงื่อนไข แล้วพิมพ์หรือบันทึกเป็น PDF ได้ทันที</p>
   </div>
@@ -122,11 +134,31 @@
 
     <form class="card accent-purple" action="{{ url_for('admin_report_dashboard') }}" method="get">
       <div class="icon-badge"><span class="material-symbols-outlined">monitoring</span></div>
-      <h2>รายงานแบบแดชบอร์ด</h2>
-      <p class="desc">สรุปภาพรวมประจำเดือนแบบ KPI การ์ดและกราฟ เห็นภาพรวมได้ในหน้าเดียว</p>
+      <h2>แดชบอร์ดภาพรวม (ครบทุกข้อมูล)</h2>
+      <p class="desc">KPI การ์ด แนวโน้มรายวัน สัดส่วนตามแผนก/ระดับชั้น และปฏิทินความหนาแน่น — ข้อมูลครบที่สุด</p>
       <label for="dashboard_month">เดือน</label>
       <input type="month" id="dashboard_month" name="month" value="{{ this_month }}">
       <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
+    </form>
+
+    <form class="card accent-orange" action="{{ url_for('admin_report_executive') }}" method="get">
+      <div class="icon-badge"><span class="material-symbols-outlined">summarize</span></div>
+      <h2>สรุปสำหรับผู้บริหาร</h2>
+      <p class="desc">ตัวเลขใหญ่ อ่านจบใน 10 วินาที เหมาะเสนอผู้บริหาร/พิมพ์แนบเอกสาร</p>
+      <label for="exec_month">เดือน</label>
+      <input type="month" id="exec_month" name="month" value="{{ this_month }}">
+      <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
+    </form>
+
+    <form class="card accent-blue" action="{{ url_for('admin_report_compare') }}" method="get">
+      <div class="icon-badge"><span class="material-symbols-outlined">compare_arrows</span></div>
+      <h2>เปรียบเทียบช่วงเวลา</h2>
+      <p class="desc">เทียบตัวเลข 2 เดือนแบบเคียงข้างกัน ช่วยตัดสินใจว่าเดือนนี้ดีขึ้นหรือแย่ลง</p>
+      <label for="compare_a">เดือน A</label>
+      <input type="month" id="compare_a" name="month_a" value="{{ prev_month }}">
+      <label for="compare_b" style="margin-top:-6px;">เดือน B</label>
+      <input type="month" id="compare_b" name="month_b" value="{{ this_month }}">
+      <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> เปรียบเทียบ</button>
     </form>
 
     <form class="card accent-primary" action="{{ url_for('admin_report_daily') }}" method="get">

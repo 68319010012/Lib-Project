@@ -1,11 +1,8 @@
 <!DOCTYPE html>
-
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ประวัติการเข้าใช้ | ห้องสมุด NNTC</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script>
 (function () {
     try {
@@ -16,279 +13,358 @@
     } catch (e) {}
 })();
 </script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
-                    "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
-                    "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
-                    "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
-                    "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
-                    "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
-                    "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
-                    "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
-                    "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
-                    "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
-                    "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
-                    "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
-                    "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
-                    "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
-                    "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
-                    "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
-                    "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                    "on-secondary-fixed": "#360f00",
-                    "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
-            },
-            "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-            "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
-            "fontFamily": {
-                    "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
-                    "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
-                    "label-caps": ["IBM Plex Mono"]
-            }
-          }
-        }
-      }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .book-spine-pattern {
-            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 12px 100%;
-        }
-        .stamp-shadow { box-shadow: 0px 8px 24px rgba(122, 39, 52, 0.2); }
-    </style>
+  :root {
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e; --green:#4a7c3f; --purple:#8b5fa3;
+    --ink:#1f2328; --gray:#6b7280; --border:#e5e7eb; --bg:#f5f6f8;
+    --card-bg:#ffffff; --input-bg:#f9fafb; --maroon-text:#7a2734; --sidebar-bg:#ffffff;
+  }
+  html.dark {
+    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
+    --ink:#f0f1f3; --gray:#c9b8ba; --maroon-text:#ffb2b8; --sidebar-bg:#1f191b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
+    background: var(--bg); color: var(--ink); min-height: 100vh;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  a { text-decoration: none; }
+
+  .sidebar {
+    display: none;
+    position: fixed; left: 0; top: 0; height: 100vh; width: 240px;
+    background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    flex-direction: column; padding: 24px 16px; z-index: 40;
+    transition: background-color .2s ease, border-color .2s ease;
+  }
+  @media (min-width: 900px) { .sidebar { display: flex; } }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; margin-bottom: 32px; }
+  .logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--maroon); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .sidebar-brand h1 { font-size: 15px; font-weight: 700; color: var(--maroon-text); margin: 0; line-height: 1.2; }
+  .sidebar-brand p { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; margin: 2px 0 0; }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    color: var(--gray); font-size: 14px; font-weight: 600; margin-bottom: 4px; transition: background .15s, color .15s;
+  }
+  .nav-link:hover { background: var(--bg); }
+  .nav-link.active { background: var(--maroon); color: #fff; }
+  .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    color: var(--gray); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer;
+    font-family: inherit; text-align: left; width: 100%;
+  }
+  .nav-btn:hover { background: var(--bg); }
+
+  main { min-height: 100vh; display: flex; flex-direction: column; }
+  @media (min-width: 900px) { main { margin-left: 240px; } }
+
+  .hero {
+    position: relative; overflow: hidden; padding: 40px 24px 32px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .hero h2 { color: #fff; font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+  .hero p { color: rgba(255,255,255,.75); font-size: 13.5px; margin: 0; max-width: 480px; }
+  .print-link { display: flex; align-items: center; gap: 6px; background: var(--orange); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 700; transition: filter .15s, transform .15s; }
+  .print-link:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .body-wrap { flex: 1; max-width: 1100px; margin: 0 auto; padding: 24px 24px 48px; width: 100%; box-sizing: border-box; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .kpi-row { grid-template-columns: 1fr; } }
+  .kpi-card { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px -12px rgba(31,35,40,.15); transition: background-color .2s ease, border-color .2s ease; }
+  .kpi-card .icon { width: 40px; height: 40px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .kpi-card .label { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin: 0 0 4px; }
+  .kpi-card .num { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 700; color: var(--maroon-text); margin: 0; }
+
+  .filter-card {
+    background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border);
+    padding: 18px 20px; margin-bottom: 0; display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    border-bottom: none; border-radius: 16px 16px 0 0;
+  }
+  .search-field { flex: 1; min-width: 220px; position: relative; }
+  .search-field .material-symbols-outlined { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9aa1ab; font-size: 20px; }
+  .search-field input { width: 100%; padding: 11px 16px 11px 44px; }
+  input, select {
+    border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg);
+    padding: 10px 14px; font-size: 13.5px; color: var(--ink); font-family: inherit;
+  }
+  input:focus, select:focus { outline: 3px solid var(--orange); outline-offset: 1px; border-color: var(--maroon); }
+  .btn-ghost {
+    background: var(--card-bg); color: var(--maroon-text); font-weight: 700; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; cursor: pointer; font-family: inherit;
+    white-space: nowrap; transition: background .15s;
+  }
+  .btn-ghost:hover { background: var(--bg); }
+
+  .table-card { background: var(--card-bg); border: 1px solid var(--border); border-top: none; border-radius: 0 0 16px 16px; box-shadow: 0 4px 20px rgba(0,0,0,.04); overflow: hidden; transition: background-color .2s ease, border-color .2s ease; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px 20px; text-align: left; font-size: 13px; }
+  th { background: var(--bg); color: var(--maroon-text); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; font-weight: 700; white-space: nowrap; }
+  td { border-top: 1px solid var(--border); color: var(--ink); }
+  tbody tr:hover { background: var(--bg); }
+  .muted { color: var(--gray); }
+  .avatar-initials { width: 30px; height: 30px; border-radius: 9999px; background: rgba(122,39,52,.1); color: var(--maroon-text); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-right: 10px; vertical-align: middle; }
+  .name-cell { display: flex; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; }
+  .badge .dot { width: 6px; height: 6px; border-radius: 9999px; }
+  .badge.in { background: rgba(74,124,63,.12); color: var(--green); }
+  .badge.in .dot { background: var(--green); }
+  .badge.out { background: rgba(224,103,46,.12); color: var(--orange); }
+  .badge.out .dot { background: var(--orange); }
+  .table-footer { padding: 14px 20px; font-size: 13px; color: var(--gray); border-top: 1px solid var(--border); }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; margin-top: auto; }
+  footer p { font-size: 12px; color: var(--gray); margin: 0; }
+  footer .brand { font-weight: 700; color: var(--maroon-text); display: block; margin-bottom: 4px; }
+</style>
 </head>
-<body class="flex min-h-screen text-text-primary dark:text-inverse-on-surface bg-background dark:bg-dm-bg transition-colors duration-200">
-<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border flex flex-col py-6 px-4 z-50">
-<div class="mb-10 px-2">
-<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</h1>
-<p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">พอร์ทัลเจ้าหน้าที่</p>
-</div>
-<nav class="flex-1 space-y-2">
-<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/dashboard">
-<span class="material-symbols-outlined">monitoring</span>
-<span class="font-body-md text-body-md">ภาพรวม</span>
-</a>
-<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" href="/admin/members-management">
-<span class="material-symbols-outlined">group</span>
-<span class="font-body-md text-body-md">สมาชิก</span>
-</a>
-<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="/admin/attendance-logs">
-<span class="material-symbols-outlined">history</span>
-<span class="font-body-md text-body-md">ประวัติการเข้าใช้</span>
-</a>
-</nav>
-<div class="mt-auto pt-6 border-t border-outline-variant dark:border-dm-border space-y-2">
-<button class="w-full text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="theme-toggle" type="button">
-<span class="material-symbols-outlined">dark_mode</span>
-<span class="font-body-md text-body-md">โหมดมืด/สว่าง</span>
-</button>
-<button class="w-full text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors flex items-center gap-3" id="logout-btn" type="button">
-<span class="material-symbols-outlined">logout</span>
-<span class="font-body-md text-body-md">ออกจากระบบ</span>
-</button>
-</div>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-box"><span class="material-symbols-outlined" style="font-size:18px;">library_books</span></div>
+    <div>
+      <h1>ห้องสมุด NNTC</h1>
+      <p>พอร์ทัลเจ้าหน้าที่</p>
+    </div>
+  </div>
+  <nav>
+    <a class="nav-link" href="/admin/dashboard">
+      <span class="material-symbols-outlined" style="font-size:20px;">monitoring</span> ภาพรวม
+    </a>
+    <a class="nav-link" href="/admin/members-management">
+      <span class="material-symbols-outlined" style="font-size:20px;">group</span> สมาชิก
+    </a>
+    <a class="nav-link active" href="/admin/attendance-logs">
+      <span class="material-symbols-outlined" style="font-size:20px;">history</span> ประวัติการเข้าใช้
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="nav-btn" id="theme-toggle" type="button">
+      <span class="material-symbols-outlined" style="font-size:20px;">dark_mode</span> โหมดมืด/สว่าง
+    </button>
+    <button class="nav-btn" id="logout-btn" type="button">
+      <span class="material-symbols-outlined" style="font-size:20px;">logout</span> ออกจากระบบ
+    </button>
+  </div>
 </aside>
-<main class="ml-64 flex-1 flex flex-col min-h-screen">
-<section class="bg-gradient-to-br from-primary to-primary-container pt-12 pb-24 px-gutter relative overflow-hidden">
-<div class="absolute inset-0 book-spine-pattern opacity-20"></div>
-<div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-<div>
-<h2 class="text-on-primary font-headline-xl text-headline-xl mb-2">ประวัติการเช็คชื่อทั้งหมด</h2>
-<p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายการเช็คอินและเช็คเอาต์ทุกครั้งของห้องสมุด กรองตามวันที่และแผนกวิชาได้</p>
-</div>
-<div class="flex gap-4">
-<a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" target="_blank">
-<span class="material-symbols-outlined">print</span>
-<span>พิมพ์รายงาน</span>
-</a>
-</div>
-</div>
-</section>
-<div class="max-w-7xl mx-auto w-full px-gutter -mt-12 relative z-20 pb-20">
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-<div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border flex flex-col justify-between">
-<span class="p-2 bg-primary/10 dark:bg-primary-fixed-dim/15 text-primary dark:text-primary-fixed-dim rounded-lg w-fit mb-4">
-<span class="material-symbols-outlined">person_add</span>
-</span>
-<p class="text-text-secondary dark:text-dm-text-secondary font-label-caps text-label-caps uppercase">รายการทั้งหมด</p>
-<p class="text-headline-md font-label-code text-primary dark:text-primary-fixed-dim" id="stat-total">–</p>
-</div>
-<div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border flex flex-col justify-between">
-<span class="p-2 bg-accent-stats/10 text-accent-stats rounded-lg w-fit mb-4">
-<span class="material-symbols-outlined">group</span>
-</span>
-<p class="text-text-secondary dark:text-dm-text-secondary font-label-caps text-label-caps uppercase">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
-<p class="text-headline-md font-label-code text-primary dark:text-primary-fixed-dim" id="stat-inside">–</p>
-</div>
-<div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border flex flex-col justify-between">
-<span class="p-2 bg-secondary/10 dark:bg-secondary-fixed-dim/15 text-secondary dark:text-secondary-fixed-dim rounded-lg w-fit mb-4">
-<span class="material-symbols-outlined">schedule</span>
-</span>
-<p class="text-text-secondary dark:text-dm-text-secondary font-label-caps text-label-caps uppercase">ระยะเวลาเฉลี่ยต่อครั้ง</p>
-<p class="text-headline-md font-label-code text-primary dark:text-primary-fixed-dim" id="stat-duration">–</p>
-</div>
-</div>
-<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border overflow-hidden">
-<div class="p-6 border-b border-outline-variant/30 dark:border-dm-border bg-surface-container-low dark:bg-dm-bg flex flex-wrap gap-4 items-center">
-<div class="flex-1 min-w-[260px] relative">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
-<input class="w-full pl-12 pr-4 py-3 bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" id="search-input" placeholder="ค้นหาด้วยชื่อ รหัสนักศึกษา หรือแผนกวิชา..." type="text"/>
-</div>
-<select class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" id="action-filter">
-<option value="">ทุกประเภท</option>
-<option value="in">เช็คอิน</option>
-<option value="out">เช็คเอาต์</option>
-</select>
-<input class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" id="date-filter" type="date"/>
-<button class="bg-surface-white dark:bg-dm-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 hover:bg-surface-container-high dark:hover:bg-dm-bg transition-colors font-bold text-primary dark:text-primary-fixed-dim" id="date-apply" type="button">กรองตามวันที่</button>
-<button class="bg-surface-white dark:bg-dm-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 hover:bg-surface-container-high dark:hover:bg-dm-bg transition-colors font-bold dark:text-inverse-on-surface" id="date-clear" type="button">เดือนนี้</button>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead class="bg-surface-container-high dark:bg-dm-bg">
-<tr>
-<th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">วันเวลา</th>
-<th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">ชื่อนักศึกษา</th>
-<th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">รหัสนักศึกษา</th>
-<th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">แผนกวิชา</th>
-<th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">ประเภท</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-outline-variant/30 dark:divide-dm-border" id="log-rows">
-<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">กำลังโหลด…</td></tr>
-</tbody>
-</table>
-</div>
-<div class="p-6 bg-surface-container-low dark:bg-dm-bg">
-<p class="text-label-caps font-label-caps text-text-secondary dark:text-dm-text-secondary" id="row-count-label">พบ 0 รายการ</p>
-</div>
-</div>
-</div>
-<footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
-<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<p class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</p>
-<p class="text-body-md font-body-md text-on-surface-variant dark:text-dm-text-secondary">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-</div>
-</footer>
+
+<main>
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <h2>ประวัติการเช็คชื่อทั้งหมด</h2>
+        <p>รายการเช็คอินและเช็คเอาต์ทุกครั้งของห้องสมุด กรองตามวันที่และแผนกวิชาได้</p>
+      </div>
+      <a class="print-link" href="/admin/reports/print" target="_blank">
+        <span class="material-symbols-outlined" style="font-size:18px;">print</span> พิมพ์รายงาน
+      </a>
+    </div>
+  </div>
+
+  <div class="body-wrap">
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="icon" style="background:#f3e5e7;"><span class="material-symbols-outlined" style="color:var(--maroon); font-size:18px;">person_add</span></div>
+        <p class="label">รายการทั้งหมด</p>
+        <p class="num" id="stat-total">–</p>
+      </div>
+      <div class="kpi-card">
+        <div class="icon" style="background:#f3e9f7;"><span class="material-symbols-outlined" style="color:var(--purple); font-size:18px;">group</span></div>
+        <p class="label">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
+        <p class="num" id="stat-inside">–</p>
+      </div>
+      <div class="kpi-card">
+        <div class="icon" style="background:#fbe9e2;"><span class="material-symbols-outlined" style="color:var(--orange); font-size:18px;">schedule</span></div>
+        <p class="label">ระยะเวลาเฉลี่ยต่อครั้ง</p>
+        <p class="num" id="stat-duration">–</p>
+      </div>
+    </div>
+
+    <div class="filter-card">
+      <div class="search-field">
+        <span class="material-symbols-outlined">search</span>
+        <input id="search-input" placeholder="ค้นหาด้วยชื่อ หรือรหัสนักศึกษา..." type="text"/>
+      </div>
+      <select id="department-filter">
+        <option value="">ทุกแผนก</option>
+        <option value="การจัดการสำนักงาน">การจัดการสำนักงาน</option>
+        <option value="การจัดการโลจีสติกส์และซับพลายเซน">การจัดการโลจีสติกส์และซับพลายเซน</option>
+        <option value="การตลาด">การตลาด</option>
+        <option value="การบัญชี">การบัญชี</option>
+        <option value="การโรงแรม">การโรงแรม</option>
+        <option value="เทคโนโลยีธุรกิจดิจิทัล">เทคโนโลยีธุรกิจดิจิทัล</option>
+        <option value="ช่างกลโรงงาน">ช่างกลโรงงาน</option>
+        <option value="ช่างก่อสร้าง">ช่างก่อสร้าง</option>
+        <option value="ช่างยนต์">ช่างยนต์</option>
+        <option value="ช่างอิเล็กทรอนิกส์">ช่างอิเล็กทรอนิกส์</option>
+        <option value="ช่างเชื่อมโลหะ">ช่างเชื่อมโลหะ</option>
+        <option value="ช่างไฟฟ้ากำลัง">ช่างไฟฟ้ากำลัง</option>
+        <option value="ศิลปกรรม">ศิลปกรรม</option>
+        <option value="เทคโนโลยีสารสนเทศ">เทคโนโลยีสารสนเทศ</option>
+        <option value="เทคโนโลยีสารสนเทศ (ม.6)">เทคโนโลยีสารสนเทศ (ม.6)</option>
+      </select>
+      <select id="action-filter">
+        <option value="">ทุกประเภท</option>
+        <option value="in">เช็คอิน</option>
+        <option value="out">เช็คเอาต์</option>
+      </select>
+      <input id="date-filter" type="date"/>
+      <button class="btn-ghost" id="date-apply" type="button">กรองตามวันที่</button>
+      <button class="btn-ghost" id="date-clear" type="button">เดือนนี้</button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>วันเวลา</th>
+              <th>ชื่อนักศึกษา</th>
+              <th>รหัสนักศึกษา</th>
+              <th>แผนกวิชา</th>
+              <th>ประเภท</th>
+            </tr>
+          </thead>
+          <tbody id="log-rows">
+            <tr><td colspan="5" class="muted">กำลังโหลด…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="row-count-label">พบ 0 รายการ</div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="brand">ห้องสมุด NNTC</span>
+    <p>© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
+  </footer>
 </main>
+
 <script src="/static/js/api.js"></script>
 <script>
-        initThemeToggle('theme-toggle');
+    initThemeToggle('theme-toggle');
 
-        let allRows = [];
+    let allRows = [];
 
-        function applyClientFilters() {
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const action = document.getElementById('action-filter').value;
-            return allRows.filter(r => {
-                if (action && r.type !== action) return false;
-                if (!search) return true;
-                const haystack = `${r.first_name} ${r.last_name} ${r.student_id} ${r.department || ''}`.toLowerCase();
-                return haystack.includes(search);
-            });
-        }
-
-        function computeStats(rows) {
-            const lastByUser = {};
-            rows.forEach(r => {
-                const prev = lastByUser[r.student_id];
-                if (!prev || new Date(r.timestamp) > new Date(prev.timestamp)) lastByUser[r.student_id] = r;
-            });
-            const currentlyInside = Object.values(lastByUser).filter(r => r.type === 'in').length;
-
-            const byUser = {};
-            rows.forEach(r => {
-                (byUser[r.student_id] = byUser[r.student_id] || []).push(r);
-            });
-            const durations = [];
-            Object.values(byUser).forEach(events => {
-                events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                let openIn = null;
-                events.forEach(ev => {
-                    if (ev.type === 'in') {
-                        openIn = ev.timestamp;
-                    } else if (ev.type === 'out' && openIn) {
-                        durations.push((new Date(ev.timestamp) - new Date(openIn)) / 60000);
-                        openIn = null;
-                    }
-                });
-            });
-            const avgMinutes = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
-
-            document.getElementById('stat-total').textContent = rows.length.toLocaleString();
-            document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
-            document.getElementById('stat-duration').textContent = durations.length ? `${avgMinutes} นาที` : '–';
-        }
-
-        function renderTable() {
-            const rows = applyClientFilters();
-            computeStats(allRows);
-            const tbody = document.getElementById('log-rows');
-            document.getElementById('row-count-label').textContent = `พบ ${rows.length} รายการ`;
-            if (!rows.length) {
-                tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">ไม่พบรายการที่ตรงกัน</td></tr>';
-                return;
-            }
-            tbody.innerHTML = rows.map(r => {
-                const isIn = r.type === 'in';
-                const initials = `${(r.first_name || '?')[0]}${(r.last_name || '?')[0]}`.toUpperCase();
-                const formatted = new Date(r.timestamp).toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(',', '');
-                return `
-                    <tr class="hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
-                        <td class="px-6 py-4 font-label-code text-label-code text-text-primary dark:text-inverse-on-surface whitespace-nowrap">${formatted}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center font-bold text-xs">${initials}</div>
-                                <span class="font-body-md text-body-md font-bold dark:text-inverse-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 font-label-code text-label-code text-text-secondary dark:text-dm-text-secondary">${r.student_id}</td>
-                        <td class="px-6 py-4 font-body-md text-body-md dark:text-inverse-on-surface">${r.department || '-'}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-secondary/10 text-secondary'}">
-                                <span class="w-1.5 h-1.5 rounded-full ${isIn ? 'bg-status-success' : 'bg-secondary'}"></span>
-                                ${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}
-                            </span>
-                        </td>
-                    </tr>`;
-            }).join('');
-        }
-
-        async function loadReports(params) {
-            allRows = await apiFetch(`/admin/reports?${params.toString()}`);
-            renderTable();
-        }
-
-        document.getElementById('date-apply').addEventListener('click', () => {
-            const date = document.getElementById('date-filter').value;
-            if (!date) return;
-            loadReports(new URLSearchParams({ date }));
+    function applyClientFilters() {
+        const search = document.getElementById('search-input').value.toLowerCase();
+        const action = document.getElementById('action-filter').value;
+        const department = document.getElementById('department-filter').value;
+        return allRows.filter(r => {
+            if (action && r.type !== action) return false;
+            if (department && r.department !== department) return false;
+            if (!search) return true;
+            const haystack = `${r.first_name} ${r.last_name} ${r.student_id}`.toLowerCase();
+            return haystack.includes(search);
         });
-        document.getElementById('date-clear').addEventListener('click', () => {
-            document.getElementById('date-filter').value = '';
-            loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
-        });
-        document.getElementById('search-input').addEventListener('input', renderTable);
-        document.getElementById('action-filter').addEventListener('change', renderTable);
+    }
 
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await apiFetch('/logout', { method: 'POST' });
-            window.location.href = '/login';
+    function computeStats(rows) {
+        const lastByUser = {};
+        rows.forEach(r => {
+            const prev = lastByUser[r.student_id];
+            if (!prev || new Date(r.timestamp) > new Date(prev.timestamp)) lastByUser[r.student_id] = r;
         });
+        const currentlyInside = Object.values(lastByUser).filter(r => r.type === 'in').length;
 
-        async function init() {
-            try {
-                const me = await apiFetch('/me');
-                if (me.role !== 'admin') { window.location.href = '/dashboard'; return; }
-            } catch (_err) { window.location.href = '/login'; return; }
-            loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
+        const byUser = {};
+        rows.forEach(r => {
+            (byUser[r.student_id] = byUser[r.student_id] || []).push(r);
+        });
+        const durations = [];
+        Object.values(byUser).forEach(events => {
+            events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            let openIn = null;
+            events.forEach(ev => {
+                if (ev.type === 'in') {
+                    openIn = ev.timestamp;
+                } else if (ev.type === 'out' && openIn) {
+                    durations.push((new Date(ev.timestamp) - new Date(openIn)) / 60000);
+                    openIn = null;
+                }
+            });
+        });
+        const avgMinutes = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+
+        document.getElementById('stat-total').textContent = rows.length.toLocaleString();
+        document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
+        document.getElementById('stat-duration').textContent = durations.length ? `${avgMinutes} นาที` : '–';
+    }
+
+    function renderTable() {
+        const rows = applyClientFilters();
+        computeStats(allRows);
+        const tbody = document.getElementById('log-rows');
+        document.getElementById('row-count-label').textContent = `พบ ${rows.length} รายการ`;
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted">ไม่พบรายการที่ตรงกัน</td></tr>';
+            return;
         }
-        init();
-    </script>
+        tbody.innerHTML = rows.map(r => {
+            const isIn = r.type === 'in';
+            const initials = `${(r.first_name || '?')[0]}${(r.last_name || '?')[0]}`.toUpperCase();
+            const formatted = new Date(r.timestamp).toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(',', '');
+            return `
+                <tr>
+                    <td class="mono" style="white-space:nowrap;">${formatted}</td>
+                    <td>
+                        <div class="name-cell">
+                            <span class="avatar-initials">${initials}</span>
+                            <span style="font-weight:700;">${r.prefix || ''}${r.first_name} ${r.last_name}</span>
+                        </div>
+                    </td>
+                    <td class="mono muted">${r.student_id}</td>
+                    <td class="muted">${r.department || '-'}</td>
+                    <td>
+                        <span class="badge ${isIn ? 'in' : 'out'}">
+                            <span class="dot"></span>${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}
+                        </span>
+                    </td>
+                </tr>`;
+        }).join('');
+    }
+
+    async function loadReports(params) {
+        allRows = await apiFetch(`/admin/reports?${params.toString()}`);
+        renderTable();
+    }
+
+    document.getElementById('date-apply').addEventListener('click', () => {
+        const date = document.getElementById('date-filter').value;
+        if (!date) return;
+        loadReports(new URLSearchParams({ date }));
+    });
+    document.getElementById('date-clear').addEventListener('click', () => {
+        document.getElementById('date-filter').value = '';
+        loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
+    });
+    document.getElementById('search-input').addEventListener('input', renderTable);
+    document.getElementById('action-filter').addEventListener('change', renderTable);
+    document.getElementById('department-filter').addEventListener('change', renderTable);
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await apiFetch('/logout', { method: 'POST' });
+        window.location.href = '/login';
+    });
+
+    async function init() {
+        try {
+            const me = await apiFetch('/me');
+            if (me.role !== 'admin') { window.location.href = '/dashboard'; return; }
+        } catch (_err) { window.location.href = '/login'; return; }
+        loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
+    }
+    init();
+</script>
 </body></html>

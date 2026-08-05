@@ -1,11 +1,8 @@
 <!DOCTYPE html>
-
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>แก้ไขโปรไฟล์ | ห้องสมุด NNTC</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script>
 (function () {
     try {
@@ -16,245 +13,255 @@
     } catch (e) {}
 })();
 </script>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .hero-pattern {
-            background-image: linear-gradient(to bottom, rgba(92, 16, 31, 0.95), rgba(92, 16, 31, 1));
-            position: relative; overflow: hidden;
-        }
-        .hero-pattern::before {
-            content: ""; position: absolute; inset: 0;
-            background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 40px);
-            mask-image: linear-gradient(to bottom, black, transparent);
-        }
-        .stamp-button { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .stamp-button:active { transform: scale(0.95); box-shadow: inset 0 4px 6px rgba(0,0,0,0.1); }
-        .faded-input { background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
-        .dark .faded-input { background-color: #2b2225; color: #8a7679; }
-    </style>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
-                    "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
-                    "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
-                    "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
-                    "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
-                    "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
-                    "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
-                    "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
-                    "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
-                    "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
-                    "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
-                    "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
-                    "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
-                    "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
-                    "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
-                    "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
-                    "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                    "on-secondary-fixed": "#360f00",
-                    "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
-            },
-            "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-            "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
-            "fontFamily": {
-                    "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
-                    "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
-                    "label-caps": ["IBM Plex Mono"]
-            },
-            "fontSize": {
-                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                    "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "800"}],
-                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
-                    "label-code": ["14px", {"lineHeight": "1.2", "fontWeight": "500"}],
-                    "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "700"}],
-                    "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "700"}],
-                    "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}]
-            }
-          }
-        }
-      }
-    </script>
+  :root {
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e; --green:#4a7c3f;
+    --ink:#1f2328; --gray:#6b7280; --border:#e5e7eb; --bg:#f5f6f8;
+    --card-bg:#ffffff; --input-bg:#f9fafb; --maroon-text:#7a2734;
+    --faded-bg:#f3f4f6; --faded-text:#9ca3af;
+  }
+  html.dark {
+    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
+    --ink:#f0f1f3; --gray:#c9b8ba; --maroon-text:#ffb2b8;
+    --faded-bg:#2b2225; --faded-text:#8a7679;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
+    background: var(--bg); color: var(--ink); min-height: 100vh;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  a { text-decoration: none; }
+  .hidden { display: none !important; }
+
+  .topbar { background: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; transition: background-color .2s ease, border-color .2s ease; }
+  .topbar-inner { max-width: 900px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topbar-left { display: flex; align-items: center; gap: 24px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo-box { width: 34px; height: 34px; border-radius: 10px; background: var(--maroon); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .brand p { font-weight: 700; font-size: 15px; color: var(--ink); margin: 0; }
+  .topbar-nav { display: none; gap: 20px; }
+  @media (min-width: 640px) { .topbar-nav { display: flex; } }
+  .topbar-nav a { font-size: 13.5px; font-weight: 600; color: var(--gray); }
+  .topbar-nav a.active { color: var(--maroon-text); }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 9999px; border: 1px solid var(--border); background: var(--card-bg);
+    color: var(--maroon-text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s;
+  }
+  .icon-btn:hover { transform: scale(1.05); }
+  .logout-btn { background: none; border: none; font-size: 12.5px; font-weight: 700; color: var(--gray); cursor: pointer; font-family: inherit; }
+  .logout-btn:hover { color: var(--maroon-text); }
+
+  .hero {
+    position: relative; overflow: hidden; padding: 32px 24px 88px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-inner { max-width: 760px; margin: 0 auto; }
+  .hero h1 { color: #fff; font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+  .hero p { color: rgba(255,255,255,.75); font-size: 13.5px; margin: 0; }
+
+  main { max-width: 760px; margin: -56px auto 0; padding: 0 24px 48px; }
+  .card { background: var(--card-bg); border-radius: 18px; box-shadow: 0 20px 45px -12px rgba(31,35,40,0.18); border: 1px solid var(--border); padding: 32px; transition: background-color .2s ease, border-color .2s ease; }
+
+  .msg-box { padding: 12px 14px; border-radius: 10px; font-size: 13.5px; line-height: 1.5; margin-bottom: 20px; }
+  .msg-box.error { background: #fbe4e4; color: #a3312f; }
+  .msg-box.success { background: #eaf1e8; color: #2f6b28; }
+  html.dark .msg-box.error { background: rgba(186,26,26,.2); color: #ffb4ab; }
+  html.dark .msg-box.success { background: rgba(74,124,63,.2); color: #a8d89e; }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 560px) { .field-grid { grid-template-columns: 1fr; } }
+  .field-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 560px) { .field-grid.cols-3 { grid-template-columns: 1fr; } }
+  .field label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+  .field input {
+    width: 100%; border-radius: 12px; border: 1px solid var(--border); padding: 12px 16px;
+    font-size: 14.5px; color: var(--ink); font-family: inherit; background: var(--input-bg);
+  }
+  .field input[readonly] { background: var(--faded-bg); color: var(--faded-text); cursor: not-allowed; }
+  .field input:focus:not([readonly]) { outline: 3px solid var(--orange); outline-offset: 1px; border-color: var(--maroon); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .section-title { font-size: 17px; font-weight: 700; color: var(--maroon-text); display: flex; align-items: center; gap: 8px; margin: 0 0 18px; }
+
+  .btn-primary {
+    background: var(--orange); color: #fff; font-weight: 700; font-size: 14.5px;
+    border: none; border-radius: 999px; padding: 13px 28px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: transform .15s, box-shadow .15s; font-family: inherit;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -8px rgba(224,103,46,.5); }
+  .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .btn-row { display: flex; justify-content: flex-end; }
+
+  .info-box {
+    margin-top: 24px; background: #eaf1e8; border: 1px solid #d5e4d0; border-radius: 14px;
+    padding: 18px 20px; display: flex; align-items: flex-start; gap: 14px;
+  }
+  html.dark .info-box { background: rgba(74,124,63,.12); border-color: rgba(74,124,63,.3); }
+  .info-box .ic { color: var(--green); font-size: 26px; flex-shrink: 0; }
+  .info-box h4 { font-size: 14px; font-weight: 700; margin: 0 0 4px; color: var(--ink); }
+  .info-box p { font-size: 13px; color: var(--gray); margin: 0; line-height: 1.5; }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--gray); margin: 0; }
+  footer .brand-text { font-weight: 700; color: var(--maroon-text); display: block; margin-bottom: 4px; }
+</style>
 </head>
-<body class="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
-<nav class="bg-primary shadow-md flex justify-between items-center w-full px-gutter h-16 fixed top-0 left-0 right-0 z-50">
-<span class="text-headline-md font-headline-md font-bold text-on-primary">ห้องสมุด NNTC</span>
-<div class="flex items-center gap-4">
-<button aria-label="สลับโหมดสว่าง/มืด" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors" id="theme-toggle" type="button">
-<span class="material-symbols-outlined text-xl">dark_mode</span>
-</button>
-<button class="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" id="logout-btn" type="button">ออกจากระบบ</button>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <div class="brand">
+        <div class="logo-box"><span class="material-symbols-outlined" style="font-size:16px;">menu_book</span></div>
+        <p>ห้องสมุด NNTC</p>
+      </div>
+      <nav class="topbar-nav">
+        <a href="/dashboard">หน้าหลัก</a>
+        <a class="active" href="/profile">โปรไฟล์</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button aria-label="สลับโหมดสว่าง/มืด" class="icon-btn" id="theme-toggle" type="button">
+        <span class="material-symbols-outlined" style="font-size:18px;">dark_mode</span>
+      </button>
+      <button class="logout-btn" id="logout-btn" type="button">ออกจากระบบ</button>
+    </div>
+  </div>
 </div>
-</nav>
-<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border pt-20 pb-6 px-4 z-40">
-<div class="mb-8 px-4">
-<div class="flex items-center gap-3 mb-2">
-<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-<span class="material-symbols-outlined text-on-primary">school</span>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>แก้ไขโปรไฟล์นักศึกษา</h1>
+    <p>ตรวจสอบข้อมูลการศึกษาและเปลี่ยนรหัสผ่านของคุณ</p>
+  </div>
 </div>
-<div>
-<h2 class="text-primary dark:text-primary-fixed-dim font-headline-sm text-headline-md font-bold leading-tight">NNTC</h2>
-<p class="text-on-surface-variant dark:text-dm-text-secondary text-label-caps font-label-caps uppercase tracking-wider">พอร์ทัลนักศึกษา</p>
-</div>
-</div>
-</div>
-<nav class="flex-1 space-y-2">
-<a class="text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 flex items-center gap-3 transition-colors" href="/dashboard">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="font-body-md">หน้าหลัก</span>
-</a>
-<a class="bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2 flex items-center gap-3" href="/profile">
-<span class="material-symbols-outlined">settings</span>
-<span class="font-body-md">โปรไฟล์</span>
-</a>
-</nav>
-</aside>
-<main class="flex-1 lg:ml-64 pt-16">
-<section class="hero-pattern h-[240px] flex items-center px-gutter">
-<div class="max-w-4xl mx-auto w-full text-white">
-<h1 class="font-headline-xl text-headline-xl mb-2">แก้ไขโปรไฟล์นักศึกษา</h1>
-<p class="text-body-lg font-body-lg opacity-80">ตรวจสอบข้อมูลการศึกษาและเปลี่ยนรหัสผ่านของคุณ</p>
-</div>
-</section>
-<div class="max-w-4xl mx-auto px-gutter -mt-16 mb-12 relative z-10">
-<div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden border border-outline-variant/30 dark:border-dm-border">
-<div class="p-8">
-<p id="profile-error" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
-<p id="profile-success" class="hidden mb-6 rounded-lg bg-status-success/10 text-status-success px-4 py-3 text-body-md"></p>
-<div class="space-y-10">
-<div class="grid md:grid-cols-2 gap-8">
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary flex items-center gap-2">
-<span class="material-symbols-outlined text-[16px]">lock</span>
-                                    รหัสนักศึกษา
-                                </label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border faded-input font-label-code text-label-code" id="field-student-id" readonly="" type="text" value="…"/>
-</div>
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary flex items-center gap-2">
-<span class="material-symbols-outlined text-[16px]">lock</span>
-                                    ชื่อ-สกุล
-                                </label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border faded-input font-body-md" id="field-name" readonly="" type="text" value="…"/>
-</div>
-</div>
-<hr class="border-outline-variant/30 dark:border-dm-border"/>
-<div class="space-y-6">
-<h3 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
-<span class="material-symbols-outlined">school</span>
-                                ข้อมูลการศึกษา
-                            </h3>
-<div class="grid md:grid-cols-3 gap-6">
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">แผนกวิชา</label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border faded-input font-body-md" id="field-department" readonly="" type="text" value="…"/>
-</div>
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">ระดับชั้น</label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border faded-input font-body-md" id="field-level" readonly="" type="text" value="…"/>
-</div>
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">ชั้นปี</label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border faded-input font-body-md" id="field-year" readonly="" type="text" value="…"/>
-</div>
-</div>
-</div>
-<hr class="border-outline-variant/30 dark:border-dm-border"/>
-<form class="space-y-6" id="password-form">
-<h3 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
-<span class="material-symbols-outlined">security</span>
-                                ตั้งค่าความปลอดภัย
-                            </h3>
-<div class="grid md:grid-cols-2 gap-8">
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านปัจจุบัน</label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" id="current-password" placeholder="ยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน" required type="password"/>
-</div>
-<div class="space-y-2">
-<label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านใหม่</label>
-<input class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" id="new-password" minlength="8" placeholder="อย่างน้อย 8 ตัวอักษร" required type="password"/>
-</div>
-</div>
-<div class="flex justify-end pt-4">
-<button class="stamp-button bg-secondary text-white font-headline-md text-headline-md px-10 py-4 rounded-full shadow-[0px_8px_24px_rgba(165,61,0,0.3)] hover:brightness-110 flex items-center gap-3" id="save-btn" type="submit">
-<span class="material-symbols-outlined">save</span>
-                                เปลี่ยนรหัสผ่าน
-                            </button>
-</div>
-</form>
-</div>
-</div>
-</div>
-<div class="mt-8">
-<div class="bg-tertiary-fixed dark:bg-dm-surface p-6 rounded-xl border border-tertiary-container/10 dark:border-dm-border flex items-start gap-4">
-<span class="material-symbols-outlined text-tertiary-container dark:text-tertiary-fixed-dim text-4xl">info</span>
-<div>
-<h4 class="font-bold text-on-tertiary-fixed dark:text-inverse-on-surface mb-1">ข้อมูลที่แก้ไขไม่ได้</h4>
-<p class="text-on-tertiary-fixed-variant dark:text-dm-text-secondary text-body-md">รหัสนักศึกษา ชื่อ-สกุล แผนกวิชา ระดับชั้น และชั้นปี มาจากทะเบียนของวิทยาลัย ไม่สามารถแก้ไขได้ในหน้านี้ หากข้อมูลไม่ถูกต้อง กรุณาติดต่อฝ่ายทะเบียน</p>
-</div>
-</div>
-</div>
-</div>
+
+<main>
+  <div class="card">
+    <p class="msg-box error hidden" id="profile-error"></p>
+    <p class="msg-box success hidden" id="profile-success"></p>
+
+    <div class="field-grid">
+      <div class="field">
+        <label><span class="material-symbols-outlined" style="font-size:14px;">lock</span> รหัสนักศึกษา</label>
+        <input id="field-student-id" readonly type="text" value="…"/>
+      </div>
+      <div class="field">
+        <label><span class="material-symbols-outlined" style="font-size:14px;">lock</span> ชื่อ-สกุล</label>
+        <input id="field-name" readonly type="text" value="…"/>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <h3 class="section-title"><span class="material-symbols-outlined">school</span> ข้อมูลการศึกษา</h3>
+    <div class="field-grid cols-3">
+      <div class="field">
+        <label>แผนกวิชา</label>
+        <input id="field-department" readonly type="text" value="…"/>
+      </div>
+      <div class="field">
+        <label>ระดับชั้น</label>
+        <input id="field-level" readonly type="text" value="…"/>
+      </div>
+      <div class="field">
+        <label>ชั้นปี</label>
+        <input id="field-year" readonly type="text" value="…"/>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <form id="password-form">
+      <h3 class="section-title"><span class="material-symbols-outlined">security</span> ตั้งค่าความปลอดภัย</h3>
+      <div class="field-grid">
+        <div class="field">
+          <label>รหัสผ่านปัจจุบัน</label>
+          <input id="current-password" placeholder="ยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน" required type="password"/>
+        </div>
+        <div class="field">
+          <label>รหัสผ่านใหม่</label>
+          <input id="new-password" minlength="8" placeholder="อย่างน้อย 8 ตัวอักษร" required type="password"/>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="save-btn" type="submit">
+          <span class="material-symbols-outlined" style="font-size:18px;">save</span> เปลี่ยนรหัสผ่าน
+        </button>
+      </div>
+    </form>
+
+    <div class="info-box">
+      <span class="material-symbols-outlined ic">info</span>
+      <div>
+        <h4>ข้อมูลที่แก้ไขไม่ได้</h4>
+        <p>รหัสนักศึกษา ชื่อ-สกุล แผนกวิชา ระดับชั้น และชั้นปี มาจากทะเบียนของวิทยาลัย ไม่สามารถแก้ไขได้ในหน้านี้ หากข้อมูลไม่ถูกต้อง กรุณาติดต่อฝ่ายทะเบียน</p>
+      </div>
+    </div>
+  </div>
 </main>
-<footer class="bg-surface-container-highest dark:bg-dm-surface w-full py-8 border-t border-outline-variant dark:border-dm-border">
-<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</span>
-<p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md text-center md:text-left">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-</div>
+
+<footer>
+  <span class="brand-text">ห้องสมุด NNTC</span>
+  <p>© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
 </footer>
+
 <script src="/static/js/api.js"></script>
 <script>
-        initThemeToggle('theme-toggle');
+    initThemeToggle('theme-toggle');
 
-        async function loadProfile() {
-            let me;
-            try {
-                me = await apiFetch('/me');
-            } catch (_err) {
-                window.location.href = '/login';
-                return;
-            }
-            document.getElementById('field-student-id').value = me.student_id || me.username;
-            document.getElementById('field-name').value = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
-            document.getElementById('field-department').value = me.department || '-';
-            document.getElementById('field-level').value = me.level || '-';
-            document.getElementById('field-year').value = me.year_level || '-';
-        }
-
-        document.getElementById('password-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const errorBox = document.getElementById('profile-error');
-            const successBox = document.getElementById('profile-success');
-            const btn = document.getElementById('save-btn');
-            errorBox.classList.add('hidden');
-            successBox.classList.add('hidden');
-            btn.disabled = true;
-
-            try {
-                await apiPostJson('/profile/change-password', {
-                    current_password: document.getElementById('current-password').value,
-                    new_password: document.getElementById('new-password').value,
-                });
-                successBox.textContent = 'เปลี่ยนรหัสผ่านสำเร็จ';
-                successBox.classList.remove('hidden');
-                document.getElementById('password-form').reset();
-            } catch (err) {
-                errorBox.textContent = err.message;
-                errorBox.classList.remove('hidden');
-            } finally {
-                btn.disabled = false;
-            }
-        });
-
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await apiFetch('/logout', { method: 'POST' });
+    async function loadProfile() {
+        let me;
+        try {
+            me = await apiFetch('/me');
+        } catch (_err) {
             window.location.href = '/login';
-        });
+            return;
+        }
+        document.getElementById('field-student-id').value = me.student_id || me.username;
+        document.getElementById('field-name').value = `${me.prefix || ''}${me.first_name || ''} ${me.last_name || ''}`.trim() || me.username;
+        document.getElementById('field-department').value = me.department || '-';
+        document.getElementById('field-level').value = me.level || '-';
+        document.getElementById('field-year').value = me.year_level || '-';
+    }
 
-        loadProfile();
-    </script>
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorBox = document.getElementById('profile-error');
+        const successBox = document.getElementById('profile-success');
+        const btn = document.getElementById('save-btn');
+        errorBox.classList.add('hidden');
+        successBox.classList.add('hidden');
+        btn.disabled = true;
+
+        try {
+            await apiPostJson('/profile/change-password', {
+                current_password: document.getElementById('current-password').value,
+                new_password: document.getElementById('new-password').value,
+            });
+            successBox.textContent = 'เปลี่ยนรหัสผ่านสำเร็จ';
+            successBox.classList.remove('hidden');
+            document.getElementById('password-form').reset();
+        } catch (err) {
+            errorBox.textContent = err.message;
+            errorBox.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await apiFetch('/logout', { method: 'POST' });
+        window.location.href = '/login';
+    });
+
+    loadProfile();
+</script>
 </body></html>

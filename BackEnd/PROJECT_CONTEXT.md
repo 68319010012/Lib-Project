@@ -42,7 +42,9 @@ same app and served same-origin from `templates/pages/` (see "Frontend integrate
 - log_id (PK)
 - user_id (FK -> users)
 - timestamp
+- planned_checkout_at (nullable — set on `type='in'` rows only; NULL means "until closing")
 - type (in/out)
+- checkout_source (nullable ENUM 'manual'/'auto'/'admin_forced' — set on `type='out'` rows only; NULL on legacy rows from before this column existed)
 
 ## Required Features
 
@@ -108,6 +110,22 @@ API endpoint logs timestamp + type (in/out) per user.
 - All manually tested end-to-end via curl: register (auto-logged-in) -> checkin toggles
   in/out -> /me/history reflects it -> logout blocks further checkin -> admin login ->
   /admin/members shows the new account -> reports returns joined rows. All passed.
+
+## Planned checkout + auto checkout — DONE
+Students choose how long they'll stay when checking in (`duration_minutes` or
+`checkout_time`, clamped to `LIBRARY_CLOSING_TIME` env var, default 17:00) or
+leave it unset for "until closing". `POST /checkin/extend` pushes that time
+back +N minutes. A `BackgroundScheduler` (APScheduler) job runs every 2
+minutes and force-checks-out anyone past their planned time
+(`checkout_source='auto'`) — this is the backstop for people who forget to tap
+out. "Until closing" check-ins have no auto-checkout time, so admins have
+`GET /admin/checkins/current` (everyone currently in, with an `is_overdue`
+flag past 6h) and `POST /admin/checkins/force-checkout` as the manual backstop
+for those. See `API_CONTRACT.md` for full request/response shapes.
+
+Scheduler startup is guarded against Werkzeug's debug-mode reloader (which
+re-executes the whole script in two processes) — see the `if __name__ ==
+"__main__":` block at the bottom of `app.py` for why.
 
 ## Admin account creation — DONE
 No HTTP endpoint creates admin accounts, by design — that would be an attack surface for

@@ -39,8 +39,13 @@ DB_PASSWORD=
 DB_NAME=library_checkin
 
 FLASK_SECRET_KEY=<สุ่มมาสัก 32 ตัวอักษร>
+
+LIBRARY_CLOSING_TIME=17:00
 ```
 สุ่ม FLASK_SECRET_KEY ด้วย: `python -c "import secrets; print(secrets.token_hex(32))"`
+
+`LIBRARY_CLOSING_TIME` ไม่ใส่ก็ได้ (ค่า default คือ 17:00 อยู่แล้ว) — ใช้เป็นเพดานเวลาที่นักศึกษา
+ตั้งใจจะออกได้ตอนเช็คอิน (ระบบจะปรับให้ไม่เกินเวลานี้เสมอ) และเป็นเวลาที่ระบบเช็คเอาท์อัตโนมัติจะใช้อ้างอิง
 
 (ถ้า XAMPP ตั้งรหัสผ่าน MySQL ไว้ ให้ใส่ใน DB_PASSWORD ด้วย ปกติ XAMPP ค่าเริ่มต้นไม่มีรหัสผ่าน)
 

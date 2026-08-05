@@ -1,13 +1,19 @@
 import calendar
+import csv
+import io
 import os
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from functools import wraps
 
 import bcrypt
+from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
-from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, Response, jsonify, redirect, render_template, request, send_file, session, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from openpyxl import Workbook
+from openpyxl.styles import Font
 
 from db import get_db_connection
 
@@ -34,6 +40,225 @@ def gender_from_prefix(prefix):
     if prefix in ("นาง", "นางสาว"):
         return "หญิง"
     return "ไม่ระบุ"
+
+
+def _aggregate_checkin_period(cur, start_date, end_date):
+    """Aggregate checkin_logs rows in [start_date, end_date] inclusive (YYYY-MM-DD
+    strings). Shared by every dashboard-style report so period-over-period
+    comparisons all use the same counting logic."""
+    cur.execute(
+        """
+        SELECT s.student_id, s.department, s.level, s.year_level, c.timestamp
+        FROM checkin_logs c
+        JOIN users u ON u.user_id = c.user_id
+        JOIN students s ON s.student_id = u.student_id
+        WHERE DATE(c.timestamp) BETWEEN %s AND %s
+        """,
+        (start_date, end_date),
+    )
+    rows = cur.fetchall()
+
+    day_counts = {}
+    dept_counts = {}
+    level_counts = {}
+    for row in rows:
+        day_key = row["timestamp"].strftime("%Y-%m-%d")
+        day_counts[day_key] = day_counts.get(day_key, 0) + 1
+        dept = row["department"] or "ไม่ระบุแผนก"
+        dept_counts[dept] = dept_counts.get(dept, 0) + 1
+        level_label = f"{row['level']}.{row['year_level']}" if row["level"] and row["year_level"] else "ไม่ระบุ"
+        level_counts[level_label] = level_counts.get(level_label, 0) + 1
+
+    days_with_data = len(day_counts)
+    total_events = len(rows)
+    busiest_day = None
+    if day_counts:
+        busiest_key, busiest_count = max(day_counts.items(), key=lambda item: item[1])
+        busiest_day = {"day": busiest_key, "count": busiest_count}
+
+    return {
+        "total_events": total_events,
+        "unique_students": len({row["student_id"] for row in rows}),
+        "avg_daily": round(total_events / days_with_data) if days_with_data else 0,
+        "busiest_day": busiest_day,
+        "day_counts": day_counts,
+        "dept_counts": dept_counts,
+        "level_counts": level_counts,
+    }
+
+
+def _pct_delta(current, previous):
+    """% change from previous -> current, or None if there's no previous-period
+    baseline to compare against (avoids a division by zero reading as 0%)."""
+    if not previous:
+        return None
+    return round((current - previous) / previous * 100, 1)
+
+
+def _month_bounds(month_str):
+    """'YYYY-MM' -> (first_day, last_day) as 'YYYY-MM-DD' strings."""
+    year, mon = (int(part) for part in month_str.split("-"))
+    last_day = calendar.monthrange(year, mon)[1]
+    return f"{month_str}-01", f"{month_str}-{last_day:02d}"
+
+
+def _previous_month(month_str):
+    year, mon = (int(part) for part in month_str.split("-"))
+    if mon == 1:
+        return f"{year - 1}-12"
+    return f"{year}-{mon - 1:02d}"
+
+
+def _ranked_breakdown(counts, limit=8):
+    """dict of label->count -> sorted list of {name, count, pct} vs the top entry,
+    for rendering as horizontal bar rows."""
+    top = sorted(counts.items(), key=lambda item: -item[1])[:limit]
+    max_count = top[0][1] if top else 0
+    return [
+        {"name": name, "count": count, "pct": round((count / max_count) * 100) if max_count else 0}
+        for name, count in top
+    ]
+
+
+def _export_response(filename_base, sections, fmt):
+    """Build a CSV/Excel download from one or more (title, headers, data_rows)
+    sections. Every export route (daily/monthly/department/dashboard/executive/
+    compare) funnels through this so the two file formats stay consistent."""
+    if fmt == "csv":
+        buf = io.StringIO()
+        buf.write("﻿")  # BOM so Excel opens Thai text as UTF-8 instead of mis-decoding it
+        writer = csv.writer(buf)
+        for i, (title, headers, data_rows) in enumerate(sections):
+            if i > 0:
+                writer.writerow([])
+            if len(sections) > 1:
+                writer.writerow([title])
+            writer.writerow(headers)
+            writer.writerows(data_rows)
+        return Response(
+            buf.getvalue(),
+            mimetype="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f'attachment; filename="{filename_base}.csv"'},
+        )
+
+    if fmt == "xlsx":
+        wb = Workbook()
+        wb.remove(wb.active)
+        for title, headers, data_rows in sections:
+            ws = wb.create_sheet(title=title[:31])  # Excel sheet-name limit
+            ws.append(headers)
+            for row in data_rows:
+                ws.append(row)
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
+            ws.freeze_panes = "A2"
+            for col_cells in ws.columns:
+                max_len = max((len(str(c.value)) for c in col_cells if c.value is not None), default=8)
+                ws.column_dimensions[col_cells[0].column_letter].width = min(max_len + 2, 40)
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+        return send_file(
+            buf,
+            as_attachment=True,
+            download_name=f"{filename_base}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    return jsonify(error="รูปแบบไฟล์ไม่ถูกต้อง"), 400
+
+
+LIBRARY_CLOSING_TIME = os.environ.get("LIBRARY_CLOSING_TIME", "17:00")
+# NOTE: single closing time for every day — doesn't yet account for weekends/holidays
+# having different hours. Extend _closing_datetime() if that's ever needed.
+OVERDUE_HOURS = 6
+TIME_RE = re.compile(r"([01]\d|2[0-3]):[0-5]\d")
+
+
+def _closing_datetime(reference):
+    """`reference`'s date combined with LIBRARY_CLOSING_TIME, as a datetime."""
+    hour, minute = (int(part) for part in LIBRARY_CLOSING_TIME.split(":"))
+    return reference.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
+
+def compute_planned_checkout(duration_minutes, checkout_time, now=None):
+    """Returns the planned checkout datetime, clamped to today's closing time —
+    or None, meaning "until closing" (no specific time chosen)."""
+    now = now or datetime.now()
+    closing = _closing_datetime(now)
+
+    if duration_minutes is not None:
+        planned = now + timedelta(minutes=duration_minutes)
+    elif checkout_time:
+        hour, minute = (int(part) for part in checkout_time.split(":"))
+        planned = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    else:
+        return None
+
+    return min(planned, closing)
+
+
+def get_current_checkins(cur):
+    """Latest checkin_logs row per user, for users whose latest row is type='in'
+    (i.e. everyone currently checked in). `cur` must be a dictionary cursor."""
+    cur.execute(
+        """
+        SELECT c.log_id, c.user_id, c.timestamp, c.planned_checkout_at
+        FROM checkin_logs c
+        INNER JOIN (
+            SELECT user_id, MAX(log_id) AS max_log_id
+            FROM checkin_logs
+            GROUP BY user_id
+        ) latest ON c.user_id = latest.user_id AND c.log_id = latest.max_log_id
+        WHERE c.type = 'in'
+        """
+    )
+    return cur.fetchall()
+
+
+def auto_checkout_job():
+    """Runs every 2 minutes (see scheduler setup at the bottom of this file):
+    force-checks-out anyone past their planned_checkout_at."""
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        now = datetime.now()
+        due = [
+            row
+            for row in get_current_checkins(cur)
+            if row["planned_checkout_at"] and row["planned_checkout_at"] <= now
+        ]
+        for row in due:
+            cur.execute(
+                "INSERT INTO checkin_logs (user_id, type, checkout_source) VALUES (%s, 'out', 'auto')",
+                (row["user_id"],),
+            )
+        if due:
+            conn.commit()
+    finally:
+        cur.close()
+        conn.close()
+
+
+def retire_expired_accounts():
+    """Runs daily (see scheduler setup at the bottom of this file): suspends any
+    student account whose users.created_at is a full academic year (365 days) in
+    the past. Admin accounts are never retired."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            UPDATE users
+            SET account_status = 'retired'
+            WHERE role = 'student' AND account_status = 'approved'
+              AND created_at <= NOW() - INTERVAL 1 YEAR
+            """
+        )
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
 
 
 def login_required(view):
@@ -212,6 +437,8 @@ def login():
 
     if user is None or not bcrypt.checkpw(password.encode("utf-8"), user["password_hash"].encode("utf-8")):
         return jsonify(error="ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"), 401
+    if user["account_status"] == "retired":
+        return jsonify(error="บัญชีนี้ถูกระงับเนื่องจากครบกำหนด 1 ปีการศึกษา กรุณาติดต่อฝ่ายทะเบียน"), 403
     if user["account_status"] != "approved":
         return jsonify(error="บัญชียังไม่ได้รับการอนุมัติจากแอดมิน"), 403
 
@@ -231,6 +458,7 @@ def logout():
 @login_required
 def checkin():
     user_id = session["user_id"]
+    data = request.get_json(silent=True) or {}
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
     try:
@@ -240,17 +468,93 @@ def checkin():
         )
         last = cur.fetchone()
         next_type = "out" if last and last["type"] == "in" else "in"
+        planned_checkout_at = None
 
-        cur.execute(
-            "INSERT INTO checkin_logs (user_id, type) VALUES (%s, %s)",
-            (user_id, next_type),
-        )
+        if next_type == "in":
+            duration_minutes = data.get("duration_minutes")
+            checkout_time = (data.get("checkout_time") or "").strip() or None
+
+            if duration_minutes is not None:
+                try:
+                    duration_minutes = int(duration_minutes)
+                except (TypeError, ValueError):
+                    return jsonify(error="duration_minutes ต้องเป็นตัวเลข"), 400
+                if duration_minutes <= 0:
+                    return jsonify(error="duration_minutes ต้องมากกว่า 0"), 400
+
+            if checkout_time is not None and not TIME_RE.fullmatch(checkout_time):
+                return jsonify(error="รูปแบบ checkout_time ต้องเป็น HH:MM"), 400
+
+            planned_checkout_at = compute_planned_checkout(duration_minutes, checkout_time)
+            if planned_checkout_at is not None and planned_checkout_at <= datetime.now():
+                return jsonify(error="เวลาที่เลือกต้องอยู่ในอนาคต"), 400
+
+            cur.execute(
+                "INSERT INTO checkin_logs (user_id, type, planned_checkout_at) VALUES (%s, 'in', %s)",
+                (user_id, planned_checkout_at),
+            )
+        else:
+            cur.execute(
+                "INSERT INTO checkin_logs (user_id, type, checkout_source) VALUES (%s, 'out', 'manual')",
+                (user_id,),
+            )
+
         conn.commit()
         checkin_message = "เช็คอินสำเร็จ" if next_type == "in" else "เช็คเอาต์สำเร็จ"
-        return jsonify(message=checkin_message, type=next_type)
+        return jsonify(
+            message=checkin_message,
+            type=next_type,
+            planned_checkout_at=planned_checkout_at.isoformat() if planned_checkout_at else None,
+        )
     finally:
         cur.close()
         conn.close()
+
+
+@app.route("/checkin/extend", methods=["POST"])
+@login_required
+def checkin_extend():
+    user_id = session["user_id"]
+    data = request.get_json(silent=True) or request.form
+    try:
+        extend_minutes = int(data.get("minutes"))
+    except (TypeError, ValueError):
+        return jsonify(error="minutes ต้องเป็นตัวเลข"), 400
+    if extend_minutes <= 0:
+        return jsonify(error="minutes ต้องมากกว่า 0"), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(
+            "SELECT log_id, type, planned_checkout_at FROM checkin_logs WHERE user_id = %s ORDER BY log_id DESC LIMIT 1",
+            (user_id,),
+        )
+        last = cur.fetchone()
+        if last is None or last["type"] != "in":
+            return jsonify(error="ไม่มีสถานะเช็คอินค้างอยู่"), 400
+        if last["planned_checkout_at"] is None:
+            return jsonify(error="เลือกจนกว่าจะปิดไว้ ไม่มีเวลาให้ต่อ"), 400
+
+        new_planned = min(
+            last["planned_checkout_at"] + timedelta(minutes=extend_minutes),
+            _closing_datetime(datetime.now()),
+        )
+        cur.execute(
+            "UPDATE checkin_logs SET planned_checkout_at = %s WHERE log_id = %s",
+            (new_planned, last["log_id"]),
+        )
+        conn.commit()
+        return jsonify(message="ต่อเวลาสำเร็จ", planned_checkout_at=new_planned.isoformat())
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route("/library-info", methods=["GET"])
+@login_required
+def library_info():
+    return jsonify(closing_time=LIBRARY_CLOSING_TIME)
 
 
 @app.route("/me", methods=["GET"])
@@ -320,12 +624,13 @@ def my_history():
     cur = conn.cursor(dictionary=True)
     try:
         cur.execute(
-            "SELECT type, timestamp FROM checkin_logs WHERE user_id = %s ORDER BY log_id DESC LIMIT %s",
+            "SELECT type, timestamp, planned_checkout_at FROM checkin_logs WHERE user_id = %s ORDER BY log_id DESC LIMIT %s",
             (session["user_id"], limit),
         )
         rows = cur.fetchall()
         for row in rows:
             row["timestamp"] = row["timestamp"].isoformat()
+            row["planned_checkout_at"] = row["planned_checkout_at"].isoformat() if row["planned_checkout_at"] else None
         return jsonify(rows)
     finally:
         cur.close()
@@ -384,6 +689,127 @@ def admin_members():
         conn.close()
 
 
+@app.route("/admin/checkins/current", methods=["GET"])
+@login_required
+@admin_required
+def admin_checkins_current():
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        current_rows = get_current_checkins(cur)
+        if not current_rows:
+            return jsonify([])
+
+        user_ids = [row["user_id"] for row in current_rows]
+        placeholders = ",".join(["%s"] * len(user_ids))
+        cur.execute(
+            f"""
+            SELECT u.user_id, s.student_id, s.prefix, s.first_name, s.last_name, s.department, s.level, s.year_level
+            FROM users u
+            JOIN students s ON s.student_id = u.student_id
+            WHERE u.user_id IN ({placeholders})
+            """,
+            user_ids,
+        )
+        student_by_user = {row["user_id"]: row for row in cur.fetchall()}
+    finally:
+        cur.close()
+        conn.close()
+
+    now = datetime.now()
+    results = []
+    for row in current_rows:
+        student = student_by_user.get(row["user_id"])
+        if student is None:
+            continue
+        duration_minutes = int((now - row["timestamp"]).total_seconds() // 60)
+        results.append(
+            {
+                **student,
+                "checked_in_at": row["timestamp"].isoformat(),
+                "planned_checkout_at": row["planned_checkout_at"].isoformat() if row["planned_checkout_at"] else None,
+                "duration_minutes": duration_minutes,
+                "is_overdue": duration_minutes >= OVERDUE_HOURS * 60,
+            }
+        )
+    results.sort(key=lambda r: r["duration_minutes"], reverse=True)
+    return jsonify(results)
+
+
+@app.route("/admin/checkins/force-checkout", methods=["POST"])
+@login_required
+@admin_required
+def admin_force_checkout():
+    data = request.get_json(silent=True) or request.form
+    try:
+        target_user_id = int(data.get("user_id"))
+    except (TypeError, ValueError):
+        return jsonify(error="user_id ไม่ถูกต้อง"), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(
+            "SELECT type FROM checkin_logs WHERE user_id = %s ORDER BY log_id DESC LIMIT 1",
+            (target_user_id,),
+        )
+        last = cur.fetchone()
+        if last is None or last["type"] != "in":
+            return jsonify(error="ผู้ใช้นี้ไม่ได้ค้างสถานะเช็คอินอยู่"), 400
+
+        cur.execute(
+            "INSERT INTO checkin_logs (user_id, type, checkout_source) VALUES (%s, 'out', 'admin_forced')",
+            (target_user_id,),
+        )
+        conn.commit()
+        return jsonify(message="บังคับเช็คเอาท์สำเร็จ")
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route("/announcement", methods=["GET"])
+@login_required
+def get_announcement():
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("SELECT message, updated_at FROM announcements WHERE id = 1")
+        row = cur.fetchone()
+    finally:
+        cur.close()
+        conn.close()
+
+    if row is None or not row["message"]:
+        return jsonify(message=None, updated_at=None)
+    return jsonify(message=row["message"], updated_at=row["updated_at"].isoformat())
+
+
+@app.route("/admin/announcement", methods=["POST"])
+@login_required
+@admin_required
+def set_announcement():
+    data = request.get_json(silent=True) or request.form
+    message = (data.get("message") or "").strip()
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            INSERT INTO announcements (id, message, updated_by)
+            VALUES (1, %s, %s)
+            ON DUPLICATE KEY UPDATE message = VALUES(message), updated_by = VALUES(updated_by)
+            """,
+            (message or None, session["user_id"]),
+        )
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify(message="บันทึกประกาศสำเร็จ")
+
+
 @app.route("/admin/reports", methods=["GET"])
 @login_required
 @admin_required
@@ -430,17 +856,17 @@ def admin_reports():
 
 
 @app.route("/admin/reports/print", methods=["GET"])
-@login_required
-@admin_required
+@page_admin_required
 def admin_reports_select():
     today = datetime.now().strftime("%Y-%m-%d")
     this_month = datetime.now().strftime("%Y-%m")
-    return render_template("reports_select.html", today=today, this_month=this_month)
+    return render_template(
+        "reports_select.html", today=today, this_month=this_month, prev_month=_previous_month(this_month)
+    )
 
 
 @app.route("/admin/reports/print/daily", methods=["GET"])
-@login_required
-@admin_required
+@page_admin_required
 def admin_report_daily():
     date = request.args.get("date") or datetime.now().strftime("%Y-%m-%d")
 
@@ -486,12 +912,28 @@ def admin_report_daily():
             row["time_out"] = time_str
 
     rows = sorted(by_student.values(), key=lambda r: r["student_id"])
-    return render_template("report_daily.html", date=date, rows=rows)
+
+    fmt = request.args.get("format")
+    if fmt in ("csv", "xlsx"):
+        headers = ["ลำดับ", "รหัสนักศึกษา", "ชื่อ-สกุล", "เพศ", "แผนกวิชา", "ระดับชั้น/ปี", "เวลาเข้า", "เวลาออก"]
+        data_rows = [
+            [
+                i + 1, r["student_id"], f"{r['prefix']}{r['first_name']} {r['last_name']}", r["gender"],
+                r["department"], f"{r['level']} ปีที่ {r['year_level']}", r["time_in"] or "-", r["time_out"] or "-",
+            ]
+            for i, r in enumerate(rows)
+        ]
+        return _export_response(f"รายงานประจำวัน_{date}", [("รายงานประจำวัน", headers, data_rows)], fmt)
+
+    return render_template(
+        "report_daily.html", date=date, rows=rows,
+        csv_url=url_for("admin_report_daily", date=date, format="csv"),
+        xlsx_url=url_for("admin_report_daily", date=date, format="xlsx"),
+    )
 
 
 @app.route("/admin/reports/print/monthly", methods=["GET"])
-@login_required
-@admin_required
+@page_admin_required
 def admin_report_monthly():
     month = request.args.get("month") or datetime.now().strftime("%Y-%m")
 
@@ -519,12 +961,27 @@ def admin_report_monthly():
         row["gender"] = gender_from_prefix(row["prefix"])
         row["last_checkin"] = row["last_checkin"].strftime("%Y-%m-%d %H:%M:%S") if row["last_checkin"] else "-"
 
-    return render_template("report_monthly.html", month=month, rows=rows)
+    fmt = request.args.get("format")
+    if fmt in ("csv", "xlsx"):
+        headers = ["ลำดับ", "รหัสนักศึกษา", "ชื่อ-สกุล", "เพศ", "แผนกวิชา", "ระดับชั้น/ปี", "จำนวนครั้งที่เช็คอิน", "เช็คอินล่าสุด"]
+        data_rows = [
+            [
+                i + 1, r["student_id"], f"{r['prefix']}{r['first_name']} {r['last_name']}", r["gender"],
+                r["department"], f"{r['level']} ปีที่ {r['year_level']}", r["checkin_count"], r["last_checkin"],
+            ]
+            for i, r in enumerate(rows)
+        ]
+        return _export_response(f"รายงานสรุปรายเดือน_{month}", [("รายงานสรุปรายเดือน", headers, data_rows)], fmt)
+
+    return render_template(
+        "report_monthly.html", month=month, rows=rows,
+        csv_url=url_for("admin_report_monthly", month=month, format="csv"),
+        xlsx_url=url_for("admin_report_monthly", month=month, format="xlsx"),
+    )
 
 
 @app.route("/admin/reports/print/department", methods=["GET"])
-@login_required
-@admin_required
+@page_admin_required
 def admin_report_department():
     academic_year = request.args.get("academic_year")
 
@@ -555,77 +1012,246 @@ def admin_report_department():
         cur.close()
         conn.close()
 
-    return render_template("report_department.html", academic_year=academic_year, rows=rows)
+    fmt = request.args.get("format")
+    if fmt in ("csv", "xlsx"):
+        headers = ["ลำดับ", "แผนกวิชา", "จำนวนนักศึกษาที่เช็คชื่อ (ไม่ซ้ำคน)", "จำนวนครั้งที่เช็คอินรวม"]
+        data_rows = [
+            [i + 1, r["department"], r["student_count"], r["checkin_count"]] for i, r in enumerate(rows)
+        ]
+        name = f"รายงานสรุปตามแผนกวิชา_{academic_year}" if academic_year else "รายงานสรุปตามแผนกวิชา"
+        return _export_response(name, [("รายงานสรุปตามแผนกวิชา", headers, data_rows)], fmt)
+
+    export_args = {"academic_year": academic_year} if academic_year else {}
+    return render_template(
+        "report_department.html", academic_year=academic_year, rows=rows,
+        csv_url=url_for("admin_report_department", format="csv", **export_args),
+        xlsx_url=url_for("admin_report_department", format="xlsx", **export_args),
+    )
 
 
 @app.route("/admin/reports/print/dashboard", methods=["GET"])
-@login_required
-@admin_required
+@page_admin_required
 def admin_report_dashboard():
     month = request.args.get("month") or datetime.now().strftime("%Y-%m")
+    start_date, end_date = _month_bounds(month)
 
-    sql = """
-        SELECT s.student_id, s.department, c.timestamp
-        FROM checkin_logs c
-        JOIN users u ON u.user_id = c.user_id
-        JOIN students s ON s.student_id = u.student_id
-        WHERE DATE_FORMAT(c.timestamp, '%Y-%m') = %s
-    """
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
     try:
-        cur.execute(sql, (month,))
-        rows = cur.fetchall()
+        agg = _aggregate_checkin_period(cur, start_date, end_date)
     finally:
         cur.close()
         conn.close()
 
-    total_events = len(rows)
-    unique_students = len({row["student_id"] for row in rows})
-
-    day_counts = {}
-    dept_counts = {}
-    for row in rows:
-        day_key = row["timestamp"].strftime("%d")
-        day_counts[day_key] = day_counts.get(day_key, 0) + 1
-        dept = row["department"] or "ไม่ระบุแผนก"
-        dept_counts[dept] = dept_counts.get(dept, 0) + 1
-
-    days_with_data = len(day_counts)
-    avg_daily = round(total_events / days_with_data) if days_with_data else 0
-
     year, mon = (int(part) for part in month.split("-"))
     days_in_month = calendar.monthrange(year, mon)[1]
     daily_trend = [
-        {"day": f"{d:02d}", "count": day_counts.get(f"{d:02d}", 0)} for d in range(1, days_in_month + 1)
+        {"day": f"{d:02d}", "count": agg["day_counts"].get(f"{month}-{d:02d}", 0)}
+        for d in range(1, days_in_month + 1)
     ]
     max_daily = max((d["count"] for d in daily_trend), default=0)
     for d in daily_trend:
         d["pct"] = round((d["count"] / max_daily) * 100) if max_daily else 0
 
-    dept_breakdown = sorted(dept_counts.items(), key=lambda item: -item[1])[:8]
-    max_dept = dept_breakdown[0][1] if dept_breakdown else 0
-    dept_breakdown = [
-        {"name": name, "count": count, "pct": round((count / max_dept) * 100) if max_dept else 0}
-        for name, count in dept_breakdown
-    ]
-
     busiest_day = None
-    if day_counts:
-        busiest_key, busiest_count = max(day_counts.items(), key=lambda item: item[1])
-        busiest_day = {"day": busiest_key, "count": busiest_count}
+    if agg["busiest_day"]:
+        busiest_date = datetime.strptime(agg["busiest_day"]["day"], "%Y-%m-%d")
+        busiest_day = {"day": busiest_date.strftime("%d"), "count": agg["busiest_day"]["count"]}
+
+    dept_breakdown = _ranked_breakdown(agg["dept_counts"])
+    level_breakdown = _ranked_breakdown(agg["level_counts"])
+
+    fmt = request.args.get("format")
+    if fmt in ("csv", "xlsx"):
+        sections = [
+            (
+                "KPI สรุป", ["ตัวชี้วัด", "ค่า"],
+                [
+                    ["จำนวนรายการทั้งหมด", agg["total_events"]],
+                    ["นักศึกษาไม่ซ้ำคน", agg["unique_students"]],
+                    ["เฉลี่ยต่อวัน", agg["avg_daily"]],
+                    ["วันที่มีคนใช้มากที่สุด", f"{busiest_day['day']} ({busiest_day['count']} รายการ)" if busiest_day else "-"],
+                ],
+            ),
+            ("แนวโน้มรายวัน", ["วันที่", "จำนวนรายการ"], [[d["day"], d["count"]] for d in daily_trend]),
+            ("สัดส่วนตามแผนก", ["แผนกวิชา", "จำนวนรายการ"], [[d["name"], d["count"]] for d in dept_breakdown]),
+            ("สัดส่วนตามระดับชั้น", ["ระดับ/ชั้นปี", "จำนวนรายการ"], [[d["name"], d["count"]] for d in level_breakdown]),
+        ]
+        return _export_response(f"แดชบอร์ดภาพรวม_{month}", sections, fmt)
 
     return render_template(
         "report_dashboard.html",
         month=month,
-        total_events=total_events,
-        unique_students=unique_students,
-        avg_daily=avg_daily,
+        total_events=agg["total_events"],
+        unique_students=agg["unique_students"],
+        avg_daily=agg["avg_daily"],
         busiest_day=busiest_day,
         daily_trend=daily_trend,
         dept_breakdown=dept_breakdown,
+        level_breakdown=level_breakdown,
+        csv_url=url_for("admin_report_dashboard", month=month, format="csv"),
+        xlsx_url=url_for("admin_report_dashboard", month=month, format="xlsx"),
     )
 
 
+@app.route("/admin/reports/print/executive", methods=["GET"])
+@page_admin_required
+def admin_report_executive():
+    month = request.args.get("month") or datetime.now().strftime("%Y-%m")
+    start_date, end_date = _month_bounds(month)
+    prev_start, prev_end = _month_bounds(_previous_month(month))
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        agg = _aggregate_checkin_period(cur, start_date, end_date)
+        prev_agg = _aggregate_checkin_period(cur, prev_start, prev_end)
+    finally:
+        cur.close()
+        conn.close()
+
+    top_depts = _ranked_breakdown(agg["dept_counts"], limit=3)
+    busiest_day = None
+    if agg["busiest_day"]:
+        busiest_date = datetime.strptime(agg["busiest_day"]["day"], "%Y-%m-%d")
+        busiest_day = {"day": busiest_date.strftime("%d/%m"), "count": agg["busiest_day"]["count"]}
+
+    total_delta = _pct_delta(agg["total_events"], prev_agg["total_events"])
+    unique_delta = _pct_delta(agg["unique_students"], prev_agg["unique_students"])
+
+    fmt = request.args.get("format")
+    if fmt in ("csv", "xlsx"):
+        sections = [
+            (
+                "สรุปสำหรับผู้บริหาร", ["ตัวชี้วัด", "ค่า", "% เทียบเดือนก่อน"],
+                [
+                    ["จำนวนรายการทั้งหมด", agg["total_events"], total_delta if total_delta is not None else "-"],
+                    ["นักศึกษาที่มาใช้บริการ", agg["unique_students"], unique_delta if unique_delta is not None else "-"],
+                    ["เฉลี่ยต่อวัน", agg["avg_daily"], "-"],
+                    ["วันที่มีคนใช้มากที่สุด", f"{busiest_day['day']} ({busiest_day['count']} รายการ)" if busiest_day else "-", "-"],
+                ],
+            ),
+            ("แผนกที่เข้าใช้มากที่สุด", ["อันดับ", "แผนกวิชา", "จำนวนรายการ"], [[i + 1, d["name"], d["count"]] for i, d in enumerate(top_depts)]),
+        ]
+        return _export_response(f"สรุปสำหรับผู้บริหาร_{month}", sections, fmt)
+
+    return render_template(
+        "report_executive.html",
+        month=month,
+        total_events=agg["total_events"],
+        unique_students=agg["unique_students"],
+        avg_daily=agg["avg_daily"],
+        busiest_day=busiest_day,
+        top_depts=top_depts,
+        total_delta=total_delta,
+        unique_delta=unique_delta,
+        csv_url=url_for("admin_report_executive", month=month, format="csv"),
+        xlsx_url=url_for("admin_report_executive", month=month, format="xlsx"),
+    )
+
+
+@app.route("/admin/reports/print/compare", methods=["GET"])
+@page_admin_required
+def admin_report_compare():
+    this_month = datetime.now().strftime("%Y-%m")
+    month_a = request.args.get("month_a") or _previous_month(this_month)
+    month_b = request.args.get("month_b") or this_month
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        start_a, end_a = _month_bounds(month_a)
+        start_b, end_b = _month_bounds(month_b)
+        agg_a = _aggregate_checkin_period(cur, start_a, end_a)
+        agg_b = _aggregate_checkin_period(cur, start_b, end_b)
+    finally:
+        cur.close()
+        conn.close()
+
+    metrics = [
+        {
+            "label": "จำนวนรายการทั้งหมด",
+            "a": agg_a["total_events"],
+            "b": agg_b["total_events"],
+            "delta": _pct_delta(agg_b["total_events"], agg_a["total_events"]),
+        },
+        {
+            "label": "นักศึกษาไม่ซ้ำคน",
+            "a": agg_a["unique_students"],
+            "b": agg_b["unique_students"],
+            "delta": _pct_delta(agg_b["unique_students"], agg_a["unique_students"]),
+        },
+        {
+            "label": "เฉลี่ยต่อวัน",
+            "a": agg_a["avg_daily"],
+            "b": agg_b["avg_daily"],
+            "delta": _pct_delta(agg_b["avg_daily"], agg_a["avg_daily"]),
+        },
+    ]
+
+    dept_names = sorted(set(agg_a["dept_counts"]) | set(agg_b["dept_counts"]))
+    dept_compare = sorted(
+        (
+            {"name": name, "a": agg_a["dept_counts"].get(name, 0), "b": agg_b["dept_counts"].get(name, 0)}
+            for name in dept_names
+        ),
+        key=lambda row: -(row["a"] + row["b"]),
+    )[:8]
+    max_dept_compare = max((max(row["a"], row["b"]) for row in dept_compare), default=0)
+    for row in dept_compare:
+        row["pct_a"] = round((row["a"] / max_dept_compare) * 100) if max_dept_compare else 0
+        row["pct_b"] = round((row["b"] / max_dept_compare) * 100) if max_dept_compare else 0
+
+    fmt = request.args.get("format")
+    if fmt in ("csv", "xlsx"):
+        sections = [
+            (
+                "เปรียบเทียบตัวชี้วัด", ["ตัวชี้วัด", month_a, month_b, "% ผลต่าง"],
+                [[m["label"], m["a"], m["b"], m["delta"] if m["delta"] is not None else "-"] for m in metrics],
+            ),
+            (
+                "เปรียบเทียบตามแผนกวิชา", ["แผนกวิชา", month_a, month_b],
+                [[d["name"], d["a"], d["b"]] for d in dept_compare],
+            ),
+        ]
+        return _export_response(f"เปรียบเทียบ_{month_a}_กับ_{month_b}", sections, fmt)
+
+    return render_template(
+        "report_compare.html",
+        month_a=month_a,
+        month_b=month_b,
+        metrics=metrics,
+        dept_compare=dept_compare,
+        csv_url=url_for("admin_report_compare", month_a=month_a, month_b=month_b, format="csv"),
+        xlsx_url=url_for("admin_report_compare", month_a=month_a, month_b=month_b, format="xlsx"),
+    )
+
+
+# FLASK_DEBUG controls Werkzeug's debug/reload behavior for `python app.py` (dev).
+# Defaults to on so local dev keeps auto-reloading exactly like before this
+# variable existed; production (.env / Coolify) must set FLASK_DEBUG=false.
+FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "true").strip().lower() == "true"
+app.debug = FLASK_DEBUG  # set explicitly (and before the guard below) so the check is meaningful
+
+# Start the auto-checkout background job exactly once, no matter how this
+# module ends up running:
+#   - `python app.py` with FLASK_DEBUG on: Werkzeug's reloader re-executes this
+#     whole script in a child process (WERKZEUG_RUN_MAIN=true there) after first
+#     running it once in a "monitor" process that just watches files. Starting
+#     the scheduler unconditionally would run two copies of the same job, so
+#     only the child process starts it.
+#   - `python app.py` with FLASK_DEBUG off, or Gunicorn importing `app:app` in
+#     production: there's no reloader involved, so start immediately. This
+#     module-level code runs once per OS process that imports it — Gunicorn
+#     MUST run with a single worker (see Dockerfile), since each worker process
+#     would otherwise import this module separately and start its own copy of
+#     the job.
+if not FLASK_DEBUG or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(auto_checkout_job, "interval", minutes=2, id="auto_checkout", replace_existing=True)
+    scheduler.add_job(retire_expired_accounts, "interval", hours=24, id="retire_accounts", replace_existing=True)
+    scheduler.start()
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=FLASK_DEBUG)

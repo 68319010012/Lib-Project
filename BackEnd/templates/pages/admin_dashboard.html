@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html class="light" lang="th"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -14,367 +13,591 @@
     } catch (e) {}
 })();
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-primary": "#ffb2b8", "outline": "#887273", "on-tertiary-fixed": "#002110",
-                        "tertiary": "#00361d", "surface-dim": "#d9dadc", "on-secondary": "#ffffff",
-                        "tertiary-fixed-dim": "#91d5a8", "tertiary-container": "#004f2d", "primary-fixed": "#ffdadb",
-                        "on-surface-variant": "#554243", "error": "#ba1a1a", "on-error": "#ffffff",
-                        "status-success": "#4A7C3F", "text-secondary": "#6B7280", "secondary": "#a53d00",
-                        "background": "#f8f9fb", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#7cc094",
-                        "surface-container-highest": "#e1e2e4", "secondary-fixed": "#ffdbcd", "surface-tint": "#9b404d",
-                        "surface": "#f8f9fb", "on-tertiary": "#ffffff", "text-primary": "#1F2328",
-                        "on-surface": "#191c1e", "on-background": "#191c1e", "on-primary-container": "#ff929d",
-                        "on-primary": "#ffffff", "outline-variant": "#dbc0c1", "error-container": "#ffdad6",
-                        "tertiary-fixed": "#acf2c3", "primary": "#5c101f", "surface-variant": "#e1e2e4",
-                        "secondary-container": "#ff7e44", "on-secondary-container": "#682300", "secondary-fixed-dim": "#ffb597",
-                        "on-error-container": "#93000a", "surface-bright": "#f8f9fb", "inverse-surface": "#2e3132",
-                        "primary-container": "#7a2734", "accent-stats": "#8B5FA3", "on-secondary-fixed-variant": "#7e2c00",
-                        "surface-container": "#edeef0", "on-tertiary-fixed-variant": "#05522f", "inverse-on-surface": "#f0f1f3",
-                        "on-primary-fixed": "#40000f", "surface-container-low": "#f3f4f6", "on-primary-fixed-variant": "#7d2936",
-                        "primary-fixed-dim": "#ffb2b8", "surface-container-high": "#e7e8ea", "surface-white": "#FFFFFF",
-                        "on-secondary-fixed": "#360f00",
-                        "dm-bg": "#170d0f", "dm-surface": "#221317", "dm-surface-alt": "#2c1920", "dm-border": "#4a2c33", "dm-text-secondary": "#d9b3ba"
-                    },
-                    "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                    "spacing": {"gutter": "24px", "hero-height": "400px", "margin-desktop": "48px", "base": "8px", "margin-mobile": "16px"},
-                    "fontFamily": {
-                        "body-lg": ["Noto Sans Thai"], "headline-xl": ["Noto Sans Thai"], "body-md": ["Noto Sans Thai"],
-                        "label-code": ["IBM Plex Mono"], "headline-md": ["Noto Sans Thai"], "headline-lg": ["Noto Sans Thai"],
-                        "label-caps": ["IBM Plex Mono"]
-                    }
-                }
-            }
-        }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .hero-pattern {
-            background-image: linear-gradient(180deg, rgba(122, 39, 52, 1) 0%, rgba(92, 16, 31, 1) 100%);
-            position: relative; overflow: hidden;
-        }
-        .hero-pattern::before {
-            content: ''; position: absolute; inset: 0;
-            background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 24px);
-            opacity: 0.4;
-        }
-        .stamp-pulse { animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(122, 39, 52, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(122, 39, 52, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(122, 39, 52, 0); }
-        }
-        .heatmap-cell { aspect-ratio: 1/1; border-radius: 2px; }
-    </style>
+  :root {
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e;
+    --green:#4a7c3f; --purple:#8b5fa3; --ink:#1f2328; --gray:#6b7280;
+    --border:#e5e7eb; --bg:#f5f6f8; --card-bg:#ffffff; --input-bg:#f9fafb;
+    --maroon-text:#7a2734; --sidebar-bg:#ffffff; --error:#a3312f; --error-bg:#fbe4e4;
+  }
+  html.dark {
+    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
+    --ink:#f0f1f3; --gray:#c9b8ba; --maroon-text:#ffb2b8; --sidebar-bg:#1f191b;
+    --error:#ffb4ab; --error-bg:rgba(186,26,26,.2);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
+    background: var(--bg); color: var(--ink); min-height: 100vh;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  a { text-decoration: none; }
+
+  .sidebar {
+    display: none;
+    position: fixed; left: 0; top: 0; height: 100vh; width: 240px;
+    background: var(--sidebar-bg); border-right: 1px solid var(--border);
+    flex-direction: column; padding: 24px 16px; z-index: 40;
+    transition: background-color .2s ease, border-color .2s ease;
+  }
+  @media (min-width: 900px) { .sidebar { display: flex; } }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; margin-bottom: 32px; }
+  .logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--maroon); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .sidebar-brand h1 { font-size: 15px; font-weight: 700; color: var(--maroon-text); margin: 0; line-height: 1.2; }
+  .sidebar-brand p { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; margin: 2px 0 0; }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    color: var(--gray); font-size: 14px; font-weight: 600; margin-bottom: 4px; transition: background .15s, color .15s;
+  }
+  .nav-link:hover { background: var(--bg); }
+  .nav-link.active { background: var(--maroon); color: #fff; }
+  .sidebar-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+    color: var(--gray); font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer;
+    font-family: inherit; text-align: left; width: 100%;
+  }
+  .nav-btn:hover { background: var(--bg); }
+
+  main { min-height: 100vh; }
+  @media (min-width: 900px) { main { margin-left: 240px; } }
+
+  .hero {
+    position: relative; overflow: hidden; padding: 32px 24px 140px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-top { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
+  .hero-top h2 { color: #fff; font-size: 24px; font-weight: 800; margin: 0 0 4px; }
+  .hero-top p { color: #f3c6b0; font-size: 13.5px; margin: 0; }
+  .hero-controls { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 12px; padding: 8px 14px; backdrop-filter: blur(6px); }
+  .hero-controls select {
+    background: transparent; color: #fff; border: none; font-weight: 700; font-size: 14px; cursor: pointer;
+    font-family: inherit;
+  }
+  .hero-controls select option { color: #111; }
+  .hero-controls .divider { width: 1px; height: 24px; background: rgba(255,255,255,.25); }
+  .print-link { display: flex; align-items: center; gap: 6px; background: var(--orange); color: #fff; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; transition: filter .15s; }
+  .print-link:hover { filter: brightness(1.1); }
+
+  .kpi-grid {
+    max-width: 1200px; margin: -104px auto 0; padding: 0 24px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; position: relative; z-index: 5;
+  }
+  @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .kpi-grid { grid-template-columns: 1fr; } }
+  .kpi-card { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px -12px rgba(31,35,40,.15); transition: background-color .2s ease, border-color .2s ease; }
+  .kpi-card .icon { width: 44px; height: 44px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .kpi-card .label { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin: 0 0 4px; }
+  .kpi-card .num { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 700; color: var(--maroon-text); margin: 0; }
+  .kpi-card.highlight { background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); border-color: transparent; position: relative; }
+  .kpi-card.highlight .label { color: #f3c6b0; }
+  .kpi-card.highlight .num { color: #fff; }
+  .kpi-card.highlight .icon { background: rgba(255,255,255,.2); color: #fff; }
+  .live-badge {
+    display: inline-block; background: rgba(255,255,255,.22); color: #fff; font-size: 9.5px; font-weight: 800;
+    letter-spacing: .04em; padding: 1px 6px; border-radius: 9999px; vertical-align: middle; margin-left: 4px;
+  }
+  .kpi-note { font-size: 11px; color: rgba(255,255,255,.75); margin: 8px 0 0; line-height: 1.5; }
+  .pulse-dot { position: absolute; top: 16px; right: 16px; width: 10px; height: 10px; border-radius: 9999px; background: #fff; }
+  .pulse-dot::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; animation: stampPulse 2.2s ease-out infinite; }
+  @keyframes stampPulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.5); } 100% { box-shadow: 0 0 0 14px rgba(255,255,255,0); } }
+
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px 48px; display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 1000px) { .content { grid-template-columns: 1fr; } }
+  .panel { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,.04); overflow: hidden; transition: background-color .2s ease, border-color .2s ease; }
+  .panel.span-3 { grid-column: 1 / -1; }
+  .panel.span-2 { grid-column: span 2; }
+  @media (max-width: 1000px) { .panel.span-2 { grid-column: 1 / -1; } }
+  .panel-pad { padding: 24px; }
+  .panel h4 { font-size: 16px; font-weight: 700; color: var(--maroon-text); margin: 0 0 4px; }
+  .panel .sub { font-size: 13px; color: var(--gray); margin: 0; line-height: 1.6; }
+
+  .table-head { padding: 20px 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border); }
+  .table-head .count { font-size: 13px; font-weight: 700; color: var(--gray); white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px 20px; text-align: left; font-size: 13px; }
+  th { background: var(--bg); color: var(--maroon-text); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; font-weight: 700; }
+  td { border-top: 1px solid var(--border); color: var(--ink); }
+  tbody tr { transition: background-color .15s; }
+  tbody tr:hover { background: var(--bg); }
+  tbody tr.overdue-row { background: var(--error-bg); }
+  tbody tr.overdue-row:hover { background: var(--error-bg); filter: brightness(.97); }
+  .muted { color: var(--gray); }
+  .col-right { text-align: right; }
+  .table-scroll { overflow-x: auto; }
+
+  .btn-danger-sm {
+    padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 9999px;
+    background: var(--orange); color: #fff; border: none; cursor: pointer; transition: filter .15s;
+    font-family: inherit;
+  }
+  .btn-danger-sm:hover { filter: brightness(1.1); }
+  .btn-danger-sm:disabled { opacity: .5; cursor: not-allowed; }
+
+  .announcement-input {
+    width: 100%; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg);
+    padding: 10px 14px; font-size: 13.5px; color: var(--ink); font-family: inherit; resize: vertical;
+  }
+  .announcement-input:focus { outline: 3px solid var(--orange); outline-offset: 1px; border-color: var(--maroon); }
+  .btn-save-sm {
+    padding: 8px 18px; font-size: 13px; font-weight: 700; border-radius: 9999px;
+    background: var(--maroon); color: #fff; border: none; cursor: pointer; transition: filter .15s;
+    font-family: inherit;
+  }
+  .btn-save-sm:hover { filter: brightness(1.1); }
+  .btn-save-sm:disabled { opacity: .5; cursor: not-allowed; }
+
+  .trend-chart { display: flex; align-items: flex-end; gap: 3px; height: 200px; padding: 24px 24px 0; }
+  .trend-bar { flex: 1; background: linear-gradient(180deg, var(--orange), #c94f1c); border-radius: 4px 4px 0 0; min-height: 3px; transition: filter .15s; cursor: help; }
+  .trend-bar:hover { filter: brightness(1.15); }
+  .trend-labels { display: flex; justify-content: space-between; padding: 6px 24px 20px; font-size: 10px; color: var(--gray); font-family: 'IBM Plex Mono', monospace; }
+
+  .dept-list { padding: 20px 24px 24px; }
+  .dept-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .dept-name { width: 130px; font-size: 12.5px; font-weight: 600; color: var(--ink); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dept-bar-track { flex: 1; background: var(--bg); border-radius: 6px; height: 14px; overflow: hidden; }
+  .dept-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--purple), #6d4680); }
+  .dept-val { width: 40px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--gray); flex-shrink: 0; }
+
+  .insight-box {
+    margin: 0 24px 24px; padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(90deg, #fbe9e2, #f7f0e6); border: 1px solid #f0d9c8;
+  }
+  html.dark .insight-box { background: linear-gradient(90deg, rgba(224,103,46,.15), rgba(224,103,46,.08)); border-color: rgba(224,103,46,.3); }
+  .insight-box .ic { width: 32px; height: 32px; border-radius: 9999px; background: var(--orange); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .insight-box p { font-size: 13px; color: var(--ink); margin: 0; line-height: 1.5; font-style: italic; }
+
+  .heatmap-wrap { padding: 24px; overflow-x: auto; }
+  .heatmap-grid-outer { min-width: 820px; display: grid; grid-template-columns: auto 1fr; gap: 12px; }
+  .weekday-labels { display: grid; grid-template-rows: repeat(7, 1fr); gap: 3px; font-size: 10px; color: var(--gray); padding-top: 20px; }
+  .hour-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); margin-bottom: 6px; padding: 0 2px; }
+  .heatmap { display: grid; grid-template-columns: repeat(24, 1fr); grid-auto-rows: 1fr; gap: 3px; }
+  .heat-cell { aspect-ratio: 1; border-radius: 3px; cursor: pointer; transition: transform .1s; }
+  .heat-cell:hover { transform: scale(1.15); }
+  .heat-0 { background: var(--bg); }
+  .heat-1 { background: rgba(224,103,46,.25); }
+  .heat-2 { background: rgba(224,103,46,.5); }
+  .heat-3 { background: rgba(224,103,46,.8); }
+  .heat-4 { background: var(--maroon); }
+  html.dark .heat-0 { background: var(--border); }
+  .legend { display: flex; justify-content: flex-end; align-items: center; gap: 6px; padding: 0 24px 20px; font-size: 10px; color: var(--gray); text-transform: uppercase; }
+  .legend .heat-cell { width: 12px; height: 12px; aspect-ratio: unset; cursor: default; }
+  .legend .heat-cell:hover { transform: none; }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--gray); margin: 0; }
+  footer .brand { font-weight: 700; color: var(--maroon-text); display: block; margin-bottom: 4px; }
+</style>
 </head>
-<body class="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex transition-colors duration-200">
-<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border shadow-sm py-6 px-4 z-50">
-<div class="flex items-center gap-3 mb-10 px-2">
-<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
-<span class="material-symbols-outlined text-on-primary">library_books</span>
-</div>
-<div>
-<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed-dim leading-tight">ห้องสมุด NNTC</h1>
-<p class="text-[10px] uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลเจ้าหน้าที่</p>
-</div>
-</div>
-<nav class="flex-1 space-y-2">
-<a class="flex items-center gap-3 bg-primary-container text-on-primary-container font-bold rounded-lg px-4 py-2" href="/admin/dashboard">
-<span class="material-symbols-outlined">monitoring</span>
-<span class="font-body-md">ภาพรวม</span>
-</a>
-<a class="flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors" href="/admin/members-management">
-<span class="material-symbols-outlined">group</span>
-<span class="font-body-md">สมาชิก</span>
-</a>
-<a class="flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors" href="/admin/attendance-logs">
-<span class="material-symbols-outlined">history</span>
-<span class="font-body-md">ประวัติการเข้าใช้</span>
-</a>
-</nav>
-<div class="mt-auto pt-6 border-t border-outline-variant dark:border-dm-border space-y-2">
-<button class="w-full flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors group" id="theme-toggle" type="button">
-<span class="material-symbols-outlined">dark_mode</span>
-<span class="font-body-md">โหมดมืด/สว่าง</span>
-</button>
-<button class="w-full flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors group" id="logout-btn" type="button">
-<span class="material-symbols-outlined group-hover:text-error">logout</span>
-<span class="font-body-md">ออกจากระบบ</span>
-</button>
-</div>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-box"><span class="material-symbols-outlined" style="font-size:18px;">library_books</span></div>
+    <div>
+      <h1>ห้องสมุด NNTC</h1>
+      <p>พอร์ทัลเจ้าหน้าที่</p>
+    </div>
+  </div>
+  <nav>
+    <a class="nav-link active" href="/admin/dashboard">
+      <span class="material-symbols-outlined" style="font-size:20px;">monitoring</span> ภาพรวม
+    </a>
+    <a class="nav-link" href="/admin/members-management">
+      <span class="material-symbols-outlined" style="font-size:20px;">group</span> สมาชิก
+    </a>
+    <a class="nav-link" href="/admin/attendance-logs">
+      <span class="material-symbols-outlined" style="font-size:20px;">history</span> ประวัติการเข้าใช้
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="nav-btn" id="theme-toggle" type="button">
+      <span class="material-symbols-outlined" style="font-size:20px;">dark_mode</span> โหมดมืด/สว่าง
+    </button>
+    <button class="nav-btn" id="logout-btn" type="button">
+      <span class="material-symbols-outlined" style="font-size:20px;">logout</span> ออกจากระบบ
+    </button>
+  </div>
 </aside>
-<main class="flex-1 md:ml-64 flex flex-col min-h-screen">
-<header class="hero-pattern pt-8 pb-32 px-gutter">
-<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-<div>
-<h2 class="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h2>
-<p class="text-on-primary-container font-body-lg text-body-lg" id="hero-subtitle">กำลังโหลดข้อมูลการเข้าใช้…</p>
-</div>
-<div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
-<div class="px-4 py-2">
-<p class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">ช่วงเวลา</p>
-<select class="bg-transparent text-white border-none focus:ring-0 font-bold p-0 text-body-md cursor-pointer" id="filter-view">
-<option value="month">เดือนนี้</option>
-<option value="week">7 วันล่าสุด</option>
-<option value="today">วันนี้</option>
-</select>
-</div>
-<div class="h-10 w-[1px] bg-white/20"></div>
-<a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank">
-<span class="material-symbols-outlined">print</span>
-<span class="font-label-caps">พิมพ์รายงาน</span>
-</a>
-</div>
-</div>
-<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
-<div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
-<div class="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
-<span class="material-symbols-outlined">group</span>
-</div>
-<p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
-<h3 class="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code" id="stat-total">–</h3>
-</div>
-<div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
-<div class="w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
-<span class="material-symbols-outlined">person_search</span>
-</div>
-<p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
-<h3 class="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code" id="stat-unique">–</h3>
-</div>
-<div class="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/30 dark:border-dm-border">
-<div class="w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
-<span class="material-symbols-outlined">calendar_today</span>
-</div>
-<p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
-<h3 class="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code" id="stat-avg">–</h3>
-</div>
-<div class="bg-primary-container rounded-xl p-6 shadow-[0px_8px_24px_rgba(122,39,52,0.2)] border border-primary relative overflow-hidden">
-<div class="absolute top-0 right-0 p-4">
-<div class="w-3 h-3 bg-white rounded-full stamp-pulse"></div>
-</div>
-<div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
-<span class="material-symbols-outlined">meeting_room</span>
-</div>
-<p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
-<h3 class="text-headline-lg font-headline-lg text-white font-bold font-label-code" id="stat-inside">–</h3>
-</div>
-</div>
-</header>
-<div class="max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-<section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
-<div class="mb-8">
-<h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h4>
-<p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก</p>
-</div>
-<div class="h-64 flex items-end justify-between gap-1 px-2 relative" id="trend-chart">
-<p class="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">กำลังโหลด…</p>
-</div>
-<div class="flex justify-between mt-4 text-xs font-label-caps text-outline dark:text-dm-text-secondary uppercase tracking-wider" id="trend-labels"></div>
-</section>
-<section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
-<h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h4>
-<div class="space-y-6" id="department-breakdown">
-<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด…</p>
-</div>
-<div class="mt-10 p-4 bg-surface-container-low dark:bg-dm-bg rounded-xl border border-dashed border-outline-variant dark:border-dm-border flex items-center gap-4">
-<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-3xl">lightbulb</span>
-<p class="text-sm text-on-surface-variant dark:text-dm-text-secondary italic" id="peak-insight">กำลังคำนวณช่วงเวลาที่มีคนใช้มากที่สุด…</p>
-</div>
-</section>
-<section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
-<div class="mb-8">
-<h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">การเข้าใช้ตามวันและเวลา</h4>
-<p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">ความหนาแน่นของการเข้าใช้ในช่วงเวลาที่เลือก (แถว = วันในสัปดาห์, คอลัมน์ = ชั่วโมง)</p>
-</div>
-<div class="overflow-x-auto pb-4">
-<div class="min-w-[900px] grid grid-cols-[auto_1fr] gap-4">
-<div class="grid grid-rows-7 gap-1 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps pt-6">
-<span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
-</div>
-<div>
-<div class="flex justify-between text-[10px] text-outline dark:text-dm-text-secondary font-label-caps mb-2 px-1">
-<span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
-</div>
-<div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr));"></div>
-</div>
-</div>
-</div>
-<div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps uppercase">
-<span>น้อย</span>
-<div class="w-3 h-3 bg-surface-container dark:bg-dm-border rounded-sm"></div>
-<div class="w-3 h-3 bg-primary/20 dark:bg-primary-fixed-dim/35 rounded-sm"></div>
-<div class="w-3 h-3 bg-primary/40 dark:bg-primary-fixed-dim/50 rounded-sm"></div>
-<div class="w-3 h-3 bg-primary/70 dark:bg-primary-fixed-dim/70 rounded-sm"></div>
-<div class="w-3 h-3 bg-primary dark:bg-primary-fixed-dim rounded-sm"></div>
-<span>มาก</span>
-</div>
-</section>
-</div>
-<footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
-<div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-<span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NNTC</span>
-<p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary opacity-80">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-</div>
-</footer>
+
+<main>
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <h2>ภาพรวมการใช้งานห้องสมุด</h2>
+        <p id="hero-subtitle">กำลังโหลดข้อมูลการเข้าใช้…</p>
+      </div>
+      <div class="hero-controls">
+        <select id="filter-view">
+          <option value="month">เดือนนี้</option>
+          <option value="week">7 วันล่าสุด</option>
+          <option value="today">วันนี้</option>
+        </select>
+        <div class="divider"></div>
+        <a class="print-link" href="/admin/reports/print" target="_blank">
+          <span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์รายงาน
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="icon" style="background:#f3e5e7;"><span class="material-symbols-outlined" style="color:var(--maroon); font-size:20px;">group</span></div>
+      <p class="label">จำนวนรายการทั้งหมด</p>
+      <p class="num" id="stat-total">–</p>
+    </div>
+    <div class="kpi-card">
+      <div class="icon" style="background:#fbe9e2;"><span class="material-symbols-outlined" style="color:var(--orange); font-size:20px;">person_search</span></div>
+      <p class="label">ผู้ใช้งานไม่ซ้ำคน</p>
+      <p class="num" id="stat-unique">–</p>
+    </div>
+    <div class="kpi-card">
+      <div class="icon" style="background:#f3e9f7;"><span class="material-symbols-outlined" style="color:var(--purple); font-size:20px;">calendar_today</span></div>
+      <p class="label">เฉลี่ยต่อวัน</p>
+      <p class="num" id="stat-avg">–</p>
+    </div>
+    <div class="kpi-card highlight">
+      <div class="pulse-dot"></div>
+      <div class="icon"><span class="material-symbols-outlined" style="font-size:20px;">meeting_room</span></div>
+      <p class="label">อยู่ในห้องสมุดตอนนี้ <span class="live-badge">สด</span></p>
+      <p class="num" id="stat-inside">–</p>
+      <p class="kpi-note">ข้อมูลเรียลไทม์ ณ ตอนนี้ ไม่ขึ้นกับตัวกรองช่วงเวลาด้านบน — จึงต่างจาก 3 การ์ดซ้ายมือ</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="panel span-3">
+      <div class="panel-pad">
+        <h4>ประกาศถึงนักศึกษา</h4>
+        <p class="sub">ข้อความนี้จะแสดงเป็นแบนเนอร์บนหน้าแดชบอร์ดของนักศึกษาทุกคน เว้นว่างแล้วบันทึกเพื่อไม่ให้แสดงอะไรเลย</p>
+        <textarea class="announcement-input" id="announcement-input" placeholder="เช่น ห้องสมุดปิดทำการวันเสาร์นี้เพื่อตรวจนับครุภัณฑ์" rows="2" style="margin-top:12px;"></textarea>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+          <button class="btn-save-sm" id="announcement-save" type="button">บันทึกประกาศ</button>
+          <span class="muted" id="announcement-status" style="font-size:12.5px;"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="table-head">
+        <div>
+          <h4>คนที่อยู่ในห้องสมุดตอนนี้</h4>
+          <p class="sub">
+            คอลัมน์ "ตั้งใจออก" คือเวลาที่ระบบจะ<b>เช็คเอาท์ให้อัตโนมัติ</b> — ไม่ต้องทำอะไร
+            ส่วน "จนกว่าจะปิด" คือยังไม่ตั้งเวลา ต้องออกเองหรือรอแอดมินกด<br>
+            "บังคับเช็คเอาท์" จึงใช้เฉพาะกรณี "จนกว่าจะปิด" หรือค้างเกิน 6 ชม. (ไฮไลต์แดง) เท่านั้น
+          </p>
+        </div>
+        <span class="count" id="current-checkins-count">–</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสนักศึกษา</th>
+              <th>ชื่อ-สกุล</th>
+              <th>แผนกวิชา</th>
+              <th>เข้าเมื่อ</th>
+              <th>ตั้งใจออก</th>
+              <th class="col-right">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="current-checkins-rows">
+            <tr><td colspan="6" class="muted">กำลังโหลด…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel span-2">
+      <div class="panel-pad" style="padding-bottom:0;">
+        <h4>แนวโน้มการเข้าใช้</h4>
+        <p class="sub">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก</p>
+      </div>
+      <div class="trend-chart" id="trend-chart">
+        <p class="muted" style="margin:auto;">กำลังโหลด…</p>
+      </div>
+      <div class="trend-labels" id="trend-labels"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-pad" style="padding-bottom:8px;">
+        <h4>แผนกที่เข้าใช้มากที่สุด</h4>
+      </div>
+      <div class="dept-list" id="department-breakdown">
+        <p class="muted">กำลังโหลด…</p>
+      </div>
+      <div class="insight-box">
+        <div class="ic"><span class="material-symbols-outlined" style="font-size:16px;">lightbulb</span></div>
+        <p id="peak-insight">กำลังคำนวณช่วงเวลาที่มีคนใช้มากที่สุด…</p>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="panel-pad" style="padding-bottom:0;">
+        <h4>การเข้าใช้ตามวันและเวลา</h4>
+        <p class="sub">ความหนาแน่นของการเข้าใช้ในช่วงเวลาที่เลือก (แถว = วันในสัปดาห์, คอลัมน์ = ชั่วโมง)</p>
+      </div>
+      <div class="heatmap-wrap">
+        <div class="heatmap-grid-outer">
+          <div class="weekday-labels">
+            <span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
+          </div>
+          <div>
+            <div class="hour-labels">
+              <span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
+            </div>
+            <div class="heatmap" id="heatmap-grid"></div>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <span>น้อย</span>
+        <div class="heat-cell heat-0"></div>
+        <div class="heat-cell heat-1"></div>
+        <div class="heat-cell heat-2"></div>
+        <div class="heat-cell heat-3"></div>
+        <div class="heat-cell heat-4"></div>
+        <span>มาก</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="brand">ห้องสมุด NNTC</span>
+    <p>© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
+  </footer>
 </main>
+
 <script src="/static/js/api.js"></script>
 <script>
-        initThemeToggle('theme-toggle');
+    initThemeToggle('theme-toggle');
 
-        const WEEKDAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'];
-        let allRows = [];
+    const WEEKDAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'];
+    let allRows = [];
 
-        function isoWeekdayIndex(date) {
-            return (date.getDay() + 6) % 7; // 0=Mon .. 6=Sun
+    function isoWeekdayIndex(date) {
+        return (date.getDay() + 6) % 7; // 0=Mon .. 6=Sun
+    }
+
+    function filterRows(view) {
+        const now = new Date();
+        if (view === 'today') {
+            const todayStr = now.toISOString().slice(0, 10);
+            return allRows.filter(r => r.timestamp.slice(0, 10) === todayStr);
+        }
+        if (view === 'week') {
+            const cutoff = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+            return allRows.filter(r => new Date(r.timestamp) >= cutoff);
+        }
+        return allRows;
+    }
+
+    function render(view) {
+        const rows = filterRows(view);
+        const total = rows.length;
+        const uniqueUsers = new Set(rows.map(r => r.student_id)).size;
+        const dayBuckets = {};
+        rows.forEach(r => {
+            const day = r.timestamp.slice(0, 10);
+            dayBuckets[day] = (dayBuckets[day] || 0) + 1;
+        });
+        const dayKeys = Object.keys(dayBuckets).sort();
+        const avgDaily = dayKeys.length ? Math.round(total / dayKeys.length) : 0;
+
+        const lastByUser = {};
+        rows.forEach(r => {
+            const prev = lastByUser[r.student_id];
+            if (!prev || new Date(r.timestamp) > new Date(prev.timestamp)) lastByUser[r.student_id] = r;
+        });
+        const currentlyInside = Object.values(lastByUser).filter(r => r.type === 'in').length;
+
+        document.getElementById('stat-total').textContent = total.toLocaleString();
+        document.getElementById('stat-unique').textContent = uniqueUsers.toLocaleString();
+        document.getElementById('stat-avg').textContent = avgDaily.toLocaleString();
+        document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
+        document.getElementById('hero-subtitle').textContent =
+            total ? `มีการเข้าใช้ ${total.toLocaleString()} ครั้ง จากนักศึกษา ${uniqueUsers.toLocaleString()} คน ในช่วงเวลาที่เลือก` : 'ไม่มีข้อมูลการเข้าใช้ในช่วงเวลาที่เลือก';
+
+        // Trend chart
+        const chart = document.getElementById('trend-chart');
+        const labels = document.getElementById('trend-labels');
+        chart.innerHTML = '';
+        labels.innerHTML = '';
+        if (dayKeys.length) {
+            const max = Math.max(...dayKeys.map(k => dayBuckets[k]));
+            dayKeys.forEach(day => {
+                const bar = document.createElement('div');
+                const pct = max ? Math.max(4, Math.round((dayBuckets[day] / max) * 100)) : 4;
+                bar.className = 'trend-bar';
+                bar.style.height = pct + '%';
+                bar.title = `${day}: ${dayBuckets[day]} ครั้ง`;
+                chart.appendChild(bar);
+            });
+            labels.innerHTML = `<span>${dayKeys[0]}</span><span>${dayKeys[dayKeys.length - 1]}</span>`;
+        } else {
+            chart.innerHTML = '<p class="muted" style="margin:auto;">ไม่มีข้อมูลในช่วงเวลานี้</p>';
         }
 
-        function filterRows(view) {
-            const now = new Date();
-            if (view === 'today') {
-                const todayStr = now.toISOString().slice(0, 10);
-                return allRows.filter(r => r.timestamp.slice(0, 10) === todayStr);
-            }
-            if (view === 'week') {
-                const cutoff = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
-                return allRows.filter(r => new Date(r.timestamp) >= cutoff);
-            }
-            return allRows;
+        // Department breakdown
+        const deptCounts = {};
+        rows.forEach(r => {
+            const dept = r.department || 'ไม่ระบุแผนก';
+            deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+        });
+        const deptEntries = Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        const deptBox = document.getElementById('department-breakdown');
+        if (deptEntries.length) {
+            const maxCount = deptEntries[0][1];
+            deptBox.innerHTML = deptEntries.map(([dept, count]) => {
+                const pct = maxCount ? Math.round((count / maxCount) * 100) : 0;
+                return `
+                    <div class="dept-row">
+                        <div class="dept-name" title="${dept}">${dept}</div>
+                        <div class="dept-bar-track"><div class="dept-bar-fill" style="width: ${pct}%"></div></div>
+                        <div class="dept-val">${count}</div>
+                    </div>`;
+            }).join('');
+        } else {
+            deptBox.innerHTML = '<p class="muted">ไม่มีข้อมูลในช่วงเวลานี้</p>';
         }
 
-        function render(view) {
-            const rows = filterRows(view);
-            const total = rows.length;
-            const uniqueUsers = new Set(rows.map(r => r.student_id)).size;
-            const dayBuckets = {};
-            rows.forEach(r => {
-                const day = r.timestamp.slice(0, 10);
-                dayBuckets[day] = (dayBuckets[day] || 0) + 1;
-            });
-            const dayKeys = Object.keys(dayBuckets).sort();
-            const avgDaily = dayKeys.length ? Math.round(total / dayKeys.length) : 0;
-
-            const lastByUser = {};
-            rows.forEach(r => {
-                const prev = lastByUser[r.student_id];
-                if (!prev || new Date(r.timestamp) > new Date(prev.timestamp)) lastByUser[r.student_id] = r;
-            });
-            const currentlyInside = Object.values(lastByUser).filter(r => r.type === 'in').length;
-
-            document.getElementById('stat-total').textContent = total.toLocaleString();
-            document.getElementById('stat-unique').textContent = uniqueUsers.toLocaleString();
-            document.getElementById('stat-avg').textContent = avgDaily.toLocaleString();
-            document.getElementById('stat-inside').textContent = currentlyInside.toLocaleString();
-            document.getElementById('hero-subtitle').textContent =
-                total ? `มีการเข้าใช้ ${total.toLocaleString()} ครั้ง จากนักศึกษา ${uniqueUsers.toLocaleString()} คน ในช่วงเวลาที่เลือก` : 'ไม่มีข้อมูลการเข้าใช้ในช่วงเวลาที่เลือก';
-
-            // Trend chart
-            const chart = document.getElementById('trend-chart');
-            const labels = document.getElementById('trend-labels');
-            chart.innerHTML = '';
-            labels.innerHTML = '';
-            if (dayKeys.length) {
-                const max = Math.max(...dayKeys.map(k => dayBuckets[k]));
-                dayKeys.forEach(day => {
-                    const bar = document.createElement('div');
-                    const pct = max ? Math.max(4, Math.round((dayBuckets[day] / max) * 100)) : 4;
-                    bar.className = 'flex-1 bg-primary/20 dark:bg-primary-fixed-dim/40 hover:bg-primary/40 dark:hover:bg-primary-fixed-dim/60 rounded-t transition-all cursor-help relative group';
-                    bar.style.height = pct + '%';
-                    bar.title = `${day}: ${dayBuckets[day]} ครั้ง`;
-                    chart.appendChild(bar);
-                });
-                labels.innerHTML = `<span>${dayKeys[0]}</span><span>${dayKeys[dayKeys.length - 1]}</span>`;
-            } else {
-                chart.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">ไม่มีข้อมูลในช่วงเวลานี้</p>';
+        // Day/hour heatmap + peak insight
+        const grid = document.getElementById('heatmap-grid');
+        const counts = Array.from({ length: 7 }, () => Array(24).fill(0));
+        rows.forEach(r => {
+            const d = new Date(r.timestamp);
+            counts[isoWeekdayIndex(d)][d.getHours()]++;
+        });
+        const maxCell = Math.max(1, ...counts.flat());
+        grid.innerHTML = '';
+        let peak = { count: -1, day: 0, hour: 0 };
+        for (let day = 0; day < 7; day++) {
+            for (let hour = 0; hour < 24; hour++) {
+                const count = counts[day][hour];
+                if (count > peak.count) peak = { count, day, hour };
+                const ratio = count / maxCell;
+                let level = 0;
+                if (ratio > 0.75) level = 4;
+                else if (ratio > 0.5) level = 3;
+                else if (ratio > 0.25) level = 2;
+                else if (ratio > 0) level = 1;
+                const cell = document.createElement('div');
+                cell.className = `heat-cell heat-${level}`;
+                cell.title = `${WEEKDAY_LABELS[day]} ${hour}:00 — ${count} ครั้ง`;
+                grid.appendChild(cell);
             }
+        }
+        document.getElementById('peak-insight').textContent = peak.count > 0
+            ? `ช่วงที่มีคนใช้มากที่สุด: วัน${WEEKDAY_LABELS[peak.day]} ประมาณ ${peak.hour}:00 น. (${peak.count} ครั้ง)`
+            : 'ข้อมูลยังไม่เพียงพอที่จะระบุช่วงเวลาที่มีคนใช้มากที่สุด';
+    }
 
-            // Department breakdown
-            const deptCounts = {};
-            rows.forEach(r => {
-                const dept = r.department || 'ไม่ระบุแผนก';
-                deptCounts[dept] = (deptCounts[dept] || 0) + 1;
-            });
-            const deptEntries = Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-            const deptBox = document.getElementById('department-breakdown');
-            const colors = ['bg-primary', 'bg-secondary', 'bg-accent-stats', 'bg-status-success', 'bg-outline'];
-            if (deptEntries.length) {
-                deptBox.innerHTML = deptEntries.map(([dept, count], i) => {
-                    const pct = total ? Math.round((count / total) * 100) : 0;
-                    return `
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center text-sm font-bold">
-                                <span>${dept}</span>
-                                <span class="font-label-code">${pct}%</span>
-                            </div>
-                            <div class="w-full bg-surface-container dark:bg-dm-border rounded-full h-2">
-                                <div class="${colors[i % colors.length]} h-2 rounded-full" style="width: ${pct}%"></div>
-                            </div>
-                        </div>`;
-                }).join('');
-            } else {
-                deptBox.innerHTML = '<p class="text-body-md text-text-secondary">ไม่มีข้อมูลในช่วงเวลานี้</p>';
-            }
+    function formatHM(isoString) {
+        return new Date(isoString).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    }
 
-            // Day/hour heatmap + peak insight
-            const grid = document.getElementById('heatmap-grid');
-            const counts = Array.from({ length: 7 }, () => Array(24).fill(0));
-            rows.forEach(r => {
-                const d = new Date(r.timestamp);
-                counts[isoWeekdayIndex(d)][d.getHours()]++;
-            });
-            const maxCell = Math.max(1, ...counts.flat());
-            grid.innerHTML = '';
-            let peak = { count: -1, day: 0, hour: 0 };
-            for (let day = 0; day < 7; day++) {
-                for (let hour = 0; hour < 24; hour++) {
-                    const count = counts[day][hour];
-                    if (count > peak.count) peak = { count, day, hour };
-                    const ratio = count / maxCell;
-                    let shade = 'bg-surface-container dark:bg-dm-border';
-                    if (ratio > 0.75) shade = 'bg-primary dark:bg-primary-fixed-dim';
-                    else if (ratio > 0.5) shade = 'bg-primary/70 dark:bg-primary-fixed-dim/70';
-                    else if (ratio > 0.25) shade = 'bg-primary/40 dark:bg-primary-fixed-dim/50';
-                    else if (ratio > 0) shade = 'bg-primary/20 dark:bg-primary-fixed-dim/35';
-                    const cell = document.createElement('div');
-                    cell.className = `heatmap-cell hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer ${shade}`;
-                    cell.title = `${WEEKDAY_LABELS[day]} ${hour}:00 — ${count} ครั้ง`;
-                    grid.appendChild(cell);
+    async function loadCurrentCheckins() {
+        const tbody = document.getElementById('current-checkins-rows');
+        let rows;
+        try {
+            rows = await apiFetch('/admin/checkins/current');
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:var(--error);">${err.message}</td></tr>`;
+            return;
+        }
+
+        document.getElementById('current-checkins-count').textContent = `${rows.length} คน`;
+
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="muted">ไม่มีใครอยู่ในห้องสมุดตอนนี้</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+            <tr class="${r.is_overdue ? 'overdue-row' : ''}">
+                <td class="mono" style="color:var(--maroon-text);">${r.student_id}</td>
+                <td style="font-weight:700;">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
+                <td class="muted">${r.department || '-'}</td>
+                <td class="mono muted">${formatHM(r.checked_in_at)}</td>
+                <td class="mono" style="${r.is_overdue ? 'color:var(--error); font-weight:700;' : 'color:var(--gray);'}">
+                    ${r.planned_checkout_at ? formatHM(r.planned_checkout_at) : 'จนกว่าจะปิด'}${r.is_overdue ? ' (เกิน 6 ชม.)' : ''}
+                </td>
+                <td class="col-right">
+                    <button class="btn-danger-sm" data-force-checkout="${r.user_id}" data-name="${r.prefix || ''}${r.first_name} ${r.last_name}" type="button">บังคับเช็คเอาท์</button>
+                </td>
+            </tr>`).join('');
+
+        tbody.querySelectorAll('[data-force-checkout]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const name = btn.dataset.name;
+                const ok = await showConfirm(`ยืนยันบังคับเช็คเอาท์ให้ ${name} ใช่ไหม`, { title: 'บังคับเช็คเอาท์', confirmText: 'ยืนยัน' });
+                if (!ok) return;
+                btn.disabled = true;
+                try {
+                    await apiPostJson('/admin/checkins/force-checkout', { user_id: parseInt(btn.dataset.forceCheckout, 10) });
+                    await loadCurrentCheckins();
+                    showToast(`บังคับเช็คเอาท์ ${name} สำเร็จ`, 'success');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                    btn.disabled = false;
                 }
-            }
-            document.getElementById('peak-insight').textContent = peak.count > 0
-                ? `ช่วงที่มีคนใช้มากที่สุด: วัน${WEEKDAY_LABELS[peak.day]} ประมาณ ${peak.hour}:00 น. (${peak.count} ครั้ง)`
-                : 'ข้อมูลยังไม่เพียงพอที่จะระบุช่วงเวลาที่มีคนใช้มากที่สุด';
-        }
+            });
+        });
+    }
 
-        async function init() {
-            try {
-                const me = await apiFetch('/me');
-                if (me.role !== 'admin') {
-                    window.location.href = '/dashboard';
-                    return;
-                }
-            } catch (_err) {
-                window.location.href = '/login';
+    async function loadAnnouncement() {
+        const announcement = await apiFetch('/announcement');
+        document.getElementById('announcement-input').value = announcement.message || '';
+    }
+
+    document.getElementById('announcement-save').addEventListener('click', async () => {
+        const btn = document.getElementById('announcement-save');
+        const status = document.getElementById('announcement-status');
+        btn.disabled = true;
+        status.textContent = 'กำลังบันทึก…';
+        try {
+            await apiPostJson('/admin/announcement', { message: document.getElementById('announcement-input').value });
+            status.textContent = 'บันทึกแล้ว';
+        } catch (err) {
+            status.textContent = err.message;
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    async function init() {
+        try {
+            const me = await apiFetch('/me');
+            if (me.role !== 'admin') {
+                window.location.href = '/dashboard';
                 return;
             }
-
-            const month = new Date().toISOString().slice(0, 7);
-            allRows = await apiFetch(`/admin/reports?month=${month}`);
-            render(document.getElementById('filter-view').value);
+        } catch (_err) {
+            window.location.href = '/login';
+            return;
         }
 
-        document.getElementById('filter-view').addEventListener('change', (e) => render(e.target.value));
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await apiFetch('/logout', { method: 'POST' });
-            window.location.href = '/login';
-        });
+        const month = new Date().toISOString().slice(0, 7);
+        allRows = await apiFetch(`/admin/reports?month=${month}`);
+        render(document.getElementById('filter-view').value);
+        await loadCurrentCheckins();
+        await loadAnnouncement();
+    }
 
-        init();
-    </script>
+    document.getElementById('filter-view').addEventListener('change', (e) => render(e.target.value));
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await apiFetch('/logout', { method: 'POST' });
+        window.location.href = '/login';
+    });
+
+    init();
+</script>
 </body></html>

@@ -1,242 +1,119 @@
 <!DOCTYPE html>
-<html class="light" lang="th"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ห้องสมุด NNTC - เข้าสู่ระบบ</title>
-<script>
-(function () {
-    try {
-        var stored = localStorage.getItem('nntc-theme');
-        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.classList.toggle('dark', dark);
-        document.documentElement.classList.toggle('light', !dark);
-    } catch (e) {}
-})();
-</script>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banner — ห้องสมุดวิทยาลัยเทคนิคนครนายก</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e;
-    --green:#4a7c3f; --purple:#8b5fa3; --ink:#1f2328; --gray:#6b7280;
-    --gray-light:#9aa1ab; --border:#e5e7eb; --bg:#f5f6f8;
-    --card-bg:#ffffff; --input-bg:#f9fafb; --maroon-text:#7a2734;
-  }
-  html.dark {
-    --bg:#141112; --card-bg:#1f191b; --input-bg:#1f191b; --border:#4a3a3c;
-    --ink:#f0f1f3; --gray:#c9b8ba; --gray-light:#c9b8ba; --maroon-text:#ffb2b8;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; font-family: 'Noto Sans Thai','Segoe UI',sans-serif;
-    background: var(--bg); color: var(--ink); min-height: 100vh;
-    display: flex; flex-direction: column;
-    transition: background-color .2s ease, color .2s ease;
-  }
-  .mono { font-family: 'IBM Plex Mono', monospace; }
-  .hidden { display: none !important; }
-  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-
-  .theme-toggle {
-    position: fixed; top: 16px; right: 16px; z-index: 60;
-    width: 42px; height: 42px; border-radius: 9999px;
-    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform .15s ease, background .15s ease;
-  }
-  .theme-toggle:hover { transform: scale(1.05); background: rgba(255,255,255,.25); }
-  .theme-toggle:active { transform: scale(.95); }
-
-
-  main { flex: 1; max-width: 420px; margin: 20px auto 0; padding: 0 24px 64px; width: 100%; box-sizing: border-box; position: relative; }
-  .card {
-    background: var(--card-bg); border-radius: 18px;
-    box-shadow: 0 20px 45px -12px rgba(31,35,40,0.25); border: 1px solid var(--border);
-    overflow: hidden; transition: background-color .2s ease, border-color .2s ease;
-  }
-
-  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; background: var(--bg); }
-  .tab {
-    border: none; border-radius: 12px; padding: 11px 0; font-size: 14px; font-weight: 700;
-    cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-family: inherit; background: transparent; color: var(--gray);
-  }
-  .tab.active { background: var(--maroon); color: #fff; box-shadow: 0 4px 14px -4px rgba(122,39,52,.5); }
-
-  form { padding: 24px; }
-  .field { margin-bottom: 16px; }
-  .field label { display: block; font-size: 12px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
-  .field .input-wrap { position: relative; }
-  .field .input-wrap .material-symbols-outlined { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-light); font-size: 20px; }
-  .field input {
-    width: 100%; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg);
-    padding: 13px 16px 13px 44px; font-size: 15px; color: var(--ink); font-family: inherit; transition: .2s;
-  }
-  .field input::placeholder { color: #b0b5bd; }
-  .field input:focus { outline: 3px solid var(--orange); outline-offset: 2px; border-color: var(--maroon); }
-
-  .error-box {
-    margin: 0 24px 16px; padding: 12px 14px; border-radius: 10px;
-    background: #fbe4e4; color: #a3312f; font-size: 13.5px; line-height: 1.5;
-  }
-  html.dark .error-box { background: rgba(186,26,26,.2); color: #ffb4ab; }
-
-  .btn-primary {
-    width: 100%; background: var(--orange); color: #fff; font-weight: 700; font-size: 15px;
-    border: none; border-radius: 12px; padding: 14px 0; cursor: pointer; margin-top: 6px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: transform .15s, box-shadow .15s; font-family: inherit;
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -8px rgba(224,103,46,.5); }
-  .btn-primary:active { transform: translateY(0) scale(.98); }
-  .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-
-  .reg-line { text-align: center; font-size: 14px; color: var(--gray); padding: 16px 24px 0; }
-  .reg-line a { color: var(--maroon-text); font-weight: 700; text-decoration: none; }
-  .reg-line a:hover { text-decoration: underline; }
-
-  @keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-  .rise-in { animation: riseIn .6s cubic-bezier(.2,.7,.3,1) both; }
-
-  /* ---- decorative college banner (Design/library_banner_v3_animated_logo.html) ----
-     Every rule below is scoped under .lib-banner (or its own @keyframes, which are
-     prefixed lib-banner-*) so nothing here can leak out and affect the rest of the
-     page, and nothing on the page can leak in and override the banner. */
-  .lib-banner, .lib-banner *{box-sizing:border-box; margin:0; padding:0;}
-  .lib-banner{
-    position:relative; width:100%; overflow:hidden;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:#2a1216;}
+  .banner{
+    position:relative; width:100%; max-width:1440px; height:500px; margin:0 auto; overflow:hidden;
     font-family:'Noto Sans Thai','Segoe UI',sans-serif;
     background:
       radial-gradient(circle at 82% 20%, rgba(255,255,255,0.08), transparent 45%),
       radial-gradient(circle at 6% 90%, rgba(0,0,0,0.2), transparent 45%),
       linear-gradient(135deg, #8a2f3d 0%, #7a2734 55%, #4a151d 100%);
   }
-  html.dark .lib-banner { filter: brightness(.88); }
-  .lib-banner::before{
+  .banner::before{
     content:""; position:absolute; inset:0;
     background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 34px);
-    animation: lib-banner-driftLines 42s linear infinite;
+    animation: driftLines 42s linear infinite;
   }
-  @keyframes lib-banner-driftLines{ from{background-position-x:0;} to{background-position-x:680px;} }
+  @keyframes driftLines{ from{background-position-x:0;} to{background-position-x:680px;} }
 
-  .lib-banner .top-stripe{position:absolute; top:0; left:0; width:100%; height:5px;
+  .top-stripe{position:absolute; top:0; left:0; width:100%; height:5px;
     background:linear-gradient(90deg,#f2c96b,#c9962c,#f2c96b); background-size:200% 100%;
-    animation: lib-banner-shimmerBar 6s linear infinite;}
-  @keyframes lib-banner-shimmerBar{ from{background-position-x:0%;} to{background-position-x:-200%;} }
+    animation: shimmerBar 6s linear infinite;}
+  @keyframes shimmerBar{ from{background-position-x:0%;} to{background-position-x:-200%;} }
 
-  /* The right-side bookshelf/kiosk illustration, dot grid, center divider, and
-     sparks assume a lot of width, so they only come back at >=900px (tablet/desktop
-     landscape) where there's genuinely room — on phones they'd just overflow or
-     force a scroll, which was the earlier complaint. Everything else (logo, title,
-     tagline, badges, footer line) stays visible and readable at every width. */
-  .lib-banner .dotgrid, .lib-banner .divider, .lib-banner .illust, .lib-banner .spark { display:none; }
-  /* Content is centered now (see .content below), so the old two-column "text left,
-     illustration right, divider between" split no longer applies — the divider is
-     dropped, and the illustration only reappears on very wide screens, positioned
-     clear of the centered ~640px content column so the two never overlap. */
-  @media (min-width: 1320px) {
-    .lib-banner .dotgrid { display:grid; }
-    .lib-banner .illust, .lib-banner .spark { display:block; }
-  }
+  .dotgrid{position:absolute; top:34px; right:70px; display:grid; grid-template-columns:repeat(7,10px); gap:6px;}
+  .dotgrid span{width:3px; height:3px; border-radius:50%; background:#fff; opacity:.35; animation:dotPulse 3s ease-in-out infinite;}
+  @keyframes dotPulse{0%,100%{opacity:.15;} 50%{opacity:.55;}}
 
-  .lib-banner .content{position:relative; z-index:2; padding:24px 24px; max-width:640px; margin:0 auto; text-align:center;}
-  @media (min-width: 900px) { .lib-banner .content{ padding:28px 40px; } }
-  .lib-banner .logo-row{display:flex; align-items:center; justify-content:center; gap:14px; opacity:0; animation:lib-banner-fadeUp .7s ease .1s forwards;}
-  .lib-banner .logo-badge{
-    width:58px; height:58px; border-radius:9999px; background:#fff; display:flex; align-items:center;
+  .divider{position:absolute; left:52%; top:70px; bottom:70px; width:1px; background:rgba(255,255,255,.08);}
+
+  .content{position:relative; z-index:2; padding:34px 56px; height:100%;}
+  .logo-row{display:flex; align-items:center; gap:16px; opacity:0; animation:fadeUp .7s ease .1s forwards;}
+  .logo-badge{
+    width:88px; height:88px; border-radius:9999px; background:#fff; display:flex; align-items:center;
     justify-content:center; flex-shrink:0; box-shadow:0 8px 24px -6px rgba(20,5,8,.5);
-    border:2px solid; border-image:linear-gradient(135deg,#f2c96b,#c9962c) 1;
-    animation: lib-banner-logoGlow 3.4s ease-in-out infinite;
+    border:2.5px solid; border-image:linear-gradient(135deg,#f2c96b,#c9962c) 1;
+    animation: logoGlow 3.4s ease-in-out infinite;
   }
-  @keyframes lib-banner-logoGlow{0%,100%{box-shadow:0 8px 24px -6px rgba(20,5,8,.5);} 50%{box-shadow:0 8px 30px -4px rgba(242,201,107,.55);}}
-  .lib-banner .logo-badge img{width:52px; height:52px; border-radius:9999px; object-fit:cover;}
+  @keyframes logoGlow{0%,100%{box-shadow:0 8px 24px -6px rgba(20,5,8,.5);} 50%{box-shadow:0 8px 30px -4px rgba(242,201,107,.55);}}
+  .logo-badge img{width:82px; height:82px; border-radius:9999px; object-fit:cover;}
 
-  .lib-banner .eyebrow{font-size:11px; font-weight:700; letter-spacing:.08em; color:#f3c6b0; text-transform:uppercase;}
-  .lib-banner .brand{font-size:14.5px; font-weight:700; color:#fff; margin-top:2px;}
+  .eyebrow{font-size:12.5px; font-weight:700; letter-spacing:.1em; color:#f3c6b0; text-transform:uppercase;}
+  .brand{font-size:16px; font-weight:700; color:#fff; margin-top:2px;}
 
-  .lib-banner .title-frame{
-    display:inline-block; margin-top:16px; padding:14px 20px 16px;
-    background:rgba(0,0,0,.22); border:1.5px solid rgba(244,217,168,.5); border-radius:14px;
+  .title-frame{
+    display:inline-block; margin-top:30px; padding:20px 30px 22px;
+    background:rgba(0,0,0,.22); border:1.5px solid rgba(244,217,168,.5); border-radius:16px;
     backdrop-filter:blur(1px);
-    opacity:0; animation:lib-banner-frameIn .6s ease .18s forwards;
+    opacity:0; animation:frameIn .6s ease .18s forwards;
     box-shadow:0 10px 26px -10px rgba(10,3,5,.5);
   }
-  @keyframes lib-banner-frameIn{ from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
-  .lib-banner h1{font-size:27px; font-weight:800; margin-top:0; opacity:0; animation:lib-banner-fadeUp .7s ease .32s forwards; color:#fff; line-height:1.2;}
-  .lib-banner h2{
-    font-size:16px; font-weight:700; margin-top:2px; opacity:0; animation:lib-banner-fadeUp .7s ease .38s forwards;
+  @keyframes frameIn{ from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
+  h1{font-size:56px; font-weight:800; margin-top:0; opacity:0; animation:fadeUp .7s ease .32s forwards; color:#fff; line-height:1.05;}
+  h2{
+    font-size:29px; font-weight:700; margin-top:2px; opacity:0; animation:fadeUp .7s ease .38s forwards;
     background:linear-gradient(90deg,#f2c96b,#fbe3ad,#c9962c); background-size:200% 100%;
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    animation: lib-banner-fadeUp .7s ease .38s forwards, lib-banner-goldShimmer 5s linear infinite 1.1s;
+    animation: fadeUp .7s ease .38s forwards, goldShimmer 5s linear infinite 1.1s;
   }
-  @keyframes lib-banner-goldShimmer{ from{background-position-x:0%;} to{background-position-x:-200%;} }
+  @keyframes goldShimmer{ from{background-position-x:0%;} to{background-position-x:-200%;} }
 
-  .lib-banner .sub{color:#f0d9c8; font-size:13.5px; margin-top:8px; opacity:0; animation:lib-banner-fadeUp .7s ease .5s forwards;}
+  .sub{color:#f0d9c8; font-size:16.5px; margin-top:12px; opacity:0; animation:fadeUp .7s ease .5s forwards;}
 
-  @keyframes lib-banner-fadeUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
 
-  .lib-banner .badges{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; margin-top:18px;}
-  .lib-banner .badge{display:flex; flex-direction:column; align-items:center; opacity:0; animation:lib-banner-fadeUp .6s ease forwards;}
-  .lib-banner .badge:nth-child(1){animation-delay:.62s;}
-  .lib-banner .badge:nth-child(3){animation-delay:.72s;}
-  .lib-banner .badge:nth-child(5){animation-delay:.82s;}
-  .lib-banner .badge-circle{
-    width:40px; height:40px; border-radius:9999px; background:rgba(255,255,255,.12);
+  .badges{display:flex; align-items:center; gap:10px; margin-top:34px;}
+  .badge{display:flex; flex-direction:column; align-items:center; opacity:0; animation:fadeUp .6s ease forwards;}
+  .badge:nth-child(1){animation-delay:.62s;}
+  .badge:nth-child(3){animation-delay:.72s;}
+  .badge:nth-child(5){animation-delay:.82s;}
+  .badge-circle{
+    width:52px; height:52px; border-radius:9999px; background:rgba(255,255,255,.12);
     border:1.2px solid rgba(244,217,168,.55); display:flex; align-items:center; justify-content:center;
     transition:transform .2s;
   }
-  .lib-banner .badge-circle svg{width:18px; height:18px;}
-  .lib-banner .badge:hover .badge-circle{transform:translateY(-4px) scale(1.06);}
-  .lib-banner .badge span{font-size:10.5px; font-weight:600; color:#f0d9c8; margin-top:6px; text-align:center;}
-  .lib-banner .dash{width:20px; height:0; border-top:1.5px dashed rgba(244,217,168,.45); margin-top:-18px;}
+  .badge:hover .badge-circle{transform:translateY(-4px) scale(1.06);}
+  .badge span{font-size:11px; font-weight:600; color:#f0d9c8; margin-top:8px; text-align:center;}
+  .dash{width:26px; height:0; border-top:1.5px dashed rgba(244,217,168,.45); margin-top:-24px;}
 
-  .lib-banner .footer-line{margin-top:16px; font-size:11.5px; font-weight:500; color:#e8c9a8; opacity:0; animation:lib-banner-fadeUp .7s ease .9s forwards;}
+  .footer-line{margin-top:30px; font-size:12.5px; font-weight:500; color:#e8c9a8; opacity:0; animation:fadeUp .7s ease .9s forwards;}
 
-  .lib-banner .illust{position:absolute; right:36px; top:34px; width:300px; height:190px;}
-  .lib-banner .float1{position:absolute; left:20px; top:10px; animation:lib-banner-floatY 5.2s ease-in-out infinite;}
-  @keyframes lib-banner-floatY{0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);}}
-  .lib-banner .kiosk-check{animation: lib-banner-blinkCheck 2.4s ease-in-out infinite;}
-  @keyframes lib-banner-blinkCheck{0%,70%,100%{opacity:1;} 85%{opacity:.15;}}
-  .lib-banner .person{opacity:0; animation:lib-banner-popIn .5s ease forwards;}
-  .lib-banner .person:nth-child(1){animation-delay:.95s;}
-  .lib-banner .person:nth-child(2){animation-delay:1.05s;}
-  .lib-banner .person:nth-child(3){animation-delay:1.15s;}
-  @keyframes lib-banner-popIn{ from{opacity:0; transform:translateY(10px) scale(.9);} to{opacity:1; transform:translateY(0) scale(1);} }
+  /* right illustration */
+  .illust{position:absolute; right:60px; top:60px; width:600px; height:380px;}
+  .float1{position:absolute; left:40px; top:20px; animation:floatY 5.2s ease-in-out infinite;}
+  @keyframes floatY{0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);}}
+  .kiosk-check{animation: blinkCheck 2.4s ease-in-out infinite;}
+  @keyframes blinkCheck{0%,70%,100%{opacity:1;} 85%{opacity:.15;}}
+  .person{opacity:0; animation:popIn .5s ease forwards;}
+  .person:nth-child(1){animation-delay:.95s;}
+  .person:nth-child(2){animation-delay:1.05s;}
+  .person:nth-child(3){animation-delay:1.15s;}
+  @keyframes popIn{ from{opacity:0; transform:translateY(10px) scale(.9);} to{opacity:1; transform:translateY(0) scale(1);} }
 
-  .lib-banner .wave{position:absolute; left:0; right:0; bottom:-2px; height:36px; animation:lib-banner-waveDrift 10s ease-in-out infinite;}
-  @keyframes lib-banner-waveDrift{0%,100%{transform:translateX(0);} 50%{transform:translateX(-18px);}}
+  .spark{position:absolute; border-radius:9999px; background:#f2c96b; opacity:0; animation:twinkle 3s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:0; transform:scale(.6);} 50%{opacity:.9; transform:scale(1.2);}}
 
-  /* Small library-themed corner accents (open book / book stack) that fill the empty
-     side margins left by centering .content. Hidden below ~860px, where the centered
-     640px content block already fills nearly the whole width and leaves no room for
-     them beside it. */
-  .lib-banner .corner-deco{ display:none; position:absolute; top:50%; opacity:.4; }
-  @media (min-width: 860px) {
-    .lib-banner .corner-deco{ display:block; animation:lib-banner-cornerFloat 6s ease-in-out infinite; }
-  }
-  .lib-banner .corner-deco.left{ left:32px; }
-  .lib-banner .corner-deco.right{ right:32px; animation-delay:1.4s; }
-  @keyframes lib-banner-cornerFloat{ 0%,100%{ transform:translateY(-50%);} 50%{ transform:translateY(calc(-50% - 8px));} }
+  .wave{position:absolute; left:0; right:0; bottom:-2px; height:90px; animation:waveDrift 10s ease-in-out infinite;}
+
+  .gear-spin{animation: spinCW 14s linear infinite; transform-origin:495px 150px;}
+  .gear-spin-rev{animation: spinCCW 10s linear infinite; transform-origin:540px 190px;}
+  @keyframes spinCW{ from{transform:translate(495px,150px) rotate(0deg);} to{transform:translate(495px,150px) rotate(360deg);} }
+  @keyframes spinCCW{ from{transform:translate(540px,190px) rotate(0deg);} to{transform:translate(540px,190px) rotate(-360deg);} }
+  @keyframes waveDrift{0%,100%{transform:translateX(0);} 50%{transform:translateX(-18px);}}
 </style>
 </head>
 <body>
-<div class="lib-banner">
+
+<div class="banner">
   <div class="top-stripe"></div>
-
-  <svg class="corner-deco left" width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="#f4d9a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M24 13 C20 10 13 9 8 10 L8 33 C13 32 20 33 24 36 C28 33 35 32 40 33 L40 10 C35 9 28 10 24 13 Z"/>
-    <line x1="24" y1="13" x2="24" y2="36"/>
-    <line x1="12" y1="16" x2="19" y2="15.3"/>
-    <line x1="12" y1="21" x2="19" y2="20.3"/>
-    <line x1="29" y1="15.3" x2="36" y2="16"/>
-    <line x1="29" y1="20.3" x2="36" y2="21"/>
-  </svg>
-  <svg class="corner-deco right" width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="#f4d9a8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="8" y="30" width="32" height="7" rx="1.5"/>
-    <rect x="10" y="22" width="28" height="7" rx="1.5" transform="rotate(-2 24 25)"/>
-    <rect x="9" y="14" width="30" height="7" rx="1.5" transform="rotate(2 24 17)"/>
-  </svg>
-
   <div class="dotgrid">
     <span style="animation-delay:0.00s"></span><span style="animation-delay:0.15s"></span><span style="animation-delay:0.30s"></span><span style="animation-delay:0.45s"></span><span style="animation-delay:0.60s"></span><span style="animation-delay:0.75s"></span><span style="animation-delay:0.90s"></span><span style="animation-delay:0.10s"></span><span style="animation-delay:0.25s"></span><span style="animation-delay:0.40s"></span><span style="animation-delay:0.55s"></span><span style="animation-delay:0.70s"></span><span style="animation-delay:0.85s"></span><span style="animation-delay:1.00s"></span><span style="animation-delay:0.20s"></span><span style="animation-delay:0.35s"></span><span style="animation-delay:0.50s"></span><span style="animation-delay:0.65s"></span><span style="animation-delay:0.80s"></span><span style="animation-delay:0.95s"></span><span style="animation-delay:1.10s"></span><span style="animation-delay:0.30s"></span><span style="animation-delay:0.45s"></span><span style="animation-delay:0.60s"></span><span style="animation-delay:0.75s"></span><span style="animation-delay:0.90s"></span><span style="animation-delay:1.05s"></span><span style="animation-delay:1.20s"></span><span style="animation-delay:0.40s"></span><span style="animation-delay:0.55s"></span><span style="animation-delay:0.70s"></span><span style="animation-delay:0.85s"></span><span style="animation-delay:1.00s"></span><span style="animation-delay:1.15s"></span><span style="animation-delay:1.30s"></span>
   </div>
@@ -363,107 +240,6 @@
     <p class="footer-line">เปิดให้บริการทุกวันทำการ &nbsp;|&nbsp; ครอบคลุมทุกแผนกวิชา &nbsp;|&nbsp; ระบบเช็คอิน-เช็คเอาท์ดิจิทัล</p>
   </div>
 </div>
-<button aria-label="สลับโหมดสว่าง/มืด" class="theme-toggle" id="theme-toggle" type="button">
-<span class="material-symbols-outlined">dark_mode</span>
-</button>
 
-<main>
-  <div class="card rise-in" style="animation-delay:.1s">
-    <div class="tabs" id="login-role-tabs">
-      <button class="tab active" data-role="student" type="button">
-        <span class="material-symbols-outlined" style="font-size:18px;">school</span>
-        นักศึกษา
-      </button>
-      <button class="tab" data-role="admin" type="button">
-        <span class="material-symbols-outlined" style="font-size:18px;">admin_panel_settings</span>
-        แอดมิน
-      </button>
-    </div>
-
-    <p class="error-box hidden" id="login-error"></p>
-
-    <form id="login-form">
-      <div class="field">
-        <label id="username-label">ชื่อผู้ใช้ (รหัสนักศึกษา)</label>
-        <div class="input-wrap">
-          <span class="material-symbols-outlined">person</span>
-          <input id="username" name="username" placeholder="ชื่อผู้ใช้บัญชีของคุณ" required type="text"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>รหัสผ่าน</label>
-        <div class="input-wrap">
-          <span class="material-symbols-outlined">lock</span>
-          <input id="password" name="password" placeholder="••••••••" required type="password"/>
-        </div>
-      </div>
-      <button class="btn-primary" id="login-submit" type="submit">
-        <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-        เข้าสู่ระบบห้องสมุด
-      </button>
-      <div id="signup-prompt">
-        <p class="reg-line">ยังไม่มีบัญชี? <a href="/signup">สมัครสมาชิก</a></p>
-      </div>
-    </form>
-  </div>
-</main>
-
-<script src="/static/js/api.js"></script>
-<script>
-    initThemeToggle('theme-toggle');
-
-    let selectedRole = 'student';
-    const ROLE_LABEL_TH = { student: 'นักศึกษา', admin: 'แอดมิน' };
-    const usernameLabel = document.getElementById('username-label');
-    const usernameInput = document.getElementById('username');
-    const signupPrompt = document.getElementById('signup-prompt');
-
-    function applyRoleUi(role) {
-        if (role === 'admin') {
-            usernameLabel.textContent = 'ชื่อผู้ใช้แอดมิน';
-            usernameInput.placeholder = 'ชื่อผู้ใช้แอดมิน';
-            signupPrompt.classList.add('hidden');
-        } else {
-            usernameLabel.textContent = 'ชื่อผู้ใช้ (รหัสนักศึกษา)';
-            usernameInput.placeholder = 'ชื่อผู้ใช้บัญชีของคุณ';
-            signupPrompt.classList.remove('hidden');
-        }
-    }
-    applyRoleUi(selectedRole);
-
-    document.querySelectorAll('#login-role-tabs button').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            selectedRole = btn.dataset.role;
-            document.querySelectorAll('#login-role-tabs button').forEach((b) => {
-                b.classList.toggle('active', b === btn);
-            });
-            applyRoleUi(selectedRole);
-        });
-    });
-
-    document.getElementById('login-form').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const errorBox = document.getElementById('login-error');
-        const submitBtn = document.getElementById('login-submit');
-        errorBox.classList.add('hidden');
-        submitBtn.disabled = true;
-
-        try {
-            const data = await apiPostJson('/login', {
-                username: document.getElementById('username').value.trim(),
-                password: document.getElementById('password').value,
-            });
-            if (data.role !== selectedRole) {
-                errorBox.textContent = `บัญชีนี้เป็นบัญชี${ROLE_LABEL_TH[data.role] || data.role} — กำลังพาไปยังหน้าที่ถูกต้อง`;
-                errorBox.classList.remove('hidden');
-            }
-            window.location.href = data.role === 'admin' ? '/admin/dashboard' : '/dashboard';
-        } catch (err) {
-            errorBox.textContent = err.message;
-            errorBox.classList.remove('hidden');
-        } finally {
-            submitBtn.disabled = false;
-        }
-    });
-</script>
-</body></html>
+</body>
+</html>

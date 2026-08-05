@@ -55,14 +55,50 @@ No body. Clears the session.
 ---
 
 ## POST /checkin
-Requires login (any role). No body.
+Requires login (any role). Optional JSON body — only read on the "in" transition:
+
+| field | type | effect |
+|---|---|---|
+| `duration_minutes` | int | plan to leave this many minutes from now |
+| `checkout_time` | string `HH:MM` | plan to leave at this clock time today |
+| *(neither sent)* | — | "until closing" — no planned checkout time |
+
+Only one of `duration_minutes`/`checkout_time` should be sent; if both are
+omitted the check-in has no planned checkout. Whatever the result, it's
+clamped to `LIBRARY_CLOSING_TIME` (env var, default `17:00`) — never later
+than closing, even if the request asked for later.
 
 Auto-toggles: looks at the caller's most recent `checkin_logs` row and flips
-`in`↔`out` (first ever check-in is always `in`).
+`in`↔`out` (first ever check-in is always `in`). The body is ignored on the
+"out" transition.
 
 **Responses:**
-- `200` `{"message": "checked in", "type": "in"}` or `{"message": "checked out", "type": "out"}`
+- `200` `{"message": "checked in", "type": "in", "planned_checkout_at": "2026-07-30T17:00:00" | null}` or `{"message": "checked out", "type": "out", "planned_checkout_at": null}`
+- `400` `{"error": "duration_minutes ต้องเป็นตัวเลข"}` / `"duration_minutes ต้องมากกว่า 0"` / `"รูปแบบ checkout_time ต้องเป็น HH:MM"` / `"เวลาที่เลือกต้องอยู่ในอนาคต"`
 - `401` `{"error": "login required"}` — not logged in / session expired
+
+---
+
+## POST /checkin/extend
+Requires login. JSON body: `{"minutes": 30}` (or `60`, or any positive int).
+
+Adds `minutes` to the caller's current planned checkout time (clamped to
+closing, same as `/checkin`). Only valid while checked in with a specific
+planned checkout time set — not "until closing".
+
+**Responses:**
+- `200` `{"message": "ต่อเวลาสำเร็จ", "planned_checkout_at": "2026-07-30T17:00:00"}`
+- `400` `{"error": "minutes ต้องเป็นตัวเลข"}` / `"minutes ต้องมากกว่า 0"` / `"ไม่มีสถานะเช็คอินค้างอยู่"` / `"เลือกจนกว่าจะปิดไว้ ไม่มีเวลาให้ต่อ"`
+
+---
+
+## GET /library-info
+Requires login. No params.
+
+Returns today's closing time so the frontend never hardcodes it:
+```json
+{"closing_time": "17:00"}
+```
 
 ---
 
@@ -94,7 +130,7 @@ Requires login. `limit` optional (default 20, clamped 1–100).
 
 Returns the caller's own check-in/out events, newest first:
 ```json
-[{"type": "in" | "out", "timestamp": "2026-07-29T10:43:50"}]
+[{"type": "in" | "out", "timestamp": "2026-07-29T10:43:50", "planned_checkout_at": "2026-07-29T17:00:00" | null}]
 ```
 
 ---
@@ -120,6 +156,73 @@ Returns every registered member (all accounts are approved automatically):
 ]
 ```
 - `403` `{"error": "admin access required"}` if caller isn't an admin
+
+---
+
+## GET /admin/checkins/current
+Requires login + admin. No params.
+
+Everyone currently checked in (latest `checkin_logs` row per user is `type='in'`):
+```json
+[
+  {
+    "user_id": 5, "student_id": "68319010012", "prefix": "นาย", "first_name": "...", "last_name": "...",
+    "department": "...", "level": "ปวช", "year_level": "1",
+    "checked_in_at": "2026-07-30T13:00:00",
+    "planned_checkout_at": "2026-07-30T17:00:00" | null,
+    "duration_minutes": 76,
+    "is_overdue": false
+  }
+]
+```
+`is_overdue` is `true` once `duration_minutes >= 360` (6 hours), regardless of
+whether a planned checkout time was set. Sorted longest-checked-in first.
+
+---
+
+## POST /admin/checkins/force-checkout
+Requires login + admin. JSON or form body: `{"user_id": 5}`.
+
+Checks the user out immediately (`checkout_source='admin_forced'`) — the
+manual backstop for "until closing" check-ins that have no auto-checkout time,
+or any other case staff need to intervene.
+
+**Responses:**
+- `200` `{"message": "บังคับเช็คเอาท์สำเร็จ"}`
+- `400` `{"error": "user_id ไม่ถูกต้อง"}` / `"ผู้ใช้นี้ไม่ได้ค้างสถานะเช็คอินอยู่"`
+
+---
+
+## Auto checkout (background job)
+Not an HTTP endpoint — a scheduled job (APScheduler, every 2 minutes) that
+checks out anyone whose `planned_checkout_at` has passed
+(`checkout_source='auto'`). Runs as long as the Flask process is running;
+"until closing" check-ins (`planned_checkout_at IS NULL`) are never touched by
+this job — only `/admin/checkins/force-checkout` or the student's own
+`/checkin` can close those out.
+
+---
+
+## GET /announcement
+Requires login (any role). No params.
+
+Returns the current announcement banner, or `null` if none is set:
+```json
+{"message": "ห้องสมุดจะปิดทำการวันเสาร์นี้" | null, "updated_at": "2026-07-30T18:22:38" | null}
+```
+
+---
+
+## POST /admin/announcement
+Requires login + admin. JSON or form body: `{"message": "..."}`.
+
+Sets the single announcement banner shown on every student's dashboard.
+Empty/whitespace-only message clears the banner (next `GET /announcement`
+returns `message: null`). There is only ever one active announcement — this
+replaces it, not adds to it.
+
+**Responses:**
+- `200` `{"message": "บันทึกประกาศสำเร็จ"}`
 
 ---
 

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานสรุปประจำเดือน — ห้องสมุดวิทยาลัยเทคนิคนครนายก</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e;
+    --green:#4a7c3f; --purple:#8b5fa3; --blue:#3b6ea5;
+    --ink:#1f2328; --gray:#6b7280; --border:#e5e7eb; --bg:#f5f6f8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Noto Sans Thai','Segoe UI',sans-serif; background:var(--bg); color:var(--ink);}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .toolbar{background:#fff; border-bottom:1px solid var(--border); padding:12px 24px; display:flex; justify-content:space-between; align-items:center;}
+  .toolbar .left{font-size:13px; color:var(--gray);}
+  .toolbar button{
+    background:var(--orange); color:#fff; border:none; border-radius:10px; padding:9px 18px;
+    font-weight:700; font-size:13.5px; cursor:pointer; margin-left:8px;
+  }
+  .toolbar button.secondary{background:#fff; color:var(--maroon); border:1.5px solid var(--maroon);}
+
+  .sheet{max-width:900px; margin:24px auto 60px; background:#fff; border-radius:16px; box-shadow:0 12px 32px -10px rgba(31,35,40,.18); overflow:hidden;}
+
+  .head{
+    background:linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 34px),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+    color:#fff; padding:28px 36px; display:flex; justify-content:space-between; align-items:flex-end;
+  }
+  .head .logo-row{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .head .logo-box{width:34px; height:34px; border-radius:9px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center;}
+  .head h1{font-size:22px; font-weight:800;}
+  .head p{font-size:12px; color:#f3c6b0; margin-top:2px;}
+  .head .period{text-align:right;}
+  .head .period .label{font-size:11px; color:#f3c6b0; text-transform:uppercase; letter-spacing:.08em;}
+  .head .period .value{font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:700;}
+
+  .body{padding:32px 36px;}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:30px;}
+  .kpi-card{border:1px solid var(--border); border-radius:14px; padding:18px 16px; position:relative; overflow:hidden;}
+  .kpi-card .accent{position:absolute; top:0; left:0; width:100%; height:4px;}
+  .kpi-card .icon{width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;}
+  .kpi-card .num{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:700; color:var(--ink); line-height:1;}
+  .kpi-card .label{font-size:11.5px; color:var(--gray); margin-top:6px; font-weight:600;}
+  .kpi-card .delta{font-size:11px; margin-top:6px; font-weight:700;}
+  .delta.up{color:var(--green);}
+  .delta.down{color:var(--orange);}
+
+  .insight-box{
+    background:linear-gradient(90deg, #fbe9e2, #f7f0e6); border:1px solid #f0d9c8; border-radius:14px;
+    padding:16px 20px; display:flex; align-items:center; gap:14px; margin-bottom:30px;
+  }
+  .insight-box .ic{width:36px; height:36px; border-radius:9999px; background:var(--orange); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .insight-box p{font-size:13.5px; color:#4a3a2c; line-height:1.5;}
+  .insight-box b{color:var(--maroon);}
+
+  .section{margin-bottom:32px;}
+  .section-title{font-size:15.5px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  .section-title .dot{width:8px; height:8px; border-radius:9999px;}
+
+  .trend-chart{display:flex; align-items:flex-end; gap:4px; height:150px; border-bottom:1.5px solid var(--border); padding-bottom:0;}
+  .trend-bar{flex:1; background:linear-gradient(180deg, #e0672e, #c94f1c); border-radius:4px 4px 0 0; position:relative; min-height:3px;}
+  .trend-bar.peak{background:linear-gradient(180deg, #7a2734, #5c1c26);}
+  .trend-labels{display:flex; gap:4px; margin-top:6px;}
+  .trend-labels span{flex:1; text-align:center; font-size:9px; color:#9aa1ab; font-family:'IBM Plex Mono',monospace;}
+
+  .dept-row{display:flex; align-items:center; gap:12px; margin-bottom:11px;}
+  .dept-name{width:150px; font-size:12.5px; font-weight:600; color:#374151; flex-shrink:0;}
+  .dept-bar-track{flex:1; background:#f0f1f3; border-radius:6px; height:16px; overflow:hidden;}
+  .dept-bar-fill{height:100%; border-radius:6px; background:linear-gradient(90deg, #8b5fa3, #6d4680);}
+  .dept-val{width:44px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gray); flex-shrink:0;}
+
+  .heatmap{display:grid; grid-template-columns:repeat(15,1fr); gap:4px;}
+  .heat-cell{aspect-ratio:1; border-radius:3px; background:#eef0f3;}
+
+  .footer-note{display:flex; justify-content:space-between; align-items:center; padding-top:20px; border-top:1px solid var(--border); font-size:11px; color:#9aa1ab;}
+
+  @media print {
+    body{background:#fff;}
+    .toolbar{display:none;}
+    .sheet{box-shadow:none; margin:0; border-radius:0; max-width:100%;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <span class="left">ตัวอย่างหน้าจอ — เทมเพลตรายงานแดชบอร์ด</span>
+    <div>
+      <button class="secondary" onclick="alert('เลือกเทมเพลตอื่น')">เลือกเทมเพลตอื่น</button>
+      <button onclick="window.print()">พิมพ์ / บันทึกเป็น PDF</button>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="head">
+      <div>
+        <div class="logo-row">
+          <div class="logo-box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+          <span style="font-size:12px; color:#f3c6b0; font-weight:600;">ห้องสมุดวิทยาลัยเทคนิคนครนายก</span>
+        </div>
+        <h1>รายงานสรุปการเข้าใช้ห้องสมุด</h1>
+        <p>รายงานสำหรับผู้บริหาร — สรุปภาพรวมประจำเดือน</p>
+      </div>
+      <div class="period">
+        <p class="label">ประจำเดือน</p>
+        <p class="value mono">กรกฎาคม 2569</p>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="accent" style="background:var(--orange);"></div>
+          <div class="icon" style="background:#fbe9e2;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e0672e" stroke-width="2.3" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+          <p class="num">1,842</p>
+          <p class="label">จำนวนเข้าใช้รวม (ครั้ง)</p>
+          <p class="delta up">▲ 12% จากเดือนก่อน</p>
+        </div>
+        <div class="kpi-card">
+          <div class="accent" style="background:var(--maroon);"></div>
+          <div class="icon" style="background:#f3e5e7;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7a2734" stroke-width="2.3" stroke-linecap="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c0-3.6 3-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/><circle cx="17" cy="8.5" r="2.6"/><path d="M15 13.5c2.6.2 4.7 2.3 5 5.2"/></svg>
+          </div>
+          <p class="num">612</p>
+          <p class="label">นักศึกษาไม่ซ้ำคน</p>
+          <p class="delta up">▲ 4% จากเดือนก่อน</p>
+        </div>
+        <div class="kpi-card">
+          <div class="accent" style="background:var(--green);"></div>
+          <div class="icon" style="background:#eaf1e8;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7c3f" stroke-width="2.3" stroke-linecap="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+          </div>
+          <p class="num">61.4</p>
+          <p class="label">เฉลี่ยต่อวัน (ครั้ง)</p>
+          <p class="delta down">▼ 2% จากเดือนก่อน</p>
+        </div>
+        <div class="kpi-card">
+          <div class="accent" style="background:var(--purple);"></div>
+          <div class="icon" style="background:#f3e9f7;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5fa3" stroke-width="2.3" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          </div>
+          <p class="num mono">15 ก.ค.</p>
+          <p class="label">วันที่มีผู้ใช้มากที่สุด (89 คน)</p>
+        </div>
+      </div>
+
+      <div class="insight-box">
+        <div class="ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <p><b>สรุปสำหรับผู้บริหาร:</b> เดือนนี้มีผู้เข้าใช้ห้องสมุดเพิ่มขึ้น <b>12%</b> จากเดือนที่แล้ว โดยแผนก<b>เทคโนโลยีสารสนเทศ</b>เข้าใช้มากที่สุด และวันที่ <b>15 กรกฎาคม</b> มีผู้เข้าใช้สูงสุดถึง 89 คนในวันเดียว</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="dot" style="background:var(--orange);"></span>แนวโน้มการเข้าใช้รายวัน</div>
+        <div class="trend-chart">
+          <div class="trend-bar" style="height:35%"></div>
+          <div class="trend-bar" style="height:48%"></div>
+          <div class="trend-bar" style="height:42%"></div>
+          <div class="trend-bar" style="height:60%"></div>
+          <div class="trend-bar" style="height:55%"></div>
+          <div class="trend-bar" style="height:20%"></div>
+          <div class="trend-bar" style="height:15%"></div>
+          <div class="trend-bar" style="height:52%"></div>
+          <div class="trend-bar" style="height:65%"></div>
+          <div class="trend-bar" style="height:70%"></div>
+          <div class="trend-bar" style="height:58%"></div>
+          <div class="trend-bar" style="height:44%"></div>
+          <div class="trend-bar" style="height:18%"></div>
+          <div class="trend-bar" style="height:22%"></div>
+          <div class="trend-bar peak" style="height:100%"></div>
+          <div class="trend-bar" style="height:80%"></div>
+          <div class="trend-bar" style="height:66%"></div>
+          <div class="trend-bar" style="height:50%"></div>
+          <div class="trend-bar" style="height:20%"></div>
+          <div class="trend-bar" style="height:16%"></div>
+          <div class="trend-bar" style="height:58%"></div>
+          <div class="trend-bar" style="height:62%"></div>
+          <div class="trend-bar" style="height:70%"></div>
+          <div class="trend-bar" style="height:54%"></div>
+          <div class="trend-bar" style="height:40%"></div>
+          <div class="trend-bar" style="height:18%"></div>
+          <div class="trend-bar" style="height:15%"></div>
+          <div class="trend-bar" style="height:46%"></div>
+          <div class="trend-bar" style="height:50%"></div>
+          <div class="trend-bar" style="height:38%"></div>
+        </div>
+        <div class="trend-labels">
+          <span>1</span><span>3</span><span>5</span><span>7</span><span>9</span><span>11</span><span>13</span><span>15</span><span>17</span><span>19</span><span>21</span><span>23</span><span>25</span><span>27</span><span>29</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="dot" style="background:var(--purple);"></span>แผนกวิชาที่เข้าใช้มากที่สุด (Top 8)</div>
+        <div class="dept-row"><div class="dept-name">เทคโนโลยีสารสนเทศ</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:100%"></div></div><div class="dept-val">312</div></div>
+        <div class="dept-row"><div class="dept-name">การบัญชี</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:82%"></div></div><div class="dept-val">256</div></div>
+        <div class="dept-row"><div class="dept-name">ช่างยนต์</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:71%"></div></div><div class="dept-val">221</div></div>
+        <div class="dept-row"><div class="dept-name">คอมพิวเตอร์ธุรกิจ</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:64%"></div></div><div class="dept-val">200</div></div>
+        <div class="dept-row"><div class="dept-name">การตลาด</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:53%"></div></div><div class="dept-val">165</div></div>
+        <div class="dept-row"><div class="dept-name">ช่างไฟฟ้ากำลัง</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:44%"></div></div><div class="dept-val">137</div></div>
+        <div class="dept-row"><div class="dept-name">ช่างอิเล็กทรอนิกส์</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:36%"></div></div><div class="dept-val">112</div></div>
+        <div class="dept-row"><div class="dept-name">การท่องเที่ยว</div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:24%"></div></div><div class="dept-val">75</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="dot" style="background:var(--green);"></span>ปฏิทินความหนาแน่นการเข้าใช้</div>
+        <div class="heatmap">
+          <div class="heat-cell" style="background:#fbe9e2"></div><div class="heat-cell" style="background:#f6c9ab"></div><div class="heat-cell" style="background:#f0a878"></div><div class="heat-cell" style="background:#eaf1e8"></div><div class="heat-cell" style="background:#c3ddbc"></div>
+          <div class="heat-cell" style="background:#7fb374"></div><div class="heat-cell" style="background:#eaf1e8"></div><div class="heat-cell" style="background:#f6c9ab"></div><div class="heat-cell" style="background:#eaf1e8"></div><div class="heat-cell" style="background:#c3ddbc"></div>
+          <div class="heat-cell" style="background:#f0a878"></div><div class="heat-cell" style="background:#7a2734"></div><div class="heat-cell" style="background:#d9924e"></div><div class="heat-cell" style="background:#c3ddbc"></div><div class="heat-cell" style="background:#eaf1e8"></div>
+          <div class="heat-cell" style="background:#7fb374"></div><div class="heat-cell" style="background:#f0a878"></div><div class="heat-cell" style="background:#c3ddbc"></div><div class="heat-cell" style="background:#f6c9ab"></div><div class="heat-cell" style="background:#eaf1e8"></div>
+          <div class="heat-cell" style="background:#d9924e"></div><div class="heat-cell" style="background:#7fb374"></div><div class="heat-cell" style="background:#eaf1e8"></div><div class="heat-cell" style="background:#c3ddbc"></div><div class="heat-cell" style="background:#f0a878"></div>
+          <div class="heat-cell" style="background:#fbe9e2"></div><div class="heat-cell" style="background:#c3ddbc"></div><div class="heat-cell" style="background:#7fb374"></div><div class="heat-cell" style="background:#eaf1e8"></div><div class="heat-cell" style="background:#d9924e"></div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        <span>สร้างรายงานเมื่อ 30 ก.ค. 2569 เวลา 14:32 น.</span>
+        <span>ระบบเช็คอิน-เช็คเอาท์ห้องสมุด วิทยาลัยเทคนิคนครนายก</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

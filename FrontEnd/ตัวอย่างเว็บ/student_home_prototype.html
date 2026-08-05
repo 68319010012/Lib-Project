@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หน้าหลัก — ห้องสมุดวิทยาลัยเทคนิคนครนายก</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#7a2734; --maroon-dark:#5c1c26; --orange:#e0672e;
+    --green:#4a7c3f; --purple:#8b5fa3; --ink:#1f2328; --gray:#6b7280;
+    --border:#e5e7eb; --bg:#f5f6f8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Noto Sans Thai','Segoe UI',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .topbar{background:#fff; border-bottom:1px solid var(--border);}
+  .topbar-inner{max-width:760px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between;}
+  .topbar-left{display:flex; align-items:center; gap:10px;}
+  .logo-box{width:36px; height:36px; border-radius:10px; background:var(--maroon); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand-title{font-weight:700; font-size:15px;}
+  .logout-btn{background:none; border:none; font-size:12px; font-weight:600; color:var(--gray); cursor:pointer;}
+  .logout-btn:hover{color:var(--maroon);}
+
+  .hero{
+    position:relative; overflow:hidden;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 34px),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10), transparent 40%),
+      radial-gradient(circle at 85% 75%, rgba(0,0,0,0.18), transparent 50%),
+      linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+  }
+  .hero-inner{max-width:760px; margin:0 auto; padding:32px 24px 96px; display:flex; align-items:center; gap:12px;}
+  .avatar{width:48px; height:48px; border-radius:9999px; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.4); color:#fff; font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .hero-inner p:first-of-type{color:#fff; font-weight:700;}
+  .hero-inner .sub{font-size:11px; color:#f3c6b0;}
+
+  main{max-width:760px; margin:-64px auto 0; padding:0 24px 64px; position:relative;}
+
+  .stamp-card{background:#fff; border-radius:18px; box-shadow:0 20px 45px -12px rgba(31,35,40,0.22); border:1px solid #f1f1f1; padding:40px 32px; text-align:center;}
+  .status-pill{display:inline-flex; align-items:center; gap:8px; border-radius:9999px; background:#f0f1f3; padding:6px 16px; margin-bottom:28px;}
+  .status-dot{width:8px; height:8px; border-radius:9999px; background:#9aa1ab; animation:dotBlink 1.6s ease-in-out infinite;}
+  @keyframes dotBlink{0%,100%{opacity:1;} 50%{opacity:.3;}}
+  .status-text{font-size:12px; font-weight:700; color:var(--gray); letter-spacing:.03em;}
+
+  .pulse-wrap{position:relative; display:inline-block;}
+  .pulse-wrap::before{content:""; position:absolute; inset:0; border-radius:9999px; animation:stampPulse 2.2s ease-out infinite;}
+  @keyframes stampPulse{0%{box-shadow:0 0 0 0 rgba(122,39,52,.35);} 100%{box-shadow:0 0 0 22px rgba(122,39,52,0);}}
+  .stamp-btn{
+    position:relative; width:160px; height:160px; border-radius:9999px; background:var(--maroon); color:#fff;
+    box-shadow:0 18px 30px -10px rgba(122,39,52,.5); border:none; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    transition:transform .12s ease, background .2s; margin:0 auto;
+  }
+  .stamp-btn:active{transform:scale(.94);}
+  .stamp-btn span{font-weight:700; font-size:18px;}
+
+  .timer-text{font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--gray); margin-top:24px;}
+  .timer-value{color:var(--maroon); font-weight:700;}
+  .helper-text{font-size:14px; color:#b0b5bd; margin-top:24px;}
+  .hidden{display:none;}
+
+  .quick-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:24px;}
+  .quick-card{background:#fff; border-radius:14px; border:1px solid #f1f1f1; box-shadow:0 2px 8px rgba(31,35,40,.05); padding:20px 10px; text-align:center; text-decoration:none; display:block; transition:transform .15s, box-shadow .15s;}
+  .quick-card:hover{transform:translateY(-3px); box-shadow:0 12px 22px -10px rgba(31,35,40,.18);}
+  .quick-icon{width:44px; height:44px; border-radius:9999px; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;}
+  .quick-card p{font-size:12.5px; font-weight:700; color:#374151;}
+
+  .hist-section{margin-top:32px;}
+  .hist-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .hist-header h2{font-size:17px; font-weight:700;}
+  .hist-header a{font-size:12px; font-weight:700; color:var(--maroon); text-decoration:none;}
+  .hist-row{display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #f1f1f1; box-shadow:0 2px 8px rgba(31,35,40,.05); border-radius:12px; padding:14px 16px; margin-bottom:10px;}
+  .hist-left{display:flex; align-items:center; gap:12px;}
+  .hist-icon{width:36px; height:36px; border-radius:9999px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .hist-row .title{font-size:14px; font-weight:600;}
+  .hist-row .date{font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9aa1ab;}
+  .hist-row .dur{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--gray);}
+
+  @keyframes riseIn{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0} to{opacity:1}}
+  .rise-in{animation:riseIn .6s cubic-bezier(.2,.7,.3,1) both;}
+  .fade-in{animation:fadeIn .8s ease both;}
+</style>
+</head>
+<body>
+
+  <div class="topbar fade-in">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="logo-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <p class="brand-title">ห้องสมุดวิทยาลัยฯ นครนายก</p>
+      </div>
+      <button class="logout-btn">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="avatar">ว</div>
+      <div>
+        <p>วชิรเมธี คำเวียงจันทร์</p>
+        <p class="sub mono">68319010012 · เทคโนโลยีสารสนเทศ</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section class="stamp-card rise-in" style="animation-delay:.08s">
+      <div class="status-pill">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="statusText" class="status-text">ยังไม่ได้เช็คอินวันนี้</span>
+      </div>
+
+      <div class="pulse-wrap">
+        <button id="stampBtn" class="stamp-btn" onclick="toggleCheckin()">
+          <svg id="stampIcon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          <span id="stampLabel">เช็คอิน</span>
+        </button>
+      </div>
+
+      <p id="timerText" class="timer-text hidden">อยู่ในห้องสมุดมาแล้ว <span id="timerValue" class="timer-value">00:00:00</span></p>
+      <p id="helperText" class="helper-text">แตะปุ่มเพื่อบันทึกเวลาเข้าใช้ห้องสมุด</p>
+    </section>
+
+    <section class="quick-grid rise-in" style="animation-delay:.16s">
+      <a href="#" class="quick-card">
+        <div class="quick-icon" style="background:#fbe9e2;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#e0672e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <p>ประวัติ</p>
+      </a>
+      <a href="#" class="quick-card">
+        <div class="quick-icon" style="background:#eaf1e8;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4a7c3f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+        <p>แก้ไขข้อมูล</p>
+      </a>
+      <a href="#" class="quick-card">
+        <div class="quick-icon" style="background:#f3e9f7;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8b5fa3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <p>ตั้งค่า</p>
+      </a>
+    </section>
+
+    <section class="hist-section rise-in" style="animation-delay:.24s">
+      <div class="hist-header">
+        <h2>ประวัติล่าสุด</h2>
+        <a href="#">ดูทั้งหมด →</a>
+      </div>
+      <div class="hist-row">
+        <div class="hist-left">
+          <div class="hist-icon" style="background:#eaf1e8;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7c3f" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div><p class="title">เข้าใช้ห้องสมุด</p><p class="date">26 ก.ค. 2569 · 09:14</p></div>
+        </div>
+        <span class="dur">1 ชม. 20 นาที</span>
+      </div>
+      <div class="hist-row">
+        <div class="hist-left">
+          <div class="hist-icon" style="background:#fbe9e2;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e0672e" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+          <div><p class="title">ออกจากห้องสมุด</p><p class="date">25 ก.ค. 2569 · 15:42</p></div>
+        </div>
+        <span class="dur">—</span>
+      </div>
+    </section>
+  </main>
+
+<script>
+let checkedIn=false, timerInterval=null, startTime=null;
+function toggleCheckin(){
+  checkedIn=!checkedIn;
+  const dot=document.getElementById('statusDot'), text=document.getElementById('statusText');
+  const btn=document.getElementById('stampBtn'), label=document.getElementById('stampLabel');
+  const icon=document.getElementById('stampIcon'), helper=document.getElementById('helperText');
+  const timerText=document.getElementById('timerText');
+  if(checkedIn){
+    dot.style.background='#4a7c3f'; text.textContent='กำลังอยู่ในห้องสมุด';
+    btn.style.background='#4a7c3f'; label.textContent='เช็คเอาท์';
+    icon.innerHTML='<path d="M18 6L6 18M6 6l12 12"/>';
+    helper.textContent='แตะปุ่มอีกครั้งเมื่อจะออกจากห้องสมุด';
+    timerText.classList.remove('hidden');
+    startTime=Date.now(); timerInterval=setInterval(updateTimer,1000);
+  } else {
+    dot.style.background='#9aa1ab'; text.textContent='ยังไม่ได้เช็คอินวันนี้';
+    btn.style.background='#7a2734'; label.textContent='เช็คอิน';
+    icon.innerHTML='<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>';
+    helper.textContent='แตะปุ่มเพื่อบันทึกเวลาเข้าใช้ห้องสมุด';
+    timerText.classList.add('hidden');
+    clearInterval(timerInterval);
+  }
+}
+function updateTimer(){
+  const diff=Math.floor((Date.now()-startTime)/1000);
+  const h=String(Math.floor(diff/3600)).padStart(2,'0');
+  const m=String(Math.floor((diff%3600)/60)).padStart(2,'0');
+  const s=String(diff%60).padStart(2,'0');
+  document.getElementById('timerValue').textContent=`${h}:${m}:${s}`;
+}
+</script>
+</body>
+</html>
