@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
 import { apiFetch, apiPostJson } from '../api'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 export default function ProfilePage() {
   const navigate = useNavigate()
   const { user, refresh } = useAuth()
+  const { showToast } = useToast()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [saving, setSaving] = useState(false)
 
   async function handleLogout() {
@@ -21,19 +21,17 @@ export default function ProfilePage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError('')
-    setSuccess('')
     setSaving(true)
     try {
       await apiPostJson('/profile/change-password', {
         current_password: currentPassword,
         new_password: newPassword,
       })
-      setSuccess('เปลี่ยนรหัสผ่านสำเร็จ')
+      showToast('เปลี่ยนรหัสผ่านสำเร็จ', { type: 'success' })
       setCurrentPassword('')
       setNewPassword('')
     } catch (err) {
-      setError(err.message)
+      showToast(err.message, { type: 'error' })
     } finally {
       setSaving(false)
     }
@@ -43,12 +41,30 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
-      <nav className="bg-primary shadow-md flex justify-between items-center w-full px-gutter h-16 fixed top-0 left-0 right-0 z-50">
-        <span className="text-headline-md font-headline-md font-bold text-on-primary">ห้องสมุด NNTC</span>
-        <div className="flex items-center gap-4">
-          <ThemeToggle className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors" iconClassName="text-xl" />
-          <button className="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" type="button" onClick={handleLogout}>
-            ออกจากระบบ
+      <nav className="bg-primary shadow-md flex justify-between items-center w-full px-gutter h-16 fixed top-0 left-0 right-0 z-50 gap-2">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <span className="text-headline-md font-headline-md font-bold text-on-primary whitespace-nowrap">
+            <span className="hidden sm:inline">ห้องสมุด NNTC</span>
+            <span className="sm:hidden">NNTC</span>
+          </span>
+          {/* Always visible — the sidebar below (with the same "หน้าหลัก" link)
+              is hidden below the lg breakpoint, so this is the only way back
+              to /dashboard on mobile/tablet. */}
+          <a className="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps text-xs sm:text-sm whitespace-nowrap ml-1 sm:ml-4" href="/dashboard">
+            หน้าหลัก
+          </a>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <ThemeToggle className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0" iconClassName="text-xl" />
+          <button
+            className="w-9 h-9 sm:w-auto sm:h-auto rounded-full sm:rounded-none bg-white/10 sm:bg-transparent hover:bg-white/20 sm:hover:bg-transparent flex items-center justify-center sm:justify-start text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps transition-colors flex-shrink-0"
+            type="button"
+            onClick={handleLogout}
+            aria-label="ออกจากระบบ"
+            title="ออกจากระบบ"
+          >
+            <span className="material-symbols-outlined text-xl sm:hidden">logout</span>
+            <span className="hidden sm:inline">ออกจากระบบ</span>
           </button>
         </div>
       </nav>
@@ -81,21 +97,15 @@ export default function ProfilePage() {
 
       <main className="flex-1 lg:ml-64 pt-16">
         <section className="hero-pattern h-[240px] flex items-center px-gutter">
-          <div className="max-w-4xl mx-auto w-full text-white">
+          <div className="rise-in max-w-4xl mx-auto w-full text-white">
             <h1 className="font-headline-xl text-headline-xl mb-2">แก้ไขโปรไฟล์นักศึกษา</h1>
             <p className="text-body-lg font-body-lg opacity-80">ตรวจสอบข้อมูลการศึกษาและเปลี่ยนรหัสผ่านของคุณ</p>
           </div>
         </section>
 
         <div className="max-w-4xl mx-auto px-gutter -mt-16 mb-12 relative z-10">
-          <div className="bg-surface-white dark:bg-dm-surface rounded-xl shadow-card overflow-hidden border border-outline-variant/30 dark:border-dm-border">
+          <div className="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-card overflow-hidden border border-outline-variant/30 dark:border-dm-border" style={{ animationDelay: '0.08s' }}>
             <div className="p-8">
-              {error && (
-                <p className="mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md">{error}</p>
-              )}
-              {success && (
-                <p className="mb-6 rounded-lg bg-status-success/10 text-status-success px-4 py-3 text-body-md">{success}</p>
-              )}
 
               <div className="space-y-10">
                 <div className="grid md:grid-cols-2 gap-8">

@@ -8,9 +8,20 @@
 //
 // $sections is a list of [title, headers[], rows[][]] tuples — usually just
 // one, but department/executive/compare-style reports can pass more than one
-// table under a single download.
-function export_response(string $filenameBase, array $sections, string $format): void
+// table under a single download. $meta is an optional ['label' => value, ...]
+// map (report title, generated-at, applied filters) prepended as its own
+// section above the data — satisfies the "export must carry title/date/
+// filters" requirement in one place instead of every report hand-building it.
+function export_response(string $filenameBase, array $sections, string $format, array $meta = []): void
 {
+    if ($meta) {
+        $metaRows = [];
+        foreach ($meta as $label => $value) {
+            $metaRows[] = [$label, $value];
+        }
+        array_unshift($sections, ['ข้อมูลรายงาน', ['รายการ', 'ค่า'], $metaRows]);
+    }
+
     if ($format === 'csv') {
         header('Content-Type: text/csv; charset=utf-8');
         header("Content-Disposition: attachment; filename=\"$filenameBase.csv\"");

@@ -43,7 +43,7 @@ export default function MembersManagementPage() {
   return (
     <div className="bg-background dark:bg-dm-bg font-body-md text-on-background dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
       <AdminSidebar active="/admin/members-management" />
-      <main className="md:ml-64 flex-grow flex flex-col min-h-screen">
+      <main className="md:ml-64 pt-16 md:pt-0 flex-grow flex flex-col min-h-screen">
         <header className="bg-primary text-on-primary relative overflow-hidden h-[240px] flex items-end pb-20 px-gutter">
           <div className="absolute inset-0 vertical-pattern opacity-10" />
           <div className="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">

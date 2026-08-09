@@ -115,9 +115,9 @@ export default function AdminDashboardPage() {
   return (
     <div className="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex transition-colors duration-200">
       <AdminSidebar active="/admin/dashboard" />
-      <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
+      <main className="flex-1 md:ml-64 pt-16 md:pt-0 flex flex-col min-h-screen">
         <header className="admin-hero-pattern pt-8 pb-32 px-gutter">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="rise-in max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <h2 className="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h2>
               <p className="text-on-primary-container font-body-lg text-body-lg">
@@ -154,35 +154,47 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
-            <div className="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
+          <div className="rise-in-group max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
+            <div className="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
               <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
                 <span className="material-symbols-outlined">group</span>
               </div>
               <p className="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
-              <h3 className="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">
-                {stats ? stats.total.toLocaleString() : '–'}
-              </h3>
+              {stats ? (
+                <h3 className="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">
+                  {stats.total.toLocaleString()}
+                </h3>
+              ) : (
+                <div className="skeleton h-8 w-20" />
+              )}
             </div>
-            <div className="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
+            <div className="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
               <div className="w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
                 <span className="material-symbols-outlined">person_search</span>
               </div>
               <p className="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
-              <h3 className="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">
-                {stats ? stats.uniqueUsers.toLocaleString() : '–'}
-              </h3>
+              {stats ? (
+                <h3 className="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">
+                  {stats.uniqueUsers.toLocaleString()}
+                </h3>
+              ) : (
+                <div className="skeleton h-8 w-20" />
+              )}
             </div>
-            <div className="bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
+            <div className="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
               <div className="w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
                 <span className="material-symbols-outlined">calendar_today</span>
               </div>
               <p className="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
-              <h3 className="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">
-                {stats ? stats.avgDaily.toLocaleString() : '–'}
-              </h3>
+              {stats ? (
+                <h3 className="text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">
+                  {stats.avgDaily.toLocaleString()}
+                </h3>
+              ) : (
+                <div className="skeleton h-8 w-20" />
+              )}
             </div>
-            <div className="bg-primary-container rounded-xl p-6 shadow-stamp border border-primary relative overflow-hidden">
+            <div className="lift-on-hover bg-primary-container rounded-xl p-6 shadow-stamp border border-primary relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4">
                 <div className="w-3 h-3 bg-white rounded-full stamp-pulse" />
               </div>
@@ -190,9 +202,13 @@ export default function AdminDashboardPage() {
                 <span className="material-symbols-outlined">meeting_room</span>
               </div>
               <p className="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
-              <h3 className="text-headline-lg font-headline-lg text-white font-bold font-label-code">
-                {stats ? stats.currentlyInside.toLocaleString() : '–'}
-              </h3>
+              {stats ? (
+                <h3 className="text-headline-lg font-headline-lg text-white font-bold font-label-code">
+                  {stats.currentlyInside.toLocaleString()}
+                </h3>
+              ) : (
+                <div className="skeleton h-8 w-20 bg-white/20" />
+              )}
             </div>
           </div>
         </header>
@@ -205,7 +221,9 @@ export default function AdminDashboardPage() {
             </div>
             <div className="h-64 flex items-end justify-between gap-1 px-2 relative">
               {!stats ? (
-                <p className="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">กำลังโหลด…</p>
+                [...Array(14)].map((_, i) => (
+                  <div key={i} className="skeleton flex-1 rounded-t" style={{ height: `${20 + ((i * 37) % 60)}%`, animationDelay: `${i * 0.05}s` }} />
+                ))
               ) : stats.trendBars.length ? (
                 stats.trendBars.map((bar) => (
                   <div

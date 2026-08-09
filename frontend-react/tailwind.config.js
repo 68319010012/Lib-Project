@@ -64,11 +64,15 @@ export default {
         'surface-container-high': '#e2e8f0',
         'surface-white': '#FFFFFF',
         'on-secondary-fixed': '#1e3a8a',
+        // Lightened from the initial pass (#111a2e/#16213a/#2a3a56/#b9c4d6) —
+        // those sat too close in value to dm-bg, so cards/borders/secondary
+        // text all blended into one flat navy mass instead of reading as
+        // distinct surfaces the way the light-mode white-on-grey cards do.
         'dm-bg': '#0b1220',
-        'dm-surface': '#111a2e',
-        'dm-surface-alt': '#16213a',
-        'dm-border': '#2a3a56',
-        'dm-text-secondary': '#b9c4d6',
+        'dm-surface': '#151f36',
+        'dm-surface-alt': '#1c2a47',
+        'dm-border': '#3d5079',
+        'dm-text-secondary': '#c7d2e3',
       },
       borderRadius: {
         DEFAULT: '0.25rem',

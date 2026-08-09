@@ -37,6 +37,15 @@ function handle_checkin(): void
         if ($plannedCheckoutAt !== null && $plannedCheckoutAt <= new DateTime()) {
             json_error('เวลาที่เลือกต้องอยู่ในอนาคต', 400);
         }
+        // $plannedCheckoutAt is null both when no duration/time was chosen
+        // ("จนกว่าจะปิด") AND can't distinguish that from "closing time already
+        // passed" on its own — check separately so this path rejects a closed
+        // library the same way the duration/checkout_time paths already do
+        // (compute_planned_checkout()'s clamp-to-closing only fires when a
+        // duration/time was actually given).
+        if ($plannedCheckoutAt === null && closing_datetime(new DateTime()) <= new DateTime()) {
+            json_error('ห้องสมุดปิดแล้ว ไม่สามารถเช็คอินได้', 400);
+        }
 
         $conn->prepare('INSERT INTO checkin_logs (user_id, type, planned_checkout_at) VALUES (?, ?, ?)')
             ->execute([$userId, 'in', $plannedCheckoutAt?->format('Y-m-d H:i:s')]);

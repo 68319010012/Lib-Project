@@ -73,7 +73,12 @@ function handle_report_compare(): void
                 array_map(fn($d) => [$d['name'], $d['a'], $d['b']], $deptCompare),
             ],
         ];
-        export_response("เปรียบเทียบ_{$monthA}_กับ_{$monthB}", $sections, $format);
+        export_response("เปรียบเทียบ_{$monthA}_กับ_{$monthB}", $sections, $format, [
+            'ชื่อรายงาน' => 'เปรียบเทียบช่วงเวลา',
+            'วันที่สร้างรายงาน' => date('d/m/Y H:i'),
+            'ช่วง A' => $monthA,
+            'ช่วง B' => $monthB,
+        ]);
     }
 
     ob_start();

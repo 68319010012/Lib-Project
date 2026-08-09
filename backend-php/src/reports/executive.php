@@ -45,7 +45,11 @@ function handle_report_executive(): void
                 array_map(fn($d, $i) => [$i + 1, $d['name'], $d['count']], $topDepts, array_keys($topDepts)),
             ],
         ];
-        export_response("สรุปสำหรับผู้บริหาร_$month", $sections, $format);
+        export_response("สรุปสำหรับผู้บริหาร_$month", $sections, $format, [
+            'ชื่อรายงาน' => 'สรุปสำหรับผู้บริหาร',
+            'วันที่สร้างรายงาน' => date('d/m/Y H:i'),
+            'เดือนที่กรอง' => $month,
+        ]);
     }
 
     ob_start();

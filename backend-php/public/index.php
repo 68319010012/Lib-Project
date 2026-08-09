@@ -1,7 +1,8 @@
 <?php
-// Front controller. All 14 endpoints are static paths (no dynamic segments —
-// confirmed against API_CONTRACT.md/app.py), so a flat "METHOD path" => handler
-// map is enough; no regex router needed.
+// Front controller. Every endpoint is a static path (no dynamic segments),
+// so a flat "METHOD path" => handler map is enough; no regex router needed.
+// (Originally every route traced back to API_CONTRACT.md/app.py 1:1; the
+// report-system redesign added a few PHP-only report routes beyond that.)
 
 require __DIR__ . '/../src/env.php';
 load_env(__DIR__ . '/../.env');
@@ -31,6 +32,8 @@ require __DIR__ . '/../src/reports/dashboard.php';
 require __DIR__ . '/../src/reports/aggregate.php';
 require __DIR__ . '/../src/reports/executive.php';
 require __DIR__ . '/../src/reports/compare.php';
+require __DIR__ . '/../src/reports/semester.php';
+require __DIR__ . '/../src/reports/student_lookup.php';
 
 bootstrap_cors_and_session();
 
@@ -59,6 +62,8 @@ $routes = [
     'GET /admin/reports/print/dashboard' => 'handle_report_dashboard',
     'GET /admin/reports/print/executive' => 'handle_report_executive',
     'GET /admin/reports/print/compare' => 'handle_report_compare',
+    'GET /admin/reports/print/semester' => 'handle_report_semester',
+    'GET /admin/reports/print/student' => 'handle_report_student_lookup',
 ];
 
 $method = $_SERVER['REQUEST_METHOD'];

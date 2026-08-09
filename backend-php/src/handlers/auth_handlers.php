@@ -103,6 +103,9 @@ function handle_login(): void
     $_SESSION['user_id'] = $user['user_id'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['student_id'] = $user['student_id'];
+    // Used by reports/layout.php's print footer ("จัดทำโดย ...") — cheaper to
+    // carry in the session than a users lookup on every report render.
+    $_SESSION['username'] = $user['username'];
     json_response(['message' => 'เข้าสู่ระบบสำเร็จ', 'role' => $user['role']]);
 }
 

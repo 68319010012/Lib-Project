@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
 import { apiFetch, apiPostJson } from '../api'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 function formatClock(seconds) {
   const hrs = Math.floor(seconds / 3600)
@@ -47,6 +48,7 @@ function buildHourButtons(closingTime) {
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { user, refresh } = useAuth()
+  const { showToast } = useToast()
   const [history, setHistory] = useState([])
   const [busy, setBusy] = useState(false)
   const [now, setNow] = useState(() => Date.now())
@@ -128,12 +130,13 @@ export default function DashboardPage() {
   async function performCheckin(body) {
     setBusy(true)
     try {
-      await apiPostJson('/checkin', body)
+      const data = await apiPostJson('/checkin', body)
       reminderNotifiedKeyRef.current = null
       setShowReminder(false)
       await loadHistory()
+      showToast(data.message, { type: 'success' })
     } catch (err) {
-      alert(err.message)
+      showToast(err.message, { type: 'error' })
     } finally {
       setBusy(false)
     }
@@ -176,12 +179,13 @@ export default function DashboardPage() {
 
   async function extendCheckout(minutes) {
     try {
-      await apiPostJson('/checkin/extend', { minutes })
+      const data = await apiPostJson('/checkin/extend', { minutes })
       reminderNotifiedKeyRef.current = null
       setShowReminder(false)
       await loadHistory()
+      showToast(data.message, { type: 'success' })
     } catch (err) {
-      alert(err.message)
+      showToast(err.message, { type: 'error' })
     }
   }
 
@@ -196,25 +200,38 @@ export default function DashboardPage() {
   return (
     <div className="bg-surface dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
       <header className="bg-primary dark:bg-primary-container shadow-md fixed top-0 z-50 w-full">
-        <div className="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary">
-          <div className="flex items-center gap-4">
-            <span className="text-headline-md font-headline-md font-bold text-on-primary">NNTC Library</span>
-            <nav className="hidden md:flex items-center gap-6 ml-8">
-              <Link className="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps" to="/dashboard">
+        <div className="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <span className="text-headline-md font-headline-md font-bold text-on-primary whitespace-nowrap">
+              <span className="hidden sm:inline">NNTC Library</span>
+              <span className="sm:hidden">NNTC</span>
+            </span>
+            {/* Always visible (not hidden on mobile) — this is the only way to
+                get from /profile back to /dashboard on small screens where the
+                sidebar in ProfilePage is also hidden. */}
+            <nav className="flex items-center gap-3 sm:gap-6 ml-1 sm:ml-8">
+              <Link className="text-on-primary border-b-2 border-secondary-container pb-1 font-label-caps text-label-caps text-xs sm:text-sm whitespace-nowrap" to="/dashboard">
                 หน้าหลัก
               </Link>
-              <Link className="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps" to="/profile">
+              <Link className="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps text-xs sm:text-sm whitespace-nowrap" to="/profile">
                 โปรไฟล์
               </Link>
             </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <ThemeToggle className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors" iconClassName="text-xl" />
-            <button className="text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps" type="button" onClick={handleLogout}>
-              ออกจากระบบ
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <ThemeToggle className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0" iconClassName="text-xl" />
+            <button
+              className="w-9 h-9 sm:w-auto sm:h-auto rounded-full sm:rounded-none bg-white/10 sm:bg-transparent hover:bg-white/20 sm:hover:bg-transparent flex items-center justify-center sm:justify-start text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps transition-colors flex-shrink-0"
+              type="button"
+              onClick={handleLogout}
+              aria-label="ออกจากระบบ"
+              title="ออกจากระบบ"
+            >
+              <span className="material-symbols-outlined text-xl sm:hidden">logout</span>
+              <span className="hidden sm:inline">ออกจากระบบ</span>
             </button>
             <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
+              <div className="text-right hidden md:block">
                 <p className="font-bold text-sm">{displayName || '...'}</p>
                 <p className="text-xs opacity-75">รหัส: {user?.student_id || user?.username || '...'}</p>
               </div>
@@ -227,10 +244,12 @@ export default function DashboardPage() {
         <section className="relative bg-primary-container h-64 overflow-hidden flex flex-col justify-center">
           <div className="absolute inset-0 book-spine-pattern opacity-20" />
           <div className="relative z-10 max-w-7xl mx-auto px-gutter w-full">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="rise-in flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
                 <div className="inline-flex items-center gap-2 bg-surface-container-highest/20 text-on-primary px-3 py-1 rounded-full mb-4 border border-on-primary/20">
-                  <span className={`w-2.5 h-2.5 rounded-full ${isCheckedIn ? 'bg-status-success' : 'bg-outline'}`} />
+                  <span className={`relative flex w-2.5 h-2.5 rounded-full ${isCheckedIn ? 'bg-status-success' : 'bg-outline'}`}>
+                    {isCheckedIn && <span className="absolute inset-0 rounded-full bg-status-success animate-ping" />}
+                  </span>
                   <span className="text-label-caps font-label-caps">
                     {isCheckedIn ? 'อยู่ในห้องสมุดตอนนี้' : 'ยังไม่ได้เช็คอินวันนี้'}
                   </span>
@@ -247,7 +266,7 @@ export default function DashboardPage() {
         </section>
 
         <div className="max-w-7xl mx-auto px-gutter -mt-16 relative z-20 pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="rise-in-group grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 flex flex-col gap-8">
               <div className="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -358,7 +377,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-4 flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-4">
                 <Link
-                  className="bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group"
+                  className="lift-on-hover bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm flex flex-col items-center gap-2 group"
                   to="/profile"
                 >
                   <div className="w-12 h-12 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
@@ -367,7 +386,7 @@ export default function DashboardPage() {
                   <span className="text-label-caps font-label-caps text-[10px]">โปรไฟล์</span>
                 </Link>
                 <button
-                  className="bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2 group"
+                  className="lift-on-hover bg-surface-white dark:bg-dm-surface p-4 rounded-xl shadow-sm flex flex-col items-center gap-2 group"
                   type="button"
                   onClick={handleLogout}
                 >
@@ -377,9 +396,9 @@ export default function DashboardPage() {
                   <span className="text-label-caps font-label-caps text-[10px]">ออกจากระบบ</span>
                 </button>
               </div>
-              <div className="bg-primary-container rounded-xl shadow-md p-6 text-on-primary">
-                <h4 className="font-headline-md text-headline-md mb-2">ประกาศจากเจ้าหน้าที่</h4>
-                <p className="text-body-md opacity-80 mb-4">ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์</p>
+              <div className="bg-primary-container dark:bg-dm-surface-alt dark:border dark:border-dm-border rounded-xl shadow-md p-6 text-on-primary dark:text-inverse-on-surface">
+                <h4 className="font-headline-md text-headline-md mb-2 dark:text-primary-fixed-dim">ประกาศจากเจ้าหน้าที่</h4>
+                <p className="text-body-md opacity-80 dark:opacity-100 dark:text-dm-text-secondary mb-4">ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์</p>
               </div>
             </div>
           </div>

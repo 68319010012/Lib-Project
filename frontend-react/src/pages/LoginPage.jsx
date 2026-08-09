@@ -42,7 +42,7 @@ export default function LoginPage() {
 
       <main className="flex-grow relative px-gutter mt-5 pb-16">
         <div className="max-w-xl mx-auto">
-          <div className="bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
+          <div className="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
             <div className="p-8 md:p-12">
               <div className="flex mb-8 bg-surface-container-low dark:bg-dm-bg rounded-lg p-1">
                 {['student', 'admin'].map((r) => (
