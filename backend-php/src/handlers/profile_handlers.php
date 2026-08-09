@@ -58,13 +58,14 @@ function handle_my_history(): void
     $limit = max(1, min($limit, 100));
 
     $conn = get_db_connection();
-    $stmt = $conn->prepare('SELECT type, timestamp FROM checkin_logs WHERE user_id = ? ORDER BY log_id DESC LIMIT ?');
+    $stmt = $conn->prepare('SELECT type, timestamp, planned_checkout_at FROM checkin_logs WHERE user_id = ? ORDER BY log_id DESC LIMIT ?');
     $stmt->bindValue(1, $_SESSION['user_id'], PDO::PARAM_INT);
     $stmt->bindValue(2, $limit, PDO::PARAM_INT);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     foreach ($rows as &$row) {
         $row['timestamp'] = to_isoformat($row['timestamp']);
+        $row['planned_checkout_at'] = to_isoformat($row['planned_checkout_at']);
     }
     json_response($rows);
 }

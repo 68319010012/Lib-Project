@@ -30,6 +30,20 @@ function handle_report_monthly(): void
     }
     unset($row);
 
+    $format = $_GET['format'] ?? null;
+    if ($format === 'csv' || $format === 'excel') {
+        $headers = ['ลำดับ', 'รหัสนักศึกษา', 'ชื่อ-สกุล', 'เพศ', 'แผนกวิชา', 'ระดับชั้น/ปี', 'จำนวนครั้งที่เช็คอิน', 'เช็คอินล่าสุด'];
+        $exportRows = [];
+        foreach ($rows as $i => $row) {
+            $exportRows[] = [
+                $i + 1, $row['student_id'], $row['prefix'] . $row['first_name'] . ' ' . $row['last_name'],
+                $row['gender'], $row['department'], "{$row['level']} ปีที่ {$row['year_level']}",
+                (int) $row['checkin_count'], $row['last_checkin'],
+            ];
+        }
+        export_response("รายงานสรุปรายเดือน_$month", [['รายงานสรุปรายเดือน', $headers, $exportRows]], $format);
+    }
+
     ob_start();
     ?>
 <div class="meta">จำนวนนักศึกษาที่มีการเช็คชื่อ: <?= count($rows) ?> คน</div>
@@ -70,5 +84,8 @@ function handle_report_monthly(): void
     <?php
     $content = ob_get_clean();
 
-    render_report_layout('รายงานสรุปรายเดือน', "รายงานสรุปการเช็คชื่อประจำเดือน $month", $content);
+    render_report_layout('รายงานสรุปรายเดือน', "รายงานสรุปการเช็คชื่อประจำเดือน $month", $content, '', [
+        'csv' => "/admin/reports/print/monthly?month=$month&format=csv",
+        'excel' => "/admin/reports/print/monthly?month=$month&format=excel",
+    ]);
 }

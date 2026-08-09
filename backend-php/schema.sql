@@ -22,7 +22,10 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('student', 'admin') NOT NULL,
     student_id VARCHAR(20),
     id_card_photo_path VARCHAR(255),
-    account_status ENUM('pending', 'approved') NOT NULL DEFAULT 'pending',
+    -- 'retired': student_handlers.php's retire_expired_accounts_sweep() auto-suspends
+    -- accounts a full academic year (365 days) after created_at.
+    account_status ENUM('pending', 'approved', 'retired') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES students(student_id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -31,6 +34,11 @@ CREATE TABLE IF NOT EXISTS checkin_logs (
     user_id INT NOT NULL,
     timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     type ENUM('in', 'out') NOT NULL,
+    -- Set on check-in only (see compute_planned_checkout() in helpers.php);
+    -- NULL means "no planned time" (checked in until closing).
+    planned_checkout_at DATETIME NULL,
+    -- Set on check-out only, describing how the check-out row was created.
+    checkout_source ENUM('manual', 'auto', 'admin_forced') NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

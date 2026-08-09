@@ -3,25 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
 import { apiPostJson } from '../api'
 import { useAuth } from '../context/AuthContext'
-
-const YEAR_OPTIONS = { ปวช: ['1', '2', '3'], ปวส: ['1', '2'] }
-
-const DEPARTMENTS = [
-  'การจัดการสำนักงาน',
-  'การจัดการโลจีสติกส์และซับพลายเซน',
-  'การตลาด',
-  'การบัญชี',
-  'การโรงแรม',
-  'เทคโนโลยีธุรกิจดิจิทัล',
-  'ช่างกลโรงงาน',
-  'ช่างก่อสร้าง',
-  'ช่างยนต์',
-  'ช่างอิเล็กทรอนิกส์',
-  'ช่างเชื่อมโลหะ',
-  'ช่างไฟฟ้ากำลัง',
-  'ศิลปกรรม',
-  'เทคโนโลยีสารสนเทศ',
-]
+import { DEPARTMENTS, YEAR_OPTIONS } from '../constants'
 
 const initialForm = {
   student_id: '',

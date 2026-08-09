@@ -7,6 +7,7 @@ function handle_report_dashboard(): void
     require_admin();
 
     $month = $_GET['month'] ?? date('Y-m');
+    $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'landscape' : 'portrait';
 
     $conn = get_db_connection();
     $stmt = $conn->prepare(
@@ -80,6 +81,24 @@ function handle_report_dashboard(): void
     ob_start();
     ?>
 <style>
+  /* Overrides layout.php's default @page (portrait) when the user picks
+     landscape from the orientation toggle below — a later @page rule fully
+     replaces an earlier one, it doesn't merge, so this must stay after the
+     shared layout <style> block (it is — $extraStyle is injected after it). */
+  @page { size: A4 <?= $orientation ?>; margin: 12mm; }
+  <?php if ($orientation === 'landscape'): ?>
+  .panel-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  <?php endif; ?>
+
+  .orientation-toggle { display: inline-flex; border: 1px solid var(--outline-variant, #ccc); border-radius: 999px; overflow: hidden; }
+  .orientation-toggle a {
+    display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; font-weight: 700;
+    color: var(--on-surface-variant, #555); text-decoration: none;
+  }
+  .orientation-toggle a.active { background: var(--primary, #1e3a8a); color: #fff; }
+  @media print { .orientation-toggle { display: none; } }
+
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -103,7 +122,7 @@ function handle_report_dashboard(): void
   .kpi-card .value {
     font-size: 24px;
     font-weight: bold;
-    color: #5c101f;
+    color: #1e3a8a;
   }
   .kpi-card .sub {
     font-size: 11px;
@@ -147,7 +166,7 @@ function handle_report_dashboard(): void
   }
   .trend-chart .bar {
     width: 100%;
-    background: #a53d00;
+    background: #2563eb;
     border-radius: 2px 2px 0 0;
     min-height: 1px;
   }
@@ -177,7 +196,7 @@ function handle_report_dashboard(): void
     overflow: hidden;
   }
   .dept-bar-fill {
-    background: #5c101f;
+    background: #1e3a8a;
     height: 100%;
   }
   .empty-note {
@@ -210,7 +229,7 @@ function handle_report_dashboard(): void
   }
   .month-filter button {
     border: none;
-    background: var(--primary, #5c101f);
+    background: var(--primary, #1e3a8a);
     color: #fff;
     font-weight: 700;
     font-size: 13px;
@@ -219,9 +238,23 @@ function handle_report_dashboard(): void
     cursor: pointer;
   }
   .month-filter button:hover { filter: brightness(1.1); }
+  /* Tightened so the whole report (4 KPI cards + trend chart + up to 8
+     department rows) reliably fits a single A4 page instead of spilling a
+     mostly-empty second sheet. */
   @media print {
-    .kpi-card { background: #fff; }
     .month-filter { display: none; }
+    .kpi-grid { gap: 8px; margin: 8px 0 12px; }
+    .kpi-card { background: #fff; padding: 8px 10px; box-shadow: none; }
+    .kpi-card .value { font-size: 19px; }
+    .kpi-card .label { font-size: 10px; margin-bottom: 3px; }
+    .kpi-card .sub { font-size: 10px; margin-top: 2px; }
+    .panel-grid { gap: 10px; }
+    .panel { padding: 10px 12px; box-shadow: none; }
+    .panel h3 { font-size: 12.5px; margin-bottom: 7px; }
+    .trend-chart { height: 80px; }
+    .dept-row { margin-bottom: 6px; }
+    .dept-row .dept-meta { font-size: 11px; }
+    .panel, .kpi-grid { break-inside: avoid; }
   }
 </style>
 <?php
@@ -230,11 +263,23 @@ function handle_report_dashboard(): void
     ob_start();
     ?>
 
-<form class="month-filter" method="get">
-  <label for="month">เดือน</label>
-  <input type="month" id="month" name="month" value="<?= htmlspecialchars($month) ?>">
-  <button type="submit">ดูเดือนอื่น</button>
-</form>
+<div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:18px;">
+  <form class="month-filter" method="get" style="margin-bottom:0;">
+    <label for="month">เดือน</label>
+    <input type="month" id="month" name="month" value="<?= htmlspecialchars($month) ?>">
+    <input type="hidden" name="orientation" value="<?= htmlspecialchars($orientation) ?>">
+    <button type="submit">ดูเดือนอื่น</button>
+  </form>
+
+  <div class="orientation-toggle">
+    <a class="<?= $orientation === 'portrait' ? 'active' : '' ?>" href="?month=<?= urlencode($month) ?>&orientation=portrait">
+      <span class="material-symbols-outlined" style="font-size:16px;">crop_portrait</span> แนวตั้ง
+    </a>
+    <a class="<?= $orientation === 'landscape' ? 'active' : '' ?>" href="?month=<?= urlencode($month) ?>&orientation=landscape">
+      <span class="material-symbols-outlined" style="font-size:16px;">crop_landscape</span> แนวนอน
+    </a>
+  </div>
+</div>
 
 <div class="kpi-grid">
   <div class="kpi-card">

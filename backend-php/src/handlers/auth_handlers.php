@@ -93,6 +93,9 @@ function handle_login(): void
     if ($user === false || !password_verify($password, $user['password_hash'])) {
         json_error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401);
     }
+    if ($user['account_status'] === 'retired') {
+        json_error('บัญชีนี้ถูกระงับเนื่องจากครบกำหนด 1 ปีการศึกษา กรุณาติดต่อฝ่ายทะเบียน', 403);
+    }
     if ($user['account_status'] !== 'approved') {
         json_error('บัญชียังไม่ได้รับการอนุมัติจากแอดมิน', 403);
     }
@@ -108,4 +111,19 @@ function handle_logout(): void
     $_SESSION = [];
     session_destroy();
     json_response(['message' => 'ออกจากระบบแล้ว']);
+}
+
+// Suspends any student account whose users.created_at is a full academic
+// year (365 days) in the past. Admin accounts are never retired. Called
+// once per request (see public/index.php) — see auto_checkout_sweep() in
+// checkin_handlers.php for why a background scheduler isn't needed here.
+function retire_expired_accounts_sweep(): void
+{
+    $conn = get_db_connection();
+    $conn->exec(
+        "UPDATE users
+         SET account_status = 'retired'
+         WHERE role = 'student' AND account_status = 'approved'
+           AND created_at <= NOW() - INTERVAL 1 YEAR"
+    );
 }

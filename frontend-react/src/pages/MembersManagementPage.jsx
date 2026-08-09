@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import AdminSidebar from '../components/AdminSidebar'
 import { apiFetch } from '../api'
+import { DEPARTMENTS, YEAR_OPTIONS } from '../constants'
 
 export default function MembersManagementPage() {
   const [search, setSearch] = useState('')
@@ -8,6 +9,16 @@ export default function MembersManagementPage() {
   const [level, setLevel] = useState('')
   const [yearLevel, setYearLevel] = useState('')
   const [rows, setRows] = useState(null)
+
+  const yearOptions = level ? YEAR_OPTIONS[level] : ['1', '2', '3']
+
+  function handleLevelChange(nextLevel) {
+    setLevel(nextLevel)
+    const validYears = nextLevel ? YEAR_OPTIONS[nextLevel] : ['1', '2', '3']
+    if (yearLevel && !validYears.includes(yearLevel)) {
+      setYearLevel('')
+    }
+  }
 
   async function loadMembers() {
     const params = new URLSearchParams()
@@ -52,7 +63,7 @@ export default function MembersManagementPage() {
         </header>
 
         <section className="max-w-7xl w-full mx-auto px-gutter -mt-10 relative z-20 py-8 flex-grow">
-          <div className="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-center mb-8">
+          <div className="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-stretch lg:items-end mb-8">
             <div className="w-full lg:flex-1 relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
               <input
@@ -65,39 +76,46 @@ export default function MembersManagementPage() {
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-              <div className="flex flex-col gap-1 min-w-[180px]">
+              <div className="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
                 <label className="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
-                <input
-                  className="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"
-                  placeholder="ทั้งหมด"
-                  type="text"
+                <select
+                  className="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                />
+                >
+                  <option value="">ทั้งหมด</option>
+                  {DEPARTMENTS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="flex flex-col gap-1 min-w-[140px]">
+              <div className="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
                 <label className="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ระดับชั้น</label>
                 <select
-                  className="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"
+                  className="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"
                   value={level}
-                  onChange={(e) => setLevel(e.target.value)}
+                  onChange={(e) => handleLevelChange(e.target.value)}
                 >
                   <option value="">ทุกระดับชั้น</option>
                   <option value="ปวช">ปวช.</option>
                   <option value="ปวส">ปวส.</option>
                 </select>
               </div>
-              <div className="flex flex-col gap-1 min-w-[140px]">
+              <div className="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
                 <label className="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
                 <select
-                  className="bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"
+                  className="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"
                   value={yearLevel}
                   onChange={(e) => setYearLevel(e.target.value)}
                 >
                   <option value="">ทุกชั้นปี</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
+                  {yearOptions.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
                 </select>
               </div>
               <button

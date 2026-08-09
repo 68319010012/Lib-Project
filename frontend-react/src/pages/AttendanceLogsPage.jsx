@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '../components/AdminSidebar'
-import { apiFetch } from '../api'
+import { API_BASE, apiFetch } from '../api'
 
 export default function AttendanceLogsPage() {
   const [allRows, setAllRows] = useState(null)
@@ -8,14 +8,19 @@ export default function AttendanceLogsPage() {
   const [actionFilter, setActionFilter] = useState('')
   const [dateFilter, setDateFilter] = useState('')
 
-  async function loadReports(params) {
-    setAllRows(null)
+  async function loadReports(params, { silent = false } = {}) {
+    if (!silent) setAllRows(null)
     const data = await apiFetch(`/admin/reports?${params.toString()}`)
     setAllRows(data)
   }
 
   useEffect(() => {
-    loadReports(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }))
+    const params = new URLSearchParams({ month: new Date().toISOString().slice(0, 7) })
+    loadReports(params)
+    // Poll so newly-arrived check-ins/check-outs show up without a manual
+    // reload — silent so the table doesn't flash back to "loading" each time.
+    const id = setInterval(() => loadReports(params, { silent: true }), 20000)
+    return () => clearInterval(id)
   }, [])
 
   const filteredRows = useMemo(() => {
@@ -86,7 +91,7 @@ export default function AttendanceLogsPage() {
             <div className="flex gap-4">
               <a
                 className="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow"
-                href="/admin/reports/print"
+                href={`${API_BASE}/admin/reports/print`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -233,10 +238,10 @@ export default function AttendanceLogsPage() {
                           <td className="px-6 py-4">
                             <span
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                                isIn ? 'bg-status-success/10 text-status-success' : 'bg-secondary/10 text-secondary'
+                                isIn ? 'bg-status-success/10 text-status-success' : 'bg-warning/10 text-warning'
                               }`}
                             >
-                              <span className={`w-1.5 h-1.5 rounded-full ${isIn ? 'bg-status-success' : 'bg-secondary'}`} />
+                              <span className={`w-1.5 h-1.5 rounded-full ${isIn ? 'bg-status-success' : 'bg-warning'}`} />
                               {isIn ? 'เช็คอิน' : 'เช็คเอาต์'}
                             </span>
                           </td>

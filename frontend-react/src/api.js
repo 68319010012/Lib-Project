@@ -2,7 +2,7 @@
 // `credentials: 'include'` (not 'same-origin') since the API is now a
 // separate origin in production; the Vite dev proxy keeps dev same-origin so
 // this works unchanged in both environments.
-const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+export const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 
 export async function apiFetch(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {

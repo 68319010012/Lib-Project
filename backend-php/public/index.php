@@ -6,6 +6,13 @@
 require __DIR__ . '/../src/env.php';
 load_env(__DIR__ . '/../.env');
 
+// PHP's default timezone (Europe/Berlin on this XAMPP install) otherwise
+// disagrees with MySQL's NOW()/CURRENT_TIMESTAMP, which follow the system
+// clock (Asia/Bangkok) — a multi-hour gap that makes any PHP-computed
+// DateTime compared against a DB timestamp (e.g. planned_checkout_at vs
+// NOW() in auto_checkout_sweep()) wrong. Must run before any DateTime use.
+date_default_timezone_set(env('APP_TIMEZONE', 'Asia/Bangkok'));
+
 require __DIR__ . '/../src/helpers.php';
 require __DIR__ . '/../src/db.php';
 require __DIR__ . '/../src/auth.php';
@@ -15,19 +22,31 @@ require __DIR__ . '/../src/handlers/checkin_handlers.php';
 require __DIR__ . '/../src/handlers/profile_handlers.php';
 require __DIR__ . '/../src/handlers/admin_handlers.php';
 require __DIR__ . '/../src/reports/layout.php';
+require __DIR__ . '/../src/reports/export.php';
 require __DIR__ . '/../src/reports/select.php';
 require __DIR__ . '/../src/reports/daily.php';
 require __DIR__ . '/../src/reports/monthly.php';
 require __DIR__ . '/../src/reports/department.php';
 require __DIR__ . '/../src/reports/dashboard.php';
+require __DIR__ . '/../src/reports/aggregate.php';
+require __DIR__ . '/../src/reports/executive.php';
+require __DIR__ . '/../src/reports/compare.php';
 
 bootstrap_cors_and_session();
+
+// Replaces app.py's APScheduler background jobs — see auto_checkout_sweep()/
+// retire_expired_accounts_sweep() for why running these inline per-request
+// (instead of a real cron) is fine at this scale.
+auto_checkout_sweep();
+retire_expired_accounts_sweep();
 
 $routes = [
     'POST /register' => 'handle_register',
     'POST /login' => 'handle_login',
     'POST /logout' => 'handle_logout',
     'POST /checkin' => 'handle_checkin',
+    'POST /checkin/extend' => 'handle_checkin_extend',
+    'GET /library-info' => 'handle_library_info',
     'GET /me' => 'handle_me',
     'POST /profile/change-password' => 'handle_change_password',
     'GET /me/history' => 'handle_my_history',
@@ -38,6 +57,8 @@ $routes = [
     'GET /admin/reports/print/monthly' => 'handle_report_monthly',
     'GET /admin/reports/print/department' => 'handle_report_department',
     'GET /admin/reports/print/dashboard' => 'handle_report_dashboard',
+    'GET /admin/reports/print/executive' => 'handle_report_executive',
+    'GET /admin/reports/print/compare' => 'handle_report_compare',
 ];
 
 $method = $_SERVER['REQUEST_METHOD'];

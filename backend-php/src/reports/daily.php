@@ -51,6 +51,20 @@ function handle_report_daily(): void
     $rows = array_values($byStudent);
     usort($rows, fn($a, $b) => $a['student_id'] <=> $b['student_id']);
 
+    $format = $_GET['format'] ?? null;
+    if ($format === 'csv' || $format === 'excel') {
+        $headers = ['ลำดับ', 'รหัสนักศึกษา', 'ชื่อ-สกุล', 'เพศ', 'แผนกวิชา', 'ระดับชั้น/ปี', 'เวลาเข้า', 'เวลาออก'];
+        $exportRows = [];
+        foreach ($rows as $i => $row) {
+            $exportRows[] = [
+                $i + 1, $row['student_id'], $row['prefix'] . $row['first_name'] . ' ' . $row['last_name'],
+                $row['gender'], $row['department'], "{$row['level']} ปีที่ {$row['year_level']}",
+                $row['time_in'] ?? '-', $row['time_out'] ?? '-',
+            ];
+        }
+        export_response("รายงานประจำวัน_$date", [['รายงานประจำวัน', $headers, $exportRows]], $format);
+    }
+
     ob_start();
     ?>
 <div class="meta">จำนวนนักศึกษาที่เช็คชื่อ: <?= count($rows) ?> คน</div>
@@ -91,5 +105,8 @@ function handle_report_daily(): void
     <?php
     $content = ob_get_clean();
 
-    render_report_layout('รายงานประจำวัน', "รายงานเช็คชื่อประจำวันที่ $date", $content);
+    render_report_layout('รายงานประจำวัน', "รายงานเช็คชื่อประจำวันที่ $date", $content, '', [
+        'csv' => "/admin/reports/print/daily?date=$date&format=csv",
+        'excel' => "/admin/reports/print/daily?date=$date&format=excel",
+    ]);
 }

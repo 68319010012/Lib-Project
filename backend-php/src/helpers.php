@@ -58,3 +58,38 @@ function to_isoformat(?string $mysqlDatetime): ?string
 {
     return $mysqlDatetime === null ? null : str_replace(' ', 'T', $mysqlDatetime);
 }
+
+// Mirrors app.py's LIBRARY_CLOSING_TIME env var (default 17:00).
+function library_closing_time(): string
+{
+    return env('LIBRARY_CLOSING_TIME', '17:00');
+}
+
+// `$reference`'s date combined with library_closing_time(), as a DateTime.
+function closing_datetime(DateTime $reference): DateTime
+{
+    [$hour, $minute] = array_map('intval', explode(':', library_closing_time()));
+    $closing = clone $reference;
+    $closing->setTime($hour, $minute, 0);
+    return $closing;
+}
+
+// Returns the planned checkout DateTime, clamped to today's closing time —
+// or null, meaning "until closing" (no specific time chosen). Mirrors
+// app.py's compute_planned_checkout().
+function compute_planned_checkout(?int $durationMinutes, ?string $checkoutTime, ?DateTime $now = null): ?DateTime
+{
+    $now = $now ?? new DateTime();
+    $closing = closing_datetime($now);
+
+    if ($durationMinutes !== null) {
+        $planned = (clone $now)->modify("+{$durationMinutes} minutes");
+    } elseif ($checkoutTime !== null) {
+        [$hour, $minute] = array_map('intval', explode(':', $checkoutTime));
+        $planned = (clone $now)->setTime($hour, $minute, 0);
+    } else {
+        return null;
+    }
+
+    return $planned < $closing ? $planned : $closing;
+}

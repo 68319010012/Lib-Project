@@ -30,6 +30,16 @@ function handle_report_department(): void
     $stmt->execute($params);
     $rows = $stmt->fetchAll();
 
+    $format = $_GET['format'] ?? null;
+    if ($format === 'csv' || $format === 'excel') {
+        $headers = ['ลำดับ', 'แผนกวิชา', 'จำนวนนักศึกษาที่เช็คชื่อ (ไม่ซ้ำคน)', 'จำนวนครั้งที่เช็คอินรวม'];
+        $exportRows = [];
+        foreach ($rows as $i => $row) {
+            $exportRows[] = [$i + 1, $row['department'] ?? '', (int) $row['student_count'], (int) $row['checkin_count']];
+        }
+        export_response('รายงานสรุปตามแผนกวิชา', [['รายงานสรุปตามแผนกวิชา', $headers, $exportRows]], $format);
+    }
+
     ob_start();
     ?>
 <?php if ($rows): ?>
@@ -66,5 +76,9 @@ function handle_report_department(): void
         $subtitle .= " ปีการศึกษา $academicYear";
     }
 
-    render_report_layout('รายงานสรุปตามแผนกวิชา', $subtitle, $content);
+    $qs = $academicYear ? '?academic_year=' . urlencode($academicYear) . '&' : '?';
+    render_report_layout('รายงานสรุปตามแผนกวิชา', $subtitle, $content, '', [
+        'csv' => "/admin/reports/print/department{$qs}format=csv",
+        'excel' => "/admin/reports/print/department{$qs}format=excel",
+    ]);
 }

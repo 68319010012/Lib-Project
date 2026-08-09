@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
+import LibBanner from '../components/LibBanner'
 import { apiPostJson } from '../api'
 import { useAuth } from '../context/AuthContext'
 
@@ -37,21 +38,9 @@ export default function LoginPage() {
     <div className="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
       <ThemeToggle className="fixed top-4 right-4 z-[60] w-11 h-11 rounded-full bg-surface-white/90 dark:bg-dm-surface/90 backdrop-blur border border-outline-variant dark:border-dm-border shadow-md flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:scale-105 active:scale-95 transition-all" />
 
-      <header className="hero-gradient relative w-full h-[45vh] min-h-[400px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 book-spine-pattern opacity-40" />
-        <div className="absolute top-10 left-10 opacity-10">
-          <span className="material-symbols-outlined text-[120px] text-on-primary">menu_book</span>
-        </div>
-        <div className="relative z-10 text-center px-gutter">
-          <h1 className="font-headline-xl text-headline-xl text-on-primary mb-2">NNTC Library</h1>
-          <p className="font-body-lg text-body-lg text-on-primary/80 max-w-xl mx-auto">
-            วิทยาลัยเทคนิคนครนายก | Nakhon Nayok Technical College
-          </p>
-          <div className="mt-4 h-1 w-24 bg-secondary-container mx-auto rounded-full" />
-        </div>
-      </header>
+      <LibBanner />
 
-      <main className="flex-grow relative px-gutter -mt-32 pb-16">
+      <main className="flex-grow relative px-gutter mt-5 pb-16">
         <div className="max-w-xl mx-auto">
           <div className="bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
             <div className="p-8 md:p-12">

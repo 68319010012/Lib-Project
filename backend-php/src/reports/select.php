@@ -20,21 +20,21 @@ function handle_report_select(): void
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #5c101f;
-    --primary-container: #7a2734;
-    --secondary: #a53d00;
-    --secondary-container: #ff7e44;
-    --surface: #f8f9fb;
+    --primary: #1e3a8a;
+    --primary-container: #1e40af;
+    --secondary: #2563eb;
+    --secondary-container: #60a5fa;
+    --surface: #f8fafc;
     --surface-white: #ffffff;
-    --outline-variant: #dbc0c1;
-    --on-surface-variant: #554243;
-    --text-secondary: #6B7280;
+    --outline-variant: #cbd5e1;
+    --on-surface-variant: #475569;
+    --text-secondary: #475569;
   }
   * { box-sizing: border-box; }
   body {
     font-family: 'Noto Sans Thai', 'Tahoma', sans-serif;
     margin: 0;
-    color: #191c1e;
+    color: #0f172a;
     background: var(--surface);
     min-height: 100vh;
   }
@@ -45,7 +45,7 @@ function handle_report_select(): void
   header {
     background-image:
       repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 1px, transparent 24px),
-      linear-gradient(135deg, var(--primary-container) 0%, #40000f 100%);
+      linear-gradient(135deg, var(--primary-container) 0%, #0f172a 100%);
     color: #fff;
     padding: 40px 24px 56px;
   }
@@ -67,7 +67,7 @@ function handle_report_select(): void
     padding: 22px 24px;
     transition: box-shadow .15s ease;
   }
-  .card:hover { box-shadow: 0 10px 28px rgba(92,16,31,.14); }
+  .card:hover { box-shadow: 0 10px 28px rgba(30,58,138,.14); }
   .card .icon-badge {
     width: 44px; height: 44px;
     border-radius: 10px;
@@ -79,8 +79,13 @@ function handle_report_select(): void
   .card.accent-secondary .icon-badge { background: var(--secondary); }
   .card.accent-teal .icon-badge { background: #2f7d6b; }
   .card.accent-purple .icon-badge { background: #8B5FA3; }
+  .card.accent-amber .icon-badge { background: #d97706; }
+  .card.accent-slate .icon-badge { background: #475569; }
   .card h2 { font-size: 16px; margin: 0 0 6px; color: var(--primary); }
-  .card p.desc { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; }
+  /* min-height reserves space for 2 lines so cards whose description wraps
+     (e.g. the dashboard card) don't end up taller than the rest, which
+     pushed their date field/button further down than their neighbors'. */
+  .card p.desc { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; min-height: 3em; }
   .card label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--on-surface-variant); margin-bottom: 4px; font-weight: 600; }
   .card input {
     width: 100%;
@@ -91,7 +96,7 @@ function handle_report_select(): void
     background: var(--surface);
     margin-bottom: 14px;
   }
-  .card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(92,16,31,.15); }
+  .card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(30,58,138,.15); }
   .card button {
     width: 100%;
     font-size: 14px;
@@ -110,6 +115,8 @@ function handle_report_select(): void
   .card.accent-secondary button { background: var(--secondary); }
   .card.accent-teal button { background: #2f7d6b; }
   .card.accent-purple button { background: #8B5FA3; }
+  .card.accent-amber button { background: #d97706; }
+  .card.accent-slate button { background: #475569; }
 
   @media (max-width: 640px) {
     header { padding: 28px 16px 44px; }
@@ -164,6 +171,26 @@ function handle_report_select(): void
       <label for="academic_year">ปีการศึกษา (ไม่ใส่ = ทั้งหมด)</label>
       <input type="text" id="academic_year" name="academic_year" placeholder="เช่น 2568">
       <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
+    </form>
+
+    <form class="card accent-amber" action="/admin/reports/print/executive" method="get">
+      <div class="icon-badge"><span class="material-symbols-outlined">insights</span></div>
+      <h2>สรุปสำหรับผู้บริหาร</h2>
+      <p class="desc">ภาพรวมระดับผู้บริหาร พร้อม % เทียบกับเดือนก่อนหน้าและแผนกยอดนิยม</p>
+      <label for="executive_month">เดือน</label>
+      <input type="month" id="executive_month" name="month" value="<?= htmlspecialchars($thisMonth) ?>">
+      <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
+    </form>
+
+    <form class="card accent-slate" action="/admin/reports/print/compare" method="get">
+      <div class="icon-badge"><span class="material-symbols-outlined">compare_arrows</span></div>
+      <h2>เปรียบเทียบช่วงเวลา</h2>
+      <p class="desc">เทียบตัวชี้วัดและแผนกวิชาระหว่าง 2 เดือนที่เลือก</p>
+      <label for="month_a">ช่วง A</label>
+      <input type="month" id="month_a" name="month_a" value="<?= htmlspecialchars(date('Y-m', strtotime('-1 month'))) ?>">
+      <label for="month_b" style="margin-top:8px;">ช่วง B</label>
+      <input type="month" id="month_b" name="month_b" value="<?= htmlspecialchars($thisMonth) ?>">
+      <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> เปรียบเทียบ</button>
     </form>
 
   </div>

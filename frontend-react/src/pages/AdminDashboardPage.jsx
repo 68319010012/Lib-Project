@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '../components/AdminSidebar'
-import { apiFetch } from '../api'
+import { API_BASE, apiFetch } from '../api'
 
 const WEEKDAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.']
 const DEPT_COLORS = ['bg-primary', 'bg-secondary', 'bg-accent-stats', 'bg-status-success', 'bg-outline']
@@ -27,8 +27,16 @@ export default function AdminDashboardPage() {
   const [view, setView] = useState('month')
 
   useEffect(() => {
-    const month = new Date().toISOString().slice(0, 7)
-    apiFetch(`/admin/reports?month=${month}`).then(setAllRows)
+    function load() {
+      const month = new Date().toISOString().slice(0, 7)
+      apiFetch(`/admin/reports?month=${month}`).then(setAllRows)
+    }
+    load()
+    // "อยู่ในห้องสมุดตอนนี้" is computed client-side from this snapshot, so
+    // without polling it goes stale the moment someone checks in/out after
+    // this tab loaded — poll instead of only fetching once on mount.
+    const id = setInterval(load, 20000)
+    return () => clearInterval(id)
   }, [])
 
   const stats = useMemo(() => {
@@ -136,7 +144,7 @@ export default function AdminDashboardPage() {
               <div className="h-10 w-[1px] bg-white/20" />
               <a
                 className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95"
-                href="/admin/reports/print"
+                href={`${API_BASE}/admin/reports/print`}
                 target="_blank"
                 rel="noreferrer"
               >

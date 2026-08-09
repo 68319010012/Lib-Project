@@ -2,7 +2,9 @@
 // Ports templates/base_print.html. Jinja's {% extends %}/{% block %} becomes
 // plain output buffering: each report file builds its $content (and optional
 // $extraStyle) via ob_start()/ob_get_clean(), then calls render_report_layout().
-function render_report_layout(string $title, string $subtitle, string $content, string $extraStyle = ''): void
+// $exportUrls is an optional ['csv' => url, 'excel' => url] map — omitted by
+// dashboard.php (a print-only 1-pager, not a row-per-record report).
+function render_report_layout(string $title, string $subtitle, string $content, string $extraStyle = '', array $exportUrls = []): void
 {
     header('Content-Type: text/html; charset=utf-8');
     ?>
@@ -15,20 +17,20 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #5c101f;
-    --primary-container: #7a2734;
-    --secondary: #a53d00;
-    --surface: #f8f9fb;
+    --primary: #1e3a8a;
+    --primary-container: #1e40af;
+    --secondary: #2563eb;
+    --surface: #f8fafc;
     --surface-white: #ffffff;
-    --outline-variant: #d7c3c5;
-    --on-surface-variant: #554243;
-    --text-secondary: #6B7280;
+    --outline-variant: #cbd5e1;
+    --on-surface-variant: #475569;
+    --text-secondary: #475569;
   }
   * { box-sizing: border-box; }
   body {
     font-family: 'Noto Sans Thai', 'Tahoma', 'Leelawadee UI', sans-serif;
     margin: 0;
-    color: #191c1e;
+    color: #0f172a;
     background: var(--surface);
   }
   .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
@@ -50,10 +52,10 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   .toolbar button { background: var(--primary); color: #fff; }
   .toolbar button:hover { filter: brightness(1.1); }
   .toolbar a { background: var(--surface); color: var(--primary); border: 1px solid var(--outline-variant); }
-  .toolbar a:hover { background: #efe4e5; }
+  .toolbar a:hover { background: #e8f0fe; }
 
   header.report-head {
-    background: linear-gradient(135deg, var(--primary-container) 0%, #40000f 100%);
+    background: linear-gradient(135deg, var(--primary-container) 0%, #0f172a 100%);
     color: #fff;
     padding: 28px 24px 22px;
   }
@@ -89,7 +91,7 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   th, td { padding: 10px 14px; font-size: 13px; text-align: left; border-bottom: 1px solid var(--outline-variant); }
   th { background: var(--primary); color: #fff; font-weight: 700; white-space: nowrap; }
   tbody tr:nth-child(even) { background: var(--surface); }
-  tbody tr:hover { background: #f3e6e7; }
+  tbody tr:hover { background: #eef4fd; }
 
   .empty {
     color: var(--text-secondary); font-style: italic;
@@ -102,6 +104,11 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     main.report-body { padding: 16px 12px 32px; }
     .toolbar { padding: 12px 16px; }
   }
+
+  /* Daily/monthly/department/dashboard reports don't set their own @page —
+     this is their default. (executive.php/compare.php declare their own via
+     $extraStyle, which is injected after this block and wins.) */
+  @page { size: A4 portrait; margin: 12mm; }
 
   @media print {
     .toolbar { display: none; }
@@ -118,6 +125,12 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 <body>
 <div class="toolbar">
   <button onclick="window.print()" type="button"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์ / บันทึกเป็น PDF</button>
+  <?php if (isset($exportUrls['csv'])): ?>
+  <a href="<?= htmlspecialchars($exportUrls['csv']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด CSV</a>
+  <?php endif; ?>
+  <?php if (isset($exportUrls['excel'])): ?>
+  <a href="<?= htmlspecialchars($exportUrls['excel']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด Excel</a>
+  <?php endif; ?>
   <a href="/admin/reports/print"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> เลือกเทมเพลตอื่น</a>
 </div>
 <header class="report-head">

@@ -26,11 +26,11 @@ body {
 }
 
 .hero-gradient {
-  background: linear-gradient(135deg, #7a2734 0%, #40000f 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
 }
 
 .stamp-shadow {
-  box-shadow: 0px 8px 24px rgba(122, 39, 52, 0.2);
+  box-shadow: 0px 8px 24px rgba(30, 58, 138, 0.2);
 }
 
 .transition-all-200 {
@@ -45,7 +45,7 @@ body {
 }
 
 .hero-pattern {
-  background-image: linear-gradient(to bottom, rgba(92, 16, 31, 0.95), rgba(92, 16, 31, 1));
+  background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 1));
   position: relative;
   overflow: hidden;
 }
@@ -58,7 +58,7 @@ body {
 }
 
 .admin-hero-pattern {
-  background-image: linear-gradient(180deg, rgba(122, 39, 52, 1) 0%, rgba(92, 16, 31, 1) 100%);
+  background-image: linear-gradient(180deg, rgba(30, 58, 138, 1) 0%, rgba(15, 23, 42, 1) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -86,14 +86,14 @@ body {
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(122, 39, 52, 0.7);
+    box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 15px rgba(122, 39, 52, 0);
+    box-shadow: 0 0 0 15px rgba(30, 58, 138, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(122, 39, 52, 0);
+    box-shadow: 0 0 0 0 rgba(30, 58, 138, 0);
   }
 }
