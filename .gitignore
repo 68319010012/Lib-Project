@@ -1,10 +1,13 @@
 # Secrets / local config
 BackEnd/.env
+backend-php/.env
+frontend-react/.env
 .claude/settings.local.json
 BackEnd/.claude/settings.local.json
 
 # Real student personal data — never commit (names + student IDs of real people)
 BackEnd/Student.xlsx
+backend-php/Student.xlsx
 
 # Python
 BackEnd/venv/
@@ -15,3 +18,12 @@ BackEnd/.pytest_cache/
 
 # Uploaded files (user-generated at runtime, not source)
 BackEnd/uploads/
+
+# PHP (backend-php) — Composer is scoped to scripts/import_students.php only,
+# see backend-php/composer.json
+backend-php/vendor/
+backend-php/composer.phar
+
+# React (frontend-react)
+frontend-react/node_modules/
+frontend-react/dist/

@@ -1,0 +1,8 @@
+{
+    "name": "nntc-library/backend-php-scripts",
+    "description": "Composer is scoped to scripts/import_students.php only (PhpSpreadsheet) — the REST API itself has zero Composer dependencies, same as app.py never importing pandas/openpyxl.",
+    "require": {
+        "php": ">=8.1",
+        "phpoffice/phpspreadsheet": "^5.9"
+    }
+}

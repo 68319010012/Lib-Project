@@ -1,0 +1,36 @@
+# One-command local dev stack for the PHP backend — value the Python version
+# never had (it relied on manually-run XAMPP). Usage: docker compose up
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: library_checkin
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./backend-php/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - lib_project_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend-php
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_NAME: library_checkin
+      APP_ENV: dev
+      FRONTEND_ORIGIN: http://localhost:5173
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  lib_project_mysql_data:
