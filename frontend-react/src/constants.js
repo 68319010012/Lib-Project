@@ -17,4 +17,4 @@ export const DEPARTMENTS = [
   'เทคโนโลยีสารสนเทศ',
 ]
 
-export const YEAR_OPTIONS = { ปวช: ['1', '2', '3'], ปวส: ['1', '2'] }
+export const YEAR_OPTIONS = { 'ปวช.': ['1', '2', '3'], 'ปวส.': ['1', '2'] }

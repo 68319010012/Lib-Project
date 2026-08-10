@@ -22,7 +22,7 @@ export default {
         'on-surface-variant': '#475569',
         error: '#ba1a1a',
         'on-error': '#ffffff',
-        'status-success': '#059669',
+        'status-success': '#047857',
         warning: '#d97706',
         'on-warning': '#ffffff',
         'text-secondary': '#475569',

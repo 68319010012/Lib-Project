@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import AdminSidebar from '../components/AdminSidebar'
+import AppHeader from '../components/AppHeader'
 import { apiFetch } from '../api'
 import { DEPARTMENTS, YEAR_OPTIONS } from '../constants'
 
@@ -42,10 +43,10 @@ export default function MembersManagementPage() {
 
   return (
     <div className="bg-background dark:bg-dm-bg font-body-md text-on-background dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
+      <AppHeader variant="admin" />
       <AdminSidebar active="/admin/members-management" />
-      <main className="md:ml-64 pt-16 md:pt-0 flex-grow flex flex-col min-h-screen">
-        <header className="bg-primary text-on-primary relative overflow-hidden h-[240px] flex items-end pb-20 px-gutter">
-          <div className="absolute inset-0 vertical-pattern opacity-10" />
+      <main className="md:ml-64 pt-28 md:pt-16 flex-grow flex flex-col min-h-screen">
+        <header className="admin-hero-pattern text-on-primary h-[240px] flex items-end pb-20 px-gutter">
           <div className="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">
             <div>
               <h2 className="font-headline-xl text-headline-xl mb-2">ทำเนียบสมาชิก</h2>
@@ -99,8 +100,8 @@ export default function MembersManagementPage() {
                   onChange={(e) => handleLevelChange(e.target.value)}
                 >
                   <option value="">ทุกระดับชั้น</option>
-                  <option value="ปวช">ปวช.</option>
-                  <option value="ปวส">ปวส.</option>
+                  <option value="ปวช.">ปวช.</option>
+                  <option value="ปวส.">ปวส.</option>
                 </select>
               </div>
               <div className="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
@@ -137,6 +138,7 @@ export default function MembersManagementPage() {
                     <th className="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">รหัสนักศึกษา</th>
                     <th className="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">ชื่อ-สกุล</th>
                     <th className="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">แผนกวิชา</th>
+                    <th className="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-center">ระดับชั้น</th>
                     <th className="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-center">ชั้นปี</th>
                     <th className="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-right">เข้าใช้ล่าสุด</th>
                   </tr>
@@ -144,14 +146,14 @@ export default function MembersManagementPage() {
                 <tbody className="divide-y divide-outline-variant/30 dark:divide-dm-border">
                   {rows === null && (
                     <tr>
-                      <td className="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colSpan={5}>
+                      <td className="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colSpan={6}>
                         กำลังโหลด…
                       </td>
                     </tr>
                   )}
                   {rows !== null && rows.length === 0 && (
                     <tr>
-                      <td className="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colSpan={5}>
+                      <td className="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colSpan={6}>
                         ไม่พบสมาชิกตามเงื่อนไขนี้
                       </td>
                     </tr>
@@ -165,6 +167,7 @@ export default function MembersManagementPage() {
                           {r.first_name} {r.last_name}
                         </td>
                         <td className="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">{r.department || '-'}</td>
+                        <td className="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">{r.level || '-'}</td>
                         <td className="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">{r.year_level || '-'}</td>
                         <td className="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">
                           {r.last_visit

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '../components/AdminSidebar'
+import AppHeader from '../components/AppHeader'
 import { API_BASE, apiFetch } from '../api'
 
 const WEEKDAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.']
@@ -114,8 +115,9 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex transition-colors duration-200">
+      <AppHeader variant="admin" />
       <AdminSidebar active="/admin/dashboard" />
-      <main className="flex-1 md:ml-64 pt-16 md:pt-0 flex flex-col min-h-screen">
+      <main className="flex-1 md:ml-64 pt-28 md:pt-16 flex flex-col min-h-screen">
         <header className="admin-hero-pattern pt-8 pb-32 px-gutter">
           <div className="rise-in max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
@@ -136,9 +138,9 @@ export default function AdminDashboardPage() {
                   value={view}
                   onChange={(e) => setView(e.target.value)}
                 >
-                  <option value="month">เดือนนี้</option>
-                  <option value="week">7 วันล่าสุด</option>
-                  <option value="today">วันนี้</option>
+                  <option value="month" className="text-text-primary">เดือนนี้</option>
+                  <option value="week" className="text-text-primary">7 วันล่าสุด</option>
+                  <option value="today" className="text-text-primary">วันนี้</option>
                 </select>
               </div>
               <div className="h-10 w-[1px] bg-white/20" />

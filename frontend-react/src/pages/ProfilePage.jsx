@@ -1,23 +1,15 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import ThemeToggle from '../components/ThemeToggle'
-import { apiFetch, apiPostJson } from '../api'
+import AppHeader from '../components/AppHeader'
+import { apiPostJson } from '../api'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 export default function ProfilePage() {
-  const navigate = useNavigate()
-  const { user, refresh } = useAuth()
+  const { user } = useAuth()
   const { showToast } = useToast()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [saving, setSaving] = useState(false)
-
-  async function handleLogout() {
-    await apiFetch('/logout', { method: 'POST' })
-    await refresh()
-    navigate('/login')
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -41,42 +33,16 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
-      <nav className="bg-primary shadow-md flex justify-between items-center w-full px-gutter h-16 fixed top-0 left-0 right-0 z-50 gap-2">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <span className="text-headline-md font-headline-md font-bold text-on-primary whitespace-nowrap">
-            <span className="hidden sm:inline">ห้องสมุด NNTC</span>
-            <span className="sm:hidden">NNTC</span>
-          </span>
-          {/* Always visible — the sidebar below (with the same "หน้าหลัก" link)
-              is hidden below the lg breakpoint, so this is the only way back
-              to /dashboard on mobile/tablet. */}
-          <a className="text-on-primary/70 hover:text-on-primary transition-colors font-label-caps text-label-caps text-xs sm:text-sm whitespace-nowrap ml-1 sm:ml-4" href="/dashboard">
-            หน้าหลัก
-          </a>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <ThemeToggle className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0" iconClassName="text-xl" />
-          <button
-            className="w-9 h-9 sm:w-auto sm:h-auto rounded-full sm:rounded-none bg-white/10 sm:bg-transparent hover:bg-white/20 sm:hover:bg-transparent flex items-center justify-center sm:justify-start text-on-primary/80 hover:text-on-primary font-label-caps text-label-caps transition-colors flex-shrink-0"
-            type="button"
-            onClick={handleLogout}
-            aria-label="ออกจากระบบ"
-            title="ออกจากระบบ"
-          >
-            <span className="material-symbols-outlined text-xl sm:hidden">logout</span>
-            <span className="hidden sm:inline">ออกจากระบบ</span>
-          </button>
-        </div>
-      </nav>
+      <AppHeader variant="student" />
 
       <aside className="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border pt-20 pb-6 px-4 z-40">
         <div className="mb-8 px-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="material-symbols-outlined text-on-primary">school</span>
+              <span className="material-symbols-outlined text-on-primary">local_library</span>
             </div>
             <div>
-              <h2 className="text-primary dark:text-primary-fixed-dim text-headline-md font-bold leading-tight">NNTC</h2>
+              <h2 className="text-primary dark:text-primary-fixed-dim text-headline-md font-bold leading-tight">NTC Library</h2>
               <p className="text-on-surface-variant dark:text-dm-text-secondary text-label-caps font-label-caps uppercase tracking-wider">
                 พอร์ทัลนักศึกษา
               </p>

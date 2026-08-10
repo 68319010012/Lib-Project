@@ -8,6 +8,7 @@ import { DEPARTMENTS, YEAR_OPTIONS } from '../constants'
 const initialForm = {
   student_id: '',
   prefix: '',
+  gender: '',
   first_name: '',
   last_name: '',
   department: '',
@@ -49,6 +50,7 @@ export default function SignupPage() {
       const data = await apiPostJson('/register', {
         student_id: form.student_id.trim(),
         prefix: form.prefix,
+        gender: form.gender,
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
         department: form.department,
@@ -172,6 +174,24 @@ export default function SignupPage() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">
+                      เพศ
+                    </label>
+                    <select
+                      className="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md"
+                      required
+                      value={form.gender}
+                      onChange={(e) => update('gender', e.target.value)}
+                    >
+                      <option value="">-- เลือกเพศ --</option>
+                      <option value="male">ชาย</option>
+                      <option value="female">หญิง</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">
                     แผนกวิชา
@@ -203,8 +223,8 @@ export default function SignupPage() {
                       onChange={(e) => update('level', e.target.value)}
                     >
                       <option value="">-- เลือกระดับชั้น --</option>
-                      <option value="ปวช">ปวช.</option>
-                      <option value="ปวส">ปวส.</option>
+                      <option value="ปวช.">ปวช.</option>
+                      <option value="ปวส.">ปวส.</option>
                     </select>
                   </div>
                   <div>

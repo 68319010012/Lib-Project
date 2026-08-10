@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AdminSidebar from '../components/AdminSidebar'
+import AppHeader from '../components/AppHeader'
 import { API_BASE, apiFetch } from '../api'
 
 export default function AttendanceLogsPage() {
@@ -77,8 +78,9 @@ export default function AttendanceLogsPage() {
 
   return (
     <div className="flex min-h-screen text-text-primary dark:text-inverse-on-surface bg-background dark:bg-dm-bg transition-colors duration-200">
+      <AppHeader variant="admin" />
       <AdminSidebar active="/admin/attendance-logs" />
-      <main className="md:ml-64 pt-16 md:pt-0 flex-1 flex flex-col min-h-screen">
+      <main className="md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
         <section className="bg-gradient-to-br from-primary to-primary-container pt-12 pb-24 px-gutter relative overflow-hidden">
           <div className="absolute inset-0 book-spine-pattern opacity-20" />
           <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
