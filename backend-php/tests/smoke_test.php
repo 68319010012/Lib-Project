@@ -84,10 +84,11 @@ try {
         'username' => $STUDENT_USERNAME,
         'password' => $STUDENT_PASSWORD,
         'prefix' => 'นาย',
+        'gender' => 'male',
         'first_name' => 'Smoke',
         'last_name' => 'Test',
         'department' => 'แผนกทดสอบ',
-        'level' => 'ปวช',
+        'level' => 'ปวช.',
         'year_level' => '1',
     ], $studentJar);
     check('register -> 201', $status === 201, "got $status");
@@ -96,8 +97,8 @@ try {
     // --- duplicate register rejected ---
     [$status] = http('POST', "$BASE/register", [
         'student_id' => $STUDENT_USERNAME, 'username' => $STUDENT_USERNAME, 'password' => $STUDENT_PASSWORD,
-        'prefix' => 'นาย', 'first_name' => 'Smoke', 'last_name' => 'Test',
-        'department' => 'แผนกทดสอบ', 'level' => 'ปวช', 'year_level' => '1',
+        'prefix' => 'นาย', 'gender' => 'male', 'first_name' => 'Smoke', 'last_name' => 'Test',
+        'department' => 'แผนกทดสอบ', 'level' => 'ปวช.', 'year_level' => '1',
     ]);
     check('duplicate register -> 409', $status === 409, "got $status");
 

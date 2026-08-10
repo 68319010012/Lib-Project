@@ -5,6 +5,9 @@
 CREATE TABLE IF NOT EXISTS students (
     student_id VARCHAR(20) PRIMARY KEY,
     prefix VARCHAR(20) NOT NULL,
+    -- Optional (nullable) — self-reported at signup; not collected by the
+    -- roster import script, so imported students start out NULL ("ไม่ระบุ").
+    gender ENUM('male', 'female') NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     department VARCHAR(100),

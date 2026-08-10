@@ -9,6 +9,7 @@ function handle_register(): void
     $username = $studentId;
     $password = (string) ($body['password'] ?? '');
     $prefix = body_str($body, 'prefix');
+    $gender = body_str($body, 'gender');
     $firstName = body_str($body, 'first_name');
     $lastName = body_str($body, 'last_name');
     $department = body_str($body, 'department');
@@ -21,10 +22,13 @@ function handle_register(): void
     if ($prefix === '' || $firstName === '' || $lastName === '' || $department === '') {
         json_error('กรุณากรอกคำนำหน้า ชื่อ นามสกุล และแผนกวิชา', 400);
     }
-    if (!in_array($level, ['ปวช', 'ปวส'], true)) {
-        json_error('ระดับชั้นต้องเป็น ปวช หรือ ปวส', 400);
+    if (!in_array($gender, ['male', 'female'], true)) {
+        json_error('กรุณาเลือกเพศ', 400);
     }
-    $validYears = $level === 'ปวช' ? ['1', '2', '3'] : ['1', '2'];
+    if (!in_array($level, ['ปวช.', 'ปวส.'], true)) {
+        json_error('ระดับชั้นต้องเป็น ปวช. หรือ ปวส.', 400);
+    }
+    $validYears = $level === 'ปวช.' ? ['1', '2', '3'] : ['1', '2'];
     if (!in_array($yearLevel, $validYears, true)) {
         json_error("ชั้นปีของ $level ต้องเป็นหนึ่งใน " . implode(', ', $validYears), 400);
     }
@@ -42,12 +46,12 @@ function handle_register(): void
         // Student profile is entered manually at signup — upsert rather than require
         // the student_id to already exist in the imported roster.
         $conn->prepare(
-            'INSERT INTO students (student_id, prefix, first_name, last_name, department, level, year_level)
-             VALUES (?, ?, ?, ?, ?, ?, ?)
+            'INSERT INTO students (student_id, prefix, gender, first_name, last_name, department, level, year_level)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
-                 prefix = VALUES(prefix), first_name = VALUES(first_name), last_name = VALUES(last_name),
+                 prefix = VALUES(prefix), gender = VALUES(gender), first_name = VALUES(first_name), last_name = VALUES(last_name),
                  department = VALUES(department), level = VALUES(level), year_level = VALUES(year_level)'
-        )->execute([$studentId, $prefix, $firstName, $lastName, $department, $level, $yearLevel]);
+        )->execute([$studentId, $prefix, $gender, $firstName, $lastName, $department, $level, $yearLevel]);
 
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 

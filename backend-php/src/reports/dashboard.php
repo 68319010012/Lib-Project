@@ -38,6 +38,116 @@ function render_dashboard_sparkline(array $values, string $color): string
         . "<polyline points=\"$pointsAttr\" fill=\"none\" stroke=\"$colorAttr\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" /></svg>";
 }
 
+// Ring gauge for the one genuine percentage in this report (a department's
+// share of total traffic) — replaces the earlier horizontal meter bar at the
+// user's request to match a SaaS-dashboard reference; track and fill are two
+// steps of the same brand-blue ramp, same "one sequential hue" rule the bar
+// version followed.
+function render_dashboard_ring(float $pct, string $color): string
+{
+    $pct = max(0, min(100, $pct));
+    $r = 30;
+    $stroke = 8;
+    $size = ($r + $stroke) * 2;
+    $c = $size / 2;
+    $circumference = 2 * M_PI * $r;
+    $offset = $circumference * (1 - $pct / 100);
+    $colorAttr = htmlspecialchars($color);
+    return "<svg width=\"$size\" height=\"$size\" viewBox=\"0 0 $size $size\">"
+        . "<circle cx=\"$c\" cy=\"$c\" r=\"$r\" fill=\"none\" stroke=\"#dbeafe\" stroke-width=\"$stroke\" />"
+        . "<circle cx=\"$c\" cy=\"$c\" r=\"$r\" fill=\"none\" stroke=\"$colorAttr\" stroke-width=\"$stroke\" "
+        . 'stroke-dasharray="' . round($circumference, 2) . '" stroke-dashoffset="' . round($offset, 2) . '" '
+        . "stroke-linecap=\"round\" transform=\"rotate(-90 $c $c)\" />"
+        . '</svg>';
+}
+
+// Average minutes-per-visit within [startDate, endDate] — pairs each 'in' log
+// with the next 'out' log for the same user (checkin_handlers.php's toggle
+// guarantees logs strictly alternate in/out per user, so simple adjacency
+// pairing is correct). An 'in' with no matching 'out' in range (still checked
+// in, or checked out after the range) is dropped rather than guessed at.
+// Self-contained here (not in aggregate.php) since no other report needs it.
+function aggregate_avg_session_minutes(PDO $conn, string $startDate, string $endDate, array $filters = []): ?float
+{
+    [$filterClauses, $filterParams] = build_filter_clause($filters);
+    $where = implode(' AND ', array_merge(['DATE(c.timestamp) BETWEEN ? AND ?'], $filterClauses));
+    $stmt = $conn->prepare(
+        "SELECT c.user_id, c.type, c.timestamp
+         FROM checkin_logs c
+         JOIN users u ON u.user_id = c.user_id
+         JOIN students s ON s.student_id = u.student_id
+         WHERE $where
+         ORDER BY c.user_id, c.log_id"
+    );
+    $stmt->execute(array_merge([$startDate, $endDate], $filterParams));
+
+    $openIn = [];
+    $minutes = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $uid = $row['user_id'];
+        if ($row['type'] === 'in') {
+            $openIn[$uid] = $row['timestamp'];
+        } elseif ($row['type'] === 'out' && isset($openIn[$uid])) {
+            $diff = (strtotime($row['timestamp']) - strtotime($openIn[$uid])) / 60;
+            if ($diff > 0) {
+                $minutes[] = $diff;
+            }
+            unset($openIn[$uid]);
+        }
+    }
+
+    return $minutes ? array_sum($minutes) / count($minutes) : null;
+}
+
+// "1 ชม. 45 นาที" / "45 นาที" (< 1 hour) / "-" (no data) — matches the report's
+// all-Thai number formatting elsewhere instead of a decimal-hours figure.
+function format_minutes_thai(?float $minutes): string
+{
+    if ($minutes === null) {
+        return '-';
+    }
+    $total = (int) round($minutes);
+    $h = intdiv($total, 60);
+    $m = $total % 60;
+    if ($h === 0) {
+        return "{$m} นาที";
+    }
+    return "{$h} ชม. {$m} นาที";
+}
+
+// Male/female/unspecified split among unique visitors (not the whole roster)
+// in [startDate, endDate] — "unspecified" covers roster-imported students,
+// since import_students.php doesn't collect gender (only self-signup does).
+// Self-contained here (not aggregate.php) since no other report needs it.
+function aggregate_gender_breakdown(PDO $conn, string $startDate, string $endDate, array $filters = []): array
+{
+    [$filterClauses, $filterParams] = build_filter_clause($filters);
+    $where = implode(' AND ', array_merge(['DATE(c.timestamp) BETWEEN ? AND ?'], $filterClauses));
+    $stmt = $conn->prepare(
+        "SELECT s.gender, COUNT(DISTINCT s.student_id) AS cnt
+         FROM checkin_logs c
+         JOIN users u ON u.user_id = c.user_id
+         JOIN students s ON s.student_id = u.student_id
+         WHERE $where
+         GROUP BY s.gender"
+    );
+    $stmt->execute(array_merge([$startDate, $endDate], $filterParams));
+
+    $counts = ['male' => 0, 'female' => 0, 'unknown' => 0];
+    foreach ($stmt->fetchAll() as $row) {
+        $counts[$row['gender'] ?: 'unknown'] = (int) $row['cnt'];
+    }
+    $total = array_sum($counts);
+
+    $pct = fn(int $n) => $total ? round($n / $total * 100, 1) : 0;
+    return [
+        'male' => $counts['male'], 'male_pct' => $pct($counts['male']),
+        'female' => $counts['female'], 'female_pct' => $pct($counts['female']),
+        'unknown' => $counts['unknown'], 'unknown_pct' => $pct($counts['unknown']),
+        'total' => $total,
+    ];
+}
+
 // Signed delta badge (▲/▼ + %), colored by direction — "more library usage" is
 // the good direction here, matching the up=green/down=amber pairing monthly.php
 // and executive.php already use.
@@ -83,12 +193,37 @@ function handle_report_dashboard(): void
         $periodLabel = thai_month_label($month);
     }
 
+    // "สัปดาห์นี้" quick-filter chip: Monday..today of the current ISO week —
+    // just a pre-computed start_date/end_date link, so it reuses the exact
+    // same custom-range code path as manually typed dates (no new branch).
+    $todayDate = new DateTime();
+    $thisWeekStart = (clone $todayDate)->modify('monday this week')->format('Y-m-d');
+    $thisWeekEnd = $todayDate->format('Y-m-d');
+    $isThisWeek = $useCustomRange && $startDateParam === $thisWeekStart && $endDateParam === $thisWeekEnd;
+    $isThisMonth = !$useCustomRange && $month === date('Y-m');
+
+    // Both quick-filter chips keep whatever department/level/semester/academic_year
+    // is already selected — only the timeframe changes.
+    $chipCommonParams = array_filter([
+        'department' => $filters['department'] ?: null,
+        'level' => $filters['level'] ?: null,
+        'semester' => $filters['semester'] ?: null,
+        'academic_year' => $filters['academic_year'] ?: null,
+    ]);
+    $thisWeekHref = '/admin/reports/print/dashboard?' . http_build_query(array_merge($chipCommonParams, [
+        'start_date' => $thisWeekStart, 'end_date' => $thisWeekEnd,
+    ]));
+    $thisMonthHref = '/admin/reports/print/dashboard?' . http_build_query(array_merge($chipCommonParams, [
+        'month' => date('Y-m'),
+    ]));
+
     $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'landscape' : 'portrait';
 
     $agg = aggregate_checkin_period($conn, $startDate, $endDate, $filters);
+    $avgSessionMinutes = aggregate_avg_session_minutes($conn, $startDate, $endDate, $filters);
+    $genderBreakdown = aggregate_gender_breakdown($conn, $startDate, $endDate, $filters);
     $dailyTrend = aggregate_daily_trend($conn, $startDate, $endDate, $filters);
     $hourly = aggregate_hourly($conn, $startDate, $endDate, $filters);
-    $weekly = aggregate_weekly($conn, $startDate, $endDate, $filters);
     $deptBreakdown = aggregate_department_breakdown($conn, $startDate, $endDate, $filters);
     $topDepts = array_slice($deptBreakdown, 0, 8);
 
@@ -121,25 +256,13 @@ function handle_report_dashboard(): void
     $semesters = distinct_student_values($conn, 'semester');
     $academicYears = distinct_student_values($conn, 'academic_year');
 
-    // Carries every active filter (orientation excluded — the print-settings
-    // drawer's own links handle that) onto the department drill-down link.
-    $filterQueryBase = array_filter([
-        'month' => $useCustomRange ? null : $month,
-        'start_date' => $useCustomRange ? $startDateParam : null,
-        'end_date' => $useCustomRange ? $endDateParam : null,
-        'department' => $filters['department'] ?: null,
-        'level' => $filters['level'] ?: null,
-        'semester' => $filters['semester'] ?: null,
-        'academic_year' => $filters['academic_year'] ?: null,
-    ]);
-
     ob_start();
     ?>
 <style>
-  <?php if ($orientation === 'landscape'): ?>
-  .panel-grid { grid-template-columns: 1fr 1fr; }
-  .hero-row { grid-template-columns: auto 1fr; }
-  <?php endif; ?>
+  /* Tighter than layout.php's default 12mm — this report is meant to read as
+     one dense, single-page dashboard (Power BI style), not a multi-page
+     document, so print margin is trimmed to reclaim usable width/height. */
+  @page { size: A4 <?= $orientation ?>; margin: 8mm; }
 
   /* Slim single-line title bar instead of the shared layout's tall gradient
      hero — overridden here (not in layout.php, which every other report
@@ -161,73 +284,116 @@ function handle_report_dashboard(): void
     border-radius: 0 !important; padding: 10px 2px 16px !important; margin: 0 0 24px !important;
   }
 
-  /* ---- Hero row: one dominant number + a lane of smaller stat tiles ----
-     Six same-size KPI cards competing for attention was the mistake; a
-     dashboard leads with exactly one number (dataviz skill, "figures"). */
-  .hero-row {
-    display: grid; grid-template-columns: 1fr; gap: 16px; margin: 0 0 18px;
+  /* Quick timeframe presets — same chip visual language as the print-settings
+     drawer's orientation chips, just above the detailed filter form instead
+     of inside a drawer. */
+  .quick-filter-chips { display: flex; align-items: center; gap: 8px; margin: 4px 2px 14px; flex-wrap: wrap; }
+  .quick-filter-chips .chip {
+    font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--outline-variant, #e2e8f0); color: var(--on-surface-variant, #475569);
+    text-decoration: none;
   }
-  .hero-tile {
-    background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #e2e8f0);
-    border-radius: 14px; padding: 22px 26px; box-shadow: 0 2px 10px rgba(0,0,0,.03);
-    display: flex; flex-direction: column; justify-content: center;
+  .quick-filter-chips .chip.active { background: var(--primary, #1e3a8a); color: #fff; border-color: var(--primary, #1e3a8a); }
+  .quick-filter-chips .chip-hint { font-size: 11px; color: #898781; }
+  @media print {
+    .quick-filter-chips { display: none !important; }
   }
-  .hero-tile .hero-label { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: 600; }
-  .hero-tile .hero-value { font-size: 46px; font-weight: 700; color: #0f172a; line-height: 1; }
-  .hero-tile .hero-sub { margin-top: 8px; font-size: 12.5px; color: #666; }
+
+  /* ---- Single dense dashboard, no tabs ----
+     Power-BI-style: every widget visible on one screen/one printed page at
+     once, nothing behind a click. A KPI strip of equal-height cards (hero
+     included — set apart by a brand-color left border, not a separate
+     giant block) replaces the earlier "one huge hero + tab navigation"
+     layout, which read as multiple pages stitched together instead of one
+     dashboard. */
   .delta { font-weight: 700; white-space: nowrap; }
   .delta.up { color: #059669; }
   .delta.down { color: #d97706; }
   .delta.flat { color: #888; }
 
-  .stat-tiles {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;
+  .kpi-strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(172px, 1fr)); gap: 10px; margin: 0 0 14px;
   }
-  .stat-tile {
+  .kpi-card {
     background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #e2e8f0);
-    border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 10px rgba(0,0,0,.03);
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0;
+    border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 8px rgba(0,0,0,.03);
+    min-height: 78px;
   }
-  .stat-tile > div:first-child { min-width: 0; }
-  .stat-tile-label, .stat-tile-value { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .stat-tile-label { font-size: 11px; color: #666; margin-bottom: 5px; font-weight: 600; }
-  .stat-tile-value { font-size: 19px; font-weight: 700; color: #0f172a; }
-  .sparkline { flex-shrink: 0; }
+  .kpi-card.hero { border-left: 4px solid var(--primary, #1e3a8a); }
+  /* Label and sparkline share a flex row (not an absolutely-positioned
+     overlay) so the label can wrap to a second line instead of being cut
+     off with an ellipsis — this went to executives truncated as
+     "เวลาเฉลี่ยที่..." before, which read as broken, not just tight. */
+  .kpi-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 5px; }
+  .kpi-card .sparkline { flex-shrink: 0; width: 40px; height: 16px; margin-top: 1px; }
+  .kpi-label { font-size: 10.5px; color: #666; font-weight: 600; line-height: 1.3; }
+  .kpi-value { font-size: 19px; font-weight: 700; color: #0f172a; line-height: 1.15; }
+  .kpi-card.hero .kpi-value { font-size: 26px; }
+  .kpi-sub { display: block; margin-top: 4px; font-size: 10.5px; color: #666; }
 
   /* The one genuine ratio in this report (a department's share of total
-     traffic) gets the one meter — fill and unfilled track are two steps of
-     the same brand-blue ramp, per the skill's meter contract, not a fixed
-     gray track. */
-  .meter-tile {
-    background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #e2e8f0);
-    border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 10px rgba(0,0,0,.03);
-    grid-column: 1 / -1;
-  }
-  .meter-tile .meter-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .meter-tile .meter-label { font-size: 11px; color: #666; font-weight: 600; }
-  .meter-tile .meter-value { font-size: 15px; font-weight: 700; color: #0f172a; }
-  .meter-track { background: #dbeafe; border-radius: 999px; height: 10px; overflow: hidden; }
-  .meter-fill { background: var(--secondary, #2563eb); height: 100%; border-radius: 999px; }
+     traffic) gets the one ring gauge, sized to match the other KPI cards'
+     height instead of standing out as an oversized block. */
+  .kpi-card.ring-card { display: flex; align-items: center; gap: 10px; }
+  .meter-ring-wrap { position: relative; flex-shrink: 0; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
+  .meter-ring-wrap svg { width: 52px; height: 52px; }
+  .meter-ring-value { position: absolute; font-size: 11px; font-weight: 700; color: #0f172a; }
+  .meter-info { min-width: 0; }
+  .meter-info .meter-dept-name { font-size: 13px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meter-info .meter-dept-count { font-size: 10.5px; color: #666; margin-top: 1px; }
 
-  .panel-grid {
+  /* Department ranking (Sales-ranking-style reference): a circled position
+     number instead of a raw table row — rank 1 gets the solid brand fill,
+     the rest a light tint, same "one hue, varying weight" rule as the bars.
+     Rows kept short (not just at print size) since this list can run to a
+     dozen-plus departments and still needs to share the page with everything
+     else above it. */
+  .rank-list { display: flex; flex-direction: column; gap: 6px; }
+  .rank-row { display: flex; align-items: center; gap: 10px; }
+  .rank-badge {
+    flex-shrink: 0; width: 20px; height: 20px; border-radius: 999px;
+    background: #dbeafe; color: var(--primary, #1e3a8a);
+    font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rank-row:first-child .rank-badge { background: var(--primary, #1e3a8a); color: #fff; }
+  .rank-name {
+    flex: 0 0 140px; width: 140px; font-size: 12px; font-weight: 700; color: #0f172a;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rank-track { flex: 1; height: 8px; background: #e1e0d9; border-radius: 999px; overflow: hidden; }
+  .rank-fill { display: block; height: 100%; background: var(--secondary, #2563eb); border-radius: 999px; }
+  .rank-count { flex-shrink: 0; width: 120px; text-align: right; font-size: 11px; color: #666; }
+  @media (max-width: 640px) {
+    .rank-name { flex-basis: 88px; width: 88px; }
+    .rank-count { width: 88px; }
+  }
+
+  /* Compact 2-across chart strip (daily / hourly) instead of one big
+     2-column pair per section — matches the "everything visible at once"
+     Power-BI-style brief and leaves enough vertical room for the full
+     department list below to still land on the same printed page. The
+     earlier "weekly" panel duplicated the semester report's own week-by-week
+     template, so it was dropped in favor of the gender breakdown instead. */
+  .mini-panel-row {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 16px;
-    align-items: start;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 0 0 14px;
   }
-  @media (max-width: 760px) {
-    .panel-grid { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
+    .mini-panel-row { grid-template-columns: 1fr; }
   }
-  .panel {
+  .panel, .mini-panel {
     border: 1px solid var(--outline-variant, #ccc);
     border-radius: 10px;
-    padding: 16px 18px;
+    padding: 12px 14px;
     background: var(--surface-white, #fff);
     box-shadow: 0 2px 10px rgba(0,0,0,.03);
   }
-  .panel h3 {
-    font-size: 12.5px;
-    margin: 0 0 14px;
+  .panel h3, .mini-panel h3 {
+    font-size: 11px;
+    margin: 0 0 8px;
     color: #333;
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -236,9 +402,9 @@ function handle_report_dashboard(): void
     display: flex;
     align-items: flex-end;
     gap: 3px;
-    height: 120px;
+    height: 80px;
     border-bottom: 1px solid #e1e0d9;
-    padding-top: 8px;
+    padding-top: 6px;
   }
   .trend-chart.hourly-chart { gap: 1px; }
   .trend-chart .bar-wrap {
@@ -256,55 +422,67 @@ function handle_report_dashboard(): void
   .trend-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 10px;
+    font-size: 9px;
     color: #898781;
     margin-top: 4px;
   }
 
-  /* One sequential brand hue for every bar — magnitude across nominal
-     categories (departments, weeks) never earns a rainbow; that spends the
-     identity channel on information the bar length already shows. */
-  .bar-list { display: flex; flex-direction: column; gap: 13px; }
-  .bar-list-row .meta { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
-  .bar-list-row .meta .name { font-weight: 700; color: #0f172a; }
-  .bar-list-row .meta .count { color: #898781; }
-  .bar-list-row .track { background: #e1e0d9; border-radius: 0 4px 4px 0; height: 20px; overflow: hidden; }
-  .bar-list-row .fill {
-    height: 100%; border-radius: 0 4px 4px 0; background: var(--secondary, #2563eb);
-    display: flex; align-items: center; justify-content: flex-end;
-    padding-right: 8px; color: #fff; font-size: 10.5px; font-weight: 700; min-width: 30px;
-  }
+  /* Gender is one of the few breakdowns in this report where the categories
+     are genuinely identity-based (exactly male/female/unspecified, not an
+     open-ended nominal list like departments) — a real, if small, exception
+     to the "one hue" bar rule used everywhere else in this file. */
+  .gender-list { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+  .gender-row { display: flex; align-items: center; gap: 8px; }
+  .gender-row .g-label { flex: 0 0 52px; font-size: 11px; font-weight: 700; color: #0f172a; }
+  .gender-row .g-track { flex: 1; height: 13px; background: #e1e0d9; border-radius: 999px; overflow: hidden; }
+  .gender-row .g-fill { height: 100%; border-radius: 999px; }
+  .gender-row.male .g-fill { background: #2563eb; }
+  .gender-row.female .g-fill { background: #db2777; }
+  .gender-row.unknown .g-fill { background: #94a3b8; }
+  .gender-row .g-count { flex: 0 0 92px; text-align: right; font-size: 10.5px; color: #666; }
 
   .empty-note {
     color: #898781;
     font-size: 12px;
     font-style: italic;
   }
-  /* Tightened so a typical month's data reliably fits one A4 page instead
-     of spilling a second, mostly-empty sheet. */
+  /* Tightened further so the whole single-page dashboard (KPI strip + 3
+     mini-charts + full department list + summary) reliably fits one A4
+     sheet instead of spilling a second, mostly-empty one. Cards are allowed
+     to break across pages only as a last resort (break-inside: avoid on the
+     small ones; the department list is intentionally left free to flow —
+     forcing a dozen-plus rows to never split would just push the whole
+     block onto page 2 instead of filling out page 1). */
   @media print {
-    .hero-row { gap: 8px; margin-bottom: 10px; }
-    .hero-tile { padding: 12px 16px; }
-    .hero-tile .hero-value { font-size: 28px; }
-    .hero-tile .hero-label, .hero-tile .hero-sub { font-size: 9px; }
-    .stat-tiles { gap: 8px; }
-    .stat-tile { padding: 8px 10px; }
-    .stat-tile-label { font-size: 8.5px; margin-bottom: 2px; }
-    .stat-tile-value { font-size: 14px; }
-    .sparkline { width: 44px !important; height: 16px !important; }
-    .meter-tile { padding: 8px 10px; }
-    .meter-tile .meter-label, .meter-tile .meter-value { font-size: 9.5px; }
-    .panel-grid { gap: 8px; grid-template-columns: 1fr 1fr !important; margin-top: 0 !important; }
-    .panel { padding: 8px 10px; box-shadow: none; }
-    .panel h3 { font-size: 10px; margin-bottom: 6px; }
-    .trend-chart { height: 46px; }
-    .bar-list { gap: 6px; }
-    .bar-list-row .meta { font-size: 9px; margin-bottom: 3px; }
-    .bar-list-row .track { height: 14px; }
-    .bar-list-row .fill { font-size: 8px; padding-right: 5px; }
-    .story-box { padding: 8px 14px; margin-bottom: 8px; }
-    .story-box p { font-size: 10.5px; line-height: 1.5; }
-    .panel, .hero-tile, .stat-tile, .meter-tile, .story-box { break-inside: avoid; }
+    .kpi-strip { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important; gap: 6px; margin-bottom: 8px; }
+    .kpi-card { padding: 7px 9px; min-height: 56px; }
+    .kpi-card.hero .kpi-value { font-size: 19px; }
+    .kpi-value { font-size: 14px; }
+    .kpi-head { margin-bottom: 2px; }
+    .kpi-label { font-size: 7.5px; }
+    .kpi-sub { font-size: 8px; }
+    .kpi-card .sparkline { width: 30px !important; height: 12px !important; }
+    .meter-ring-wrap, .meter-ring-wrap svg { width: 34px; height: 34px; }
+    .meter-ring-value { font-size: 8px; }
+    .meter-info .meter-dept-name { font-size: 10px; }
+    .meter-info .meter-dept-count { font-size: 8px; }
+    .mini-panel-row { gap: 6px; margin-bottom: 8px; }
+    .panel, .mini-panel { padding: 6px 8px; box-shadow: none; }
+    .panel h3, .mini-panel h3 { font-size: 8.5px; margin-bottom: 4px; }
+    .trend-chart { height: 40px; }
+    .trend-labels { font-size: 7px; }
+    .gender-list { gap: 4px; }
+    .gender-row .g-label { font-size: 8px; flex-basis: 40px; }
+    .gender-row .g-track { height: 9px; }
+    .gender-row .g-count { font-size: 7.5px; flex-basis: 70px; }
+    .rank-list { gap: 3px; }
+    .rank-badge { width: 15px; height: 15px; font-size: 8px; }
+    .rank-name { font-size: 8px; flex-basis: 90px; width: 90px; }
+    .rank-track { height: 7px; }
+    .rank-count { font-size: 7px; width: 80px; }
+    .story-box { padding: 6px 10px; margin-bottom: 6px; }
+    .story-box p { font-size: 9px; line-height: 1.4; }
+    .kpi-card, .mini-panel, .panel, .story-box { break-inside: avoid; }
   }
 </style>
 <?php
@@ -312,6 +490,12 @@ function handle_report_dashboard(): void
 
     ob_start();
     ?>
+
+<div class="quick-filter-chips">
+  <a class="chip <?= $isThisWeek ? 'active' : '' ?>" href="<?= htmlspecialchars($thisWeekHref) ?>">สัปดาห์นี้</a>
+  <a class="chip <?= $isThisMonth ? 'active' : '' ?>" href="<?= htmlspecialchars($thisMonthHref) ?>">เดือนนี้</a>
+  <span class="chip-hint">หรือกำหนดช่วงวันที่เองด้านล่าง</span>
+</div>
 
 <form class="filter-bar" method="get">
   <input type="hidden" name="orientation" value="<?= htmlspecialchars($orientation) ?>">
@@ -378,66 +562,61 @@ function handle_report_dashboard(): void
 </div>
 <?php else: ?>
 
-<div class="hero-row" data-print-section="KPI สรุป">
-  <div class="hero-tile">
-    <div class="hero-label">จำนวนรายการทั้งหมด — <?= htmlspecialchars($periodLabel) ?></div>
-    <div class="hero-value"><?= number_format($agg['total_events']) ?></div>
-    <div class="hero-sub">
-      ครั้งการเช็คอิน/เช็คเอาต์
-      <?= $totalDelta !== null ? ' · ' . render_dashboard_delta($totalDelta) : '' ?>
-    </div>
+<div class="kpi-strip" data-print-section="KPI สรุป">
+  <div class="kpi-card hero" title="จำนวนนักศึกษาที่มาเข้าห้องสมุดในช่วงเวลานี้ นับคนซ้ำแค่ครั้งเดียวแม้จะเข้ามาหลายรอบ">
+    <div class="kpi-head"><span class="kpi-label">นักศึกษาที่เข้าใช้บริการ (ไม่ซ้ำคน)</span></div>
+    <div class="kpi-value"><?= number_format($agg['unique_students']) ?></div>
+    <?php if ($uniqueDelta !== null): ?><span class="kpi-sub"><?= render_dashboard_delta($uniqueDelta, true) ?></span><?php endif; ?>
   </div>
-
-  <div class="stat-tiles">
-    <div class="stat-tile">
-      <div>
-        <div class="stat-tile-label">นักศึกษาไม่ซ้ำคน</div>
-        <div class="stat-tile-value"><?= $agg['unique_students'] ?></div>
-        <?php if ($uniqueDelta !== null): ?><div style="margin-top:3px;"><?= render_dashboard_delta($uniqueDelta, true) ?></div><?php endif; ?>
-      </div>
+  <div class="kpi-card" title="จำนวนครั้งการเช็คอิน+เช็คเอาต์รวมกันทั้งหมดในช่วงเวลานี้ (คนเดียวเข้า-ออกหลายครั้งนับหลายครั้ง)">
+    <div class="kpi-head">
+      <span class="kpi-label">จำนวนรายการทั้งหมด</span>
       <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb') ?>
     </div>
-    <div class="stat-tile">
-      <div>
-        <div class="stat-tile-label">เฉลี่ยต่อวัน (วันที่มีข้อมูล)</div>
-        <div class="stat-tile-value"><?= $agg['avg_daily'] ?> รายการ</div>
-      </div>
+    <div class="kpi-value"><?= number_format($agg['total_events']) ?></div>
+    <?php if ($totalDelta !== null): ?><span class="kpi-sub"><?= render_dashboard_delta($totalDelta, true) ?></span><?php endif; ?>
+  </div>
+  <div class="kpi-card" title="จำนวนรายการเช็คอิน+เช็คเอาต์เฉลี่ยต่อวัน นับเฉพาะวันที่มีคนมาใช้จริง">
+    <div class="kpi-head">
+      <span class="kpi-label">เฉลี่ยต่อวัน</span>
       <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb') ?>
     </div>
-    <div class="stat-tile">
-      <div>
-        <div class="stat-tile-label">วันที่มีคนใช้มากที่สุด</div>
-        <div class="stat-tile-value"><?= $busiestDay ? htmlspecialchars($busiestDay['day']) : '-' ?></div>
-      </div>
+    <div class="kpi-value"><?= $agg['avg_daily'] ?> รายการ</div>
+  </div>
+  <div class="kpi-card" title="ระยะเวลาเฉลี่ยที่นักศึกษาอยู่ในห้องสมุดต่อการเข้าใช้ 1 ครั้ง คำนวณจากเวลาเช็คอินถึงเช็คเอาต์จริง">
+    <div class="kpi-head"><span class="kpi-label">เวลาเฉลี่ยที่อยู่ในห้องสมุด</span></div>
+    <div class="kpi-value"><?= format_minutes_thai($avgSessionMinutes) ?></div>
+  </div>
+  <div class="kpi-card" title="วันที่มีจำนวนการเช็คอิน+เช็คเอาต์รวมสูงที่สุดในช่วงเวลาที่เลือก">
+    <div class="kpi-head">
+      <span class="kpi-label">วันที่มีคนใช้มากที่สุด</span>
       <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb') ?>
     </div>
-    <div class="stat-tile">
-      <div>
-        <div class="stat-tile-label">ช่วงเวลาที่มีคนใช้มากที่สุด</div>
-        <div class="stat-tile-value"><?= $hourly['peak_hour'] ? sprintf('%02d:00 น.', $hourly['peak_hour']['hour']) : '-' ?></div>
-      </div>
+    <div class="kpi-value"><?= $busiestDay ? htmlspecialchars($busiestDay['day']) : '-' ?></div>
+  </div>
+  <div class="kpi-card" title="ชั่วโมงของวันที่มีคนเช็คอิน+เช็คเอาต์รวมกันมากที่สุด (รวมทุกวันในช่วงเวลาที่เลือก)">
+    <div class="kpi-head">
+      <span class="kpi-label">ช่วงเวลาที่มีคนใช้มากที่สุด</span>
       <?= render_dashboard_sparkline(array_column($hourly['hours'], 'count'), '#2563eb') ?>
     </div>
-
-    <div class="meter-tile">
-      <div class="meter-head">
-        <span class="meter-label">ส่วนแบ่งแผนกยอดนิยม — <?= $topDepts ? htmlspecialchars($topDepts[0]['name']) : '-' ?></span>
-        <span class="meter-value"><?= $topDepts ? $topDepts[0]['pct'] : 0 ?>%</span>
-      </div>
-      <div class="meter-track"><div class="meter-fill" style="width: <?= $topDepts ? $topDepts[0]['pct'] : 0 ?>%;"></div></div>
+    <div class="kpi-value"><?= $hourly['peak_hour'] ? sprintf('%02d:00 น.', $hourly['peak_hour']['hour']) : '-' ?></div>
+  </div>
+  <div class="kpi-card ring-card" title="แผนกวิชาที่มีจำนวนการเข้าใช้ห้องสมุดมากที่สุดในช่วงเวลานี้ และสัดส่วน % เทียบกับทุกแผนกรวมกัน">
+    <div class="meter-ring-wrap">
+      <?= render_dashboard_ring($topDepts ? $topDepts[0]['pct'] : 0, '#2563eb') ?>
+      <span class="meter-ring-value"><?= $topDepts ? $topDepts[0]['pct'] : 0 ?>%</span>
+    </div>
+    <div class="meter-info">
+      <div class="kpi-label">แผนกยอดนิยม</div>
+      <div class="meter-dept-name"><?= $topDepts ? htmlspecialchars($topDepts[0]['name']) : '-' ?></div>
+      <div class="meter-dept-count"><?= $topDepts ? number_format($topDepts[0]['count']) . ' รายการ' : '-' ?></div>
     </div>
   </div>
 </div>
 
-<?php if ($summarySentence): ?>
-<div class="story-box" data-print-section="สรุปสำหรับผู้บริหาร">
-  <p><?= $summarySentence ?></p>
-</div>
-<?php endif; ?>
-
-<div class="panel-grid" data-print-section="กราฟแนวโน้มรายวันและแผนกวิชา">
-  <div class="panel">
-    <h3>แนวโน้มการเช็คชื่อรายวัน — <?= htmlspecialchars($periodLabel) ?></h3>
+<div class="mini-panel-row" data-print-section="กราฟแนวโน้ม">
+  <div class="mini-panel">
+    <h3>แนวโน้มรายวัน</h3>
     <?php if ($agg['total_events']): ?>
     <div class="trend-chart">
       <?php foreach ($dailyTrend as $d): ?>
@@ -448,44 +627,15 @@ function handle_report_dashboard(): void
     </div>
     <div class="trend-labels">
       <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[0]['date']))) ?></span>
-      <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[intdiv(count($dailyTrend), 2)]['date']))) ?></span>
       <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[count($dailyTrend) - 1]['date']))) ?></span>
     </div>
     <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้</p>
+    <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
   </div>
 
-  <div class="panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0;">แผนกที่เข้าใช้มากที่สุด</h3>
-      <?php if (count($deptBreakdown) > 8): ?>
-      <a href="/admin/reports/print/department?<?= htmlspecialchars(http_build_query($filterQueryBase)) ?>" style="font-size:12px; color:var(--primary); font-weight:700; text-decoration:none;">ดูทั้งหมด →</a>
-      <?php endif; ?>
-    </div>
-    <?php if ($topDepts): ?>
-    <div class="bar-list">
-      <?php foreach ($topDepts as $dept): ?>
-      <div class="bar-list-row">
-        <div class="meta">
-          <span class="name"><?= htmlspecialchars($dept['name']) ?></span>
-          <span class="count"><?= $dept['count'] ?> รายการ</span>
-        </div>
-        <div class="track">
-          <div class="fill" style="width: <?= max(12, $topDepts[0]['count'] ? round($dept['count'] / $topDepts[0]['count'] * 100) : 0) ?>%;"><?= $dept['pct'] ?>%</div>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้</p>
-    <?php endif; ?>
-  </div>
-</div>
-
-<div class="panel-grid" data-print-section="กราฟช่วงเวลาและรายสัปดาห์" style="margin-top:16px;">
-  <div class="panel">
-    <h3>การเข้าใช้ตามช่วงเวลา (รายชั่วโมง)</h3>
+  <div class="mini-panel">
+    <h3>รายชั่วโมง</h3>
     <?php if ($agg['total_events']): ?>
     <?php $maxHour = max(1, max(array_column($hourly['hours'], 'count'))); ?>
     <div class="trend-chart hourly-chart">
@@ -495,34 +645,119 @@ function handle_report_dashboard(): void
       </div>
       <?php endforeach; ?>
     </div>
-    <div class="trend-labels"><span>00:00</span><span>12:00</span><span>23:00</span></div>
+    <div class="trend-labels"><span>00:00</span><span>23:00</span></div>
     <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้</p>
+    <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
   </div>
 
-  <div class="panel">
-    <h3>แนวโน้มรายสัปดาห์ในช่วงเวลานี้</h3>
-    <?php if ($weekly): ?>
-    <?php $maxWeek = max(array_column($weekly, 'count')); ?>
-    <div class="bar-list">
-      <?php foreach ($weekly as $w): ?>
-      <div class="bar-list-row">
-        <div class="meta">
-          <span class="name">สัปดาห์ที่ <?= $w['week'] ?></span>
-          <span class="count"><?= $w['count'] ?> รายการ</span>
-        </div>
-        <div class="track">
-          <div class="fill" style="width: <?= max(12, $maxWeek ? round($w['count'] / $maxWeek * 100) : 0) ?>%;"></div>
-        </div>
+  <div class="mini-panel" title="สัดส่วนเพศของนักศึกษาไม่ซ้ำคนที่เข้าใช้บริการในช่วงเวลานี้ — 'ไม่ระบุ' คือบัญชีที่นำเข้าจากรายชื่อ ยังไม่เคยกรอกเพศเอง">
+    <h3>สัดส่วนเพศผู้เข้าใช้</h3>
+    <?php if ($genderBreakdown['total'] > 0): ?>
+    <div class="gender-list">
+      <div class="gender-row male">
+        <span class="g-label">ชาย</span>
+        <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['male_pct'] ?>%;"></span></span>
+        <span class="g-count"><?= $genderBreakdown['male'] ?> คน · <?= $genderBreakdown['male_pct'] ?>%</span>
       </div>
-      <?php endforeach; ?>
+      <div class="gender-row female">
+        <span class="g-label">หญิง</span>
+        <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['female_pct'] ?>%;"></span></span>
+        <span class="g-count"><?= $genderBreakdown['female'] ?> คน · <?= $genderBreakdown['female_pct'] ?>%</span>
+      </div>
+      <?php if ($genderBreakdown['unknown'] > 0): ?>
+      <div class="gender-row unknown">
+        <span class="g-label">ไม่ระบุ</span>
+        <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['unknown_pct'] ?>%;"></span></span>
+        <span class="g-count"><?= $genderBreakdown['unknown'] ?> คน · <?= $genderBreakdown['unknown_pct'] ?>%</span>
+      </div>
+      <?php endif; ?>
     </div>
     <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้</p>
+    <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
   </div>
 </div>
+
+<div class="panel" data-print-section="แผนกวิชาทั้งหมด" style="margin-bottom:14px;">
+  <h3 style="margin:0 0 8px;">แผนกวิชาทั้งหมด (เรียงจากใช้งานมากไปน้อย)</h3>
+  <?php if ($deptBreakdown): ?>
+  <div class="rank-list">
+    <?php foreach ($deptBreakdown as $i => $dept): ?>
+    <div class="rank-row">
+      <span class="rank-badge"><?= $i + 1 ?></span>
+      <span class="rank-name"><?= htmlspecialchars($dept['name']) ?></span>
+      <span class="rank-track"><span class="rank-fill" style="width: <?= max(8, $deptBreakdown[0]['count'] ? round($dept['count'] / $deptBreakdown[0]['count'] * 100) : 0) ?>%;"></span></span>
+      <span class="rank-count"><?= $dept['count'] ?> รายการ · <?= $dept['pct'] ?>%</span>
+    </div>
+    <?php endforeach; ?>
+  </div>
+  <?php else: ?>
+  <p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้</p>
+  <?php endif; ?>
+</div>
+
+<?php if ($summarySentence): ?>
+<div class="story-box" data-print-section="สรุปสำหรับผู้บริหาร">
+  <p><?= $summarySentence ?></p>
+</div>
+<?php endif; ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(function () {
+  // This report's settings drawer doubles as "customize dashboard widgets"
+  // (its checkboxes — from layout.php's shared buildPrintSectionToggles(),
+  // unmodified — already choose which widgets appear in print output) —
+  // relabel just here via JS rather than editing layout.php's shared button/
+  // heading text, which every other (non-widget) report also uses.
+  var settingsBtn = document.querySelector('.settings-toggle-btn');
+  if (settingsBtn) {
+    for (var i = settingsBtn.childNodes.length - 1; i >= 0; i--) {
+      var node = settingsBtn.childNodes[i];
+      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+        node.textContent = ' ปรับแต่งวิดเจ็ต / ตั้งค่าการพิมพ์';
+        break;
+      }
+    }
+  }
+  var settingsHeading = document.querySelector('.settings-panel h4');
+  if (settingsHeading) settingsHeading.textContent = 'ปรับแต่งวิดเจ็ตแดชบอร์ด';
+
+  // Separate "save as image" from "print" — the shared toolbar only ever had
+  // one button that opens the browser print dialog (useful for PDF, but not
+  // what someone reaching for "save image" expects). Injected here rather
+  // than into layout.php's shared toolbar markup since this is a
+  // dashboard-specific addition, not something every table-style report needs.
+  var printBtn = document.querySelector('.toolbar button');
+  if (printBtn) {
+    var imageBtn = document.createElement('button');
+    imageBtn.type = 'button';
+    imageBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">image</span> บันทึกเป็นรูปภาพ';
+    imageBtn.addEventListener('click', function () {
+      imageBtn.disabled = true;
+      var originalHtml = imageBtn.innerHTML;
+      imageBtn.innerHTML = 'กำลังสร้างรูปภาพ…';
+      html2canvas(document.body, {
+        backgroundColor: '#f8fafc',
+        scale: 2,
+        ignoreElements: function (el) {
+          return el.classList.contains('toolbar') || el.id === 'print-settings-panel';
+        },
+      }).then(function (canvas) {
+        var link = document.createElement('a');
+        link.download = 'รายงานแดชบอร์ด-<?= htmlspecialchars(str_replace(' ', '-', $periodLabel)) ?>.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).finally(function () {
+        imageBtn.disabled = false;
+        imageBtn.innerHTML = originalHtml;
+      });
+    });
+    printBtn.insertAdjacentElement('afterend', imageBtn);
+  }
+})();
+</script>
 <?php endif; ?>
 
     <?php
