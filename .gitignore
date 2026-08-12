@@ -1,7 +1,6 @@
 # Secrets / local config
 BackEnd/.env
 backend-php/.env
-frontend-react/.env
 .claude/settings.local.json
 BackEnd/.claude/settings.local.json
 
@@ -23,7 +22,3 @@ BackEnd/uploads/
 # see backend-php/composer.json
 backend-php/vendor/
 backend-php/composer.phar
-
-# React (frontend-react)
-frontend-react/node_modules/
-frontend-react/dist/

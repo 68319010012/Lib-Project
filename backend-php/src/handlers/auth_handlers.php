@@ -120,6 +120,14 @@ function handle_logout(): void
     json_response(['message' => 'ออกจากระบบแล้ว']);
 }
 
+// Bare "/" has no page of its own — send browsers to the static login page.
+// Mirrors the old React router's <Navigate to="/login" replace> for "/".
+function handle_root_redirect(): void
+{
+    header('Location: /login.php');
+    exit;
+}
+
 // Suspends any student account whose users.created_at is a full academic
 // year (365 days) in the past. Admin accounts are never retired. Called
 // once per request (see public/index.php) — see auto_checkout_sweep() in

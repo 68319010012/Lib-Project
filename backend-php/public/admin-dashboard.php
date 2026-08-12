@@ -1,0 +1,147 @@
+<?php
+$requireAdmin = true;
+require __DIR__ . '/partials/guard.php';
+?>
+<!doctype html>
+<html lang="th">
+<head>
+<?php $pageTitle = 'ภาพรวม'; include __DIR__ . '/partials/head.php'; ?>
+</head>
+<body class="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex transition-colors duration-200">
+  <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
+  <?php $active = 'admin-dashboard.php'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
+
+  <main class="flex-1 md:ml-64 pt-28 md:pt-16 flex flex-col min-h-screen">
+    <header class="admin-hero-pattern pt-8 pb-32 px-gutter">
+      <div class="rise-in max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h2 class="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h2>
+          <p id="ad-subtitle" class="text-on-primary-container font-body-lg text-body-lg">กำลังโหลดข้อมูลการเข้าใช้…</p>
+        </div>
+        <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
+          <div class="px-4 py-2">
+            <p class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">ช่วงเวลา</p>
+            <select id="view-select" class="bg-transparent text-white border-none focus:ring-0 font-bold p-0 text-body-md cursor-pointer">
+              <option value="month" class="text-text-primary">เดือนนี้</option>
+              <option value="week" class="text-text-primary">7 วันล่าสุด</option>
+              <option value="today" class="text-text-primary">วันนี้</option>
+            </select>
+          </div>
+          <div class="h-10 w-[1px] bg-white/20"></div>
+          <a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank" rel="noreferrer">
+            <span class="material-symbols-outlined">print</span>
+            <span class="font-label-caps">พิมพ์รายงาน</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="rise-in-group max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
+        <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
+          <div class="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
+          <div class="skeleton kpi-skeleton h-8 w-20"></div>
+          <h3 id="kpi-total" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
+        </div>
+        <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
+          <div class="w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
+            <span class="material-symbols-outlined">person_search</span>
+          </div>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
+          <div class="skeleton kpi-skeleton h-8 w-20"></div>
+          <h3 id="kpi-unique" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
+        </div>
+        <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
+          <div class="w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
+            <span class="material-symbols-outlined">calendar_today</span>
+          </div>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
+          <div class="skeleton kpi-skeleton h-8 w-20"></div>
+          <h3 id="kpi-avg" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
+        </div>
+        <div class="lift-on-hover bg-primary-container rounded-xl p-6 shadow-stamp border border-primary relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4">
+            <div class="w-3 h-3 bg-white rounded-full stamp-pulse"></div>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
+            <span class="material-symbols-outlined">meeting_room</span>
+          </div>
+          <p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
+          <div class="skeleton kpi-skeleton h-8 w-20 bg-white/20"></div>
+          <h3 id="kpi-inside" class="hidden kpi-value text-headline-lg font-headline-lg text-white font-bold font-label-code">0</h3>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
+        <div class="mb-8">
+          <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h4>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก</p>
+        </div>
+        <div class="h-64 flex items-end justify-between gap-1 px-2 relative" id="trend-bars"></div>
+        <div class="flex justify-between mt-4 text-xs font-label-caps text-outline dark:text-dm-text-secondary uppercase tracking-wider">
+          <span id="trend-range-start" class="invisible"></span>
+          <span id="trend-range-end" class="invisible"></span>
+        </div>
+      </section>
+
+      <section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
+        <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h4>
+        <div class="space-y-6" id="dept-bars">
+          <p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด…</p>
+        </div>
+        <div class="mt-10 p-4 bg-surface-container-low dark:bg-dm-bg rounded-xl border border-dashed border-outline-variant dark:border-dm-border flex items-center gap-4">
+          <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-3xl">lightbulb</span>
+          <p class="text-sm text-on-surface-variant dark:text-dm-text-secondary italic" id="peak-text">กำลังคำนวณช่วงเวลาที่มีคนใช้มากที่สุด…</p>
+        </div>
+      </section>
+
+      <section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
+        <div class="mb-8">
+          <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">การเข้าใช้ตามวันและเวลา</h4>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">ความหนาแน่นของการเข้าใช้ในช่วงเวลาที่เลือก (แถว = วันในสัปดาห์, คอลัมน์ = ชั่วโมง)</p>
+        </div>
+        <div class="overflow-x-auto pb-4">
+          <div class="min-w-[900px] grid grid-cols-[auto_1fr] gap-4">
+            <div class="grid grid-rows-7 gap-1 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps pt-6">
+              <span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-outline dark:text-dm-text-secondary font-label-caps mb-2 px-1">
+                <span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
+              </div>
+              <div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr))"></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps uppercase">
+          <span>น้อย</span>
+          <div class="w-3 h-3 bg-surface-container dark:bg-dm-border rounded-sm"></div>
+          <div class="w-3 h-3 bg-primary/20 dark:bg-primary-fixed-dim/35 rounded-sm"></div>
+          <div class="w-3 h-3 bg-primary/40 dark:bg-primary-fixed-dim/50 rounded-sm"></div>
+          <div class="w-3 h-3 bg-primary/70 dark:bg-primary-fixed-dim/70 rounded-sm"></div>
+          <div class="w-3 h-3 bg-primary dark:bg-primary-fixed-dim rounded-sm"></div>
+          <span>มาก</span>
+        </div>
+      </section>
+    </div>
+
+    <footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
+      <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
+        <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</span>
+        <p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary opacity-80">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
+      </div>
+    </footer>
+  </main>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/toast.js"></script>
+  <script src="/assets/js/header.js"></script>
+  <script src="/assets/js/history-modal.js"></script>
+  <script src="/assets/js/admin-sidebar.js"></script>
+  <script src="/assets/js/admin-dashboard.js"></script>
+</body>
+</html>

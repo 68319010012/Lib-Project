@@ -1,0 +1,92 @@
+<?php
+// Shared top navbar for every authenticated page — port of
+// frontend-react/src/components/AppHeader.jsx. Include with $variant set to
+// 'student' or 'admin' beforehand (defaults to 'student').
+$variant = $variant ?? 'student';
+$homeHref = $variant === 'admin' ? '/admin-dashboard.php' : '/dashboard.php';
+$profileHref = $variant === 'admin' ? '/admin-members.php' : '/profile.php';
+?>
+<header class="bg-primary shadow-md fixed top-0 z-50 w-full">
+  <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary gap-2">
+    <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
+      <span class="text-headline-md font-headline-md font-bold whitespace-nowrap">NTC Library</span>
+    </a>
+
+    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+      <div class="relative" id="theme-menu">
+        <button
+          type="button"
+          id="theme-menu-btn"
+          aria-label="ตั้งค่าธีมสี"
+          title="ตั้งค่าธีมสี"
+          aria-haspopup="true"
+          class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
+        >
+          <span class="material-symbols-outlined text-xl tm-current-icon">routine</span>
+        </button>
+        <div id="theme-menu-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl border border-outline-variant dark:border-dm-border overflow-hidden text-text-primary dark:text-inverse-on-surface z-50">
+          <button type="button" data-mode="auto" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+            <span class="material-symbols-outlined text-lg">routine</span>
+            อัตโนมัติ (ตามเวลา)
+            <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+          </button>
+          <button type="button" data-mode="light" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+            <span class="material-symbols-outlined text-lg">light_mode</span>
+            สว่าง
+            <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+          </button>
+          <button type="button" data-mode="dark" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+            <span class="material-symbols-outlined text-lg">dark_mode</span>
+            มืด
+            <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="relative" id="account-menu">
+        <button
+          type="button"
+          id="account-menu-btn"
+          aria-haspopup="true"
+          aria-label="เมนูบัญชี"
+          class="flex items-center gap-1.5 rounded-full hover:bg-white/10 pl-1 pr-2 py-1 transition-colors"
+        >
+          <span class="material-symbols-outlined text-[34px] leading-none">account_circle</span>
+          <span class="hidden md:block text-left leading-tight max-w-[140px]">
+            <span class="block text-xs font-bold truncate account-display-name">...</span>
+          </span>
+          <span class="material-symbols-outlined text-lg account-menu-caret">expand_more</span>
+        </button>
+
+        <div id="account-menu-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl border border-outline-variant dark:border-dm-border overflow-hidden text-text-primary dark:text-inverse-on-surface z-50">
+          <div class="px-4 py-3 border-b border-outline-variant dark:border-dm-border">
+            <p class="font-bold text-sm truncate account-display-name">...</p>
+            <p class="text-xs text-text-secondary dark:text-dm-text-secondary truncate" id="account-student-id">รหัส: ...</p>
+          </div>
+
+          <a href="<?= htmlspecialchars($profileHref) ?>" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+            <span class="material-symbols-outlined text-lg">person</span>
+            <?= $variant === 'admin' ? 'ข้อมูลสมาชิก' : 'ข้อมูลผู้ใช้' ?>
+          </a>
+
+          <?php if ($variant === 'student'): ?>
+          <button type="button" id="account-menu-history" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+            <span class="material-symbols-outlined text-lg">history</span>
+            ประวัติการเข้าใช้
+          </button>
+          <?php endif; ?>
+
+          <button type="button" id="account-menu-logout" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-error hover:bg-error-container/30 transition-colors border-t border-outline-variant dark:border-dm-border">
+            <span class="material-symbols-outlined text-lg">logout</span>
+            ออกจากระบบ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<?php if ($variant === 'student'): ?>
+<?php include __DIR__ . '/history-modal.php'; ?>
+<?php endif; ?>

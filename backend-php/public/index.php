@@ -44,6 +44,7 @@ auto_checkout_sweep();
 retire_expired_accounts_sweep();
 
 $routes = [
+    'GET /' => 'handle_root_redirect',
     'POST /register' => 'handle_register',
     'POST /login' => 'handle_login',
     'POST /logout' => 'handle_logout',
