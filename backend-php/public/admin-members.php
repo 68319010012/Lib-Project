@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $requireAdmin = true;
 require __DIR__ . '/partials/guard.php';
 ?>
@@ -53,10 +53,6 @@ require __DIR__ . '/partials/guard.php';
             <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
             <select id="members-year-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
           </div>
-          <button id="members-filter-btn" type="button" class="self-end px-6 py-3 bg-surface-container-high dark:bg-dm-bg hover:bg-surface-container-highest dark:hover:bg-dm-border rounded-lg font-bold text-primary dark:text-primary-fixed-dim flex items-center gap-2 transition-colors h-[46px]">
-            <span class="material-symbols-outlined">filter_list</span>
-            กรองข้อมูล
-          </button>
         </div>
       </div>
 
@@ -92,13 +88,13 @@ require __DIR__ . '/partials/guard.php';
     </footer>
   </main>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/toast.js"></script>
-  <script src="/assets/js/header.js"></script>
-  <script src="/assets/js/history-modal.js"></script>
-  <script src="/assets/js/admin-sidebar.js"></script>
-  <script src="/assets/js/constants.js"></script>
-  <script src="/assets/js/admin-members.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
+  <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
+  <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
+  <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>
+  <script src="/assets/js/admin-members.js?v=<?= ntc_asset_v('assets/js/admin-members.js') ?>"></script>
 </body>
 </html>

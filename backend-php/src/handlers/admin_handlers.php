@@ -51,6 +51,63 @@ function handle_admin_members(): void
     json_response($rows);
 }
 
+// Whoever's most recent checkin_logs row is 'in' is still inside — same
+// "latest log per user" join auto_checkout_sweep() uses in checkin_handlers.php.
+function handle_admin_active_now(): void
+{
+    require_login();
+    require_admin();
+
+    $sql = "SELECT u.user_id, u.username, s.student_id, s.prefix, s.first_name, s.last_name,
+                   s.department, s.level, s.year_level, c.timestamp AS checked_in_at, c.planned_checkout_at
+            FROM checkin_logs c
+            INNER JOIN (
+                SELECT user_id, MAX(log_id) AS max_log_id FROM checkin_logs GROUP BY user_id
+            ) latest ON c.user_id = latest.user_id AND c.log_id = latest.max_log_id
+            JOIN users u ON u.user_id = c.user_id
+            JOIN students s ON s.student_id = u.student_id
+            WHERE c.type = 'in'
+            ORDER BY c.timestamp ASC";
+
+    $conn = get_db_connection();
+    $rows = $conn->query($sql)->fetchAll();
+    foreach ($rows as &$row) {
+        $row['checked_in_at'] = to_isoformat($row['checked_in_at']);
+        $row['planned_checkout_at'] = $row['planned_checkout_at'] ? to_isoformat($row['planned_checkout_at']) : null;
+    }
+    json_response($rows);
+}
+
+// Admin manually ends someone's session — e.g. a student left without
+// checking out. Writes a normal 'out' row tagged checkout_source =
+// 'admin_forced' (schema already reserved this value; nothing previously
+// wrote it) so it's distinguishable from the student's own checkout and
+// from auto_checkout_sweep()'s planned-checkout expiry in reports/logs.
+function handle_admin_force_checkout(): void
+{
+    require_login();
+    require_admin();
+
+    $body = request_body();
+    $userId = (int) ($body['user_id'] ?? 0);
+    if ($userId <= 0) {
+        json_error('user_id ไม่ถูกต้อง', 400);
+    }
+
+    $conn = get_db_connection();
+    $stmt = $conn->prepare('SELECT type FROM checkin_logs WHERE user_id = ? ORDER BY log_id DESC LIMIT 1');
+    $stmt->execute([$userId]);
+    $last = $stmt->fetch();
+    if ($last === false || $last['type'] !== 'in') {
+        json_error('ผู้ใช้นี้ไม่ได้เช็คอินอยู่ในขณะนี้', 400);
+    }
+
+    $conn->prepare("INSERT INTO checkin_logs (user_id, type, checkout_source) VALUES (?, 'out', 'admin_forced')")
+        ->execute([$userId]);
+
+    json_response(['message' => 'บันทึกเช็คเอาต์ให้ผู้ใช้นี้แล้ว']);
+}
+
 function handle_admin_reports(): void
 {
     require_login();

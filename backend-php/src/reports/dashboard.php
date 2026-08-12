@@ -620,7 +620,7 @@ function handle_report_dashboard(): void
     <?php if ($agg['total_events']): ?>
     <div class="trend-chart">
       <?php foreach ($dailyTrend as $d): ?>
-      <div class="bar-wrap" title="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>: <?= $d['count'] ?> รายการ">
+      <div class="bar-wrap" title="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>: <?= $d['count'] ?> รายการ" data-label="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>" data-count="<?= $d['count'] ?>">
         <div class="bar" style="height: <?= $d['pct'] > 0 ? $d['pct'] : 2 ?>%;"></div>
       </div>
       <?php endforeach; ?>
@@ -629,6 +629,7 @@ function handle_report_dashboard(): void
       <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[0]['date']))) ?></span>
       <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[count($dailyTrend) - 1]['date']))) ?></span>
     </div>
+    <p class="trend-detail-text">แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนและวันที่</p>
     <?php else: ?>
     <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
@@ -640,12 +641,13 @@ function handle_report_dashboard(): void
     <?php $maxHour = max(1, max(array_column($hourly['hours'], 'count'))); ?>
     <div class="trend-chart hourly-chart">
       <?php foreach ($hourly['hours'] as $h): ?>
-      <div class="bar-wrap" title="<?= sprintf('%02d:00', $h['hour']) ?> น.: <?= $h['count'] ?> รายการ">
+      <div class="bar-wrap" title="<?= sprintf('%02d:00', $h['hour']) ?> น.: <?= $h['count'] ?> รายการ" data-label="<?= sprintf('%02d:00', $h['hour']) ?> น." data-count="<?= $h['count'] ?>">
         <div class="bar" style="height: <?= $h['count'] ? max(2, round($h['count'] / $maxHour * 100)) : 1 ?>%;"></div>
       </div>
       <?php endforeach; ?>
     </div>
     <div class="trend-labels"><span>00:00</span><span>23:00</span></div>
+    <p class="trend-detail-text">แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนและช่วงเวลา</p>
     <?php else: ?>
     <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
@@ -763,5 +765,23 @@ function handle_report_dashboard(): void
     <?php
     $content = ob_get_clean();
 
-    render_report_layout('รายงานแบบแดชบอร์ด', "สรุปภาพรวมการเช็คชื่อ — $periodLabel", $content, $extraStyle);
+    $pdfCharts = [];
+    if ($dailyTrend) {
+        $pdfCharts[] = [
+            'title' => 'แนวโน้มการเช็คชื่อรายวัน',
+            'orientation' => 'vertical',
+            'labels' => array_map(fn($row) => (string) ((int) substr($row['date'], -2)), $dailyTrend),
+            'values' => array_column($dailyTrend, 'count'),
+        ];
+    }
+    if ($topDepts) {
+        $pdfCharts[] = [
+            'title' => 'แผนกที่เข้าใช้มากที่สุด',
+            'orientation' => 'horizontal',
+            'labels' => array_column($topDepts, 'name'),
+            'values' => array_column($topDepts, 'count'),
+        ];
+    }
+
+    render_report_layout('รายงานแบบแดชบอร์ด', "สรุปภาพรวมการเช็คชื่อ — $periodLabel", $content, $extraStyle, [], $pdfCharts);
 }

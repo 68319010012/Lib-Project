@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="th">
 <head>
 <?php $pageTitle = 'เข้าสู่ระบบ'; include __DIR__ . '/partials/head.php'; ?>
@@ -90,8 +90,8 @@
     </div>
   </footer>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/login.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/login.js?v=<?= ntc_asset_v('assets/js/login.js') ?>"></script>
 </body>
 </html>

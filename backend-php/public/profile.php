@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $requireAdmin = false;
 require __DIR__ . '/partials/guard.php';
 ?>
@@ -117,12 +117,12 @@ require __DIR__ . '/partials/guard.php';
     </div>
   </footer>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/toast.js"></script>
-  <script src="/assets/js/header.js"></script>
-  <script src="/assets/js/history-modal.js"></script>
-  <script src="/assets/js/student-sidebar.js"></script>
-  <script src="/assets/js/profile.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
+  <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
+  <script src="/assets/js/student-sidebar.js?v=<?= ntc_asset_v('assets/js/student-sidebar.js') ?>"></script>
+  <script src="/assets/js/profile.js?v=<?= ntc_asset_v('assets/js/profile.js') ?>"></script>
 </body>
 </html>

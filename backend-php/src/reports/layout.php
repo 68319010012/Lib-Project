@@ -1,11 +1,200 @@
 <?php
+// Renders one bar chart (vertical, e.g. daily trend, or horizontal, e.g.
+// department ranking) to a PNG and returns it as a data: URI. This is the
+// PDF export's answer to the divs-with-%-height bar charts every report
+// uses on screen — those are exactly what blew a 1-page report up to
+// 50-300+ pages when fed to mPDF (see render_report_pdf() below), since
+// mPDF's CSS engine can't be trusted with them. A flat raster image has no
+// such risk: GD draws it, mPDF just places it, done. Uses the same Sarabun
+// TTF as the rest of the PDF so Thai department names render correctly
+// (GD's built-in bitmap fonts are Latin-only).
+function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical'): string
+{
+    $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
+    $n = count($values);
+    $max = max(1, ...array_merge($values, [0]));
+
+    if ($orientation === 'horizontal') {
+        $width = 720;
+        $rowH = 26;
+        $height = max(60, $n * $rowH + 16);
+        $img = imagecreatetruecolor($width, $height);
+        $white = imagecolorallocate($img, 255, 255, 255);
+        imagefill($img, 0, 0, $white);
+        $bar = imagecolorallocate($img, 30, 58, 138);
+        $text = imagecolorallocate($img, 15, 23, 42);
+        $labelW = 180;
+        $trackW = $width - $labelW - 60;
+        foreach ($values as $i => $v) {
+            $y = 8 + $i * $rowH;
+            imagettftext($img, 11, 0, 4, $y + 16, $text, $font, (string) ($labels[$i] ?? ''));
+            $barW = $v > 0 ? max(2, (int) round(($v / $max) * $trackW)) : 0;
+            imagefilledrectangle($img, $labelW, $y + 4, $labelW + $barW, $y + 18, $bar);
+            imagettftext($img, 10, 0, $labelW + $barW + 6, $y + 16, $text, $font, (string) $v);
+        }
+    } else {
+        $width = 720;
+        $height = 220;
+        $padL = 8;
+        $padB = 26;
+        $padT = 10;
+        $padR = 8;
+        $chartW = $width - $padL - $padR;
+        $chartH = $height - $padT - $padB;
+        $img = imagecreatetruecolor($width, $height);
+        $white = imagecolorallocate($img, 255, 255, 255);
+        imagefill($img, 0, 0, $white);
+        $bar = imagecolorallocate($img, 30, 58, 138);
+        $axis = imagecolorallocate($img, 203, 213, 225);
+        $text = imagecolorallocate($img, 71, 85, 105);
+        imageline($img, $padL, $height - $padB, $width - $padR, $height - $padB, $axis);
+
+        $slot = $n > 0 ? $chartW / $n : $chartW;
+        $barW = max(1, $slot - 2);
+        $labelStep = max(1, (int) ceil($n / 12));
+        foreach ($values as $i => $v) {
+            $x1 = $padL + $i * $slot;
+            $barH = $v > 0 ? max(1, (int) round(($v / $max) * $chartH)) : 0;
+            $y2 = $height - $padB;
+            $y1 = $y2 - $barH;
+            if ($barH > 0) {
+                imagefilledrectangle($img, (int) $x1, $y1, (int) ($x1 + $barW), $y2, $bar);
+            }
+            if ($i % $labelStep === 0) {
+                imagettftext($img, 9, 0, (int) $x1, $height - 8, $text, $font, (string) ($labels[$i] ?? ''));
+            }
+        }
+    }
+
+    ob_start();
+    imagepng($img);
+    $data = ob_get_clean();
+    imagedestroy($img);
+    return 'data:image/png;base64,' . base64_encode($data);
+}
+
+// Renders $content (report-specific HTML built by the caller via
+// ob_start()/ob_get_clean()) as a real PDF file via mPDF, instead of the
+// browser's own print-to-PDF (window.print()) — a genuine file the OS Save
+// dialog can save anywhere, with correct Thai text (Sarabun, bundled under
+// ../../fonts, registered as the default font below since mPDF's own bundled
+// fonts have no Thai glyphs).
+function render_report_pdf(string $title, string $subtitle, string $content, string $extraStyle, string $filenameBase, array $pdfCharts = []): void
+{
+    $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'L' : 'P';
+
+    $fontDir = __DIR__ . '/../../fonts';
+    $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+    $fontDirs = $defaultConfig['fontDir'];
+    $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+    $fontData = $defaultFontConfig['fontdata'];
+
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4-' . ($orientation === 'L' ? 'L' : 'P'),
+        'margin_top' => 14, 'margin_bottom' => 14, 'margin_left' => 12, 'margin_right' => 12,
+        'fontDir' => array_merge($fontDirs, [$fontDir]),
+        'fontdata' => $fontData + [
+            'sarabun' => ['R' => 'Sarabun-Regular.ttf', 'B' => 'Sarabun-Bold.ttf'],
+        ],
+        'default_font' => 'sarabun',
+    ]);
+
+    // Deliberately NOT reusing each report's own $extraStyle here. Every
+    // report's screen CSS leans on grid/flexbox/SVG/break-inside rules for
+    // its charts and KPI cards — mPDF's HTML/CSS engine doesn't support
+    // those, and on 3 of the 9 reports (dashboard/executive/compare) it
+    // didn't just degrade gracefully, it mis-measured nested unsupported
+    // layout into 50-300+ blank pages. A fixed, plain-HTML-only stylesheet
+    // covering the handful of class names actually shared across reports
+    // (kpi-card, story-box, status/type pills, bar charts) is what's
+    // reliable — charts/sparklines/heatmaps are dropped from the PDF since
+    // mPDF can't render them properly anyway; the data table is what a
+    // saved report is actually for.
+    $pdfStyle = <<<CSS
+    body { font-family: sarabun; font-size: 12px; color: #0f172a; }
+    h1 { font-size: 18px; color: #1e3a8a; margin: 0 0 4px; }
+    h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 14px; }
+    * { page-break-inside: auto; }
+    .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
+    .filter-bar, .compare-filter, .toolbar, .settings-panel, .empty .empty-cta,
+    .quick-filter-chips, .filter-note { display: none; }
+    /* mini-panel-row is the on-screen div/%-height trend+hourly chart —
+       exactly the shape that mis-measured into blank pages (see the block
+       comment above). render_pdf_bar_chart() draws these as real images
+       instead (injected before $content in render_report_pdf()), so the
+       original div version is dropped here to avoid a duplicate/blank
+       leftover section. */
+    .mini-panel-row { display: none; }
+    .meta { display: inline-block; margin-bottom: 10px; font-size: 11px; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; }
+    .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card {
+      display: inline-block; width: 30%; vertical-align: top; border: 1px solid #cbd5e1;
+      border-radius: 8px; padding: 8px 10px; margin: 0 6px 8px 0;
+    }
+    .summary-strip .label, .kpi-card .label, .kpi-label { font-size: 9px; color: #666; text-transform: uppercase; }
+    .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 6px 8px; font-size: 10px; text-align: left; border-bottom: 1px solid #cbd5e1; }
+    th { background: #1e3a8a; color: #fff; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    .story-box { background: #eaf1fb; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
+    .status-pill, .type-pill { padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; }
+    .status-pill.in { background: #dcfce7; color: #166534; }
+    .status-pill.out { background: #f1f5f9; color: #475569; }
+    .bar-track { background: #eef2f6; border-radius: 4px; height: 8px; }
+    .bar-fill { background: #1e3a8a; height: 8px; border-radius: 4px; }
+    .bar-fill.b { background: #2563eb; }
+    .empty { color: #475569; font-style: italic; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 14px; text-align: center; }
+    CSS;
+
+    $chartsHtml = '';
+    foreach ($pdfCharts as $chart) {
+        $img = render_pdf_bar_chart($chart['labels'], $chart['values'], $chart['orientation'] ?? 'vertical');
+        $chartsHtml .= '<div style="margin-bottom:14px;">'
+            . '<div style="font-size:12px; font-weight:bold; color:#1e3a8a; margin-bottom:4px;">' . htmlspecialchars($chart['title']) . '</div>'
+            . '<img src="' . $img . '" style="width:100%;">'
+            . '</div>';
+    }
+
+    $html = '<style>' . $pdfStyle . '</style>'
+        . '<h1>วิทยาลัยเทคนิคนครนายก</h1><h2>' . htmlspecialchars($subtitle) . '</h2>'
+        . $chartsHtml
+        . $content
+        . '<p style="margin-top:16px; font-size:9px; color:#475569;">สร้างรายงานเมื่อ ' . htmlspecialchars(date('d/m/Y H:i'))
+        . ' น. — จัดทำโดย ' . htmlspecialchars($_SESSION['username'] ?? '-') . '</p>';
+
+    // mPDF's border-color parser chokes on CSS custom properties (var(...))
+    // in each report's $extraStyle — harmless per-call PHP warnings
+    // ("Uninitialized string offset") that would otherwise print into the
+    // response body ahead of the PDF and break it. Not silencing errors
+    // globally — just around the one call known to trigger this.
+    $previousErrorReporting = error_reporting(E_ERROR | E_PARSE);
+    try {
+        $mpdf->WriteHTML($html);
+        // Destination::DOWNLOAD (not INLINE) is what makes the browser show
+        // a real "Save As" dialog, the same as the CSV/Excel exports — not
+        // open-in-tab, which is what window.print() effectively did before.
+        $mpdf->Output("$filenameBase.pdf", \Mpdf\Output\Destination::DOWNLOAD);
+    } finally {
+        error_reporting($previousErrorReporting);
+    }
+    exit;
+}
+
 // Ports templates/base_print.html. Jinja's {% extends %}/{% block %} becomes
 // plain output buffering: each report file builds its $content (and optional
 // $extraStyle) via ob_start()/ob_get_clean(), then calls render_report_layout().
 // $exportUrls is an optional ['csv' => url, 'excel' => url] map — omitted by
 // dashboard.php (a print-only 1-pager, not a row-per-record report).
-function render_report_layout(string $title, string $subtitle, string $content, string $extraStyle = '', array $exportUrls = []): void
+function render_report_layout(string $title, string $subtitle, string $content, string $extraStyle = '', array $exportUrls = [], array $pdfCharts = []): void
 {
+    if (($_GET['format'] ?? '') === 'pdf') {
+        // \p{M} keeps Thai combining vowel/tone marks (e.g. ั ่ ้) intact —
+        // without it they'd be stripped to underscores since they're not \p{L}.
+        $filenameBase = preg_replace('/[^\p{L}\p{N}\p{M}_-]+/u', '_', $title) . '_' . date('Y-m-d');
+        render_report_pdf($title, $subtitle, $content, $extraStyle, $filenameBase, $pdfCharts);
+    }
+
     header('Content-Type: text/html; charset=utf-8');
 
     // Shared by every report (was dashboard.php-only before) — its own
@@ -128,16 +317,34 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     border: 1px solid var(--outline-variant); border-radius: 8px; padding: 7px 10px; font-size: 13px;
     font-family: inherit; background: var(--surface);
   }
-  .filter-bar button[type="submit"] {
-    border: none; background: var(--primary); color: #fff; font-weight: 700; font-size: 13px;
-    padding: 9px 18px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+  /* Every filter field re-submits on change (see the script near the end of
+     this file) — no report needs a manual "confirm filter" click anymore,
+     so the submit button itself is removed, not just left as an unused
+     fallback. Covers all 3 class names the 8 reports' filter forms use:
+     .filter-bar (6 reports), .compare-filter (compare.php), .month-filter
+     (executive.php). */
+  .filter-bar button[type="submit"], .compare-filter button[type="submit"], .month-filter button[type="submit"] {
+    display: none;
   }
-  .filter-bar button[type="submit"]:hover { filter: brightness(1.1); }
   .filter-bar .reset-link {
     font-size: 12px; color: var(--on-surface-variant); text-decoration: underline;
     display: inline-flex; align-items: center; gap: 4px;
   }
   .filter-note { font-size: 11px; color: var(--text-secondary); font-style: italic; margin: -12px 0 16px; }
+
+  /* Shared by both reports that use a .trend-chart bar chart (dashboard.php,
+     department.php) — clicking/tapping a bar updates a detail line below
+     the chart (see the script near the end of this file); hovering still
+     shows the native title="" tooltip. A per-bar number label was tried
+     here too but looked cluttered with ~30 bars in a month view, so this
+     stays hover/click-only, not always-on. */
+  .trend-chart .bar-wrap { cursor: pointer; }
+  .trend-chart .bar-wrap.bar-wrap-active .bar { background: var(--primary, #1e3a8a); }
+  .trend-detail-text {
+    margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--primary, #1e3a8a);
+    background: var(--surface, #f8fafc); border: 1px solid var(--outline-variant, #cbd5e1);
+    border-radius: 8px; padding: 6px 10px;
+  }
 
   /* Shared by every report's auto-generated executive-summary paragraph
      (see aggregate.php's build_summary_sentence()) — was executive.php-only
@@ -216,7 +423,13 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 </head>
 <body>
 <div class="toolbar">
-  <button onclick="window.print()" type="button"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์ / บันทึกเป็น PDF</button>
+  <?php
+    $pdfParams = $_GET;
+    $pdfParams['format'] = 'pdf';
+    $pdfUrl = '?' . http_build_query($pdfParams);
+  ?>
+  <button onclick="window.print()" type="button"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์ / บันทึกเป็น PDF (มีกราฟครบ)</button>
+  <a href="<?= htmlspecialchars($pdfUrl) ?>"><span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> บันทึก PDF แบบข้อมูล (ไม่มีกราฟ)</a>
   <?php if (isset($exportUrls['csv'])): ?>
   <a href="<?= htmlspecialchars($exportUrls['csv']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด CSV</a>
   <?php endif; ?>
@@ -335,6 +548,38 @@ function render_report_layout(string $title, string $subtitle, string $content, 
       host.appendChild(wrap);
     });
   })();
+
+  // Date/month/number/select filters re-submit as soon as they change — the
+  // submit button is gone (see the CSS above), so this is the only way
+  // these filters apply. Free-text fields (student search) still submit
+  // via Enter, same as before — a real HTML form submits on Enter as long
+  // as it contains a submit button, even a display:none one.
+  document.querySelectorAll(
+    '.filter-bar select, .filter-bar input[type="date"], .filter-bar input[type="month"], .filter-bar input[type="number"], ' +
+    '.compare-filter input[type="month"], .month-filter input[type="month"]'
+  ).forEach(function (el) {
+    el.addEventListener('change', function () {
+      el.form.submit();
+    });
+  });
+
+  // Every .trend-chart bar already carries its exact count as an always-
+  // visible label (CSS above); clicking/tapping one also writes a full
+  // "date: N รายการ" line into that chart's .trend-detail-text, and a
+  // native title="" attribute still covers mouse hover. Works for both
+  // dashboard.php and department.php's trend charts without per-report JS.
+  document.querySelectorAll('.trend-chart .bar-wrap[data-count]').forEach(function (wrap) {
+    wrap.addEventListener('click', function () {
+      var container = wrap.closest('.mini-panel, .panel');
+      var detail = container ? container.querySelector('.trend-detail-text') : null;
+      if (!detail) return;
+      (container.querySelectorAll('.bar-wrap') || []).forEach(function (b) {
+        b.classList.remove('bar-wrap-active');
+      });
+      wrap.classList.add('bar-wrap-active');
+      detail.textContent = wrap.dataset.label + ': ' + wrap.dataset.count + ' รายการ';
+    });
+  });
 </script>
 </body>
 </html>

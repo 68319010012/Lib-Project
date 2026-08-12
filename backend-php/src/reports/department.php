@@ -283,11 +283,12 @@ function handle_report_department(): void
   <?php if ($trendTotal): ?>
   <div class="trend-chart">
     <?php foreach ($deptTrend as $d): ?>
-    <div class="bar-wrap" title="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>: <?= $d['count'] ?> รายการ">
+    <div class="bar-wrap" title="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>: <?= $d['count'] ?> รายการ" data-label="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>" data-count="<?= $d['count'] ?>">
       <div class="bar" style="height: <?= $d['pct'] > 0 ? $d['pct'] : 2 ?>%;"></div>
     </div>
     <?php endforeach; ?>
   </div>
+  <p class="trend-detail-text">แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนและวันที่</p>
   <?php else: ?>
   <p class="empty-note">แผนกนี้ไม่มีข้อมูลการเช็คชื่อในช่วงที่แสดง</p>
   <?php endif; ?>

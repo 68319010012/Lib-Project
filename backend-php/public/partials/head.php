@@ -1,3 +1,17 @@
+<?php
+// Cache-busting query string for /assets/* files: the deployed environment
+// has swapped backends mid-session more than once (Docker <-> XAMPP) on the
+// same http://localhost:8080 origin, and each time the browser kept serving
+// a stale cached JS/CSS bundle from the previous backend — changes that were
+// definitely on disk didn't show up until a hard refresh. Keying on filemtime
+// means the URL itself changes whenever a file changes, so normal (non-hard)
+// refreshes always pick up the latest version.
+function ntc_asset_v(string $relPath): string
+{
+    $file = __DIR__ . '/../' . ltrim($relPath, '/');
+    return file_exists($file) ? (string) filemtime($file) : '1';
+}
+?>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?>ห้องสมุด NTC</title>
@@ -6,7 +20,7 @@
      self-hosted via @font-face rules at the top of styles.css — no external
      Google Fonts request, so the site works offline / behind restrictive
      networks and doesn't depend on fonts.googleapis.com being reachable. -->
-<link rel="stylesheet" href="/assets/css/styles.css" />
+<link rel="stylesheet" href="/assets/css/styles.css?v=<?= ntc_asset_v('assets/css/styles.css') ?>" />
 <script>
   // Anti-flash: set the dark/light class before paint. Same precedence as
   // frontend-react's index.html: 'nntc-theme-mode' ('auto'|'light'|'dark',

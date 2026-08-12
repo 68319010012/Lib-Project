@@ -6,6 +6,7 @@ $active = $active ?? '';
 $navItems = [
     ['href' => '/admin-dashboard.php', 'icon' => 'monitoring', 'label' => 'ภาพรวม'],
     ['href' => '/admin-members.php', 'icon' => 'group', 'label' => 'สมาชิก'],
+    ['href' => '/admin-active.php', 'icon' => 'sensors', 'label' => 'กำลังใช้งานอยู่'],
     ['href' => '/admin-logs.php', 'icon' => 'history', 'label' => 'ประวัติการเข้าใช้'],
 ];
 function admin_nav_class(string $href, string $active): string

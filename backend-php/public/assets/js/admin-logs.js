@@ -121,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('logs-search').addEventListener('input', renderLogs);
   document.getElementById('logs-action-filter').addEventListener('change', renderLogs);
-  document.getElementById('logs-date-apply').addEventListener('click', () => {
+  // No apply button — picking a date re-queries immediately.
+  document.getElementById('logs-date-filter').addEventListener('change', () => {
     const dateFilter = document.getElementById('logs-date-filter').value;
     if (!dateFilter) return;
     loadLogs(new URLSearchParams({ date: dateFilter }));

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="th">
 <head>
 <?php $pageTitle = 'สมัครสมาชิก'; include __DIR__ . '/partials/head.php'; ?>
@@ -145,9 +145,9 @@
     </div>
   </footer>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/constants.js"></script>
-  <script src="/assets/js/signup.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>
+  <script src="/assets/js/signup.js?v=<?= ntc_asset_v('assets/js/signup.js') ?>"></script>
 </body>
 </html>

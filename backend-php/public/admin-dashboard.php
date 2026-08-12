@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $requireAdmin = true;
 require __DIR__ . '/partials/guard.php';
 ?>
@@ -78,13 +78,11 @@ require __DIR__ . '/partials/guard.php';
       <section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
           <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h4>
-          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก</p>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก — แตะหรือคลิกแท่งกราฟเพื่อดูตัวเลขและวันที่</p>
         </div>
         <div class="h-64 flex items-end justify-between gap-1 px-2 relative" id="trend-bars"></div>
-        <div class="flex justify-between mt-4 text-xs font-label-caps text-outline dark:text-dm-text-secondary uppercase tracking-wider">
-          <span id="trend-range-start" class="invisible"></span>
-          <span id="trend-range-end" class="invisible"></span>
-        </div>
+        <div class="flex justify-between mt-2 gap-1 px-2 text-[10px] font-label-caps text-outline dark:text-dm-text-secondary uppercase tracking-wider" id="trend-axis"></div>
+        <div id="trend-detail" class="mt-4 rounded-lg bg-surface-container-low dark:bg-dm-bg px-4 py-3 text-body-md font-bold text-primary dark:text-primary-fixed-dim" aria-live="polite">แตะหรือคลิกแท่งกราฟด้านบนเพื่อดูจำนวนคนเข้าใช้ในแต่ละวัน</div>
       </section>
 
       <section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
@@ -125,6 +123,7 @@ require __DIR__ . '/partials/guard.php';
           <div class="w-3 h-3 bg-primary dark:bg-primary-fixed-dim rounded-sm"></div>
           <span>มาก</span>
         </div>
+        <div id="heatmap-detail" class="mt-4 rounded-lg bg-surface-container-low dark:bg-dm-bg px-4 py-3 text-body-md font-bold text-primary dark:text-primary-fixed-dim" aria-live="polite">แตะหรือคลิกช่องในตารางเพื่อดูจำนวนคนเข้าใช้ตามวันและเวลา</div>
       </section>
     </div>
 
@@ -136,12 +135,12 @@ require __DIR__ . '/partials/guard.php';
     </footer>
   </main>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/toast.js"></script>
-  <script src="/assets/js/header.js"></script>
-  <script src="/assets/js/history-modal.js"></script>
-  <script src="/assets/js/admin-sidebar.js"></script>
-  <script src="/assets/js/admin-dashboard.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
+  <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
+  <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
+  <script src="/assets/js/admin-dashboard.js?v=<?= ntc_asset_v('assets/js/admin-dashboard.js') ?>"></script>
 </body>
 </html>

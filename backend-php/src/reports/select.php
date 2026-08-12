@@ -72,6 +72,7 @@ function handle_report_select(): void
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: stretch;
     gap: 20px;
   }
   .card {
@@ -81,6 +82,15 @@ function handle_report_select(): void
     border: 1px solid var(--outline-variant);
     padding: 22px 24px;
     transition: box-shadow .15s ease;
+    /* Cards without a date/month field (e.g. รายงานภาคเรียน) have less
+       content than their row-mates — flex column + margin-top:auto on the
+       button keeps every card in a row the same height with its button
+       pinned to the bottom, instead of a short, oddly-empty box. */
+    display: flex;
+    flex-direction: column;
+  }
+  .card button[type="submit"] {
+    margin-top: auto;
   }
   .card:hover { box-shadow: 0 10px 28px rgba(30,58,138,.14); }
   .card .icon-badge {
@@ -261,6 +271,17 @@ function handle_report_select(): void
   </div>
 
 </main>
+
+<script>
+  // Changing a date/month field jumps straight into that report with the
+  // new value — no separate "ดูรายงาน" click needed. The button stays for
+  // cards with no field to change (e.g. รายงานภาคเรียน) and as a fallback.
+  document.querySelectorAll('.card input[type="date"], .card input[type="month"]').forEach(function (el) {
+    el.addEventListener('change', function () {
+      el.form.submit();
+    });
+  });
+</script>
 </body>
 </html>
 <?php

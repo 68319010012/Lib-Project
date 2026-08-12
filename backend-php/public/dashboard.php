@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $requireAdmin = false;
 require __DIR__ . '/partials/guard.php';
 ?>
@@ -133,11 +133,11 @@ require __DIR__ . '/partials/guard.php';
     </div>
   </div>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/toast.js"></script>
-  <script src="/assets/js/header.js"></script>
-  <script src="/assets/js/history-modal.js"></script>
-  <script src="/assets/js/dashboard.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
+  <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
+  <script src="/assets/js/dashboard.js?v=<?= ntc_asset_v('assets/js/dashboard.js') ?>"></script>
 </body>
 </html>

@@ -76,13 +76,28 @@ document.addEventListener('DOMContentLoaded', () => {
     populateMembersSelect(yearSelect, options, 'ทุกชั้นปี');
     if (options.includes(current)) yearSelect.value = current;
   }
-  levelSelect.addEventListener('change', refreshYearOptions);
+  levelSelect.addEventListener('change', () => {
+    refreshYearOptions();
+    loadMembers();
+  });
   refreshYearOptions();
 
-  document.getElementById('members-search').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') loadMembers();
+  // No filter button — every field re-queries as soon as it changes.
+  // Search is debounced (300ms) so it doesn't fire a request per keystroke;
+  // Enter still fires immediately for anyone used to pressing it.
+  let searchDebounce;
+  document.getElementById('members-search').addEventListener('input', () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(loadMembers, 300);
   });
-  document.getElementById('members-filter-btn').addEventListener('click', loadMembers);
+  document.getElementById('members-search').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      clearTimeout(searchDebounce);
+      loadMembers();
+    }
+  });
+  document.getElementById('members-department').addEventListener('change', loadMembers);
+  yearSelect.addEventListener('change', loadMembers);
 
   loadMembers();
 });

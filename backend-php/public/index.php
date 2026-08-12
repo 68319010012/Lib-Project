@@ -4,6 +4,7 @@
 // (Originally every route traced back to API_CONTRACT.md/app.py 1:1; the
 // report-system redesign added a few PHP-only report routes beyond that.)
 
+require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/env.php';
 load_env(__DIR__ . '/../.env');
 
@@ -55,6 +56,8 @@ $routes = [
     'POST /profile/change-password' => 'handle_change_password',
     'GET /me/history' => 'handle_my_history',
     'GET /admin/members' => 'handle_admin_members',
+    'GET /admin/active-now' => 'handle_admin_active_now',
+    'POST /admin/checkin/force-checkout' => 'handle_admin_force_checkout',
     'GET /admin/reports' => 'handle_admin_reports',
     'GET /admin/reports/print' => 'handle_report_select',
     'GET /admin/reports/print/daily' => 'handle_report_daily',

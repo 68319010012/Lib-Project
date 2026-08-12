@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $requireAdmin = true;
 require __DIR__ . '/partials/guard.php';
 ?>
@@ -65,7 +65,6 @@ require __DIR__ . '/partials/guard.php';
             <option value="out">เช็คเอาต์</option>
           </select>
           <input id="logs-date-filter" class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" type="date" />
-          <button id="logs-date-apply" type="button" class="bg-surface-white dark:bg-dm-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 hover:bg-surface-container-high dark:hover:bg-dm-bg transition-colors font-bold text-primary dark:text-primary-fixed-dim">กรองตามวันที่</button>
           <button id="logs-date-clear" type="button" class="bg-surface-white dark:bg-dm-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 hover:bg-surface-container-high dark:hover:bg-dm-bg transition-colors font-bold dark:text-inverse-on-surface">เดือนนี้</button>
         </div>
         <div class="overflow-x-auto">
@@ -98,12 +97,12 @@ require __DIR__ . '/partials/guard.php';
     </footer>
   </main>
 
-  <script src="/assets/js/api.js"></script>
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/toast.js"></script>
-  <script src="/assets/js/header.js"></script>
-  <script src="/assets/js/history-modal.js"></script>
-  <script src="/assets/js/admin-sidebar.js"></script>
-  <script src="/assets/js/admin-logs.js"></script>
+  <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
+  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
+  <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
+  <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
+  <script src="/assets/js/admin-logs.js?v=<?= ntc_asset_v('assets/js/admin-logs.js') ?>"></script>
 </body>
 </html>
