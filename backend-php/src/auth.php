@@ -1,27 +1,13 @@
 <?php
-// Session cookie bootstrap + CORS. Must run before any output/session_start().
-function bootstrap_cors_and_session(): void
+// Session cookie bootstrap. Must run before any output/session_start().
+// No CORS needed: the PHP app serves both the pages and the API from the
+// same origin (see public/assets/js/api.js), so the browser never sends
+// cross-origin credentialed requests here.
+function bootstrap_session(): void
 {
     $appEnv = env('APP_ENV', 'dev');
-    $frontendOrigin = env('FRONTEND_ORIGIN', 'http://localhost:5173');
 
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    if ($origin !== '' && $origin === $frontendOrigin) {
-        header("Access-Control-Allow-Origin: $origin");
-        header('Access-Control-Allow-Credentials: true');
-        header('Vary: Origin');
-    }
-
-    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
-        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type');
-        http_response_code(204);
-        exit;
-    }
-
-    // prod: real cross-origin React static site needs SameSite=None + Secure.
-    // dev: React dev server is proxied same-origin via Vite (see frontend-react/vite.config.js),
-    // so Lax + non-secure works over plain http://localhost.
+    // secure requires HTTPS, which prod serves over; dev runs on plain http://localhost.
     $isProd = $appEnv === 'prod';
     session_set_cookie_params([
         'lifetime' => 0,
@@ -29,7 +15,7 @@ function bootstrap_cors_and_session(): void
         'domain' => '',
         'secure' => $isProd,
         'httponly' => true,
-        'samesite' => $isProd ? 'None' : 'Lax',
+        'samesite' => 'Lax',
     ]);
     session_start();
 }

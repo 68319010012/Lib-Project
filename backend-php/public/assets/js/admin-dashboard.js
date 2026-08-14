@@ -139,6 +139,150 @@ function selectTrendBar(el, bar) {
   document.querySelectorAll('#trend-bars .trend-bar').forEach((b) => b.classList.remove('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim', 'bg-primary/70', 'dark:bg-primary-fixed-dim/80'));
   el.classList.add('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim', 'bg-primary/70', 'dark:bg-primary-fixed-dim/80');
   document.getElementById('trend-detail').textContent = `${formatThaiDate(bar.day)} — เข้าใช้ ${bar.count.toLocaleString()} ครั้ง`;
+  openDayModal(bar.day);
+}
+
+// Every row (in + out) for one calendar day, grouped by department — powers
+// the day-detail popup opened from a trend-bar click.
+function departmentBreakdownForDay(day) {
+  const rows = allRows.filter((r) => r.timestamp.slice(0, 10) === day);
+  const deptCounts = {};
+  rows.forEach((r) => {
+    const dept = r.department || 'ไม่ระบุแผนก';
+    deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+  });
+  const total = rows.length;
+  return Object.entries(deptCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([dept, count]) => ({ dept, count, pct: total ? Math.round((count / total) * 100) : 0 }));
+}
+
+// Individual students within one department, deduped from a set of
+// checkin_logs rows — the drill-down level under a department breakdown.
+function studentsInRowsForDept(rows, dept) {
+  const byStudent = {};
+  rows
+    .filter((r) => (r.department || 'ไม่ระบุแผนก') === dept)
+    .forEach((r) => {
+      const existing = byStudent[r.student_id];
+      if (existing) {
+        existing.count++;
+        return;
+      }
+      byStudent[r.student_id] = {
+        student_id: r.student_id,
+        name: `${r.prefix || ''}${r.first_name} ${r.last_name}`.trim(),
+        year_level: r.year_level,
+        count: 1,
+      };
+    });
+  return Object.values(byStudent).sort((a, b) => b.count - a.count);
+}
+
+function renderDayDeptList(day) {
+  const body = document.getElementById('day-detail-body');
+  const entries = departmentBreakdownForDay(day);
+  const total = entries.reduce((sum, e) => sum + e.count, 0);
+
+  document.getElementById('day-detail-title').textContent = formatThaiDate(day);
+  document.getElementById('day-detail-subtitle').textContent = total
+    ? `เข้าใช้ทั้งหมด ${total.toLocaleString()} ครั้ง — เลือกแผนกเพื่อดูรายบุคคล`
+    : 'ไม่มีข้อมูลการเข้าใช้ในวันนี้';
+
+  if (!entries.length) {
+    body.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">ไม่มีข้อมูลการเข้าใช้ในวันนี้</p>';
+    return;
+  }
+
+  body.innerHTML = entries
+    .map(
+      (entry, i) => `
+      <button type="button" data-dept-index="${i}" class="day-detail-dept w-full text-left space-y-2 p-3 rounded-lg hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+        <div class="flex justify-between items-center text-sm font-bold">
+          <span class="flex items-center gap-1">${entry.dept}<span class="material-symbols-outlined text-base text-on-surface-variant dark:text-dm-text-secondary">chevron_right</span></span>
+          <span class="font-label-code flex-shrink-0">${entry.pct}% (${entry.count.toLocaleString()} ครั้ง)</span>
+        </div>
+        <div class="w-full bg-surface-container dark:bg-dm-border rounded-full h-2">
+          <div class="${DEPT_COLORS[i % DEPT_COLORS.length]} h-2 rounded-full" style="width: ${entry.pct}%"></div>
+        </div>
+      </button>
+    `,
+    )
+    .join('');
+
+  body.querySelectorAll('.day-detail-dept').forEach((btn) => {
+    const entry = entries[Number(btn.dataset.deptIndex)];
+    btn.addEventListener('click', () => renderStudentList({
+      students: studentsInRowsForDept(allRows.filter((r) => r.timestamp.slice(0, 10) === day), entry.dept),
+      title: entry.dept,
+      subtitle: `${formatThaiDate(day)} — พบ {n} คน`,
+      onBack: () => renderDayDeptList(day),
+    }));
+  });
+}
+
+// Renders either a department's individual students, or (with no students
+// yet resolved) is called by the two drill-down entry points below —
+// students/title/subtitle are fully computed by the caller so this stays
+// agnostic to "which day" vs "whole period" triggered it.
+function renderStudentList({ students, title, subtitle, onBack }) {
+  const body = document.getElementById('day-detail-body');
+
+  document.getElementById('day-detail-title').textContent = title;
+  document.getElementById('day-detail-subtitle').textContent = subtitle.replace('{n}', students.length.toLocaleString());
+
+  const rowsHtml = students.length
+    ? students
+        .map(
+          (s) => `
+        <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low dark:bg-dm-bg">
+          <div class="min-w-0">
+            <p class="font-bold text-text-primary dark:text-inverse-on-surface truncate">${s.name}</p>
+            <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${s.student_id}${s.year_level ? ` · ปีที่ ${s.year_level}` : ''}</p>
+          </div>
+          <span class="text-xs font-bold text-primary dark:text-primary-fixed-dim flex-shrink-0 ml-3">${s.count} ครั้ง</span>
+        </div>
+      `,
+        )
+        .join('')
+    : '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">ไม่มีข้อมูล</p>';
+
+  const backHtml = onBack
+    ? `<button type="button" id="day-detail-back" class="flex items-center gap-1 text-sm font-bold text-primary dark:text-primary-fixed-dim mb-2">
+        <span class="material-symbols-outlined text-lg">chevron_left</span> กลับ
+      </button>`
+    : '';
+
+  body.innerHTML = backHtml + rowsHtml;
+  if (onBack) document.getElementById('day-detail-back').addEventListener('click', onBack);
+}
+
+function openDayModal(day) {
+  const modal = document.getElementById('day-detail-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  renderDayDeptList(day);
+}
+
+// Entry point from the "แผนกที่เข้าใช้มากที่สุด" panel — drills straight into
+// a department's individual students across the whole selected view period
+// (no per-day list above it, since the panel itself is already period-wide).
+function openDeptModal(dept) {
+  const modal = document.getElementById('day-detail-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  const rows = filterRows(allRows, currentView);
+  renderStudentList({
+    students: studentsInRowsForDept(rows, dept),
+    title: dept,
+    subtitle: 'ในช่วงเวลาที่เลือก — พบ {n} คน',
+    onBack: null,
+  });
+}
+
+function closeDayModal() {
+  const modal = document.getElementById('day-detail-modal');
+  if (modal) modal.classList.add('hidden');
 }
 
 function selectHeatCell(el, cell) {
@@ -206,18 +350,22 @@ function render() {
     deptContainer.innerHTML = stats.deptEntries
       .map(
         (entry, i) => `
-        <div class="space-y-2">
+        <button type="button" data-dept-index="${i}" class="dept-bar-entry w-full text-left space-y-2 group">
           <div class="flex justify-between items-center text-sm font-bold">
-            <span>${entry.dept}</span>
+            <span class="group-hover:underline">${entry.dept}</span>
             <span class="font-label-code">${entry.pct}% (${entry.count.toLocaleString()} ครั้ง)</span>
           </div>
           <div class="w-full bg-surface-container dark:bg-dm-border rounded-full h-2">
             <div class="${DEPT_COLORS[i % DEPT_COLORS.length]} h-2 rounded-full" style="width: ${entry.pct}%"></div>
           </div>
-        </div>
+        </button>
       `,
       )
       .join('');
+    deptContainer.querySelectorAll('.dept-bar-entry').forEach((btn) => {
+      const entry = stats.deptEntries[Number(btn.dataset.deptIndex)];
+      btn.addEventListener('click', () => openDeptModal(entry.dept));
+    });
   } else {
     deptContainer.innerHTML = '<p class="text-body-md text-text-secondary">ไม่มีข้อมูลในช่วงเวลานี้</p>';
   }
@@ -260,4 +408,12 @@ document.addEventListener('DOMContentLoaded', () => {
     currentView = e.target.value;
     render();
   });
+
+  const dayModal = document.getElementById('day-detail-modal');
+  if (dayModal) {
+    dayModal.addEventListener('click', (e) => {
+      if (e.target === dayModal) closeDayModal();
+    });
+    document.getElementById('day-detail-close').addEventListener('click', closeDayModal);
+  }
 });

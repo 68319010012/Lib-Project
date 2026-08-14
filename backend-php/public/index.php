@@ -36,7 +36,7 @@ require __DIR__ . '/../src/reports/compare.php';
 require __DIR__ . '/../src/reports/semester.php';
 require __DIR__ . '/../src/reports/student_lookup.php';
 
-bootstrap_cors_and_session();
+bootstrap_session();
 
 // Replaces app.py's APScheduler background jobs — see auto_checkout_sweep()/
 // retire_expired_accounts_sweep() for why running these inline per-request

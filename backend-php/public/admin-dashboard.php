@@ -135,6 +135,28 @@ require __DIR__ . '/partials/guard.php';
     </footer>
   </main>
 
+  <div id="day-detail-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-start sm:items-center justify-center px-gutter py-8">
+    <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between p-6 border-b border-outline-variant dark:border-dm-border flex-shrink-0">
+        <div class="min-w-0">
+          <h3 id="day-detail-title" class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim truncate">รายละเอียดวันที่</h3>
+          <p id="day-detail-subtitle" class="text-xs text-text-secondary dark:text-dm-text-secondary mt-0.5"></p>
+        </div>
+        <button
+          type="button"
+          id="day-detail-close"
+          aria-label="ปิด"
+          class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container-low dark:hover:bg-dm-bg text-on-surface-variant dark:text-dm-text-secondary flex-shrink-0"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-3 flex-grow" id="day-detail-body">
+        <p class="text-body-md text-text-secondary dark:text-dm-text-secondary">เลือกวันจากกราฟด้านบน</p>
+      </div>
+    </div>
+  </div>
+
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>

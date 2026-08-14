@@ -27,7 +27,6 @@ services:
       DB_PASSWORD: rootpass
       DB_NAME: library_checkin
       APP_ENV: dev
-      FRONTEND_ORIGIN: http://localhost:5173
     depends_on:
       mysql:
         condition: service_healthy

@@ -11,25 +11,25 @@ require __DIR__ . '/partials/guard.php';
   <?php $variant = 'student'; include __DIR__ . '/partials/header.php'; ?>
 
   <main class="flex-grow pt-16">
-    <section class="relative hero-pattern h-40 overflow-hidden flex flex-col justify-center">
+    <section class="relative hero-pattern overflow-hidden flex flex-col justify-center py-8">
       <div class="relative z-10 max-w-7xl mx-auto px-gutter w-full">
-        <div class="rise-in inline-flex items-center gap-2 bg-surface-container-highest/20 text-on-primary px-3 py-1 rounded-full border border-on-primary/20">
-          <span id="status-dot" class="relative flex w-2.5 h-2.5 rounded-full bg-outline">
+        <div class="rise-in mb-4">
+          <h4 class="font-headline-md text-headline-md text-on-primary mb-1">ประกาศจากเจ้าหน้าที่</h4>
+          <p class="text-body-md text-on-primary/80">ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์</p>
+        </div>
+
+        <div class="rise-in inline-flex items-center gap-3 bg-surface-container-highest/20 text-on-primary px-4 py-2.5 rounded-full border border-on-primary/20 shadow-lg">
+          <span id="status-dot" class="relative flex w-3 h-3 rounded-full bg-warning">
             <span id="status-ping" class="hidden absolute inset-0 rounded-full bg-status-success animate-ping"></span>
           </span>
-          <span id="status-text" class="text-label-caps font-label-caps">ยังไม่ได้เช็คอินวันนี้</span>
+          <span id="status-text" class="text-body-md font-bold">ยังไม่ได้เช็คอินวันนี้</span>
         </div>
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto px-gutter -mt-8 relative z-20 pb-12">
-      <div class="rise-in bg-primary-container dark:bg-dm-surface-alt dark:border dark:border-dm-border rounded-xl shadow-md p-6 text-on-primary dark:text-inverse-on-surface mb-8">
-        <h4 class="font-headline-md text-headline-md mb-2 dark:text-primary-fixed-dim">ประกาศจากเจ้าหน้าที่</h4>
-        <p class="text-body-md opacity-80 dark:opacity-100 dark:text-dm-text-secondary">ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์</p>
-      </div>
-
+    <div class="max-w-7xl mx-auto px-gutter pt-8 pb-12">
       <div class="rise-in-group flex flex-col gap-8 max-w-3xl mx-auto">
-        <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md border border-outline-variant dark:border-dm-border p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
           <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
             <span class="material-symbols-outlined text-9xl">library_books</span>
           </div>

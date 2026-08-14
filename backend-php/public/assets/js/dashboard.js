@@ -72,7 +72,7 @@ function render() {
 
   // Status pill.
   document.getElementById('status-dot').classList.toggle('bg-status-success', checkedIn);
-  document.getElementById('status-dot').classList.toggle('bg-outline', !checkedIn);
+  document.getElementById('status-dot').classList.toggle('bg-warning', !checkedIn);
   document.getElementById('status-ping').classList.toggle('hidden', !checkedIn);
   document.getElementById('status-text').textContent = checkedIn ? 'อยู่ในห้องสมุดตอนนี้' : 'ยังไม่ได้เช็คอินวันนี้';
 
