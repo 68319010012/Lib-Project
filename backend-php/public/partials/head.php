@@ -15,7 +15,7 @@ function ntc_asset_v(string $relPath): string
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?>ห้องสมุด NTC</title>
-<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg" />
+<link rel="icon" type="image/png" href="/assets/img/logo-badge.png?v=<?= ntc_asset_v('assets/img/logo-badge.png') ?>" />
 <!-- Fonts (Noto Sans Thai, IBM Plex Mono, Material Symbols Outlined) are
      self-hosted via @font-face rules at the top of styles.css — no external
      Google Fonts request, so the site works offline / behind restrictive
