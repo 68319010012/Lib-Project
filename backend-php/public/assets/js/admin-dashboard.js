@@ -128,7 +128,12 @@ function computeStats(rows, view) {
       else if (ratio > 0.5) shade = 'bg-primary/70 dark:bg-primary-fixed-dim/70';
       else if (ratio > 0.25) shade = 'bg-primary/40 dark:bg-primary-fixed-dim/50';
       else if (ratio > 0) shade = 'bg-primary/20 dark:bg-primary-fixed-dim/35';
-      heatCells.push({ day, hour, count, shade });
+      // Direct-label only the standout cells (matches every other chart on
+      // this dashboard: label the extreme, not every point) so the busiest
+      // slots read as numbers at a glance instead of requiring the reader
+      // to first decode the color legend.
+      const showLabel = ratio > 0.5;
+      heatCells.push({ day, hour, count, shade, showLabel });
     }
   }
 
@@ -235,12 +240,12 @@ function renderStudentList({ students, title, subtitle, onBack }) {
     ? students
         .map(
           (s) => `
-        <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low dark:bg-dm-bg">
+        <div class="student-row flex items-center justify-between rounded-lg bg-surface-container-low dark:bg-dm-bg">
           <div class="min-w-0">
             <p class="font-bold text-text-primary dark:text-inverse-on-surface truncate">${s.name}</p>
             <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${s.student_id}${s.year_level ? ` · ปีที่ ${s.year_level}` : ''}</p>
           </div>
-          <span class="text-xs font-bold text-primary dark:text-primary-fixed-dim flex-shrink-0 ml-3">${s.count} ครั้ง</span>
+          <span class="student-row-count text-xs font-bold text-primary dark:text-primary-fixed-dim flex-shrink-0">${s.count} ครั้ง</span>
         </div>
       `,
         )
@@ -285,11 +290,34 @@ function closeDayModal() {
   if (modal) modal.classList.add('hidden');
 }
 
+function heatCellLabel(cell) {
+  return `วัน${WEEKDAY_LABELS[cell.day]} ช่วง ${String(cell.hour).padStart(2, '0')}:00–${String((cell.hour + 1) % 24).padStart(2, '0')}:00 — เข้าใช้ ${cell.count.toLocaleString()} ครั้ง`;
+}
+
 function selectHeatCell(el, cell) {
   document.querySelectorAll('#heatmap-grid .heatmap-cell').forEach((c) => c.classList.remove('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim'));
   el.classList.add('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim');
-  document.getElementById('heatmap-detail').textContent =
-    `วัน${WEEKDAY_LABELS[cell.day]} ช่วง ${String(cell.hour).padStart(2, '0')}:00–${String((cell.hour + 1) % 24).padStart(2, '0')}:00 — เข้าใช้ ${cell.count.toLocaleString()} ครั้ง`;
+  document.getElementById('heatmap-detail').textContent = heatCellLabel(cell);
+}
+
+// Hover/focus tooltip so a reader gets the exact count without having to
+// click first and then look away to a status line — the mark itself is the
+// hit target (see dataviz interaction spec). Click still pins the ring +
+// status line below, which is what touch devices fall back to.
+function showHeatTooltip(el, cell) {
+  const tooltip = document.getElementById('heatmap-tooltip');
+  if (!tooltip) return;
+  tooltip.textContent = heatCellLabel(cell);
+  tooltip.classList.remove('hidden');
+  const gridBox = el.closest('#heatmap-grid').getBoundingClientRect();
+  const cellBox = el.getBoundingClientRect();
+  tooltip.style.left = `${cellBox.left - gridBox.left + cellBox.width / 2}px`;
+  tooltip.style.top = `${cellBox.top - gridBox.top}px`;
+}
+
+function hideHeatTooltip() {
+  const tooltip = document.getElementById('heatmap-tooltip');
+  if (tooltip) tooltip.classList.add('hidden');
 }
 
 function render() {
@@ -381,11 +409,18 @@ function render() {
   stats.heatCells.forEach((cell) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    const label = `วัน${WEEKDAY_LABELS[cell.day]} ${cell.hour}:00 — ${cell.count} ครั้ง`;
+    const label = heatCellLabel(cell);
     btn.title = label;
     btn.setAttribute('aria-label', label);
-    btn.className = `heatmap-cell appearance-none border-0 p-0 hover:ring-2 hover:ring-primary/50 focus-visible:ring-2 focus-visible:ring-primary transition-all cursor-pointer outline-none ${cell.shade}`;
+    btn.className = `heatmap-cell appearance-none border-0 p-0 flex items-center justify-center hover:ring-2 hover:ring-primary/50 focus-visible:ring-2 focus-visible:ring-primary transition-all cursor-pointer outline-none ${cell.shade}`;
+    if (cell.showLabel) {
+      btn.innerHTML = `<span class="heatmap-cell-value font-bold text-white leading-none pointer-events-none">${cell.count}</span>`;
+    }
     btn.addEventListener('click', () => selectHeatCell(btn, cell));
+    btn.addEventListener('pointerenter', () => showHeatTooltip(btn, cell));
+    btn.addEventListener('focus', () => showHeatTooltip(btn, cell));
+    btn.addEventListener('pointerleave', hideHeatTooltip);
+    btn.addEventListener('blur', hideHeatTooltip);
     heatmapContainer.appendChild(btn);
   });
 }

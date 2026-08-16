@@ -110,7 +110,10 @@ require __DIR__ . '/partials/guard.php';
               <div class="flex justify-between text-[10px] text-outline dark:text-dm-text-secondary font-label-caps mb-2 px-1">
                 <span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
               </div>
-              <div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr))"></div>
+              <div class="relative">
+                <div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr))"></div>
+                <div id="heatmap-tooltip" role="tooltip" class="hidden heatmap-tooltip z-20 whitespace-nowrap rounded-lg bg-primary dark:bg-primary-fixed-dim text-white text-xs font-bold px-3 py-1.5 shadow-lg pointer-events-none"></div>
+              </div>
             </div>
           </div>
         </div>

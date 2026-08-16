@@ -7,12 +7,12 @@
 
   <nav class="bg-primary shadow-md z-50">
     <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto">
-      <div class="flex items-center gap-4">
+      <a href="/login.php" class="flex items-center gap-4 hover:opacity-90 transition-opacity">
         <div class="w-10 h-10 bg-surface-white rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-primary text-2xl">menu_book</span>
         </div>
         <h1 class="text-headline-md font-headline-md font-bold text-on-primary">ห้องสมุด NTC</h1>
-      </div>
+      </a>
       <div class="flex items-center gap-3">
         <div class="relative" id="theme-menu">
           <button

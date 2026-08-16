@@ -996,13 +996,7 @@ video {
 }
 
 .hidden {
-  /* !important because this static bundle doesn't preserve Tailwind's
-     utilities-last @layer ordering: .material-symbols-outlined (defined
-     further down, line ~2822) sets display:inline-block with equal
-     specificity, so without !important it silently wins the cascade and
-     any icon carrying both classes (e.g. the theme-menu checkmarks)
-     never actually hides. */
-  display: none !important;
+  display: none;
 }
 
 .h-1\.5 {
@@ -2859,6 +2853,14 @@ html.dark body {
   -webkit-font-smoothing: antialiased;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+/* This static bundle doesn't preserve Tailwind's utilities-last @layer
+   ordering, so .hidden (display:none, defined earlier) loses the cascade
+   to this rule's display:inline-block on any icon carrying both classes
+   (e.g. the theme-menu checkmarks) — equal specificity, later source wins.
+   Two classes beats .material-symbols-outlined's one regardless of source
+   order, so this fixes it without an !important that would also block
+   .hidden from ever being overridden by md:flex/md:block elsewhere. */
+.tm-check.hidden { display: none; }
 
 .book-spine-pattern {
   background-image: repeating-linear-gradient(
@@ -2918,6 +2920,47 @@ html.dark body {
 .heatmap-cell {
   aspect-ratio: 1/1;
   border-radius: 2px;
+}
+
+/* Positioned in JS via left/top (set from the hovered cell's own
+   getBoundingClientRect, relative to #heatmap-grid's positioned parent) —
+   these two properties only center/lift it on top of that point. Plain CSS
+   rather than Tailwind's translate-x-1/2 / arbitrary-value utilities: this
+   project serves a prebuilt styles.css with no live Tailwind build step, so
+   classes unused elsewhere in the codebase are silently missing from it. */
+.heatmap-tooltip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 8px));
+  /* py-1.5 (0.375rem) — missing from the compiled bundle like the other
+     classes noted below; px-3 was already present. */
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.heatmap-cell-value {
+  font-size: 9px;
+}
+
+/* mt-0.5 (0.125rem) missing the same way. */
+#day-detail-subtitle {
+  margin-top: 2px;
+}
+
+/* p-3 (0.75rem) missing on .day-detail-dept and the student-list rows in
+   the day-detail modal (admin-dashboard.js); ml-3 (0.75rem) missing on the
+   count badge — same silently-absent-utility pattern. */
+.day-detail-dept,
+.student-row {
+  padding: 12px;
+}
+.student-row-count {
+  margin-left: 12px;
+}
+
+/* Arbitrary-value shadow-[...] utility missing the same way (profile.php's
+   change-password submit button). */
+.profile-submit-shadow {
+  box-shadow: 0px 8px 24px rgba(37, 99, 235, 0.3);
 }
 
 .vertical-pattern {
@@ -2991,6 +3034,50 @@ html.dark body {
 }
 html.dark .lift-on-hover:hover {
   box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* shadow-card/shadow-stamp: named box-shadow utilities this bundle's build
+   never generated (nothing else in the codebase happened to reference them
+   before now), so every card using them — the 3 KPI tiles + the "currently
+   inside" tile on admin-dashboard.php, plus the profile and signup cards —
+   was rendering with no resting shadow at all. */
+.shadow-card {
+  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.12);
+}
+html.dark .shadow-card {
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.35);
+}
+.shadow-stamp {
+  box-shadow: 0 6px 20px -4px rgba(30, 58, 138, 0.35);
+}
+html.dark .shadow-stamp {
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.45);
+}
+
+/* trend-bar (admin-dashboard.js daily chart): min-w-[3px] and the
+   focus-visible:* trio were missing the same way — bars could shrink to
+   0-width with enough days in view, and keyboard users got no focus
+   indicator moving between bars (mouse hover already worked via
+   hover:bg-primary/40, which IS in the compiled bundle). */
+.trend-bar {
+  min-width: 3px;
+}
+.trend-bar:focus-visible {
+  outline: none;
+  background-color: rgb(30 58 138 / 0.4);
+  box-shadow: 0 0 0 2px rgb(30 58 138);
+}
+html.dark .trend-bar:focus-visible {
+  box-shadow: 0 0 0 2px rgb(147 197 253);
+}
+
+/* dept-bar-entry (admin-dashboard.js department list): the row is a real
+   button (click drills into that department's students) but nothing
+   signaled that on hover/keyboard-focus — group-hover:underline was
+   missing the same way. */
+.dept-bar-entry:hover span:first-child,
+.dept-bar-entry:focus-visible span:first-child {
+  text-decoration: underline;
 }
 
 .underline-grow {

@@ -85,7 +85,7 @@ require __DIR__ . '/partials/guard.php';
                 </div>
               </div>
               <div class="flex justify-end pt-4">
-                <button id="profile-password-submit" class="bg-secondary text-white font-headline-md text-headline-md px-10 py-4 rounded-full shadow-[0px_8px_24px_rgba(37,99,235,0.3)] hover:brightness-110 flex items-center gap-3 disabled:opacity-60" type="submit">
+                <button id="profile-password-submit" class="bg-secondary text-white font-headline-md text-headline-md px-10 py-4 rounded-full profile-submit-shadow hover:brightness-110 flex items-center gap-3 disabled:opacity-60" type="submit">
                   <span class="material-symbols-outlined">save</span>
                   เปลี่ยนรหัสผ่าน
                 </button>
