@@ -14,15 +14,20 @@ function populateSelect(select, options, placeholder) {
   });
 }
 
-function showSignupMessage(id, message) {
-  const el = document.getElementById(id);
-  if (!message) {
-    el.classList.add('hidden');
-    el.textContent = '';
-    return;
-  }
-  el.textContent = message;
-  el.classList.remove('hidden');
+// A message at the top of a long form is easy to miss once the reader has
+// scrolled down filling in later fields — a centered popup can't be missed
+// regardless of scroll position, and states clearly whether signup
+// succeeded or failed and why.
+function showSignupResultModal(success, title, message) {
+  const modal = document.getElementById('signup-result-modal');
+  const icon = document.getElementById('signup-result-icon');
+  const glyph = document.getElementById('signup-result-icon-glyph');
+  icon.className = `w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${success ? 'bg-status-success' : 'bg-error'}`;
+  glyph.className = `material-symbols-outlined text-4xl ${success ? 'text-white' : 'text-on-error'}`;
+  glyph.textContent = success ? 'check_circle' : 'error';
+  document.getElementById('signup-result-title').textContent = title;
+  document.getElementById('signup-result-message').textContent = message;
+  modal.classList.remove('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -43,13 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('signup-submit');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    showSignupMessage('signup-error', '');
-    showSignupMessage('signup-success', '');
 
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
     if (password !== confirmPassword) {
-      showSignupMessage('signup-error', 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
+      showSignupResultModal(false, 'สมัครสมาชิกไม่สำเร็จ', 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
       return;
     }
 
@@ -66,11 +69,17 @@ document.addEventListener('DOMContentLoaded', () => {
         year_level: yearSelect.value,
         password,
       });
-      showSignupMessage('signup-success', 'สร้างบัญชีสำเร็จ กำลังพาไปยังหน้าหลัก...');
-      window.location.href = data.role === 'admin' ? '/admin-dashboard.php' : '/dashboard.php';
+      showSignupResultModal(true, 'สมัครสมาชิกสำเร็จ', 'กำลังพาไปยังหน้าหลัก...');
+      setTimeout(() => {
+        window.location.href = data.role === 'admin' ? '/admin-dashboard.php' : '/dashboard.php';
+      }, 1200);
     } catch (err) {
-      showSignupMessage('signup-error', err.message);
+      showSignupResultModal(false, 'สมัครสมาชิกไม่สำเร็จ', err.message);
       submitBtn.disabled = false;
     }
+  });
+
+  document.getElementById('signup-result-close').addEventListener('click', () => {
+    document.getElementById('signup-result-modal').classList.add('hidden');
   });
 });

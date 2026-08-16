@@ -62,8 +62,6 @@
     <section class="max-w-7xl mx-auto px-gutter -mt-24 mb-16 relative z-20">
       <div class="bg-surface-white dark:bg-dm-surface shadow-card rounded-xl overflow-hidden border border-outline-variant/30 dark:border-dm-border max-w-3xl mx-auto">
         <div class="p-8 md:p-12">
-          <p id="signup-error" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
-          <p id="signup-success" class="hidden mb-6 rounded-lg bg-status-success/10 text-status-success px-4 py-3 text-body-md"></p>
 
           <form class="space-y-8" id="signup-form">
             <div>
@@ -81,7 +79,6 @@
               <div>
                 <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">คำนำหน้า</label>
                 <select id="signup-prefix" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
-                  <option value="">--</option>
                   <option value="นาย">นาย</option>
                   <option value="นาง">นาง</option>
                   <option value="นางสาว">นางสาว</option>
@@ -101,7 +98,6 @@
               <div>
                 <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">เพศ</label>
                 <select id="signup-gender" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
-                  <option value="">-- เลือกเพศ --</option>
                   <option value="male">ชาย</option>
                   <option value="female">หญิง</option>
                 </select>
@@ -117,7 +113,6 @@
               <div>
                 <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ระดับชั้น</label>
                 <select id="signup-level" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
-                  <option value="">-- เลือกระดับชั้น --</option>
                   <option value="ปวช.">ปวช.</option>
                   <option value="ปวส.">ปวส.</option>
                 </select>
@@ -167,6 +162,17 @@
       </div>
     </div>
   </footer>
+
+  <div id="signup-result-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-center justify-center px-gutter py-8">
+    <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-8 text-center">
+      <div id="signup-result-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-4xl" id="signup-result-icon-glyph"></span>
+      </div>
+      <h3 id="signup-result-title" class="font-headline-md text-headline-md text-text-primary dark:text-inverse-on-surface mb-2"></h3>
+      <p id="signup-result-message" class="text-body-md text-on-surface-variant dark:text-dm-text-secondary mb-6"></p>
+      <button type="button" id="signup-result-close" class="w-full h-12 rounded-lg bg-primary text-white font-headline-md text-headline-md">ตกลง</button>
+    </div>
+  </div>
 
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
