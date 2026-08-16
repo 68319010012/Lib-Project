@@ -17,9 +17,9 @@
 
 // Tiny inline SVG trend line for a stat tile's sparkline — pure presentation
 // over an already-computed series (no new aggregation).
-function render_dashboard_sparkline(array $values, string $color): string
+function render_dashboard_sparkline(array $values, string $color, bool $isPdfExport = false): string
 {
-    if (!$values) {
+    if ($isPdfExport || !$values) {
         return '';
     }
     $max = max($values) ?: 1;
@@ -169,6 +169,12 @@ function handle_report_dashboard(): void
 {
     require_login();
     require_admin();
+
+    // mPDF (the PDF export path — see render_report_pdf() in layout.php)
+    // doesn't reliably honor display:none on an inline <svg>, unlike a
+    // block-level div wrapping one — CSS alone couldn't suppress these
+    // sparklines in the exported PDF, so skip generating them there instead.
+    $isPdfExport = ($_GET['format'] ?? '') === 'pdf';
 
     $conn = get_db_connection();
 
@@ -571,7 +577,7 @@ function handle_report_dashboard(): void
   <div class="kpi-card" title="จำนวนครั้งการเช็คอิน+เช็คเอาต์รวมกันทั้งหมดในช่วงเวลานี้ (คนเดียวเข้า-ออกหลายครั้งนับหลายครั้ง)">
     <div class="kpi-head">
       <span class="kpi-label">จำนวนรายการทั้งหมด</span>
-      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb') ?>
+      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb', $isPdfExport) ?>
     </div>
     <div class="kpi-value"><?= number_format($agg['total_events']) ?></div>
     <?php if ($totalDelta !== null): ?><span class="kpi-sub"><?= render_dashboard_delta($totalDelta, true) ?></span><?php endif; ?>
@@ -579,7 +585,7 @@ function handle_report_dashboard(): void
   <div class="kpi-card" title="จำนวนรายการเช็คอิน+เช็คเอาต์เฉลี่ยต่อวัน นับเฉพาะวันที่มีคนมาใช้จริง">
     <div class="kpi-head">
       <span class="kpi-label">เฉลี่ยต่อวัน</span>
-      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb') ?>
+      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb', $isPdfExport) ?>
     </div>
     <div class="kpi-value"><?= $agg['avg_daily'] ?> รายการ</div>
   </div>
@@ -590,14 +596,14 @@ function handle_report_dashboard(): void
   <div class="kpi-card" title="วันที่มีจำนวนการเช็คอิน+เช็คเอาต์รวมสูงที่สุดในช่วงเวลาที่เลือก">
     <div class="kpi-head">
       <span class="kpi-label">วันที่มีคนใช้มากที่สุด</span>
-      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb') ?>
+      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb', $isPdfExport) ?>
     </div>
     <div class="kpi-value"><?= $busiestDay ? htmlspecialchars($busiestDay['day']) : '-' ?></div>
   </div>
   <div class="kpi-card" title="ชั่วโมงของวันที่มีคนเช็คอิน+เช็คเอาต์รวมกันมากที่สุด (รวมทุกวันในช่วงเวลาที่เลือก)">
     <div class="kpi-head">
       <span class="kpi-label">ช่วงเวลาที่มีคนใช้มากที่สุด</span>
-      <?= render_dashboard_sparkline(array_column($hourly['hours'], 'count'), '#2563eb') ?>
+      <?= render_dashboard_sparkline(array_column($hourly['hours'], 'count'), '#2563eb', $isPdfExport) ?>
     </div>
     <div class="kpi-value"><?= $hourly['peak_hour'] ? sprintf('%02d:00 น.', $hourly['peak_hour']['hour']) : '-' ?></div>
   </div>
@@ -681,7 +687,7 @@ function handle_report_dashboard(): void
   </div>
 </div>
 
-<div class="panel" data-print-section="แผนกวิชาทั้งหมด" style="margin-bottom:14px;">
+<div class="panel" data-print-section="แผนกวิชาทั้งหมด" style="margin-bottom:6px;">
   <h3 style="margin:0 0 8px;">แผนกวิชาทั้งหมด (เรียงจากใช้งานมากไปน้อย)</h3>
   <?php if ($deptBreakdown): ?>
   <div class="rank-list">
@@ -765,21 +771,21 @@ function handle_report_dashboard(): void
     <?php
     $content = ob_get_clean();
 
+    // Department breakdown is NOT duplicated as a $pdfCharts image here —
+    // the "แผนกวิชาทั้งหมด" .rank-list further down in $content already
+    // covers it (all departments, not just the top 8 a bar-chart image
+    // would show), and now has real PDF styling (see layout.php's
+    // $pdfStyle) instead of rendering as unstyled block text. Two
+    // representations of the same numbers was what pushed this report to a
+    // second, mostly-redundant page.
     $pdfCharts = [];
     if ($dailyTrend) {
         $pdfCharts[] = [
             'title' => 'แนวโน้มการเช็คชื่อรายวัน',
             'orientation' => 'vertical',
+            'height' => 105,
             'labels' => array_map(fn($row) => (string) ((int) substr($row['date'], -2)), $dailyTrend),
             'values' => array_column($dailyTrend, 'count'),
-        ];
-    }
-    if ($topDepts) {
-        $pdfCharts[] = [
-            'title' => 'แผนกที่เข้าใช้มากที่สุด',
-            'orientation' => 'horizontal',
-            'labels' => array_column($topDepts, 'name'),
-            'values' => array_column($topDepts, 'count'),
         ];
     }
 

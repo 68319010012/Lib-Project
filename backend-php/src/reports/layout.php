@@ -8,7 +8,7 @@
 // such risk: GD draws it, mPDF just places it, done. Uses the same Sarabun
 // TTF as the rest of the PDF so Thai department names render correctly
 // (GD's built-in bitmap fonts are Latin-only).
-function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical'): string
+function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical', int $verticalHeight = 220): string
 {
     $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
     $n = count($values);
@@ -34,7 +34,7 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
         }
     } else {
         $width = 720;
-        $height = 220;
+        $height = $verticalHeight;
         $padL = 8;
         $padB = 26;
         $padT = 10;
@@ -112,13 +112,41 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     // mPDF can't render them properly anyway; the data table is what a
     // saved report is actually for.
     $pdfStyle = <<<CSS
+    * { box-sizing: border-box; page-break-inside: auto; }
     body { font-family: sarabun; font-size: 12px; color: #0f172a; }
     h1 { font-size: 18px; color: #1e3a8a; margin: 0 0 4px; }
-    h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 14px; }
-    * { page-break-inside: auto; }
+    h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 12px; }
     .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
     .filter-bar, .compare-filter, .toolbar, .settings-panel, .empty .empty-cta,
     .quick-filter-chips, .filter-note { display: none; }
+    /* mPDF doesn't reliably honor display:none on an inline <svg> itself
+       (only on the block-level divs wrapping one, like .meter-ring-wrap
+       above, which does work) — zeroing its box forces it to take no space
+       either way. */
+    .sparkline { display: none; width: 0 !important; height: 0 !important; }
+    /* dashboard.php's ranked department list and gender breakdown (added in
+       its later "Power BI style" redesign) were never given PDF rules —
+       .kpi-strip .kpi-card above covers the outer cards, but everything
+       inside .rank-row/.gender-row rendered as unstyled block text, which
+       is what actually pushed this report to 2 pages (not the daily-trend/
+       department chart images — the SAME dept data spelled out a second
+       time as bare text below them). mPDF has no flexbox, so these use
+       fixed-width inline-block columns instead, same trick .kpi-card above
+       already relies on. */
+    .kpi-head { font-size: 9px; color: #666; margin-bottom: 1px; }
+    .kpi-sub { font-size: 9px; }
+    .delta.up { color: #059669; } .delta.down { color: #d97706; } .delta.flat { color: #888; }
+    .rank-row, .gender-row { display: block; margin-bottom: 1px; }
+    .rank-badge { display: inline-block; width: 16px; font-size: 9px; font-weight: bold; color: #1e3a8a; }
+    .rank-name, .g-label { display: inline-block; width: 130px; font-size: 9px; font-weight: bold; }
+    .rank-track, .g-track {
+      display: inline-block; width: 240px; height: 7px; background: #eef2f6;
+      border-radius: 4px; vertical-align: middle; overflow: hidden;
+    }
+    .rank-fill, .g-fill { display: block; height: 7px; background: #2563eb; }
+    .gender-row.female .g-fill { background: #db2777; }
+    .gender-row.unknown .g-fill { background: #94a3b8; }
+    .rank-count, .g-count { display: inline-block; width: 110px; text-align: right; font-size: 9px; color: #666; }
     /* mini-panel-row is the on-screen div/%-height trend+hourly chart —
        exactly the shape that mis-measured into blank pages (see the block
        comment above). render_pdf_bar_chart() draws these as real images
@@ -128,8 +156,8 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .mini-panel-row { display: none; }
     .meta { display: inline-block; margin-bottom: 10px; font-size: 11px; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; }
     .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card {
-      display: inline-block; width: 30%; vertical-align: top; border: 1px solid #cbd5e1;
-      border-radius: 8px; padding: 8px 10px; margin: 0 6px 8px 0;
+      display: inline-block; width: 31.5%; vertical-align: top; border: 1px solid #cbd5e1;
+      border-radius: 8px; padding: 6px 8px; margin: 0 1% 6px 0;
     }
     .summary-strip .label, .kpi-card .label, .kpi-label { font-size: 9px; color: #666; text-transform: uppercase; }
     .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
@@ -137,7 +165,8 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     th, td { padding: 6px 8px; font-size: 10px; text-align: left; border-bottom: 1px solid #cbd5e1; }
     th { background: #1e3a8a; color: #fff; }
     tbody tr:nth-child(even) { background: #f8fafc; }
-    .story-box { background: #eaf1fb; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
+    .story-box { background: #eaf1fb; border: 1px solid #cbd5e1; border-radius: 10px; padding: 6px 12px; margin-bottom: 4px; }
+    .story-box p { font-size: 10px !important; line-height: 1.5 !important; margin: 0; }
     .status-pill, .type-pill { padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; }
     .status-pill.in { background: #dcfce7; color: #166534; }
     .status-pill.out { background: #f1f5f9; color: #475569; }
@@ -149,8 +178,8 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
 
     $chartsHtml = '';
     foreach ($pdfCharts as $chart) {
-        $img = render_pdf_bar_chart($chart['labels'], $chart['values'], $chart['orientation'] ?? 'vertical');
-        $chartsHtml .= '<div style="margin-bottom:14px;">'
+        $img = render_pdf_bar_chart($chart['labels'], $chart['values'], $chart['orientation'] ?? 'vertical', $chart['height'] ?? 220);
+        $chartsHtml .= '<div style="margin-bottom:8px;">'
             . '<div style="font-size:12px; font-weight:bold; color:#1e3a8a; margin-bottom:4px;">' . htmlspecialchars($chart['title']) . '</div>'
             . '<img src="' . $img . '" style="width:100%;">'
             . '</div>';
