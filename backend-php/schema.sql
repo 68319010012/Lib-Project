@@ -52,9 +52,15 @@ CREATE TABLE IF NOT EXISTS checkin_logs (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- New: backs rate_limit.php's DB-backed replacement for Flask-Limiter.
+-- Only FAILED logins land here; see src/rate_limit.php for why successes are
+-- not counted (the whole college shares one public IP).
 CREATE TABLE IF NOT EXISTS login_attempts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ip VARCHAR(45) NOT NULL,
+    -- Which account was being guessed, so the limit can be per-account
+    -- instead of locking out everyone behind the same IP.
+    username VARCHAR(50) NOT NULL DEFAULT '',
     attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_login_attempts_ip_time (ip, attempted_at)
+    INDEX idx_login_attempts_ip_time (ip, attempted_at),
+    INDEX idx_login_attempts_ip_user_time (ip, username, attempted_at)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

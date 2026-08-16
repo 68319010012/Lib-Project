@@ -110,9 +110,6 @@ function handle_register(): void
 function handle_login(): void
 {
     $conn = get_db_connection();
-    if (!check_login_rate_limit($conn, client_ip())) {
-        json_error('เข้าสู่ระบบผิดพลาดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่', 429);
-    }
 
     $body = request_body();
     $username = body_str($body, 'username');
@@ -122,11 +119,18 @@ function handle_login(): void
         json_error('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 400);
     }
 
+    // Checked after the username is known so the limit can be scoped to this
+    // account rather than to an IP the whole college shares.
+    if (!check_login_rate_limit($conn, client_ip(), $username)) {
+        json_error('เข้าสู่ระบบผิดพลาดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่', 429);
+    }
+
     $stmt = $conn->prepare('SELECT * FROM users WHERE username = ?');
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
     if ($user === false || !password_verify($password, $user['password_hash'])) {
+        record_failed_login($conn, client_ip(), $username);
         json_error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401);
     }
     if ($user['account_status'] === 'retired') {
