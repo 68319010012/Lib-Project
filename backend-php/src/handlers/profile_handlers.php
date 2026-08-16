@@ -28,8 +28,8 @@ function handle_change_password(): void
     if ($currentPassword === '' || $newPassword === '') {
         json_error('กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่', 400);
     }
-    if (strlen($newPassword) < MIN_PASSWORD_LENGTH) {
-        json_error('รหัสผ่านใหม่ต้องมีอย่างน้อย ' . MIN_PASSWORD_LENGTH . ' ตัวอักษร', 400);
+    if (!password_length_ok($newPassword, $passwordError)) {
+        json_error($passwordError, 400);
     }
 
     $conn = get_db_connection();

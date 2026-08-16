@@ -28,8 +28,8 @@ function handle_register(): void
     if (!preg_match('/^[0-9]{5,20}$/', $studentId)) {
         json_error('รหัสนักศึกษาต้องเป็นตัวเลข 5-20 หลัก', 400);
     }
-    if (strlen($password) < MIN_PASSWORD_LENGTH) {
-        json_error('รหัสผ่านต้องมีอย่างน้อย ' . MIN_PASSWORD_LENGTH . ' ตัวอักษร', 400);
+    if (!password_length_ok($password, $passwordError)) {
+        json_error($passwordError, 400);
     }
     if (!in_array($prefix, valid_prefixes(), true)) {
         json_error('คำนำหน้าไม่ถูกต้อง', 400);

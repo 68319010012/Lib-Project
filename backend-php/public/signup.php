@@ -127,14 +127,14 @@
               <div>
                 <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
                 <div class="relative">
-                  <input id="signup-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="••••••••" required type="password" />
+                  <input id="signup-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
                   <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">lock</span>
                 </div>
               </div>
               <div>
                 <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ยืนยันรหัสผ่าน</label>
                 <div class="relative">
-                  <input id="signup-confirm-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="••••••••" required type="password" />
+                  <input id="signup-confirm-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
                   <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">verified_user</span>
                 </div>
               </div>
