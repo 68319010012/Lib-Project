@@ -30,10 +30,6 @@ require __DIR__ . '/partials/guard.php';
     <div class="max-w-7xl mx-auto px-gutter pt-8 pb-12">
       <div class="rise-in-group flex flex-col gap-8 max-w-3xl mx-auto">
         <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md border border-outline-variant dark:border-dm-border p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-          <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <span class="material-symbols-outlined text-9xl">library_books</span>
-          </div>
-
           <div id="elapsed-wrap" class="hidden mb-6">
             <p class="text-label-caps font-label-caps text-secondary mb-1">เช็คอินตั้งแต่</p>
             <span id="elapsed-time" class="text-headline-xl font-label-code text-primary tracking-widest">--:--:--</span>
