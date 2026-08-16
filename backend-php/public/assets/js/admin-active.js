@@ -4,6 +4,9 @@
 // but never actually wrote anywhere before this page).
 
 let activeRows = null;
+// Survives the 20s poll and force-checkouts: paginateRows() clamps it back
+// into range if the list shrinks, so the admin isn't bounced to page 1.
+let activePage = 1;
 
 function formatDurationThai(minutes) {
   if (minutes < 1) return 'เพิ่งเข้ามา';
@@ -28,6 +31,7 @@ function renderActive() {
     countEl.textContent = 'พบ 0 คน';
     statCount.textContent = '–';
     statLongest.textContent = '–';
+    document.getElementById('active-pager').innerHTML = '';
     return;
   }
 
@@ -37,14 +41,19 @@ function renderActive() {
   if (activeRows.length === 0) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="6">ไม่มีใครอยู่ในห้องสมุดตอนนี้</td></tr>';
     statLongest.textContent = '–';
+    document.getElementById('active-pager').innerHTML = '';
     return;
   }
 
+  // Stats describe everyone currently inside, not just the visible page.
   const durations = activeRows.map((r) => minutesSince(r.checked_in_at));
   statLongest.textContent = formatDurationThai(Math.max(...durations));
 
-  tbody.innerHTML = activeRows
-    .map((r, i) => {
+  const pageState = paginateRows(activeRows, activePage);
+  activePage = pageState.page;
+
+  tbody.innerHTML = pageState.rows
+    .map((r) => {
       const checkedInTime = new Date(r.checked_in_at).toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
       return `
         <tr class="hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
@@ -55,7 +64,7 @@ function renderActive() {
           <td class="px-6 py-4">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-status-success/10 text-status-success duration-cell" data-checked-in-at="${r.checked_in_at}">
               <span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
-              ${formatDurationThai(durations[i])}
+              ${formatDurationThai(minutesSince(r.checked_in_at))}
             </span>
           </td>
           <td class="px-6 py-4 text-right">
@@ -70,6 +79,11 @@ function renderActive() {
 
   tbody.querySelectorAll('.force-checkout-btn').forEach((btn) => {
     btn.addEventListener('click', () => forceCheckout(btn.dataset.userId, btn.dataset.name));
+  });
+
+  renderPager(document.getElementById('active-pager'), pageState, (p) => {
+    activePage = p;
+    renderActive();
   });
 }
 

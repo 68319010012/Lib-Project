@@ -77,6 +77,7 @@ require __DIR__ . '/partials/guard.php';
         </div>
         <div class="px-6 py-4 bg-surface-container-low dark:bg-dm-bg">
           <p class="text-sm text-on-surface-variant dark:text-dm-text-secondary" id="members-count">พบ 0 รายการ</p>
+          <div class="pager" id="members-pager"></div>
         </div>
       </div>
     </section>
@@ -96,6 +97,7 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
   <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>
+  <script src="/assets/js/pagination.js?v=<?= ntc_asset_v('assets/js/pagination.js') ?>"></script>
   <script src="/assets/js/admin-members.js?v=<?= ntc_asset_v('assets/js/admin-members.js') ?>"></script>
 </body>
 </html>

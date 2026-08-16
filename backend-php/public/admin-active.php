@@ -58,6 +58,7 @@ require __DIR__ . '/partials/guard.php';
         </div>
         <div class="p-6 bg-surface-container-low dark:bg-dm-bg">
           <p class="text-label-caps font-label-caps text-text-secondary dark:text-dm-text-secondary" id="active-count">พบ 0 คน</p>
+          <div class="pager" id="active-pager"></div>
         </div>
       </div>
     </div>
@@ -75,6 +76,7 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
   <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
   <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
+  <script src="/assets/js/pagination.js?v=<?= ntc_asset_v('assets/js/pagination.js') ?>"></script>
   <script src="/assets/js/admin-active.js?v=<?= ntc_asset_v('assets/js/admin-active.js') ?>"></script>
 </body>
 </html>

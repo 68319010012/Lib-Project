@@ -1,6 +1,9 @@
 // Port of frontend-react/src/pages/AttendanceLogsPage.jsx.
 
 let logsAllRows = null;
+// Kept across the 20s silent poll so the admin isn't yanked back to page 1
+// mid-read; the search/filter handlers reset it explicitly instead.
+let logsPage = 1;
 
 function computeLogsStats(rows) {
   const lastByUser = {};
@@ -63,17 +66,24 @@ function renderLogs() {
 
   const filtered = getFilteredRows();
   const tbody = document.getElementById('logs-tbody');
+  const pagerEl = document.getElementById('logs-pager');
   document.getElementById('logs-count').textContent = `พบ ${filtered.length} รายการ`;
 
   if (logsAllRows === null) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">กำลังโหลด…</td></tr>';
+    pagerEl.innerHTML = '';
     return;
   }
   if (filtered.length === 0) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="5">ไม่พบรายการที่ตรงกัน</td></tr>';
+    pagerEl.innerHTML = '';
     return;
   }
-  tbody.innerHTML = filtered
+
+  const pageState = paginateRows(filtered, logsPage);
+  logsPage = pageState.page;
+
+  tbody.innerHTML = pageState.rows
     .map((r) => {
       const isIn = r.type === 'in';
       const initials = `${(r.first_name || '?')[0]}${(r.last_name || '?')[0]}`.toUpperCase();
@@ -101,11 +111,17 @@ function renderLogs() {
       `;
     })
     .join('');
+
+  renderPager(pagerEl, pageState, (p) => {
+    logsPage = p;
+    renderLogs();
+  });
 }
 
 async function loadLogs(params, { silent = false } = {}) {
   if (!silent) {
     logsAllRows = null;
+    logsPage = 1;
     renderLogs();
   }
   logsAllRows = await apiFetch(`/admin/reports?${params.toString()}`);
@@ -119,8 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // reload — silent so the table doesn't flash back to "loading" each time.
   setInterval(() => loadLogs(params, { silent: true }), 20000);
 
-  document.getElementById('logs-search').addEventListener('input', renderLogs);
-  document.getElementById('logs-action-filter').addEventListener('change', renderLogs);
+  // Narrowing the result set invalidates the current page number — a search
+  // that leaves 3 rows has no page 7 to stay on.
+  function rerenderFromFirstPage() {
+    logsPage = 1;
+    renderLogs();
+  }
+  document.getElementById('logs-search').addEventListener('input', rerenderFromFirstPage);
+  document.getElementById('logs-action-filter').addEventListener('change', rerenderFromFirstPage);
   // No apply button — picking a date re-queries immediately.
   document.getElementById('logs-date-filter').addEventListener('change', () => {
     const dateFilter = document.getElementById('logs-date-filter').value;

@@ -14,23 +14,41 @@ function populateMembersSelect(select, options, placeholder) {
   });
 }
 
-function renderMembersRows(rows) {
+let membersRows = null;
+let membersPage = 1;
+
+// Every filter change re-queries, so the page always restarts at 1 there;
+// only the pager itself moves it.
+function setMembersRows(rows) {
+  membersRows = rows;
+  membersPage = 1;
+  renderMembersRows();
+}
+
+function renderMembersRows() {
   const tbody = document.getElementById('members-tbody');
   const countEl = document.getElementById('members-count');
   const totalEl = document.getElementById('members-total-badge');
-  if (rows === null) {
+  const pagerEl = document.getElementById('members-pager');
+  if (membersRows === null) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="6">กำลังโหลด…</td></tr>';
     countEl.textContent = 'พบ 0 รายการ';
     totalEl.textContent = '–';
+    pagerEl.innerHTML = '';
     return;
   }
-  totalEl.textContent = rows.length;
-  countEl.textContent = `พบ ${rows.length} รายการ`;
-  if (rows.length === 0) {
+  totalEl.textContent = membersRows.length;
+  countEl.textContent = `พบ ${membersRows.length} รายการ`;
+  if (membersRows.length === 0) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="7">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
+    pagerEl.innerHTML = '';
     return;
   }
-  tbody.innerHTML = rows
+
+  const pageState = paginateRows(membersRows, membersPage);
+  membersPage = pageState.page;
+
+  tbody.innerHTML = pageState.rows
     .map((r) => {
       const lastVisit = r.last_visit
         ? new Date(r.last_visit).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -54,6 +72,11 @@ function renderMembersRows(rows) {
 
   tbody.querySelectorAll('.reset-password-btn').forEach((btn) => {
     btn.addEventListener('click', () => resetMemberPassword(btn.dataset.userId, btn.dataset.name));
+  });
+
+  renderPager(pagerEl, pageState, (p) => {
+    membersPage = p;
+    renderMembersRows();
   });
 }
 
@@ -85,9 +108,9 @@ async function loadMembers() {
   if (level) params.set('level', level);
   if (yearLevel) params.set('year_level', yearLevel);
 
-  renderMembersRows(null);
+  setMembersRows(null);
   const data = await apiFetch(`/admin/members?${params.toString()}`);
-  renderMembersRows(data);
+  setMembersRows(data);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

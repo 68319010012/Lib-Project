@@ -3288,3 +3288,31 @@ html.dark .lib-banner { filter: brightness(.88); }
 .lib-banner .corner-deco.right { right: 32px; animation-delay: 1.4s; }
 @keyframes lib-banner-cornerFloat { 0%,100% { transform: translateY(-50%); } 50% { transform: translateY(calc(-50% - 8px)); } }
 
+
+/* ---------------------------------------------------------------------
+   Table pagination (admin-active / admin-members / admin-logs).
+   Plain CSS on purpose: styles.css is a prebuilt bundle with no live
+   build step, so any Tailwind utility not already used elsewhere in the
+   codebase would be silently missing from the compiled output.
+   --------------------------------------------------------------------- */
+.pager { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.pager:empty { margin-top: 0; }
+.pager-info { font-size: 12px; color: rgb(100 116 139); margin-right: auto; }
+.dark .pager-info { color: rgb(148 163 184); }
+.pager-gap { color: rgb(100 116 139); padding: 0 2px; }
+.pager-btn {
+  min-width: 34px; height: 34px; padding: 0 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgb(100 116 139 / .5); border-radius: 8px;
+  background: #fff; color: rgb(30 58 138);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+.pager-btn:hover:not(:disabled) { background: rgb(30 58 138 / .08); border-color: rgb(30 58 138); }
+.pager-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pager-btn.is-current { background: rgb(30 58 138); border-color: rgb(30 58 138); color: #fff; }
+.pager-btn:focus-visible { outline: 2px solid rgb(30 58 138); outline-offset: 2px; }
+.dark .pager-btn { background: rgb(21 31 54); border-color: rgb(61 80 121); color: rgb(147 197 253); }
+.dark .pager-btn:hover:not(:disabled) { background: rgb(61 80 121 / .5); border-color: rgb(147 197 253); }
+.dark .pager-btn.is-current { background: rgb(147 197 253); border-color: rgb(147 197 253); color: rgb(21 31 54); }
+.dark .pager-btn:focus-visible { outline-color: rgb(147 197 253); }
