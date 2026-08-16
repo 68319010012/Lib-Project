@@ -2,3 +2,46 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
+
+# Security response headers. Wrapped in IfModule so a server without
+# mod_headers serves the site rather than returning 500.
+<IfModule mod_headers.c>
+  # Stop the browser from second-guessing Content-Type. Without it, a file
+  # the app serves as text can be re-interpreted as script.
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Clickjacking: no other site may frame these pages, so an invisible
+  # overlay can't trick a logged-in admin into clicking "บังคับเช็คเอาต์"
+  # or "รีเซ็ตรหัสผ่าน". frame-ancestors below says the same thing to
+  # modern browsers; this covers older ones.
+  Header always set X-Frame-Options "DENY"
+
+  # Don't leak the full URL (which can carry student IDs in report filters)
+  # to third-party sites in the Referer header.
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # The app asks for none of these, so deny them outright.
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+
+  # Content-Security-Policy. Everything the app needs is same-origin — fonts,
+  # CSS and JS are all self-hosted, and html2canvas is vendored under
+  # assets/js/vendor — so 'self' covers the lot and any injected <script src>
+  # pointing off-site simply won't load.
+  #
+  # script-src keeps 'unsafe-inline' because the theme anti-flash snippet in
+  # partials/head.php and four report-page scripts are inline, some with PHP
+  # values interpolated into them. That means CSP is NOT the thing stopping
+  # injected inline JS here — escapeHtml() in assets/js/api.js is. Tightening
+  # this to a per-request nonce is the remaining upgrade.
+  #
+  # style-src needs 'unsafe-inline' for the style="width:NN%" attributes the
+  # chart bars are drawn with.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+</IfModule>
+
+# Never serve dotfiles (.env, .git leftovers) even if one is ever misplaced
+# into the web root. src/ and .env live outside public_html in production,
+# so this is a backstop, not the primary control.
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

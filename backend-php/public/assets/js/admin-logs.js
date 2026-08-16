@@ -95,12 +95,12 @@ function renderLogs() {
           <td class="px-6 py-4 font-label-code text-label-code text-text-primary dark:text-inverse-on-surface whitespace-nowrap">${formatted}</td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center font-bold text-xs">${initials}</div>
-              <span class="font-body-md text-body-md font-bold dark:text-inverse-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</span>
+              <div class="w-8 h-8 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center font-bold text-xs">${escapeHtml(initials)}</div>
+              <span class="font-body-md text-body-md font-bold dark:text-inverse-on-surface">${escapeHtml((r.prefix || '') + r.first_name + ' ' + r.last_name)}</span>
             </div>
           </td>
-          <td class="px-6 py-4 font-label-code text-label-code text-text-secondary dark:text-dm-text-secondary">${r.student_id}</td>
-          <td class="px-6 py-4 font-body-md text-body-md dark:text-inverse-on-surface">${r.department || '-'}</td>
+          <td class="px-6 py-4 font-label-code text-label-code text-text-secondary dark:text-dm-text-secondary">${escapeHtml(r.student_id)}</td>
+          <td class="px-6 py-4 font-body-md text-body-md dark:text-inverse-on-surface">${escapeHtml(r.department || '-')}</td>
           <td class="px-6 py-4">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-warning/10 text-warning'}">
               <span class="w-1.5 h-1.5 rounded-full ${isIn ? 'bg-status-success' : 'bg-warning'}"></span>

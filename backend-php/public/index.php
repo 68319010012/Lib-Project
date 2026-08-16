@@ -15,6 +15,7 @@ load_env(__DIR__ . '/../.env');
 // NOW() in auto_checkout_sweep()) wrong. Must run before any DateTime use.
 date_default_timezone_set(env('APP_TIMEZONE', 'Asia/Bangkok'));
 
+require __DIR__ . '/../src/constants.php';
 require __DIR__ . '/../src/helpers.php';
 require __DIR__ . '/../src/db.php';
 require __DIR__ . '/../src/auth.php';

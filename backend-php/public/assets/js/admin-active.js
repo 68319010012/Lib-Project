@@ -57,9 +57,9 @@ function renderActive() {
       const checkedInTime = new Date(r.checked_in_at).toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
       return `
         <tr class="hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
-          <td class="px-6 py-4 font-bold dark:text-inverse-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
-          <td class="px-6 py-4 font-label-code text-label-code text-text-secondary dark:text-dm-text-secondary">${r.student_id}</td>
-          <td class="px-6 py-4 font-body-md text-body-md dark:text-inverse-on-surface">${r.department || '-'}</td>
+          <td class="px-6 py-4 font-bold dark:text-inverse-on-surface">${escapeHtml((r.prefix || '') + r.first_name + ' ' + r.last_name)}</td>
+          <td class="px-6 py-4 font-label-code text-label-code text-text-secondary dark:text-dm-text-secondary">${escapeHtml(r.student_id)}</td>
+          <td class="px-6 py-4 font-body-md text-body-md dark:text-inverse-on-surface">${escapeHtml(r.department || '-')}</td>
           <td class="px-6 py-4 font-label-code text-label-code text-text-secondary dark:text-dm-text-secondary whitespace-nowrap">${checkedInTime}</td>
           <td class="px-6 py-4">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-status-success/10 text-status-success duration-cell" data-checked-in-at="${r.checked_in_at}">
@@ -68,7 +68,7 @@ function renderActive() {
             </span>
           </td>
           <td class="px-6 py-4 text-right">
-            <button type="button" class="force-checkout-btn text-xs font-bold text-error hover:underline" data-user-id="${r.user_id}" data-name="${(r.prefix || '') + r.first_name + ' ' + r.last_name}">
+            <button type="button" class="force-checkout-btn text-xs font-bold text-error hover:underline" data-user-id="${escapeHtml(r.user_id)}" data-name="${escapeHtml((r.prefix || '') + r.first_name + ' ' + r.last_name)}">
               บังคับเช็คเอาต์
             </button>
           </td>

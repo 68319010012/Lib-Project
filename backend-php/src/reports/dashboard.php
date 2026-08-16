@@ -711,7 +711,12 @@ function handle_report_dashboard(): void
 </div>
 <?php endif; ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<?php // Self-hosted rather than loaded from cdnjs: a CDN script with no SRI hash
+      // is an open door — whoever controls that host (or the DNS answer for it)
+      // gets to run code inside an authenticated admin's report page. Pinned
+      // local copy of html2canvas 1.4.1 (MIT), sha256
+      // e87e550794322e574a1fda0c1549a3c70dae5a93d9113417a429016838eab8cb ?>
+<script src="/assets/js/vendor/html2canvas.min.js"></script>
 <script>
 (function () {
   // This report's settings drawer doubles as "customize dashboard widgets"

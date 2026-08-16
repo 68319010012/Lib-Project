@@ -21,7 +21,7 @@ function handle_report_select(): void
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>เลือกเทมเพลตรายงาน | ห้องสมุด NNTC</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/report-fonts.css">
 <style>
   :root {
     --primary: #1e3a8a;

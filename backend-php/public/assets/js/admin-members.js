@@ -56,14 +56,14 @@ function renderMembersRows() {
       const fullName = `${r.prefix || ''}${r.first_name} ${r.last_name}`;
       return `
         <tr class="hover:bg-surface-container-low/50 dark:hover:bg-dm-bg transition-colors">
-          <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${r.student_id}</td>
-          <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${fullName}</td>
-          <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">${r.department || '-'}</td>
-          <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${r.level || '-'}</td>
-          <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${r.year_level || '-'}</td>
-          <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${lastVisit}</td>
+          <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${escapeHtml(r.student_id)}</td>
+          <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${escapeHtml(fullName)}</td>
+          <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">${escapeHtml(r.department || '-')}</td>
+          <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${escapeHtml(r.level || '-')}</td>
+          <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${escapeHtml(r.year_level || '-')}</td>
+          <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${escapeHtml(lastVisit)}</td>
           <td class="px-6 py-4 text-right">
-            <button type="button" class="reset-password-btn text-xs font-bold text-primary dark:text-primary-fixed-dim hover:underline" data-user-id="${r.user_id}" data-name="${fullName}">รีเซ็ตรหัสผ่าน</button>
+            <button type="button" class="reset-password-btn text-xs font-bold text-primary dark:text-primary-fixed-dim hover:underline" data-user-id="${escapeHtml(r.user_id)}" data-name="${escapeHtml(fullName)}">รีเซ็ตรหัสผ่าน</button>
           </td>
         </tr>
       `;

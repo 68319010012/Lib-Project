@@ -204,7 +204,7 @@ function renderDayDeptList(day) {
       (entry, i) => `
       <button type="button" data-dept-index="${i}" class="day-detail-dept w-full text-left space-y-2 p-3 rounded-lg hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
         <div class="flex justify-between items-center text-sm font-bold">
-          <span class="flex items-center gap-1">${entry.dept}<span class="material-symbols-outlined text-base text-on-surface-variant dark:text-dm-text-secondary">chevron_right</span></span>
+          <span class="flex items-center gap-1">${escapeHtml(entry.dept)}<span class="material-symbols-outlined text-base text-on-surface-variant dark:text-dm-text-secondary">chevron_right</span></span>
           <span class="font-label-code flex-shrink-0">${entry.pct}% (${entry.count.toLocaleString()} ครั้ง)</span>
         </div>
         <div class="w-full bg-surface-container dark:bg-dm-border rounded-full h-2">
@@ -242,8 +242,8 @@ function renderStudentList({ students, title, subtitle, onBack }) {
           (s) => `
         <div class="student-row flex items-center justify-between rounded-lg bg-surface-container-low dark:bg-dm-bg">
           <div class="min-w-0">
-            <p class="font-bold text-text-primary dark:text-inverse-on-surface truncate">${s.name}</p>
-            <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${s.student_id}${s.year_level ? ` · ปีที่ ${s.year_level}` : ''}</p>
+            <p class="font-bold text-text-primary dark:text-inverse-on-surface truncate">${escapeHtml(s.name)}</p>
+            <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${escapeHtml(s.student_id)}${s.year_level ? ` · ปีที่ ${escapeHtml(s.year_level)}` : ''}</p>
           </div>
           <span class="student-row-count text-xs font-bold text-primary dark:text-primary-fixed-dim flex-shrink-0">${s.count} ครั้ง</span>
         </div>
@@ -380,7 +380,7 @@ function render() {
         (entry, i) => `
         <button type="button" data-dept-index="${i}" class="dept-bar-entry w-full text-left space-y-2 group">
           <div class="flex justify-between items-center text-sm font-bold">
-            <span class="group-hover:underline">${entry.dept}</span>
+            <span class="group-hover:underline">${escapeHtml(entry.dept)}</span>
             <span class="font-label-code">${entry.pct}% (${entry.count.toLocaleString()} ครั้ง)</span>
           </div>
           <div class="w-full bg-surface-container dark:bg-dm-border rounded-full h-2">

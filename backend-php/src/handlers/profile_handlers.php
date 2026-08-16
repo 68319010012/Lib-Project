@@ -28,8 +28,8 @@ function handle_change_password(): void
     if ($currentPassword === '' || $newPassword === '') {
         json_error('กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่', 400);
     }
-    if (strlen($newPassword) < 8) {
-        json_error('รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร', 400);
+    if (strlen($newPassword) < MIN_PASSWORD_LENGTH) {
+        json_error('รหัสผ่านใหม่ต้องมีอย่างน้อย ' . MIN_PASSWORD_LENGTH . ' ตัวอักษร', 400);
     }
 
     $conn = get_db_connection();
@@ -44,6 +44,11 @@ function handle_change_password(): void
     $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
     $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?')
         ->execute([$newHash, $_SESSION['user_id']]);
+
+    // A password change is usually a response to "someone may have my
+    // account" — issue a new session ID so any session that was riding the
+    // old one is left holding a dead identifier.
+    session_regenerate_id(true);
 
     json_response(['message' => 'เปลี่ยนรหัสผ่านสำเร็จ']);
 }

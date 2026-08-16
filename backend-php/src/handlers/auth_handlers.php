@@ -22,6 +22,37 @@ function handle_register(): void
     if ($prefix === '' || $firstName === '' || $lastName === '' || $department === '') {
         json_error('กรุณากรอกคำนำหน้า ชื่อ นามสกุล และแผนกวิชา', 400);
     }
+    // Everything below re-checks what the signup form already constrains.
+    // The form is a convenience; anything can POST here directly, so the
+    // dropdowns' option lists only mean something if the API enforces them.
+    if (!preg_match('/^[0-9]{5,20}$/', $studentId)) {
+        json_error('รหัสนักศึกษาต้องเป็นตัวเลข 5-20 หลัก', 400);
+    }
+    if (strlen($password) < MIN_PASSWORD_LENGTH) {
+        json_error('รหัสผ่านต้องมีอย่างน้อย ' . MIN_PASSWORD_LENGTH . ' ตัวอักษร', 400);
+    }
+    if (!in_array($prefix, valid_prefixes(), true)) {
+        json_error('คำนำหน้าไม่ถูกต้อง', 400);
+    }
+    if (!in_array($department, valid_departments(), true)) {
+        json_error('แผนกวิชาไม่ถูกต้อง', 400);
+    }
+    // Names are free text, so they get bounds rather than a whitelist.
+    // mb_strlen counts Thai characters, not UTF-8 bytes, so a legitimate
+    // Thai name isn't rejected for being "too long" at the 100-char column.
+    foreach (['ชื่อ' => $firstName, 'นามสกุล' => $lastName] as $label => $value) {
+        if (mb_strlen($value) > 100) {
+            json_error("$label ยาวเกินไป (ไม่เกิน 100 ตัวอักษร)", 400);
+        }
+        // Belt-and-braces against stored XSS: the admin tables escape on
+        // output (see escapeHtml in assets/js/api.js), which is the fix that
+        // actually matters. Refusing angle brackets here just means a payload
+        // never reaches the database to begin with — no Thai or English name
+        // needs them.
+        if (preg_match('/[<>]/', $value)) {
+            json_error("$label มีอักขระที่ไม่อนุญาต", 400);
+        }
+    }
     if (!in_array($gender, ['male', 'female'], true)) {
         json_error('กรุณาเลือกเพศ', 400);
     }
@@ -69,6 +100,7 @@ function handle_register(): void
         throw $e;
     }
 
+    session_regenerate_id(true);
     $_SESSION['user_id'] = $userId;
     $_SESSION['role'] = 'student';
     $_SESSION['student_id'] = $studentId;
@@ -104,6 +136,12 @@ function handle_login(): void
         json_error('บัญชียังไม่ได้รับการอนุมัติจากแอดมิน', 403);
     }
 
+    // Session fixation defence: issue a fresh session ID now that this
+    // session has gained a privilege level. Without it, an ID an attacker
+    // planted in the victim's browser before login stays valid after it,
+    // handing them the authenticated session. `true` deletes the old record
+    // server-side so the planted ID stops working immediately.
+    session_regenerate_id(true);
     $_SESSION['user_id'] = $user['user_id'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['student_id'] = $user['student_id'];
@@ -116,6 +154,21 @@ function handle_login(): void
 function handle_logout(): void
 {
     $_SESSION = [];
+    // session_destroy() drops the server-side record but leaves the cookie in
+    // the browser, which then keeps presenting a dead session ID. Expire it
+    // explicitly, reusing the params bootstrap_session() set so the delete
+    // targets the same path/domain/secure combination the cookie was set with.
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', [
+            'expires' => time() - 42000,
+            'path' => $params['path'],
+            'domain' => $params['domain'],
+            'secure' => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => $params['samesite'],
+        ]);
+    }
     session_destroy();
     json_response(['message' => 'ออกจากระบบแล้ว']);
 }

@@ -42,7 +42,13 @@ CREATE TABLE IF NOT EXISTS checkin_logs (
     planned_checkout_at DATETIME NULL,
     -- Set on check-out only, describing how the check-out row was created.
     checkout_source ENUM('manual', 'auto', 'admin_forced') NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    -- Every report filters on a timestamp range, and the FK only indexes
+    -- user_id, so those queries were full table scans. The composite serves
+    -- the per-user history lookups (user_id + newest-first) that the
+    -- dashboard and auto-checkout sweep do.
+    INDEX idx_checkin_logs_timestamp (timestamp),
+    INDEX idx_checkin_logs_user_time (user_id, timestamp)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- New: backs rate_limit.php's DB-backed replacement for Flask-Limiter.

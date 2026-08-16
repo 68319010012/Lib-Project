@@ -29,6 +29,28 @@ async function apiFetch(path, options = {}) {
   return data;
 }
 
+// Escapes a value for interpolation into an HTML template string.
+//
+// Students type their own prefix/name/department at signup with no approval
+// step, so those fields are attacker-controlled and reach the admin tables
+// through innerHTML. Without this, a surname of
+//   <img src=x onerror="...">
+// runs as script in the logged-in admin's browser the moment they open the
+// members list. Escape at the point of output, never trusting that the value
+// was cleaned on the way in.
+//
+// Also covers quotes, because several templates interpolate into attributes
+// (data-name="${...}") where an unescaped " breaks out of the attribute.
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function apiGet(path) {
   return apiFetch(path);
 }
