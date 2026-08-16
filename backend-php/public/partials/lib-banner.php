@@ -124,7 +124,7 @@ $sparks = [
   <div class="content">
     <div class="logo-row">
       <div class="logo-badge">
-        <img src="/assets/img/logo-badge.svg?v=<?= ntc_asset_v('assets/img/logo-badge.svg') ?>" alt="logo" />
+        <img src="/assets/img/logo-badge.png?v=<?= ntc_asset_v('assets/img/logo-badge.png') ?>" alt="logo" />
       </div>
       <div>
         <p class="eyebrow">Nakhonnayok Technical College</p>
