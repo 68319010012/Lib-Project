@@ -117,8 +117,8 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     h1 { font-size: 18px; color: #1e3a8a; margin: 0 0 4px; }
     h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 12px; }
     .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
-    .filter-bar, .compare-filter, .toolbar, .settings-panel, .empty .empty-cta,
-    .quick-filter-chips, .filter-note { display: none; }
+    .filter-bar, .compare-filter, .month-filter, .toolbar, .settings-panel, .empty .empty-cta,
+    .quick-filter-chips, .filter-note, .rank-bars .links { display: none; }
     /* mPDF doesn't reliably honor display:none on an inline <svg> itself
        (only on the block-level divs wrapping one, like .meter-ring-wrap
        above, which does work) — zeroing its box forces it to take no space
