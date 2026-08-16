@@ -22,3 +22,8 @@ BackEnd/uploads/
 # see backend-php/composer.json
 backend-php/vendor/
 backend-php/composer.phar
+
+# Generated project manual — embeds FTP host and production DB name in its
+# deployment chapter, so it must never reach GitHub. The manual itself
+# teaches "git add .", which would otherwise sweep this straight up.
+NTC_Library_*.pdf
