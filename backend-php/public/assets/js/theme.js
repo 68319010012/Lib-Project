@@ -1,8 +1,9 @@
 // Theme system — port of frontend-react/src/components/ThemeMenu.jsx (3-way
-// auto/light/dark, localStorage key 'nntc-theme-mode') and ThemeToggle.jsx
-// (simple binary toggle, legacy key 'nntc-theme', used only on login/signup
-// before auth). Keep both localStorage keys and the same precedence as the
-// anti-flash <head> script in partials/head.php.
+// auto/light/dark, localStorage key 'nntc-theme-mode'), now used on every
+// page including login/signup. Keep this key and precedence in sync with
+// the anti-flash <head> script in partials/head.php (which still falls back
+// to the legacy 'nntc-theme' key for browsers that stored it before login/
+// signup switched over to this menu).
 
 // "auto" follows time of day (dark 18:00–06:00), matching the anti-flash
 // script, not just system prefers-color-scheme.
@@ -73,32 +74,6 @@ function initThemeMenu() {
   render();
 }
 
-// Simple binary toggle used only on login/signup (before auth) — port of
-// ThemeToggle.jsx. Uses the legacy 'nntc-theme' key.
-function initThemeToggle() {
-  const btn = document.getElementById('theme-toggle-btn');
-  if (!btn) return;
-  const icon = btn.querySelector('.material-symbols-outlined');
-
-  function render() {
-    const isDark = document.documentElement.classList.contains('dark');
-    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-    btn.setAttribute('aria-label', isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด');
-    btn.setAttribute('title', isDark ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด');
-  }
-
-  btn.addEventListener('click', () => {
-    const next = !document.documentElement.classList.contains('dark');
-    document.documentElement.classList.toggle('dark', next);
-    document.documentElement.classList.toggle('light', !next);
-    localStorage.setItem('nntc-theme', next ? 'dark' : 'light');
-    render();
-  });
-
-  render();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   initThemeMenu();
-  initThemeToggle();
 });

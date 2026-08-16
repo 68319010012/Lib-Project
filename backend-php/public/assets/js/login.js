@@ -11,6 +11,9 @@ function setRole(role) {
     btn.classList.toggle('text-primary', active);
     btn.classList.toggle('dark:text-primary-fixed-dim', active);
     btn.classList.toggle('shadow-sm', active);
+    btn.classList.toggle('border', active);
+    btn.classList.toggle('border-outline-variant', active);
+    btn.classList.toggle('dark:border-dm-border', active);
     btn.classList.toggle('text-on-surface-variant', !active);
     btn.classList.toggle('dark:text-dm-text-secondary', !active);
   });

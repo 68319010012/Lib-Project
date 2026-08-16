@@ -108,6 +108,35 @@ function handle_admin_force_checkout(): void
     json_response(['message' => 'บันทึกเช็คเอาต์ให้ผู้ใช้นี้แล้ว']);
 }
 
+// Admin-initiated password reset — this system has no email/phone on file
+// (see schema.sql) so a self-service "forgot password" email flow isn't
+// possible; the admin resets it here instead and reads the temp password
+// out to the student in person.
+function handle_admin_reset_password(): void
+{
+    require_login();
+    require_admin();
+
+    $body = request_body();
+    $userId = (int) ($body['user_id'] ?? 0);
+    if ($userId <= 0) {
+        json_error('user_id ไม่ถูกต้อง', 400);
+    }
+
+    $conn = get_db_connection();
+    $stmt = $conn->prepare('SELECT user_id FROM users WHERE user_id = ?');
+    $stmt->execute([$userId]);
+    if ($stmt->fetch() === false) {
+        json_error('ไม่พบผู้ใช้นี้', 404);
+    }
+
+    $tempPassword = generate_temp_password();
+    $hash = password_hash($tempPassword, PASSWORD_BCRYPT);
+    $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?')->execute([$hash, $userId]);
+
+    json_response(['message' => 'รีเซ็ตรหัสผ่านสำเร็จ', 'temp_password' => $tempPassword]);
+}
+
 function handle_admin_reports(): void
 {
     require_login();

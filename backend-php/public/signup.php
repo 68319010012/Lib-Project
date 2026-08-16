@@ -5,14 +5,6 @@
 </head>
 <body class="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
 
-  <button
-    type="button"
-    id="theme-toggle-btn"
-    class="fixed top-4 right-4 z-[60] w-11 h-11 rounded-full bg-surface-white/90 dark:bg-dm-surface/90 backdrop-blur border border-outline-variant dark:border-dm-border shadow-md flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:scale-105 active:scale-95 transition-all"
-  >
-    <span class="material-symbols-outlined">dark_mode</span>
-  </button>
-
   <nav class="bg-primary shadow-md z-50">
     <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto">
       <div class="flex items-center gap-4">
@@ -21,16 +13,47 @@
         </div>
         <h1 class="text-headline-md font-headline-md font-bold text-on-primary">ห้องสมุด NTC</h1>
       </div>
-      <a class="text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login.php">เข้าสู่ระบบ</a>
+      <div class="flex items-center gap-3">
+        <div class="relative" id="theme-menu">
+          <button
+            type="button"
+            id="theme-menu-btn"
+            aria-label="ตั้งค่าธีมสี"
+            title="ตั้งค่าธีมสี"
+            aria-haspopup="true"
+            class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
+          >
+            <span class="material-symbols-outlined text-xl tm-current-icon">routine</span>
+          </button>
+          <div id="theme-menu-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl border border-outline-variant dark:border-dm-border overflow-hidden text-text-primary dark:text-inverse-on-surface z-50">
+            <button type="button" data-mode="auto" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+              <span class="material-symbols-outlined text-lg">routine</span>
+              อัตโนมัติ (ตามเวลา)
+              <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+            </button>
+            <button type="button" data-mode="light" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+              <span class="material-symbols-outlined text-lg">light_mode</span>
+              สว่าง
+              <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+            </button>
+            <button type="button" data-mode="dark" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+              <span class="material-symbols-outlined text-lg">dark_mode</span>
+              มืด
+              <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+            </button>
+          </div>
+        </div>
+        <a class="text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login.php">เข้าสู่ระบบ</a>
+      </div>
     </div>
   </nav>
 
   <main class="flex-grow relative">
-    <section class="bg-gradient-to-br from-primary to-primary-container h-80 relative overflow-hidden flex items-center">
+    <section class="bg-gradient-to-br from-primary to-primary-container h-80 relative overflow-hidden flex items-center signup-hero-section">
       <div class="absolute inset-0 signup-hero-pattern opacity-20"></div>
       <div class="max-w-7xl mx-auto w-full px-gutter z-10">
         <div class="max-w-2xl">
-          <h2 class="text-headline-xl font-headline-xl text-on-primary mb-2">สร้างบัญชีของคุณ</h2>
+          <h2 class="text-headline-xl font-headline-xl text-on-primary mb-2 signup-hero-title">สร้างบัญชีของคุณ</h2>
           <p class="text-on-primary/70 text-body-lg">สมัครสมาชิกระบบห้องสมุดวิทยาลัยเทคนิคนครนายก เพื่อใช้งานเช็คชื่อเข้า-ออกห้องสมุด</p>
         </div>
       </div>

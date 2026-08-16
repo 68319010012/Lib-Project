@@ -7,7 +7,7 @@ require __DIR__ . '/partials/guard.php';
 <head>
 <?php $pageTitle = 'ประวัติการเช็คชื่อ'; include __DIR__ . '/partials/head.php'; ?>
 </head>
-<body class="flex min-h-screen text-text-primary dark:text-inverse-on-surface bg-background dark:bg-dm-bg transition-colors duration-200">
+<body class="flex min-h-screen font-body-md text-text-primary dark:text-inverse-on-surface bg-background dark:bg-dm-bg transition-colors duration-200">
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
   <?php $active = 'admin-logs.php'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 

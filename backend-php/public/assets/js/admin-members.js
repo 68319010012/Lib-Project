@@ -27,7 +27,7 @@ function renderMembersRows(rows) {
   totalEl.textContent = rows.length;
   countEl.textContent = `พบ ${rows.length} รายการ`;
   if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="6">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
+    tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="7">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
     return;
   }
   tbody.innerHTML = rows
@@ -35,18 +35,43 @@ function renderMembersRows(rows) {
       const lastVisit = r.last_visit
         ? new Date(r.last_visit).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
         : 'ยังไม่เคยเข้าใช้';
+      const fullName = `${r.prefix || ''}${r.first_name} ${r.last_name}`;
       return `
         <tr class="hover:bg-surface-container-low/50 dark:hover:bg-dm-bg transition-colors">
           <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${r.student_id}</td>
-          <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${r.prefix || ''}${r.first_name} ${r.last_name}</td>
+          <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${fullName}</td>
           <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">${r.department || '-'}</td>
           <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${r.level || '-'}</td>
           <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${r.year_level || '-'}</td>
           <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${lastVisit}</td>
+          <td class="px-6 py-4 text-right">
+            <button type="button" class="reset-password-btn text-xs font-bold text-primary dark:text-primary-fixed-dim hover:underline" data-user-id="${r.user_id}" data-name="${fullName}">รีเซ็ตรหัสผ่าน</button>
+          </td>
         </tr>
       `;
     })
     .join('');
+
+  tbody.querySelectorAll('.reset-password-btn').forEach((btn) => {
+    btn.addEventListener('click', () => resetMemberPassword(btn.dataset.userId, btn.dataset.name));
+  });
+}
+
+// No email/phone on file for students (see schema.sql), so a self-service
+// "forgot password" email flow isn't possible — the admin resets it here
+// instead and reads the generated temp password out to the student in
+// person. Server always generates the password (never accepts one typed
+// here) so it can't end up weak or guessable.
+async function resetMemberPassword(userId, name) {
+  if (!window.confirm(`ยืนยันรีเซ็ตรหัสผ่านของ "${name}" ?\nระบบจะสุ่มรหัสผ่านชั่วคราวให้ใหม่ ใช้เมื่อนักศึกษาลืมรหัสผ่านเท่านั้น`)) {
+    return;
+  }
+  try {
+    const data = await apiFetch('/admin/members/reset-password', { method: 'POST', body: JSON.stringify({ user_id: Number(userId) }) });
+    showToast(`รีเซ็ตรหัสผ่านของ "${name}" สำเร็จ — รหัสผ่านชั่วคราว: ${data.temp_password} (แจ้งนักศึกษาให้เปลี่ยนรหัสผ่านหลังเข้าสู่ระบบ)`, { type: 'success', duration: 0 });
+  } catch (err) {
+    showToast(err.message || 'รีเซ็ตรหัสผ่านไม่สำเร็จ', { type: 'error' });
+  }
 }
 
 async function loadMembers() {

@@ -51,6 +51,20 @@ function client_ip(): string
     return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 }
 
+// Random temp password for admin-initiated resets (see handle_admin_reset_password
+// in admin_handlers.php) — no email/SMTP in this system, so the admin reads this
+// out to the student in person instead of a mailed reset link. Excludes visually
+// ambiguous characters (0/O, 1/l/I) since it's meant to be read aloud/retyped.
+function generate_temp_password(int $length = 8): string
+{
+    $alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    $password = '';
+    for ($i = 0; $i < $length; $i++) {
+        $password .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+    }
+    return $password;
+}
+
 // MySQL DATETIME comes back as "YYYY-MM-DD HH:MM:SS" — Python's .isoformat()
 // on the same value produces "YYYY-MM-DDTHH:MM:SS". Match it exactly since
 // the frontend may rely on ISO-8601 parsing.

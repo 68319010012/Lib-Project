@@ -996,7 +996,13 @@ video {
 }
 
 .hidden {
-  display: none;
+  /* !important because this static bundle doesn't preserve Tailwind's
+     utilities-last @layer ordering: .material-symbols-outlined (defined
+     further down, line ~2822) sets display:inline-block with equal
+     specificity, so without !important it silently wins the cascade and
+     any icon carrying both classes (e.g. the theme-menu checkmarks)
+     never actually hides. */
+  display: none !important;
 }
 
 .h-1\.5 {
@@ -2041,6 +2047,24 @@ video {
   line-height: 1.2;
   font-weight: 800;
 }
+/* "สร้างบัญชีของคุณ" at 48px needs ~369px but a phone only gives it ~310-340px,
+   so it wraps to 2 lines — inside signup.php's hero section (fixed h-80,
+   overflow:hidden) that pushes the paragraph below it past the section's
+   bottom edge and clips it. Shrinking just this heading on narrow screens
+   keeps it on one line and everything within the fixed-height hero. */
+@media (max-width: 480px) { .signup-hero-title { font-size: 32px; } }
+/* .signup-hero-section is a fixed h-80 (320px), sized for the original
+   2-line heading. Now that .signup-hero-title fits one line on mobile, the
+   same fixed height leaves a large empty gap below the text before the
+   form card. Shrinking the height alone isn't enough though: the form card
+   overlaps the bottom 96px of this section (-mt-24 on the section after
+   it), and `flex items-center` pushes content toward that overlapped zone
+   as the section shrinks — the card ends up covering the paragraph's
+   second line. Pinning content near the top with padding instead of
+   centering it keeps it clear of the overlap regardless of height. */
+@media (max-width: 480px) {
+  .signup-hero-section { height: 240px; align-items: flex-start; padding-top: 28px; }
+}
 
 .text-label-caps {
   font-size: 12px;
@@ -3080,13 +3104,30 @@ html.dark .lib-banner { filter: brightness(.88); }
 
 .lib-banner .divider { position: absolute; left: 52%; top: 70px; bottom: 70px; width: 1px; background: rgba(255,255,255,.08); }
 
+/* Positions the login-page theme toggle (login.php) outside .lib-banner's
+   overflow:hidden box. Plain CSS, not a Tailwind utility class: this project
+   serves a prebuilt styles.css with no live Tailwind build step, so classes
+   like `right-3`/`z-[60]` that weren't already used elsewhere in the
+   codebase are silently missing from the compiled output. */
+.login-theme-menu { position: absolute; top: 12px; right: 12px; z-index: 60; }
+
 .lib-banner .content { position: relative; z-index: 2; padding: 24px 24px; max-width: 640px; margin: 0 auto; text-align: center; }
 @media (min-width: 900px) { .lib-banner .content { padding: 28px 40px; } }
+/* Clears the theme-toggle button (absolute, top-3 right-3 in the banner box)
+   on narrow screens, where .content spans nearly the full width and would
+   otherwise sit directly under it. */
+@media (max-width: 480px) { .lib-banner .content { padding-top: 64px; } }
 .lib-banner .logo-row { display: flex; align-items: center; justify-content: center; gap: 14px; opacity: 0; animation: lib-banner-fadeUp .7s ease .1s forwards; }
 .lib-banner .logo-badge {
-  width: 58px; height: 58px; border-radius: 9999px; background: #fff; display: flex; align-items: center;
+  width: 58px; height: 58px; border-radius: 9999px; display: flex; align-items: center;
   justify-content: center; flex-shrink: 0; box-shadow: 0 8px 24px -6px rgba(15,23,42,.5);
-  border: 2px solid; border-image: linear-gradient(135deg,#60a5fa,#2563eb) 1;
+  /* Gradient border via layered backgrounds, not border-image: border-image
+     ignores border-radius in every browser (confirmed via real render —
+     even overflow:hidden doesn't clip it), so it painted a square around
+     this circular badge. padding-box/border-box backgrounds respect
+     border-radius natively. */
+  border: 2px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg,#60a5fa,#2563eb) border-box;
   animation: lib-banner-logoGlow 3.4s ease-in-out infinite;
 }
 @keyframes lib-banner-logoGlow { 0%,100% { box-shadow: 0 8px 24px -6px rgba(15,23,42,.5); } 50% { box-shadow: 0 8px 30px -4px rgba(96,165,250,.55); } }
@@ -3117,6 +3158,18 @@ html.dark .lib-banner { filter: brightness(.88); }
 @keyframes lib-banner-fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
 .lib-banner .footer-line { margin-top: 18px; font-size: 11.5px; font-weight: 500; color: #cbd5e1; opacity: 0; animation: lib-banner-fadeUp .7s ease .9s forwards; }
+/* Thai has no spaces between words, so the browser's automatic line-break
+   dictionary can split mid-word on narrow screens (e.g. cutting
+   "เช็คเอาท์" in half). Keeping each phrase in one nowrap span means a
+   mobile wrap can only happen at the " | " separators, never inside a
+   phrase. */
+.lib-banner .footer-line span { white-space: nowrap; }
+/* The full three-phrase line needs ~520px and never fits a phone's ~327px
+   content width even at this font-size — shrinking the font enough to fit
+   would be unreadably small. Drop the least-essential middle phrase below
+   480px instead, so the remaining two phrases fit on one line with no wrap
+   at all. */
+@media (max-width: 480px) { .lib-banner .footer-line .footer-line-mid { display: none; } }
 
 .lib-banner .illust { position: absolute; right: 36px; top: 34px; width: 300px; height: 190px; }
 .lib-banner .float1 { position: absolute; left: 20px; top: 10px; animation: lib-banner-floatY 5.2s ease-in-out infinite; }

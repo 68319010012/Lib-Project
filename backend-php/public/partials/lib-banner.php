@@ -124,7 +124,7 @@ $sparks = [
   <div class="content">
     <div class="logo-row">
       <div class="logo-badge">
-        <img src="/assets/img/logo-badge.png" alt="logo" />
+        <img src="/assets/img/logo-badge.png?v=<?= ntc_asset_v('assets/img/logo-badge.png') ?>" alt="logo" />
       </div>
       <div>
         <p class="eyebrow">Nakhonnayok Technical College</p>
@@ -138,6 +138,6 @@ $sparks = [
       <p class="sub">ศูนย์กลางแห่งการเรียนรู้ นวัตกรรม และความสำเร็จ</p>
     </div>
 
-    <p class="footer-line">เปิดให้บริการทุกวันทำการ &nbsp;|&nbsp; ครอบคลุมทุกแผนกวิชา &nbsp;|&nbsp; ระบบเช็คอิน-เช็คเอาท์ดิจิทัล</p>
+    <p class="footer-line"><span>เปิดให้บริการทุกวันทำการ</span> <span class="footer-line-mid">| <span>ครอบคลุมทุกแผนกวิชา</span></span> | <span>ระบบบันทึกเวลาเข้า-ออกดิจิทัล</span></p>
   </div>
 </div>

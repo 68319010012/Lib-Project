@@ -58,6 +58,7 @@ $routes = [
     'GET /admin/members' => 'handle_admin_members',
     'GET /admin/active-now' => 'handle_admin_active_now',
     'POST /admin/checkin/force-checkout' => 'handle_admin_force_checkout',
+    'POST /admin/members/reset-password' => 'handle_admin_reset_password',
     'GET /admin/reports' => 'handle_admin_reports',
     'GET /admin/reports/print' => 'handle_report_select',
     'GET /admin/reports/print/daily' => 'handle_report_daily',

@@ -5,22 +5,46 @@
 </head>
 <body class="bg-background dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
 
-  <button
-    type="button"
-    id="theme-toggle-btn"
-    class="fixed top-4 right-4 z-[60] w-11 h-11 rounded-full bg-surface-white/90 dark:bg-dm-surface/90 backdrop-blur border border-outline-variant dark:border-dm-border shadow-md flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:scale-105 active:scale-95 transition-all"
-  >
-    <span class="material-symbols-outlined">dark_mode</span>
-  </button>
+  <div class="relative">
+    <div class="login-theme-menu" id="theme-menu">
+      <button
+        type="button"
+        id="theme-menu-btn"
+        aria-label="ตั้งค่าธีมสี"
+        title="ตั้งค่าธีมสี"
+        aria-haspopup="true"
+        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
+      >
+        <span class="material-symbols-outlined text-xl tm-current-icon">routine</span>
+      </button>
+      <div id="theme-menu-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl border border-outline-variant dark:border-dm-border overflow-hidden text-text-primary dark:text-inverse-on-surface z-50">
+        <button type="button" data-mode="auto" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+          <span class="material-symbols-outlined text-lg">routine</span>
+          อัตโนมัติ (ตามเวลา)
+          <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+        </button>
+        <button type="button" data-mode="light" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+          <span class="material-symbols-outlined text-lg">light_mode</span>
+          สว่าง
+          <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+        </button>
+        <button type="button" data-mode="dark" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
+          <span class="material-symbols-outlined text-lg">dark_mode</span>
+          มืด
+          <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
+        </button>
+      </div>
+    </div>
 
-  <?php include __DIR__ . '/partials/lib-banner.php'; ?>
+    <?php include __DIR__ . '/partials/lib-banner.php'; ?>
+  </div>
 
   <main class="flex-grow relative px-gutter mt-5 pb-16">
     <div class="max-w-xl mx-auto">
       <div class="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
         <div class="p-8 md:p-12">
           <div class="flex mb-8 bg-surface-container-low dark:bg-dm-bg rounded-lg p-1">
-            <button type="button" data-role-tab="student" class="flex-1 h-11 rounded-md font-headline-md text-body-md flex items-center justify-center gap-2 transition-all-200 bg-surface-white dark:bg-dm-surface text-primary dark:text-primary-fixed-dim shadow-sm">
+            <button type="button" data-role-tab="student" class="flex-1 h-11 rounded-md font-headline-md text-body-md flex items-center justify-center gap-2 transition-all-200 bg-surface-white dark:bg-dm-surface text-primary dark:text-primary-fixed-dim shadow-sm border border-outline-variant dark:border-dm-border">
               <span class="material-symbols-outlined text-xl">school</span>
               นักศึกษา
             </button>

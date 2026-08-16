@@ -67,10 +67,11 @@ require __DIR__ . '/partials/guard.php';
                 <th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-center">ระดับชั้น</th>
                 <th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-center">ชั้นปี</th>
                 <th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-right">เข้าใช้ล่าสุด</th>
+                <th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim text-right">จัดการ</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/30 dark:divide-dm-border" id="members-tbody">
-              <tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="6">กำลังโหลด…</td></tr>
+              <tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="7">กำลังโหลด…</td></tr>
             </tbody>
           </table>
         </div>
