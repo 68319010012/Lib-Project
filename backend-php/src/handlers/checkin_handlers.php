@@ -111,20 +111,49 @@ function handle_library_info(): void
     json_response(['closing_time' => library_closing_time()]);
 }
 
-// Force-checks-out anyone past their planned_checkout_at. Called once per
-// request (see public/index.php) instead of a background scheduler — a
-// single INSERT...SELECT is cheap enough that a real cron/queue isn't
-// needed, same reasoning as rate_limit.php's DB-backed limiter.
+// Closes out anyone whose visit is over but who never pressed the button.
+// Called once per request (see public/index.php) instead of a background
+// scheduler — a single INSERT...SELECT is cheap enough that a real cron/queue
+// isn't needed, same reasoning as rate_limit.php's DB-backed limiter.
+//
+// Two things this has to get right, both of which it previously got wrong:
+//
+//  * WHO. The old filter was `planned_checkout_at IS NOT NULL`, which skipped
+//    everyone who picked "จนกว่าจะปิด" (that choice stores NULL). They were
+//    never swept at all and sat on the "กำลังใช้งานอยู่" list indefinitely —
+//    16 of them locally, the oldest 32 hours stale. They close out at the
+//    library's closing time on the day they checked in.
+//
+//  * WHEN. The row used to take DEFAULT CURRENT_TIMESTAMP, i.e. the moment the
+//    sweep happened to run, which is whenever the next person touched the API.
+//    A student who left at 15:00 got stamped 15:48 (worst observed locally),
+//    and the last visitor of the day would carry until someone opened the site
+//    the next morning. The stamp is now the time the visit was actually due to
+//    end. It is still an estimate — nobody can know when they truly walked out
+//    — but checkout_source='auto' marks exactly which rows are estimated, so
+//    reports can tell them from real 'manual' ones.
 function auto_checkout_sweep(): void
 {
     $conn = get_db_connection();
-    $conn->exec(
-        "INSERT INTO checkin_logs (user_id, type, checkout_source)
-         SELECT c.user_id, 'out', 'auto'
+
+    // GREATEST(..., c.timestamp) guards against a checkout landing before its
+    // own check-in, which closing-time rows could otherwise do if
+    // LIBRARY_CLOSING_TIME is ever moved earlier than an existing visit.
+    // The expression appears in both the SELECT and the WHERE, and db.php runs
+    // with EMULATE_PREPARES off — native prepares can't reuse one placeholder
+    // across two positions, so each gets its own name bound to the same value.
+    $dueAt = fn(string $param) =>
+        "GREATEST(COALESCE(c.planned_checkout_at, TIMESTAMP(DATE(c.timestamp), $param)), c.timestamp)";
+
+    $stmt = $conn->prepare(
+        "INSERT INTO checkin_logs (user_id, type, timestamp, checkout_source)
+         SELECT c.user_id, 'out', {$dueAt(':closing_select')}, 'auto'
          FROM checkin_logs c
          INNER JOIN (
              SELECT user_id, MAX(log_id) AS max_log_id FROM checkin_logs GROUP BY user_id
          ) latest ON c.user_id = latest.user_id AND c.log_id = latest.max_log_id
-         WHERE c.type = 'in' AND c.planned_checkout_at IS NOT NULL AND c.planned_checkout_at <= NOW()"
+         WHERE c.type = 'in' AND {$dueAt(':closing_where')} <= NOW()"
     );
+    $closingTime = library_closing_time() . ':00';
+    $stmt->execute([':closing_select' => $closingTime, ':closing_where' => $closingTime]);
 }
