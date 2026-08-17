@@ -6,6 +6,9 @@ const DEPT_COLORS = ['bg-primary', 'bg-secondary', 'bg-accent-stats', 'bg-status
 
 let allRows = null;
 let currentView = 'month';
+// The trend SVG is laid out against the container's pixel width, so it has to
+// be redrawn when that width changes — kept here for the resize handler.
+let lastTrendBars = [];
 
 function isoWeekdayIndex(date) {
   return (date.getDay() + 6) % 7; // 0=Mon .. 6=Sun
@@ -149,11 +152,143 @@ function computeStats(rows, view) {
   return { total, uniqueUsers, avgDaily, currentlyInside, dayKeys, trendBars, deptEntries, totalCheckins, hourBars, peakHour, weekdayBars, peakDay };
 }
 
-function selectTrendBar(el, bar) {
-  document.querySelectorAll('#trend-bars .trend-bar').forEach((b) => b.classList.remove('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim', 'bg-primary/70', 'dark:bg-primary-fixed-dim/80'));
-  el.classList.add('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim', 'bg-primary/70', 'dark:bg-primary-fixed-dim/80');
-  document.getElementById('trend-detail').textContent = `${formatThaiDate(bar.day)} — เข้าใช้ ${bar.count.toLocaleString()} ครั้ง`;
-  openDayModal(bar.day);
+function describeTrendPoint(bar) {
+  document.getElementById('trend-detail').textContent =
+    `${formatThaiDate(bar.day)} — เข้าใช้ ${bar.count.toLocaleString()} ครั้ง`;
+}
+
+// Rounds the axis maximum up to a clean number so the ticks read 0 / 20 / 40
+// rather than 0 / 17 / 34. The result is kept even because the midpoint tick is
+// half of it — an odd ceiling of 25 would otherwise print "12.5" as a count of
+// visits.
+function niceCeiling(value) {
+  if (value <= 4) return 4;
+  const mag = 10 ** Math.floor(Math.log10(value));
+  const unit = mag / 2;
+  const ceil = Math.ceil(value / unit) * unit;
+  return ceil % 2 === 0 ? ceil : ceil + unit;
+}
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svgEl(name, attrs = {}) {
+  const el = document.createElementNS(SVG_NS, name);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+// Area + line rather than one bar per day. Bars compare discrete magnitudes;
+// across a month that becomes ~30 slivers with no shape to read. A line is the
+// form for change-over-time, and it stays legible whether the range is 7 days
+// or 31. Sized against the container's real width so the labels stay crisp
+// instead of being scaled by a viewBox.
+function renderTrendChart(bars) {
+  const host = document.getElementById('trend-chart');
+  if (!host) return;
+  host.innerHTML = '';
+
+  if (!bars.length) {
+    host.innerHTML = '<div class="trend-empty">ไม่มีข้อมูลในช่วงเวลานี้</div>';
+    return;
+  }
+
+  const W = host.clientWidth || 640;
+  const H = host.clientHeight || 256;
+  const padL = 34, padR = 12, padT = 16, padB = 24;
+  const plotW = Math.max(1, W - padL - padR);
+  const plotH = Math.max(1, H - padT - padB);
+
+  const maxY = niceCeiling(Math.max(1, ...bars.map((b) => b.count)));
+  // A single day has no line to draw — place its point mid-plot so the dot and
+  // its label aren't pinned to the left edge.
+  const x = (i) => (bars.length === 1 ? padL + plotW / 2 : padL + (i / (bars.length - 1)) * plotW);
+  const y = (v) => padT + plotH - (v / maxY) * plotH;
+
+  const svg = svgEl('svg', { width: W, height: H, role: 'img' });
+  svg.setAttribute('aria-label', `แนวโน้มการเข้าใช้ ${bars.length} วัน สูงสุด ${Math.max(...bars.map((b) => b.count))} ครั้ง`);
+
+  // Horizontal gridlines + y ticks.
+  for (let t = 0; t <= 2; t++) {
+    const v = (maxY / 2) * t;
+    const yy = y(v);
+    svg.appendChild(svgEl('line', { class: 'trend-grid', x1: padL, y1: yy, x2: W - padR, y2: yy }));
+    const label = svgEl('text', { class: 'trend-axis-text', x: padL - 8, y: yy + 3, 'text-anchor': 'end' });
+    label.textContent = v.toLocaleString();
+    svg.appendChild(label);
+  }
+
+  const linePts = bars.map((b, i) => `${x(i)},${y(b.count)}`).join(' ');
+  if (bars.length > 1) {
+    svg.appendChild(svgEl('polygon', {
+      class: 'trend-area',
+      points: `${padL},${padT + plotH} ${linePts} ${padL + plotW},${padT + plotH}`,
+    }));
+    svg.appendChild(svgEl('polyline', { class: 'trend-line', points: linePts }));
+  }
+
+  // Date ticks, thinned so they never collide. The last day always gets a
+  // label, so a stepped one landing right beside it is dropped — otherwise a
+  // 17-day range prints "16 ส.ค. 17 ส.ค." on top of itself.
+  const step = Math.max(1, Math.ceil(bars.length / 7));
+  const lastIdx = bars.length - 1;
+  bars.forEach((b, i) => {
+    if (i !== 0 && i !== lastIdx && i % step !== 0) return;
+    if (i !== 0 && i !== lastIdx && lastIdx - i < step * 0.7) return;
+    const t = svgEl('text', { class: 'trend-axis-text', x: x(i), y: H - 6, 'text-anchor': 'middle' });
+    t.textContent = formatShortDate(b.day);
+    svg.appendChild(t);
+  });
+
+  // Selective labelling: the busiest day is named, the rest are left to hover.
+  const peakIdx = bars.reduce((best, b, i) => (b.count > bars[best].count ? i : best), 0);
+  const dotsForEvery = bars.length <= 10;
+  bars.forEach((b, i) => {
+    if (!dotsForEvery && i !== peakIdx) return;
+    svg.appendChild(svgEl('circle', { class: 'trend-dot', cx: x(i), cy: y(b.count), r: 4 }));
+  });
+  if (bars[peakIdx].count > 0) {
+    const pl = svgEl('text', {
+      class: 'trend-peak-label',
+      x: Math.min(Math.max(x(peakIdx), padL + 14), W - padR - 14),
+      y: Math.max(y(bars[peakIdx].count) - 10, padT + 8),
+      'text-anchor': 'middle',
+    });
+    pl.textContent = bars[peakIdx].count.toLocaleString();
+    svg.appendChild(pl);
+  }
+
+  // Hover/focus layer: one full-height band per day, so the target is the
+  // column rather than the 2px line.
+  const crosshair = svgEl('line', { class: 'trend-crosshair', x1: 0, y1: padT, x2: 0, y2: padT + plotH, opacity: 0 });
+  const marker = svgEl('circle', { class: 'trend-dot', cx: 0, cy: 0, r: 5, opacity: 0 });
+  const bandW = bars.length === 1 ? plotW : plotW / (bars.length - 1);
+  bars.forEach((b, i) => {
+    const hit = svgEl('rect', {
+      class: 'trend-hit',
+      x: x(i) - bandW / 2, y: padT, width: bandW, height: plotH,
+      tabindex: '0', role: 'button',
+    });
+    hit.setAttribute('aria-label', `${formatThaiDate(b.day)}: เข้าใช้ ${b.count} ครั้ง`);
+    const show = () => {
+      crosshair.setAttribute('x1', x(i)); crosshair.setAttribute('x2', x(i)); crosshair.setAttribute('opacity', 1);
+      marker.setAttribute('cx', x(i)); marker.setAttribute('cy', y(b.count)); marker.setAttribute('opacity', 1);
+      describeTrendPoint(b);
+    };
+    hit.addEventListener('pointerenter', show);
+    hit.addEventListener('focus', show);
+    hit.addEventListener('click', () => { show(); openDayModal(b.day); });
+    hit.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(); openDayModal(b.day); }
+    });
+    svg.appendChild(hit);
+  });
+  svg.appendChild(crosshair);
+  svg.appendChild(marker);
+  host.addEventListener('pointerleave', () => {
+    crosshair.setAttribute('opacity', 0);
+    marker.setAttribute('opacity', 0);
+  });
+
+  host.appendChild(svg);
 }
 
 // Every row (in + out) for one calendar day, grouped by department — powers
@@ -383,39 +518,9 @@ function render() {
   document.querySelectorAll('.kpi-skeleton').forEach((el) => el.classList.add('hidden'));
   document.querySelectorAll('.kpi-value').forEach((el) => el.classList.remove('hidden'));
 
-  const trendContainer = document.getElementById('trend-bars');
-  const trendAxis = document.getElementById('trend-axis');
-  trendContainer.innerHTML = '';
-  trendAxis.innerHTML = '';
-  document.getElementById('trend-detail').textContent = 'แตะหรือคลิกแท่งกราฟด้านบนเพื่อดูจำนวนคนเข้าใช้ในแต่ละวัน';
-
-  if (stats.trendBars.length) {
-    // Cap how many axis ticks get text so bars stay readable even with ~30
-    // days in view — every bar stays clickable regardless, just the label
-    // underneath it is thinned out.
-    const labelStep = Math.max(1, Math.ceil(stats.trendBars.length / 8));
-
-    stats.trendBars.forEach((bar, i) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.title = `${formatThaiDate(bar.day)}: ${bar.count} ครั้ง`;
-      btn.setAttribute('aria-label', `${formatThaiDate(bar.day)}: เข้าใช้ ${bar.count} ครั้ง`);
-      btn.className =
-        'trend-bar appearance-none flex-1 min-w-[3px] bg-primary/20 dark:bg-primary-fixed-dim/40 hover:bg-primary/40 dark:hover:bg-primary-fixed-dim/60 focus-visible:bg-primary/40 rounded-t transition-all cursor-pointer border-0 p-0 outline-none';
-      btn.style.height = `${bar.pct}%`;
-      btn.addEventListener('click', () => selectTrendBar(btn, bar));
-      trendContainer.appendChild(btn);
-
-      const tick = document.createElement('span');
-      tick.className = 'flex-1 text-center truncate';
-      if (i === 0 || i === stats.trendBars.length - 1 || i % labelStep === 0) {
-        tick.textContent = formatShortDate(bar.day);
-      }
-      trendAxis.appendChild(tick);
-    });
-  } else {
-    trendContainer.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">ไม่มีข้อมูลในช่วงเวลานี้</p>';
-  }
+  document.getElementById('trend-detail').textContent = 'เลื่อนหรือแตะบนกราฟเพื่อดูจำนวนคนเข้าใช้ในแต่ละวัน';
+  lastTrendBars = stats.trendBars;
+  renderTrendChart(lastTrendBars);
 
   const deptContainer = document.getElementById('dept-bars');
   if (stats.deptEntries.length) {
@@ -472,6 +577,12 @@ function load() {
 
 document.addEventListener('DOMContentLoaded', () => {
   load();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => renderTrendChart(lastTrendBars), 150);
+  });
   // "อยู่ในห้องสมุดตอนนี้" is computed client-side from this snapshot, so
   // without polling it goes stale — poll instead of only fetching once.
   setInterval(load, 20000);

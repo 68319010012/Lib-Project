@@ -3364,3 +3364,46 @@ html.dark .lib-banner { filter: brightness(.88); }
 .dark .pager-btn:hover:not(:disabled) { background: rgb(61 80 121 / .5); border-color: rgb(147 197 253); }
 .dark .pager-btn.is-current { background: rgb(147 197 253); border-color: rgb(147 197 253); color: rgb(21 31 54); }
 .dark .pager-btn:focus-visible { outline-color: rgb(147 197 253); }
+
+/* ---------------------------------------------------------------------
+   Trend chart (admin dashboard) — an area+line, not a bar per day.
+   A month range put ~30 bars in a 700px card, which reads as a barcode:
+   bars are for comparing discrete magnitudes, a line is for shape over
+   time. Drawn as inline SVG sized in JS, so plain CSS here (styles.css is
+   a prebuilt bundle — unused Tailwind utilities are absent from it).
+   --------------------------------------------------------------------- */
+.trend-chart { position: relative; width: 100%; height: 256px; }
+.trend-chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* Only the hit bands take the pointer. The crosshair and hover marker are
+   drawn last so they sit above the line, which also put them in front of the
+   bands and swallowed the click that opens a day's detail. */
+.trend-chart svg > * { pointer-events: none; }
+.trend-chart svg > .trend-hit { pointer-events: all; }
+
+/* Recessive: one step off the surface, hairline, solid — never dashed. */
+.trend-grid { stroke: rgb(100 116 139 / .18); stroke-width: 1; }
+.dark .trend-grid { stroke: rgb(148 163 184 / .22); }
+.trend-axis-text { fill: rgb(100 116 139); font-size: 10px; letter-spacing: .04em; }
+.dark .trend-axis-text { fill: rgb(148 163 184); }
+
+.trend-area { fill: rgb(30 58 138 / .10); }
+.dark .trend-area { fill: rgb(147 197 253 / .14); }
+.trend-line { fill: none; stroke: rgb(30 58 138); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.dark .trend-line { stroke: rgb(147 197 253); }
+
+/* Surface ring keeps a dot legible where it sits on the line. */
+.trend-dot { fill: rgb(30 58 138); stroke: #fff; stroke-width: 2; }
+.dark .trend-dot { fill: rgb(147 197 253); stroke: rgb(21 31 54); }
+.trend-peak-label { fill: rgb(30 58 138); font-size: 11px; font-weight: 700; }
+.dark .trend-peak-label { fill: rgb(147 197 253); }
+
+.trend-crosshair { stroke: rgb(30 58 138 / .35); stroke-width: 1; }
+.dark .trend-crosshair { stroke: rgb(147 197 253 / .45); }
+/* Invisible per-point column: the hit target is the whole band, not the
+   2px line, so a 30-day series is still comfortably hoverable. */
+.trend-hit { fill: transparent; cursor: pointer; }
+.trend-hit:focus-visible { fill: rgb(30 58 138 / .08); outline: none; }
+.dark .trend-hit:focus-visible { fill: rgb(147 197 253 / .12); }
+
+.trend-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: rgb(100 116 139); font-size: 14px; }
+.dark .trend-empty { color: rgb(148 163 184); }
