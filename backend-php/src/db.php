@@ -27,5 +27,18 @@ function get_db_connection(): PDO
     // a numeric offset always works.
     $conn->exec("SET time_zone = '+07:00'");
 
+    // Pin the connection's collation to the one every table actually uses.
+    // `charset=utf8mb4` in the DSN only picks the character set; the collation
+    // that comes with it is whatever the server defaults to — utf8mb4_general_ci
+    // on the production MariaDB, while schema.sql declares utf8mb4_unicode_ci
+    // everywhere. Comparing a value carrying the connection collation against
+    // one carrying the column's then fails outright:
+    //   General error: 1267 Illegal mix of collations
+    //   (utf8mb4_unicode_ci,COERCIBLE) and (utf8mb4_general_ci,COERCIBLE)
+    // which is what took down /admin/reports (its
+    // "DATE_FORMAT(c.timestamp, '%Y-%m') = ?" filter) on the live host while
+    // the dev box, whose server default already matched, showed nothing wrong.
+    $conn->exec('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
+
     return $conn;
 }
