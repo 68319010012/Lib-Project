@@ -43,7 +43,15 @@
 --   4. Check the reported row counts, then spot-check a few recent rows:
 --        SELECT log_id, timestamp, planned_checkout_at
 --        FROM checkin_logs ORDER BY log_id DESC LIMIT 20;
---      Times should read as Thailand wall-clock (a visit at 2pm says 14:xx).
+--      Times should read as Thailand wall-clock (a visit at 2pm says 14:xx),
+--      and each planned_checkout_at should sit a sensible visit length after
+--      its check-in rather than 8+ hours after it.
+--
+-- ALREADY DONE ON ntclibrary.com (2026-08-17): applied there right after that
+-- day's deploy — 19 checkin_logs rows and 5 users rows — and recorded in
+-- schema_migrations, so re-running against production is a no-op. This file
+-- remains for a fresh host, or for restoring from a backup taken before the
+-- fix.
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -61,9 +69,18 @@ UPDATE checkin_logs
 SET timestamp = DATE_ADD(timestamp, INTERVAL 7 HOUR)
 WHERE @done = 0 AND timestamp < @cutoff;
 
-UPDATE checkin_logs
-SET planned_checkout_at = DATE_ADD(planned_checkout_at, INTERVAL 7 HOUR)
-WHERE @done = 0 AND planned_checkout_at IS NOT NULL AND planned_checkout_at < @cutoff;
+-- planned_checkout_at is deliberately NOT shifted. Only the columns filled by
+-- MySQL's DEFAULT CURRENT_TIMESTAMP picked up the server's UTC clock;
+-- planned_checkout_at is computed in PHP (compute_planned_checkout(), running
+-- under APP_TIMEZONE=Asia/Bangkok) and written as a bound value, so it was
+-- already correct Thailand time. Shifting it too would break it.
+--
+-- The live data said so plainly before this ran — every pair sat exactly 8
+-- hours apart where the student had chosen a 1-hour visit:
+--   log 12: timestamp 03:11:04, planned 11:11:04
+--   log 14: timestamp 06:40:23, planned 14:40:23
+-- 7 hours of timezone error on the timestamp, plus the 1 hour they actually
+-- asked for. Had both columns been wrong, those gaps would have been 1 hour.
 
 UPDATE users
 SET created_at = DATE_ADD(created_at, INTERVAL 7 HOUR)
