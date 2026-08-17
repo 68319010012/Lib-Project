@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       showSignupResultModal(true, 'สมัครสมาชิกสำเร็จ', 'กำลังพาไปยังหน้าหลัก...');
       setTimeout(() => {
-        window.location.href = data.role === 'admin' ? '/admin-dashboard.php' : '/dashboard.php';
+        window.location.href = data.role === 'admin' ? '/admin-dashboard' : '/dashboard';
       }, 1200);
     } catch (err) {
       showSignupResultModal(false, 'สมัครสมาชิกไม่สำเร็จ', err.message);

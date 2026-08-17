@@ -1,4 +1,22 @@
 RewriteEngine On
+
+# Canonicalize old "/page.php" links to the extensionless "/page" form (302
+# would let clients keep caching the old URL; 301 tells them to stop). GET
+# only — nothing in this app ever POSTs to a *.php URL, and a 301 on POST is
+# unreliable across browsers/clients (some replay it as GET).
+RewriteCond %{REQUEST_METHOD} GET
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\s/+(.+)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L,QSA]
+
+# Serve public/*.php pages (dashboard, login, admin-*, ...) at their
+# extensionless URL. GET-only is load-bearing, not cosmetic: POST /login is
+# the JSON login API (see index.php's route map) and shares its path with
+# login.php the page — without this restriction, a POST to /login would be
+# hijacked here into serving the login PAGE instead of reaching the API.
+RewriteCond %{REQUEST_METHOD} GET
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]

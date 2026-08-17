@@ -6,8 +6,8 @@
 // mobile with no visible nav besides the header logo).
 $studentActive = $studentActive ?? '';
 $studentNavItems = [
-    ['href' => '/dashboard.php', 'icon' => 'dashboard', 'label' => 'หน้าหลัก'],
-    ['href' => '/profile.php', 'icon' => 'settings', 'label' => 'โปรไฟล์'],
+    ['href' => '/dashboard', 'icon' => 'dashboard', 'label' => 'หน้าหลัก'],
+    ['href' => '/profile', 'icon' => 'settings', 'label' => 'โปรไฟล์'],
 ];
 function student_nav_class(string $href, string $active): string
 {

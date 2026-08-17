@@ -95,9 +95,15 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
         'margin_top' => 14, 'margin_bottom' => 14, 'margin_left' => 12, 'margin_right' => 12,
         'fontDir' => array_merge($fontDirs, [$fontDir]),
         'fontdata' => $fontData + [
+            // IBM Plex Sans Thai TTFs (backend-php/fonts) so the exported PDF
+            // uses the same family as every on-screen page. mPDF needs TTF —
+            // it can't read the .woff2 the browser pages load — so these are
+            // separate files from public/assets/fonts. Sarabun stays
+            // registered as a fallback but is no longer the default.
+            'ibmplexsansthai' => ['R' => 'IBMPlexSansThai-Regular.ttf', 'B' => 'IBMPlexSansThai-Bold.ttf'],
             'sarabun' => ['R' => 'Sarabun-Regular.ttf', 'B' => 'Sarabun-Bold.ttf'],
         ],
-        'default_font' => 'sarabun',
+        'default_font' => 'ibmplexsansthai',
     ]);
 
     // Deliberately NOT reusing each report's own $extraStyle here. Every
@@ -113,7 +119,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     // saved report is actually for.
     $pdfStyle = <<<CSS
     * { box-sizing: border-box; page-break-inside: auto; }
-    body { font-family: sarabun; font-size: 12px; color: #0f172a; }
+    body { font-family: ibmplexsansthai; font-size: 12px; color: #0f172a; }
     h1 { font-size: 18px; color: #1e3a8a; margin: 0 0 4px; }
     h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 12px; }
     .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
@@ -257,7 +263,7 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   }
   * { box-sizing: border-box; }
   body {
-    font-family: 'Noto Sans Thai', 'Tahoma', 'Leelawadee UI', sans-serif;
+    font-family: 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Tahoma', 'Leelawadee UI', sans-serif;
     margin: 0;
     color: #0f172a;
     background: var(--surface);

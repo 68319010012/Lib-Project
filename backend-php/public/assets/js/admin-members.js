@@ -86,15 +86,32 @@ function renderMembersRows() {
 // person. Server always generates the password (never accepts one typed
 // here) so it can't end up weak or guessable.
 async function resetMemberPassword(userId, name) {
-  if (!window.confirm(`ยืนยันรีเซ็ตรหัสผ่านของ "${name}" ?\nระบบจะสุ่มรหัสผ่านชั่วคราวให้ใหม่ ใช้เมื่อนักศึกษาลืมรหัสผ่านเท่านั้น`)) {
-    return;
-  }
+  const ok = await showConfirmModal('ระบบจะสุ่มรหัสผ่านชั่วคราวให้ใหม่ ใช้เมื่อนักศึกษาลืมรหัสผ่านเท่านั้น', {
+    title: `ยืนยันรีเซ็ตรหัสผ่านของ "${name}" ?`,
+    confirmLabel: 'รีเซ็ตรหัสผ่าน',
+    danger: true,
+  });
+  if (!ok) return;
   try {
     const data = await apiFetch('/admin/members/reset-password', { method: 'POST', body: JSON.stringify({ user_id: Number(userId) }) });
-    showToast(`รีเซ็ตรหัสผ่านของ "${name}" สำเร็จ — รหัสผ่านชั่วคราว: ${data.temp_password} (แจ้งนักศึกษาให้เปลี่ยนรหัสผ่านหลังเข้าสู่ระบบ)`, { type: 'success', duration: 0 });
+    showResetResultModal(name, data.temp_password);
   } catch (err) {
     showToast(err.message || 'รีเซ็ตรหัสผ่านไม่สำเร็จ', { type: 'error' });
   }
+}
+
+// Big centered result popup for the temp password (replaces the old corner
+// toast) — the admin reads this code out to the student, so it's shown large
+// and copyable rather than crammed into a one-line toast.
+function showResetResultModal(name, tempPassword) {
+  document.getElementById('reset-result-name').textContent = `ของ "${name}"`;
+  document.getElementById('reset-result-password').textContent = tempPassword;
+  document.getElementById('reset-result-copy-label').textContent = 'คัดลอกรหัสผ่าน';
+  document.getElementById('reset-result-modal').classList.remove('hidden');
+}
+
+function hideResetResultModal() {
+  document.getElementById('reset-result-modal').classList.add('hidden');
 }
 
 async function loadMembers() {
@@ -146,6 +163,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('members-department').addEventListener('change', loadMembers);
   yearSelect.addEventListener('change', loadMembers);
+
+  // Reset-result modal controls.
+  const resetModal = document.getElementById('reset-result-modal');
+  document.getElementById('reset-result-close').addEventListener('click', hideResetResultModal);
+  resetModal.addEventListener('click', (e) => {
+    if (e.target === resetModal) hideResetResultModal();
+  });
+  document.getElementById('reset-result-copy').addEventListener('click', async () => {
+    const pwd = document.getElementById('reset-result-password').textContent;
+    const label = document.getElementById('reset-result-copy-label');
+    try {
+      await navigator.clipboard.writeText(pwd);
+      label.textContent = 'คัดลอกแล้ว!';
+      setTimeout(() => { label.textContent = 'คัดลอกรหัสผ่าน'; }, 2000);
+    } catch (_err) {
+      // Clipboard API unavailable (non-HTTPS, old browser) — the password is
+      // still visible and click-to-select via .select-all, so this is a
+      // convenience, not the only way to get the code.
+      showToast('คัดลอกอัตโนมัติไม่สำเร็จ กรุณาแตะที่รหัสเพื่อเลือกแล้วคัดลอกเอง', { type: 'info' });
+    }
+  });
 
   loadMembers();
 });

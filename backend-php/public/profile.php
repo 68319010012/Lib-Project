@@ -10,7 +10,7 @@ require __DIR__ . '/partials/guard.php';
 <body class="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
   <?php $variant = 'student'; include __DIR__ . '/partials/header.php'; ?>
 
-  <?php $studentActive = 'profile.php'; include __DIR__ . '/partials/student-sidebar.php'; ?>
+  <?php $studentActive = 'profile'; include __DIR__ . '/partials/student-sidebar.php'; ?>
 
   <main class="flex-1 lg:ml-64 pt-28 lg:pt-16">
     <!-- py-12 (auto height) on mobile so a 2-line heading never gets pushed
@@ -121,6 +121,7 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
   <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/confirm-modal.js?v=<?= ntc_asset_v('assets/js/confirm-modal.js') ?>"></script>
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/student-sidebar.js?v=<?= ntc_asset_v('assets/js/student-sidebar.js') ?>"></script>
   <script src="/assets/js/profile.js?v=<?= ntc_asset_v('assets/js/profile.js') ?>"></script>

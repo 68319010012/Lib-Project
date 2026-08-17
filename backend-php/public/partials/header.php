@@ -3,11 +3,11 @@
 // frontend-react/src/components/AppHeader.jsx. Include with $variant set to
 // 'student' or 'admin' beforehand (defaults to 'student').
 $variant = $variant ?? 'student';
-$homeHref = $variant === 'admin' ? '/admin-dashboard.php' : '/dashboard.php';
-$profileHref = $variant === 'admin' ? '/admin-members.php' : '/profile.php';
+$homeHref = $variant === 'admin' ? '/admin-dashboard' : '/dashboard';
+$profileHref = $variant === 'admin' ? '/admin-members' : '/profile';
 ?>
 <header class="bg-primary shadow-md fixed top-0 z-50 w-full">
-  <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto text-on-primary gap-2">
+  <div class="flex justify-between items-center w-full <?= $variant === 'admin' ? 'px-4 sm:px-5' : 'px-gutter' ?> h-16 text-on-primary gap-2">
     <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
       <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
       <span class="text-headline-md font-headline-md font-bold whitespace-nowrap">NTC Library</span>
@@ -86,6 +86,8 @@ $profileHref = $variant === 'admin' ? '/admin-members.php' : '/profile.php';
     </div>
   </div>
 </header>
+
+    <?php include __DIR__ . '/confirm-modal.php'; ?>
 
 <?php if ($variant === 'student'): ?>
 <?php include __DIR__ . '/history-modal.php'; ?>

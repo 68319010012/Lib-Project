@@ -96,7 +96,7 @@
             <div id="login-signup-link" class="text-center pt-4">
               <p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary">
                 ยังไม่มีบัญชี?
-                <a class="text-primary dark:text-primary-fixed-dim font-bold hover:underline" href="/signup.php">สมัครสมาชิก</a>
+                <a class="text-primary dark:text-primary-fixed-dim font-bold hover:underline" href="/signup">สมัครสมาชิก</a>
               </p>
             </div>
           </form>

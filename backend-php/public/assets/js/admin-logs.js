@@ -124,12 +124,21 @@ async function loadLogs(params, { silent = false } = {}) {
     logsPage = 1;
     renderLogs();
   }
-  logsAllRows = await apiFetch(`/admin/reports?${params.toString()}`);
-  renderLogs();
+  try {
+    logsAllRows = await apiFetch(`/admin/reports?${params.toString()}`);
+    renderLogs();
+  } catch (err) {
+    // Leaving logsAllRows null on failure previously stuck the table on
+    // "กำลังโหลด…" forever with no sign anything went wrong — the 20s silent
+    // poll still retries on its own, so just surface the failure instead.
+    if (!silent) showToast(err.message || 'โหลดข้อมูลไม่สำเร็จ', { type: 'error' });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams({ month: new Date().toISOString().slice(0, 7) });
+  const now = new Date();
+  const localMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const params = new URLSearchParams({ month: localMonth });
   loadLogs(params);
   // Poll so newly-arrived check-ins/check-outs show up without a manual
   // reload — silent so the table doesn't flash back to "loading" each time.

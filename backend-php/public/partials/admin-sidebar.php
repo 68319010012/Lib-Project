@@ -1,13 +1,13 @@
 <?php
 // Shared left nav across the 3 admin pages — port of
 // frontend-react/src/components/AdminSidebar.jsx. Include with $active set
-// to the current page's filename (e.g. 'admin-dashboard.php') beforehand.
+// to the current page's clean-URL slug (e.g. 'admin-dashboard') beforehand.
 $active = $active ?? '';
 $navItems = [
-    ['href' => '/admin-dashboard.php', 'icon' => 'monitoring', 'label' => 'ภาพรวม'],
-    ['href' => '/admin-members.php', 'icon' => 'group', 'label' => 'สมาชิก'],
-    ['href' => '/admin-active.php', 'icon' => 'sensors', 'label' => 'กำลังใช้งานอยู่'],
-    ['href' => '/admin-logs.php', 'icon' => 'history', 'label' => 'ประวัติการเข้าใช้'],
+    ['href' => '/admin-dashboard', 'icon' => 'monitoring', 'label' => 'ภาพรวม'],
+    ['href' => '/admin-members', 'icon' => 'group', 'label' => 'สมาชิก'],
+    ['href' => '/admin-active', 'icon' => 'sensors', 'label' => 'กำลังใช้งานอยู่'],
+    ['href' => '/admin-logs', 'icon' => 'history', 'label' => 'ประวัติการเข้าใช้'],
 ];
 function admin_nav_class(string $href, string $active): string
 {

@@ -9,7 +9,7 @@ require __DIR__ . '/partials/guard.php';
 </head>
 <body class="bg-background dark:bg-dm-bg font-body-md text-on-background dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
-  <?php $active = 'admin-members.php'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
+  <?php $active = 'admin-members'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
   <main class="md:ml-64 pt-28 md:pt-16 flex-grow flex flex-col min-h-screen">
     <!-- py-10 (auto height) on mobile so the wrapping subtitle never gets
@@ -90,10 +90,40 @@ require __DIR__ . '/partials/guard.php';
     </footer>
   </main>
 
+  <!-- Reset-password result — a large centered modal, not the old cramped
+       corner toast: the admin has to read this temp password aloud to the
+       student, so it gets big monospace type, click-to-select, and a copy
+       button instead of being buried in a one-line toast sentence. -->
+  <div id="reset-result-modal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+    <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-md w-full p-8">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-12 h-12 rounded-full bg-status-success/10 flex items-center justify-center text-status-success mb-4">
+          <span class="material-symbols-outlined text-4xl">lock_reset</span>
+        </div>
+        <h3 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim mb-1">รีเซ็ตรหัสผ่านสำเร็จ</h3>
+        <p id="reset-result-name" class="text-body-md text-text-secondary dark:text-dm-text-secondary mb-6"></p>
+
+        <p class="text-label-caps font-label-caps text-secondary mb-2">รหัสผ่านชั่วคราว</p>
+        <div class="w-full bg-surface-container-low dark:bg-dm-bg rounded-lg py-4 px-4 mb-3">
+          <span id="reset-result-password" class="font-label-code text-headline-lg text-primary dark:text-primary-fixed-dim tracking-widest select-all"></span>
+        </div>
+        <button type="button" id="reset-result-copy" class="inline-flex items-center gap-2 text-sm font-bold text-primary dark:text-primary-fixed-dim hover:underline mb-6">
+          <span class="material-symbols-outlined text-lg">content_copy</span>
+          <span id="reset-result-copy-label">คัดลอกรหัสผ่าน</span>
+        </button>
+
+        <p class="text-xs text-text-secondary dark:text-dm-text-secondary mb-6">แจ้งรหัสนี้ให้นักศึกษา และให้เปลี่ยนรหัสผ่านใหม่หลังเข้าสู่ระบบ</p>
+
+        <button type="button" id="reset-result-close" class="w-full h-11 rounded-full bg-primary text-white font-bold text-sm hover:brightness-95 transition-all">เข้าใจแล้ว</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
   <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/confirm-modal.js?v=<?= ntc_asset_v('assets/js/confirm-modal.js') ?>"></script>
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
   <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>

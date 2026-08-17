@@ -308,7 +308,13 @@ html,
   -o-tab-size: 4;
      tab-size: 4;
   /* 3 */
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* IBM Plex Sans Thai is the document-wide default so every element uses it
+     even when it carries no explicit .font-* class (e.g. modal buttons, form
+     inputs, dynamically-built markup). Previously this was the Tailwind
+     system-ui default, so anything relying on inheritance could quietly fall
+     back to the OS font. IBM/Noto lead; the system stack stays as the final
+     fallback for glyphs neither Thai font provides (emoji, rare symbols). */
+  font-family: 'IBM Plex Sans Thai', 'Noto Sans Thai', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* 4 */
   font-feature-settings: normal;
   /* 5 */
@@ -750,6 +756,15 @@ video {
   pointer-events: auto;
 }
 
+/* Not in the prebuilt Tailwind bundle (no live build step) — added for the
+   reset-password temp code so a single click/tap selects the whole password
+   for copying, alongside the explicit copy button. */
+.select-all {
+  -webkit-user-select: all;
+     -moz-user-select: all;
+          user-select: all;
+}
+
 .visible {
   visibility: visible;
 }
@@ -864,6 +879,10 @@ video {
 
 .z-\[95\] {
   z-index: 95;
+}
+
+.z-\[100\] {
+  z-index: 100;
 }
 
 .m-auto {
@@ -1069,6 +1088,21 @@ video {
 
 .h-\[calc\(100vh-4rem\)\] {
   height: calc(100vh - 4rem);
+}
+
+/* Dead-center popup position + sizing for toast-container (see
+   assets/js/toast.js). One plain-CSS class instead of stacking top-1/2 /
+   left-1/2 / -translate-x-1/2 / -translate-y-1/2 / w-[calc(...)] / max-w-sm
+   utilities — same reasoning as .heatmap-tooltip below: this project serves
+   a prebuilt styles.css with no live Tailwind build step, so untested
+   combinations of arbitrary-value classes are a trap. */
+.toast-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 2rem);
+  max-width: 24rem;
 }
 
 .h-screen {
@@ -2039,7 +2073,12 @@ video {
 .text-headline-xl {
   font-size: 48px;
   line-height: 1.2;
-  font-weight: 800;
+  /* 700, not 800 — IBM Plex Sans Thai has no 800/ExtraBold static weight
+     (see the self-hosted-fonts note at the top of this file), so weight 800
+     fell through the font-family stack to the Noto Sans Thai fallback for
+     every headline-xl element. 700 is the heaviest weight IBM Plex Sans Thai
+     actually ships, so this keeps IBM Plex Sans Thai rendering everywhere. */
+  font-weight: 700;
 }
 /* "สร้างบัญชีของคุณ" at 48px needs ~369px but a phone only gives it ~310-340px,
    so it wraps to 2 lines — inside signup.php's hero section (fixed h-80,
@@ -3231,7 +3270,7 @@ html.dark .lib-banner { filter: brightness(.88); }
   box-shadow: 0 10px 26px -10px rgba(2,6,23,.5);
 }
 @keyframes lib-banner-frameIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.lib-banner h1 { font-size: 27px; font-weight: 800; margin-top: 0; opacity: 0; animation: lib-banner-fadeUp .7s ease .32s forwards; color: #fff; line-height: 1.2; }
+.lib-banner h1 { font-size: 27px; font-weight: 700; margin-top: 0; opacity: 0; animation: lib-banner-fadeUp .7s ease .32s forwards; color: #fff; line-height: 1.2; }
 .lib-banner h2 {
   font-size: 16px; font-weight: 700; margin-top: 2px; opacity: 0;
   background: linear-gradient(90deg,#ffffff,#bfdbfe,#ffffff); background-size: 200% 100%;

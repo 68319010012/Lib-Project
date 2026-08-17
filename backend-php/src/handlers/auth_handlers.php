@@ -181,7 +181,7 @@ function handle_logout(): void
 // Mirrors the old React router's <Navigate to="/login" replace> for "/".
 function handle_root_redirect(): void
 {
-    header('Location: /login.php');
+    header('Location: /login');
     exit;
 }
 

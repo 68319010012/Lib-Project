@@ -1,0 +1,14 @@
+<!-- Shared confirm dialog — replaces window.confirm() (unstyled, shows the
+     raw hostname, can't be themed) with something that matches the rest of
+     the app. Included once in header.php so every authenticated page has it;
+     see assets/js/confirm-modal.js for the showConfirmModal() promise API. -->
+<div id="confirm-modal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+  <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-6">
+    <h3 id="confirm-modal-title" class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim mb-2"></h3>
+    <p id="confirm-modal-message" class="text-body-md text-text-secondary dark:text-dm-text-secondary mb-6"></p>
+    <div class="flex gap-3">
+      <button type="button" id="confirm-modal-cancel" class="flex-1 h-11 rounded-full border border-outline-variant dark:border-dm-border text-text-primary dark:text-inverse-on-surface font-bold text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">ยกเลิก</button>
+      <button type="button" id="confirm-modal-ok" class="flex-1 h-11 rounded-full bg-primary text-white font-bold text-sm hover:brightness-95 transition-all">ยืนยัน</button>
+    </div>
+  </div>
+</div>

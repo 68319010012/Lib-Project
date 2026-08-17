@@ -36,7 +36,7 @@ function handle_report_select(): void
   }
   * { box-sizing: border-box; }
   body {
-    font-family: 'Noto Sans Thai', 'Tahoma', sans-serif;
+    font-family: 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Tahoma', sans-serif;
     margin: 0;
     color: #0f172a;
     background: var(--surface);

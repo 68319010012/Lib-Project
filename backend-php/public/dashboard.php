@@ -30,8 +30,9 @@ require __DIR__ . '/partials/guard.php';
     <div class="max-w-7xl mx-auto px-gutter pt-8 pb-12">
       <div class="rise-in-group flex flex-col gap-8 max-w-3xl mx-auto">
         <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md border border-outline-variant dark:border-dm-border p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-          <div id="elapsed-wrap" class="hidden mb-6">
-            <p class="text-label-caps font-label-caps text-secondary mb-1">เช็คอินตั้งแต่</p>
+          <div id="elapsed-wrap" class="hidden mb-6 flex flex-col items-center">
+            <p id="checkin-clock-text" class="text-body-md font-bold text-text-secondary dark:text-dm-text-secondary mb-3"></p>
+            <p class="text-label-caps font-label-caps text-secondary mb-1">อยู่มาแล้ว</p>
             <span id="elapsed-time" class="text-headline-xl font-label-code text-primary tracking-widest">--:--:--</span>
           </div>
 
@@ -96,7 +97,7 @@ require __DIR__ . '/partials/guard.php';
         <label class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</label>
         <p id="modal-time-closed" class="hidden text-warning text-sm">ห้องสมุดปิดแล้ว</p>
         <div id="modal-time-open">
-          <input type="time" id="modal-checkout-time" class="w-full h-11 px-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg [color-scheme:light] dark:[color-scheme:dark]" />
+          <input type="text" id="modal-checkout-time" inputmode="numeric" autocomplete="off" placeholder="เช่น 17:00" maxlength="5" class="w-full h-11 px-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg text-center tracking-widest font-label-code" />
           <p id="modal-time-hint" class="text-xs text-text-secondary dark:text-dm-text-secondary mt-2"></p>
         </div>
       </div>
@@ -133,6 +134,7 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
   <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/confirm-modal.js?v=<?= ntc_asset_v('assets/js/confirm-modal.js') ?>"></script>
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/dashboard.js?v=<?= ntc_asset_v('assets/js/dashboard.js') ?>"></script>
 </body>

@@ -15,7 +15,7 @@ function getToastContainer() {
   if (!el) {
     el = document.createElement('div');
     el.id = 'toast-container';
-    el.className = 'fixed top-4 right-4 z-[200] flex flex-col gap-3 w-[calc(100%-2rem)] max-w-sm pointer-events-none';
+    el.className = 'toast-container z-[200] flex flex-col gap-3 pointer-events-none';
     document.body.appendChild(el);
   }
   return el;

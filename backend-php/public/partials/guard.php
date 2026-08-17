@@ -17,10 +17,10 @@ require __DIR__ . '/../../src/auth.php';
 bootstrap_session();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /login.php');
+    header('Location: /login');
     exit;
 }
 if (!empty($requireAdmin) && ($_SESSION['role'] ?? null) !== 'admin') {
-    header('Location: /dashboard.php');
+    header('Location: /dashboard');
     exit;
 }

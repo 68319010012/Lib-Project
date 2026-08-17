@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.role !== selectedRole) {
         showLoginError(`บัญชีนี้เป็นบัญชี${ROLE_LABEL_TH[data.role] || data.role} — กำลังพาไปยังหน้าที่ถูกต้อง`);
       }
-      window.location.href = data.role === 'admin' ? '/admin-dashboard.php' : '/dashboard.php';
+      window.location.href = data.role === 'admin' ? '/admin-dashboard' : '/dashboard';
     } catch (err) {
       showLoginError(err.message);
       submitBtn.disabled = false;

@@ -36,7 +36,7 @@ function initAppHeader() {
       try {
         await apiFetch('/logout', { method: 'POST' });
       } finally {
-        window.location.href = '/login.php';
+        window.location.href = '/login';
       }
     });
   }

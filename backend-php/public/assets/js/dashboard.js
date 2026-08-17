@@ -30,6 +30,19 @@ function toHHMM(date) {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
+// Auto-inserts the ":" as the student types 4 digits, so a plain numeric
+// keyboard (the common case on mobile) is enough — no native time-picker
+// wheel, which was the actual complaint (fiddly on touch).
+function formatTimeTyping(el) {
+  const digits = el.value.replace(/\D/g, '').slice(0, 4);
+  el.value = digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+}
+
+function parseTypedTime(value) {
+  const trimmed = value.trim();
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(trimmed) ? trimmed : null;
+}
+
 function timeInputBounds(closing) {
   const now = new Date();
   const closingDate = closingDateFor(now, closing);
@@ -92,6 +105,11 @@ function render() {
   plannedWrap.classList.toggle('hidden', !(checkedIn && plannedCheckoutAt));
   if (checkedIn && plannedCheckoutAt) {
     document.getElementById('planned-checkout-time').textContent = `ตั้งใจออก: ${formatHM(plannedCheckoutAt)}`;
+  }
+
+  // Checked-in-at clock time (elapsed timer above already covers duration).
+  if (checkedIn) {
+    document.getElementById('checkin-clock-text').textContent = `เช็คอินเมื่อ ${formatHM(checkedInSince)} น.`;
   }
 
   // Last-used line.
@@ -264,8 +282,6 @@ function openCheckinModal() {
   const bounds = timeInputBounds(closingTime);
   const timeInput = document.getElementById('modal-checkout-time');
   timeInput.value = '';
-  timeInput.min = bounds.min;
-  timeInput.max = bounds.max;
   document.getElementById('modal-time-open').classList.toggle('hidden', !bounds.isOpen);
   document.getElementById('modal-time-closed').classList.toggle('hidden', bounds.isOpen);
   document.getElementById('modal-time-hint').textContent = `กรอกเวลาระหว่าง ${bounds.min} - ${bounds.max} น. (เกินเวลานี้ระบบจะปรับให้ออกตอนปิดแทน)`;
@@ -285,9 +301,13 @@ function confirmModal() {
       setModalError('ห้องสมุดปิดแล้ว ไม่สามารถเช็คอินได้');
       return;
     }
-    const checkoutTimeValue = document.getElementById('modal-checkout-time').value;
+    const checkoutTimeValue = parseTypedTime(document.getElementById('modal-checkout-time').value);
     if (!checkoutTimeValue) {
-      setModalError('กรุณากรอกเวลาที่จะออก');
+      setModalError('กรุณากรอกเวลาในรูปแบบ HH:MM เช่น 17:00');
+      return;
+    }
+    if (checkoutTimeValue < bounds.min || checkoutTimeValue > bounds.max) {
+      setModalError(`กรุณากรอกเวลาระหว่าง ${bounds.min} - ${bounds.max} น.`);
       return;
     }
     closeCheckinModal();
@@ -319,7 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-modal-tab]').forEach((btn) => {
     btn.addEventListener('click', () => setModalTab(btn.dataset.modalTab));
   });
-  document.getElementById('modal-checkout-time').addEventListener('change', () => setModalError(''));
+  document.getElementById('modal-checkout-time').addEventListener('input', (e) => {
+    formatTimeTyping(e.target);
+    setModalError('');
+  });
   document.getElementById('modal-checkin-until-closing').addEventListener('click', checkinUntilClosing);
   document.getElementById('modal-cancel').addEventListener('click', closeCheckinModal);
   document.getElementById('modal-confirm').addEventListener('click', confirmModal);

@@ -9,7 +9,7 @@ require __DIR__ . '/partials/guard.php';
 </head>
 <body class="flex min-h-screen font-body-md text-text-primary dark:text-inverse-on-surface bg-background dark:bg-dm-bg transition-colors duration-200">
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
-  <?php $active = 'admin-logs.php'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
+  <?php $active = 'admin-logs'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
   <main class="md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
     <section class="bg-gradient-to-br from-primary to-primary-container pt-12 pb-24 px-gutter relative overflow-hidden">
@@ -102,6 +102,7 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
   <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
+  <script src="/assets/js/confirm-modal.js?v=<?= ntc_asset_v('assets/js/confirm-modal.js') ?>"></script>
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
   <script src="/assets/js/pagination.js?v=<?= ntc_asset_v('assets/js/pagination.js') ?>"></script>

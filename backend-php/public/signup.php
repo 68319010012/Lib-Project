@@ -7,7 +7,7 @@
 
   <nav class="bg-primary shadow-md z-50">
     <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto">
-      <a href="/login.php" class="flex items-center gap-4 hover:opacity-90 transition-opacity">
+      <a href="/login" class="flex items-center gap-4 hover:opacity-90 transition-opacity">
         <div class="w-10 h-10 bg-surface-white rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-primary text-2xl">menu_book</span>
         </div>
@@ -43,7 +43,7 @@
             </button>
           </div>
         </div>
-        <a class="text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login.php">เข้าสู่ระบบ</a>
+        <a class="text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login">เข้าสู่ระบบ</a>
       </div>
     </div>
   </nav>

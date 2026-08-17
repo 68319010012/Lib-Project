@@ -97,14 +97,26 @@ function tickDurations() {
 }
 
 async function loadActive() {
-  activeRows = await apiFetch('/admin/active-now');
-  renderActive();
+  try {
+    activeRows = await apiFetch('/admin/active-now');
+    renderActive();
+  } catch (err) {
+    // Previously unhandled: a failed fetch left activeRows null forever,
+    // stuck on "กำลังโหลด…" with no sign anything went wrong (this is the
+    // page the force-checkout button lives on, so a silent stall here reads
+    // as "force-checkout doesn't work"). The 20s poll still retries on its
+    // own; this just surfaces the failure instead of hanging quietly.
+    showToast(err.message || 'โหลดข้อมูลไม่สำเร็จ', { type: 'error' });
+  }
 }
 
 async function forceCheckout(userId, name) {
-  if (!window.confirm(`ยืนยันบังคับเช็คเอาต์ "${name}" ?\nใช้เมื่อผู้ใช้ลืมเช็คเอาต์เท่านั้น`)) {
-    return;
-  }
+  const ok = await showConfirmModal('ใช้เมื่อผู้ใช้ลืมเช็คเอาต์เท่านั้น', {
+    title: `ยืนยันบังคับเช็คเอาต์ "${name}" ?`,
+    confirmLabel: 'บังคับเช็คเอาต์',
+    danger: true,
+  });
+  if (!ok) return;
   try {
     await apiFetch('/admin/checkin/force-checkout', { method: 'POST', body: JSON.stringify({ user_id: Number(userId) }) });
     showToast('บันทึกเช็คเอาต์แล้ว', { type: 'success' });

@@ -426,11 +426,22 @@ function render() {
 }
 
 function load() {
-  const month = new Date().toISOString().slice(0, 7);
-  apiFetch(`/admin/reports?month=${month}`).then((rows) => {
-    allRows = rows;
-    render();
-  });
+  // Local-date slice, not toISOString() (UTC) — during the 00:00-07:00
+  // Thailand window that pair disagree on which month "now" is in.
+  const month = toISODate(new Date()).slice(0, 7);
+  apiFetch(`/admin/reports?month=${month}`)
+    .then((rows) => {
+      allRows = rows;
+      render();
+    })
+    .catch((err) => {
+      // Previously unhandled: a failed fetch left allRows null forever and
+      // the page stuck on "กำลังโหลดข้อมูล…" with no indication anything was
+      // wrong. The 20s poll below still retries on its own; this just makes
+      // a stalled load visible instead of silently hanging.
+      document.getElementById('ad-subtitle').textContent =
+        `โหลดข้อมูลไม่สำเร็จ: ${err.message || 'เกิดข้อผิดพลาด'} — กำลังลองใหม่อัตโนมัติ`;
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
