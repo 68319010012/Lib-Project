@@ -98,35 +98,21 @@ require __DIR__ . '/partials/guard.php';
 
       <section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
-          <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">การเข้าใช้ตามวันและเวลา</h4>
-          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">ความหนาแน่นของการเข้าใช้ในช่วงเวลาที่เลือก (แถว = วันในสัปดาห์, คอลัมน์ = ชั่วโมง)</p>
+          <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">ช่วงเวลาและวันที่คนเข้าใช้มากที่สุด</h4>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">นับเฉพาะการเช็คอิน (การเข้ามาใช้ห้องสมุด) ในช่วงเวลาที่เลือก แท่งเข้มคือช่วงที่คนเยอะที่สุด</p>
         </div>
-        <div class="overflow-x-auto pb-4">
-          <div class="min-w-[900px] grid grid-cols-[auto_1fr] gap-4">
-            <div class="grid grid-rows-7 gap-1 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps pt-6">
-              <span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
-            </div>
-            <div>
-              <div class="flex justify-between text-[10px] text-outline dark:text-dm-text-secondary font-label-caps mb-2 px-1">
-                <span>0น.</span><span>4น.</span><span>8น.</span><span>12น.</span><span>16น.</span><span>20น.</span><span>24น.</span>
-              </div>
-              <div class="relative">
-                <div class="grid grid-flow-col grid-rows-7 gap-1" id="heatmap-grid" style="grid-template-columns: repeat(24, minmax(0, 1fr))"></div>
-                <div id="heatmap-tooltip" role="tooltip" class="hidden heatmap-tooltip z-20 whitespace-nowrap rounded-lg bg-primary dark:bg-primary-fixed-dim text-white text-xs font-bold px-3 py-1.5 shadow-lg pointer-events-none"></div>
-              </div>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary uppercase mb-6">ช่วงเวลาที่คนเข้าใช้ (ตามชั่วโมง)</p>
+            <div class="h-64 flex items-end justify-between gap-1" id="hour-bars"></div>
+            <div class="flex justify-between mt-2 gap-1 text-[10px] font-label-caps text-outline dark:text-dm-text-secondary uppercase tracking-wider" id="hour-axis"></div>
+            <p class="text-[10px] text-outline dark:text-dm-text-secondary mt-2">หน่วยเป็นชั่วโมง (น.) — แสดงเฉพาะช่วงที่ห้องสมุดมีการเข้าใช้</p>
+          </div>
+          <div>
+            <p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary uppercase mb-6">วันในสัปดาห์ที่คนเข้าใช้</p>
+            <div class="space-y-3" id="weekday-bars"></div>
           </div>
         </div>
-        <div class="flex justify-end items-center gap-2 mt-4 text-[10px] text-outline dark:text-dm-text-secondary font-label-caps uppercase">
-          <span>น้อย</span>
-          <div class="w-3 h-3 bg-surface-container dark:bg-dm-border rounded-sm"></div>
-          <div class="w-3 h-3 bg-primary/20 dark:bg-primary-fixed-dim/35 rounded-sm"></div>
-          <div class="w-3 h-3 bg-primary/40 dark:bg-primary-fixed-dim/50 rounded-sm"></div>
-          <div class="w-3 h-3 bg-primary/70 dark:bg-primary-fixed-dim/70 rounded-sm"></div>
-          <div class="w-3 h-3 bg-primary dark:bg-primary-fixed-dim rounded-sm"></div>
-          <span>มาก</span>
-        </div>
-        <div id="heatmap-detail" class="mt-4 rounded-lg bg-surface-container-low dark:bg-dm-bg px-4 py-3 text-body-md font-bold text-primary dark:text-primary-fixed-dim" aria-live="polite">แตะหรือคลิกช่องในตารางเพื่อดูจำนวนคนเข้าใช้ตามวันและเวลา</div>
       </section>
     </div>
 

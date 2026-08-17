@@ -12,8 +12,7 @@ require __DIR__ . '/partials/guard.php';
   <?php $active = 'admin-active'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
   <main class="md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
-    <section class="bg-gradient-to-br from-primary to-primary-container pt-12 pb-24 px-gutter relative overflow-hidden">
-      <div class="absolute inset-0 book-spine-pattern opacity-20"></div>
+    <section class="admin-hero-pattern pt-12 pb-24 px-gutter relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10">
         <h2 class="text-on-primary font-headline-xl text-headline-xl mb-2">ผู้ใช้งานที่กำลังใช้งานอยู่</h2>
         <p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายชื่อนักศึกษาที่เช็คอินแล้วยังไม่เช็คเอาต์ ณ ขณะนี้ พร้อมระยะเวลาที่อยู่ในห้องสมุด — อัปเดตอัตโนมัติทุก 20 วินาที</p>

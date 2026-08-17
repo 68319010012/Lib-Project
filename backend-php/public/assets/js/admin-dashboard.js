@@ -13,7 +13,7 @@ function isoWeekdayIndex(date) {
 
 function toISODate(d) {
   // Local-date (not UTC) slice so "today" lines up with the user's clock —
-  // matches the day boundary the trend/heatmap buckets use below.
+  // matches the day boundary the trend buckets use below.
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -110,34 +110,43 @@ function computeStats(rows, view) {
     .slice(0, 5)
     .map(([dept, count]) => ({ dept, count, pct: total ? Math.round((count / total) * 100) : 0 }));
 
-  const counts = Array.from({ length: 7 }, () => Array(24).fill(0));
-  filtered.forEach((r) => {
-    const d = new Date(r.timestamp);
-    counts[isoWeekdayIndex(d)][d.getHours()]++;
-  });
-  const maxCell = Math.max(1, ...counts.flat());
-  let peak = { count: -1, day: 0, hour: 0 };
-  const heatCells = [];
-  for (let day = 0; day < 7; day++) {
-    for (let hour = 0; hour < 24; hour++) {
-      const count = counts[day][hour];
-      if (count > peak.count) peak = { count, day, hour };
-      const ratio = count / maxCell;
-      let shade = 'bg-surface-container dark:bg-dm-border';
-      if (ratio > 0.75) shade = 'bg-primary dark:bg-primary-fixed-dim';
-      else if (ratio > 0.5) shade = 'bg-primary/70 dark:bg-primary-fixed-dim/70';
-      else if (ratio > 0.25) shade = 'bg-primary/40 dark:bg-primary-fixed-dim/50';
-      else if (ratio > 0) shade = 'bg-primary/20 dark:bg-primary-fixed-dim/35';
-      // Direct-label only the standout cells (matches every other chart on
-      // this dashboard: label the extreme, not every point) so the busiest
-      // slots read as numbers at a glance instead of requiring the reader
-      // to first decode the color legend.
-      const showLabel = ratio > 0.5;
-      heatCells.push({ day, hour, count, shade, showLabel });
-    }
-  }
+  // Arrival patterns, from check-ins only ('in') — a check-out at 17:00 isn't
+  // "usage at 17:00". Two one-dimensional views (hour-of-day and day-of-week)
+  // replace the old 7x24 heatmap, which was mostly empty (the library is
+  // closed for ~15 of the 24 columns) and gave no readable signal.
+  const checkins = filtered.filter((r) => r.type === 'in');
+  const totalCheckins = checkins.length;
 
-  return { total, uniqueUsers, avgDaily, currentlyInside, dayKeys, trendBars, deptEntries, heatCells, peak };
+  const hourCounts = Array(24).fill(0);
+  const weekdayCounts = Array(7).fill(0);
+  checkins.forEach((r) => {
+    const d = new Date(r.timestamp);
+    hourCounts[d.getHours()]++;
+    weekdayCounts[isoWeekdayIndex(d)]++;
+  });
+
+  // Trim the dead night hours: show a continuous run from the first to the
+  // last hour that actually has a check-in, so the axis isn't 60% empty.
+  // Zero hours *inside* that run still render (short bars) to keep the time
+  // axis continuous and honestly spaced.
+  const firstHour = hourCounts.findIndex((c) => c > 0);
+  const lastHour = firstHour === -1 ? -1 : 23 - [...hourCounts].reverse().findIndex((c) => c > 0);
+  const maxHour = Math.max(1, ...hourCounts);
+  const hourBars = [];
+  for (let h = firstHour; h !== -1 && h <= lastHour; h++) {
+    hourBars.push({ hour: h, count: hourCounts[h], pct: Math.max(3, Math.round((hourCounts[h] / maxHour) * 100)) });
+  }
+  const peakHour = totalCheckins ? hourCounts.indexOf(Math.max(...hourCounts)) : null;
+
+  const maxWeekday = Math.max(1, ...weekdayCounts);
+  const weekdayBars = weekdayCounts.map((count, day) => ({
+    day,
+    count,
+    pct: Math.max(2, Math.round((count / maxWeekday) * 100)),
+  }));
+  const peakDay = totalCheckins ? weekdayCounts.indexOf(Math.max(...weekdayCounts)) : null;
+
+  return { total, uniqueUsers, avgDaily, currentlyInside, dayKeys, trendBars, deptEntries, totalCheckins, hourBars, peakHour, weekdayBars, peakDay };
 }
 
 function selectTrendBar(el, bar) {
@@ -290,34 +299,69 @@ function closeDayModal() {
   if (modal) modal.classList.add('hidden');
 }
 
-function heatCellLabel(cell) {
-  return `วัน${WEEKDAY_LABELS[cell.day]} ช่วง ${String(cell.hour).padStart(2, '0')}:00–${String((cell.hour + 1) % 24).padStart(2, '0')}:00 — เข้าใช้ ${cell.count.toLocaleString()} ครั้ง`;
+const WEEKDAY_FULL = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
+
+function pad2(n) {
+  return String(n).padStart(2, '0');
 }
 
-function selectHeatCell(el, cell) {
-  document.querySelectorAll('#heatmap-grid .heatmap-cell').forEach((c) => c.classList.remove('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim'));
-  el.classList.add('ring-2', 'ring-primary', 'dark:ring-primary-fixed-dim');
-  document.getElementById('heatmap-detail').textContent = heatCellLabel(cell);
+// Vertical bars: check-ins by hour of day, over the library's active hours
+// only. Single series (magnitude), so one hue; the peak hour is the darker
+// full-strength bar (also named in the insight line below) — everything else
+// is the same lighter primary. Bars are direct children of the fixed-height
+// flex container (so their percentage heights resolve), matching the trend
+// chart; exact counts come from the native-title hover.
+function renderHourChart(stats) {
+  const container = document.getElementById('hour-bars');
+  const axis = document.getElementById('hour-axis');
+  container.innerHTML = '';
+  axis.innerHTML = '';
+
+  if (!stats.hourBars.length) {
+    container.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary m-auto">ไม่มีข้อมูลในช่วงเวลานี้</p>';
+    return;
+  }
+
+  const labelStep = Math.max(1, Math.ceil(stats.hourBars.length / 8));
+  stats.hourBars.forEach((bar, i) => {
+    const isPeak = bar.hour === stats.peakHour;
+
+    const barEl = document.createElement('div');
+    barEl.title = `${pad2(bar.hour)}:00 น. — เช็คอิน ${bar.count.toLocaleString()} ครั้ง`;
+    barEl.className = `flex-1 rounded-t transition-all ${isPeak ? 'bg-primary dark:bg-primary-fixed-dim' : 'bg-primary/40 dark:bg-primary-fixed-dim/50'}`;
+    barEl.style.height = `${bar.pct}%`;
+    container.appendChild(barEl);
+
+    const tick = document.createElement('span');
+    tick.className = 'flex-1 text-center truncate';
+    if (i === 0 || i === stats.hourBars.length - 1 || i % labelStep === 0) tick.textContent = pad2(bar.hour);
+    axis.appendChild(tick);
+  });
 }
 
-// Hover/focus tooltip so a reader gets the exact count without having to
-// click first and then look away to a status line — the mark itself is the
-// hit target (see dataviz interaction spec). Click still pins the ring +
-// status line below, which is what touch devices fall back to.
-function showHeatTooltip(el, cell) {
-  const tooltip = document.getElementById('heatmap-tooltip');
-  if (!tooltip) return;
-  tooltip.textContent = heatCellLabel(cell);
-  tooltip.classList.remove('hidden');
-  const gridBox = el.closest('#heatmap-grid').getBoundingClientRect();
-  const cellBox = el.getBoundingClientRect();
-  tooltip.style.left = `${cellBox.left - gridBox.left + cellBox.width / 2}px`;
-  tooltip.style.top = `${cellBox.top - gridBox.top}px`;
-}
-
-function hideHeatTooltip() {
-  const tooltip = document.getElementById('heatmap-tooltip');
-  if (tooltip) tooltip.classList.add('hidden');
+// Horizontal bars: check-ins by weekday. Peak day emphasized (darker fill +
+// primary-ink label); exact counts always visible at the row end.
+function renderWeekdayChart(stats) {
+  const container = document.getElementById('weekday-bars');
+  if (!stats.totalCheckins) {
+    container.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">ไม่มีข้อมูลในช่วงเวลานี้</p>';
+    return;
+  }
+  container.innerHTML = stats.weekdayBars
+    .map((bar) => {
+      const isPeak = bar.day === stats.peakDay;
+      const ink = isPeak ? 'text-primary dark:text-primary-fixed-dim' : 'text-text-secondary dark:text-dm-text-secondary';
+      const fill = isPeak ? 'bg-primary dark:bg-primary-fixed-dim' : 'bg-primary/40 dark:bg-primary-fixed-dim/50';
+      return `
+        <div class="flex items-center gap-3" title="วัน${escapeHtml(WEEKDAY_FULL[bar.day])} — เช็คอิน ${bar.count.toLocaleString()} ครั้ง">
+          <span class="w-8 text-sm font-bold ${ink} flex-shrink-0">${WEEKDAY_LABELS[bar.day]}</span>
+          <div class="flex-1 bg-surface-container dark:bg-dm-border rounded-full h-3 overflow-hidden">
+            <div class="${fill} h-3 rounded-full" style="width: ${Math.max(bar.count ? 4 : 0, bar.pct)}%"></div>
+          </div>
+          <span class="w-8 text-right text-sm font-bold font-label-code ${ink} flex-shrink-0">${bar.count.toLocaleString()}</span>
+        </div>`;
+    })
+    .join('');
 }
 
 function render() {
@@ -399,30 +443,12 @@ function render() {
   }
 
   document.getElementById('peak-text').textContent =
-    stats.peak.count > 0
-      ? `ช่วงที่มีคนใช้มากที่สุด: วัน${WEEKDAY_LABELS[stats.peak.day]} ประมาณ ${stats.peak.hour}:00 น. (${stats.peak.count} ครั้ง)`
+    stats.totalCheckins > 0
+      ? `คนเข้าใช้มากที่สุด: วัน${WEEKDAY_FULL[stats.peakDay]} และช่วงเวลา ${pad2(stats.peakHour)}:00 น.`
       : 'ข้อมูลยังไม่เพียงพอที่จะระบุช่วงเวลาที่มีคนใช้มากที่สุด';
 
-  const heatmapContainer = document.getElementById('heatmap-grid');
-  document.getElementById('heatmap-detail').textContent = 'แตะหรือคลิกช่องในตารางเพื่อดูจำนวนคนเข้าใช้ตามวันและเวลา';
-  heatmapContainer.innerHTML = '';
-  stats.heatCells.forEach((cell) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    const label = heatCellLabel(cell);
-    btn.title = label;
-    btn.setAttribute('aria-label', label);
-    btn.className = `heatmap-cell appearance-none border-0 p-0 flex items-center justify-center hover:ring-2 hover:ring-primary/50 focus-visible:ring-2 focus-visible:ring-primary transition-all cursor-pointer outline-none ${cell.shade}`;
-    if (cell.showLabel) {
-      btn.innerHTML = `<span class="heatmap-cell-value font-bold text-white leading-none pointer-events-none">${cell.count}</span>`;
-    }
-    btn.addEventListener('click', () => selectHeatCell(btn, cell));
-    btn.addEventListener('pointerenter', () => showHeatTooltip(btn, cell));
-    btn.addEventListener('focus', () => showHeatTooltip(btn, cell));
-    btn.addEventListener('pointerleave', hideHeatTooltip);
-    btn.addEventListener('blur', hideHeatTooltip);
-    heatmapContainer.appendChild(btn);
-  });
+  renderHourChart(stats);
+  renderWeekdayChart(stats);
 }
 
 function load() {

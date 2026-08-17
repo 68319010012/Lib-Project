@@ -1599,6 +1599,15 @@ video {
   background-color: rgb(186 26 26 / var(--tw-bg-opacity, 1));
 }
 
+/* Faint error tint — not in the prebuilt bundle (no live Tailwind build).
+   Used for the confirm dialog's destructive-action icon so it matches the
+   red confirm button and the app's error palette instead of the off-theme
+   amber warning color. Mirrors the existing .bg-primary\/10 / .bg-warning\/10
+   opacity utilities. */
+.bg-error\/10 {
+  background-color: rgb(186 26 26 / 0.1);
+}
+
 .bg-error-container {
   --tw-bg-opacity: 1;
   background-color: rgb(255 218 214 / var(--tw-bg-opacity, 1));

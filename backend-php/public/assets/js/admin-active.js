@@ -112,9 +112,11 @@ async function loadActive() {
 
 async function forceCheckout(userId, name) {
   const ok = await showConfirmModal('ใช้เมื่อผู้ใช้ลืมเช็คเอาต์เท่านั้น', {
-    title: `ยืนยันบังคับเช็คเอาต์ "${name}" ?`,
+    title: 'ยืนยันบังคับเช็คเอาต์',
+    subject: name,
     confirmLabel: 'บังคับเช็คเอาต์',
     danger: true,
+    icon: 'logout',
   });
   if (!ok) return;
   try {

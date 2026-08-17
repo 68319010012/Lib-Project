@@ -87,9 +87,11 @@ function renderMembersRows() {
 // here) so it can't end up weak or guessable.
 async function resetMemberPassword(userId, name) {
   const ok = await showConfirmModal('ระบบจะสุ่มรหัสผ่านชั่วคราวให้ใหม่ ใช้เมื่อนักศึกษาลืมรหัสผ่านเท่านั้น', {
-    title: `ยืนยันรีเซ็ตรหัสผ่านของ "${name}" ?`,
+    title: 'ยืนยันรีเซ็ตรหัสผ่าน',
+    subject: name,
     confirmLabel: 'รีเซ็ตรหัสผ่าน',
     danger: true,
+    icon: 'lock_reset',
   });
   if (!ok) return;
   try {
