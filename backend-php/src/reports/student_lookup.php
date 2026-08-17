@@ -100,6 +100,26 @@ function handle_report_student_lookup(): void
     background: var(--surface-white, #fff); text-decoration: none; color: inherit;
   }
   .search-results a.result-row:hover { border-color: var(--primary, #1e3a8a); }
+
+  /* Type-ahead suggestions. The form still submits and still renders the
+     server-side result list, so this only saves a round trip — with JS off,
+     or if the request fails, nothing is lost. */
+  .ac-wrap { position: relative; }
+  .ac-list {
+    position: absolute; z-index: 40; left: 0; right: 0; top: 100%; margin-top: 4px;
+    background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #ccc);
+    border-radius: 10px; box-shadow: 0 8px 24px -8px rgba(2,6,23,.25);
+    max-height: 300px; overflow-y: auto; padding: 4px;
+  }
+  .ac-list[hidden] { display: none; }
+  .ac-item {
+    display: block; width: 100%; text-align: left; padding: 8px 10px; border: 0;
+    background: transparent; border-radius: 7px; cursor: pointer; font: inherit; color: inherit;
+  }
+  .ac-item:hover, .ac-item.is-active { background: rgba(30,58,138,.08); }
+  .ac-item .n { font-weight: 700; font-size: 13px; color: var(--primary, #1e3a8a); }
+  .ac-item .m { font-size: 11.5px; color: #666; }
+  .ac-empty { padding: 10px; font-size: 12.5px; color: #666; }
   .search-results .name { font-weight: 700; font-size: 14px; color: var(--primary, #1e3a8a); }
   .search-results .meta { font-size: 12px; color: #666; }
   .student-header {
@@ -126,10 +146,13 @@ function handle_report_student_lookup(): void
     ob_start();
     ?>
 
-<form class="filter-bar" method="get">
-  <div class="field" style="min-width:260px;">
+<form class="filter-bar" method="get" autocomplete="off">
+  <div class="field ac-wrap" style="min-width:260px;">
     <label for="search">ค้นหารหัสนักศึกษา / ชื่อ / แผนกวิชา</label>
-    <input type="text" id="search" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="เช่น 6800112233 หรือ สมชาย">
+    <input type="text" id="search" name="search" value="<?= htmlspecialchars($search) ?>"
+           placeholder="พิมพ์บางส่วนก็พอ เช่น 680011 หรือ สมชาย"
+           role="combobox" aria-expanded="false" aria-controls="ac-list" aria-autocomplete="list">
+    <div class="ac-list" id="ac-list" role="listbox" hidden></div>
   </div>
   <button type="submit">ค้นหา</button>
   <?php if ($student): ?>
@@ -206,7 +229,100 @@ function handle_report_student_lookup(): void
   <?php endif; ?>
 </div>
 <?php else: ?>
-<p class="filter-note" style="margin-top:16px;">พิมพ์รหัสนักศึกษา ชื่อ หรือแผนกวิชา แล้วกด "ค้นหา" เพื่อดูประวัติการใช้ห้องสมุดของนักศึกษาคนใดคนหนึ่ง</p>
+<p class="filter-note" style="margin-top:16px;">พิมพ์รหัสนักศึกษา ชื่อ หรือแผนกวิชาเพียงบางส่วน รายชื่อจะขึ้นให้เลือกทันที ไม่ต้องพิมพ์ให้ครบ</p>
+<?php endif; ?>
+
+<?php // Not emitted for the PDF export: $content is handed straight to mPDF,
+      // which has no JS engine and can spill an unrecognised block onto the
+      // page as literal text. Hiding .filter-bar covers the markup, not this. ?>
+<?php if (($_GET['format'] ?? '') !== 'pdf'): ?>
+<script>
+(function () {
+  var input = document.getElementById('search');
+  var list  = document.getElementById('ac-list');
+  if (!input || !list) return;
+
+  var items = [], active = -1, timer = null, seq = 0;
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function close() {
+    list.hidden = true; list.innerHTML = ''; items = []; active = -1;
+    input.setAttribute('aria-expanded', 'false');
+  }
+
+  function go(studentId) {
+    window.location.href = '/admin/reports/print/student?student_id=' + encodeURIComponent(studentId);
+  }
+
+  function highlight(i) {
+    var nodes = list.querySelectorAll('.ac-item');
+    nodes.forEach(function (n) { n.classList.remove('is-active'); });
+    if (i >= 0 && nodes[i]) { nodes[i].classList.add('is-active'); nodes[i].scrollIntoView({ block: 'nearest' }); }
+    active = i;
+  }
+
+  function render(rows) {
+    if (!rows.length) {
+      list.innerHTML = '<div class="ac-empty">ไม่พบนักศึกษาที่ตรงกับคำค้นหานี้</div>';
+      list.hidden = false; items = []; active = -1;
+      input.setAttribute('aria-expanded', 'true');
+      return;
+    }
+    // Capped at 8: this is a picker, not the result list — the form still
+    // submits for the full set.
+    items = rows.slice(0, 8);
+    list.innerHTML = items.map(function (r, i) {
+      var name = (r.prefix || '') + r.first_name + ' ' + r.last_name;
+      var meta = 'รหัส ' + r.student_id + ' · ' + (r.department || '-') +
+                 ' · ' + (r.level || '-') + ' ปีที่ ' + (r.year_level || '-');
+      return '<button type="button" class="ac-item" role="option" data-i="' + i + '">' +
+             '<span class="n">' + esc(name) + '</span><br><span class="m">' + esc(meta) + '</span></button>';
+    }).join('');
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    list.querySelectorAll('.ac-item').forEach(function (btn) {
+      btn.addEventListener('mousedown', function (e) {   // before blur
+        e.preventDefault();
+        go(items[Number(btn.dataset.i)].student_id);
+      });
+    });
+  }
+
+  function search(term) {
+    var mine = ++seq;
+    fetch('/admin/members?search=' + encodeURIComponent(term), { credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) {
+        // Drop a slow response that a newer keystroke has already superseded.
+        if (mine !== seq) return;
+        render(Array.isArray(rows) ? rows : []);
+      })
+      .catch(function () { if (mine === seq) close(); });
+  }
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    var term = input.value.trim();
+    if (term.length < 2) { close(); return; }
+    timer = setTimeout(function () { search(term); }, 250);
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (list.hidden || !items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); highlight((active + 1) % items.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); highlight((active - 1 + items.length) % items.length); }
+    else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); go(items[active].student_id); }
+    else if (e.key === 'Escape') { close(); }
+  });
+
+  input.addEventListener('blur', function () { setTimeout(close, 120); });
+})();
+</script>
 <?php endif; ?>
     <?php
     $content = ob_get_clean();
