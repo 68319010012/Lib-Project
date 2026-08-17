@@ -148,7 +148,7 @@ function aggregate_gender_breakdown(PDO $conn, string $startDate, string $endDat
     ];
 }
 
-// Signed delta badge (▲/▼ + %), colored by direction — "more library usage" is
+// Signed delta badge (↑/↓ + %), colored by direction — "more library usage" is
 // the good direction here, matching the up=green/down=amber pairing monthly.php
 // and executive.php already use.
 // $compact drops the "เทียบเดือนก่อน" suffix — the narrow stat tiles don't
@@ -160,7 +160,7 @@ function render_dashboard_delta(?float $delta, bool $compact = false): string
         return '';
     }
     $cls = $delta > 0 ? 'up' : ($delta < 0 ? 'down' : 'flat');
-    $arrow = $delta > 0 ? '▲' : ($delta < 0 ? '▼' : '—');
+    $arrow = $delta > 0 ? '↑' : ($delta < 0 ? '↓' : '—');
     $suffix = $compact ? '' : ' เทียบเดือนก่อน';
     return '<span class="delta ' . $cls . '" title="เทียบกับเดือนก่อนหน้า">' . $arrow . ' ' . abs($delta) . '%' . $suffix . '</span>';
 }

@@ -26,7 +26,7 @@ function handle_report_executive(): void
     $uniqueDelta = pct_delta($agg['unique_students'], $prevAgg['unique_students']);
 
     $deltaClass = fn(?float $d) => $d === null ? 'flat' : ($d > 0 ? 'up' : ($d < 0 ? 'down' : 'flat'));
-    $deltaArrow = fn(?float $d) => $d === null ? '—' : ($d > 0 ? '▲' : ($d < 0 ? '▼' : '—'));
+    $deltaArrow = fn(?float $d) => $d === null ? '—' : ($d > 0 ? '↑' : ($d < 0 ? '↓' : '—'));
 
     $format = $_GET['format'] ?? null;
     if ($format === 'csv' || $format === 'excel') {

@@ -30,7 +30,7 @@ function handle_report_monthly(): void
     $totalDelta = pct_delta($agg['total_events'], $prevAgg['total_events']);
     $uniqueDelta = pct_delta($agg['unique_students'], $prevAgg['unique_students']);
     $deltaClass = fn(?float $d) => $d === null ? 'flat' : ($d > 0 ? 'up' : ($d < 0 ? 'down' : 'flat'));
-    $deltaArrow = fn(?float $d) => $d === null ? '—' : ($d > 0 ? '▲' : ($d < 0 ? '▼' : '—'));
+    $deltaArrow = fn(?float $d) => $d === null ? '—' : ($d > 0 ? '↑' : ($d < 0 ? '↓' : '—'));
 
     $summarySentence = $agg['total_events']
         ? build_summary_sentence(thai_month_label($month), $agg, $agg['busiest_day']

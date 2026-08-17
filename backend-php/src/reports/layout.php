@@ -161,9 +161,21 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
        leftover section. */
     .mini-panel-row { display: none; }
     .meta { display: inline-block; margin-bottom: 10px; font-size: 11px; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; }
+    /* float, not inline-block. mPDF promotes an inline-block box back to a
+       block once it contains block children — which every KPI card does
+       (.kpi-head / .kpi-value are divs) — so the cards stacked one per row and
+       ate ~360pt, pushing this report to two pages. The symptom only appeared
+       after the PDF font moved from Sarabun to IBM Plex Sans Thai, which is
+       wider, but the layout was never actually working; Sarabun was just small
+       enough that the rest of the page still fit. Floats mPDF does honour.
+       Verified: 3 cards per row, one page. */
     .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card {
-      display: inline-block; width: 31.5%; vertical-align: top; border: 1px solid #cbd5e1;
-      border-radius: 8px; padding: 6px 8px; margin: 0 1% 6px 0;
+      float: left; width: 30%; border: 1px solid #cbd5e1;
+      border-radius: 8px; padding: 5px 7px; margin: 0 1.5% 5px 0;
+    }
+    /* Without this the section after a strip wraps around the floats. */
+    .summary-strip::after, .kpi-strip::after, .kpi-grid::after {
+      content: ''; display: block; clear: both;
     }
     .summary-strip .label, .kpi-card .label, .kpi-label { font-size: 9px; color: #666; text-transform: uppercase; }
     .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1e3a8a; }

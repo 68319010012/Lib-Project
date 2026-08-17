@@ -16,7 +16,7 @@ function handle_report_compare(): void
     $aggB = aggregate_checkin_period($conn, $startB, $endB);
 
     $deltaClass = fn(?float $d) => $d === null ? 'flat' : ($d > 0 ? 'up' : ($d < 0 ? 'down' : 'flat'));
-    $deltaArrow = fn(?float $d) => $d === null ? '—' : ($d > 0 ? '▲' : ($d < 0 ? '▼' : '—'));
+    $deltaArrow = fn(?float $d) => $d === null ? '—' : ($d > 0 ? '↑' : ($d < 0 ? '↓' : '—'));
 
     $metrics = [
         [
