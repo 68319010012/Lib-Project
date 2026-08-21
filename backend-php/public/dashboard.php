@@ -11,10 +11,11 @@ require __DIR__ . '/partials/guard.php';
   <?php $variant = 'student'; include __DIR__ . '/partials/header.php'; ?>
 
   <main class="flex-grow pt-16">
+    <h1 class="visually-hidden">หน้าหลักนักศึกษา — เช็คอินและประวัติการเข้าใช้ห้องสมุด</h1>
     <section class="relative hero-pattern overflow-hidden flex flex-col justify-center py-8">
       <div class="relative z-10 max-w-7xl mx-auto px-gutter w-full">
         <div class="rise-in mb-4">
-          <h4 class="font-headline-md text-headline-md text-on-primary mb-1">ประกาศจากเจ้าหน้าที่</h4>
+          <h2 class="font-headline-md text-headline-md text-on-primary mb-1">ประกาศจากเจ้าหน้าที่</h2>
           <p class="text-body-md text-on-primary/80">ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์</p>
         </div>
 
@@ -94,7 +95,7 @@ require __DIR__ . '/partials/guard.php';
       </div>
 
       <div id="modal-panel-time" class="mb-4">
-        <label class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</label>
+        <p class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</p>
         <p id="modal-time-closed" class="hidden text-warning text-sm">ห้องสมุดปิดแล้ว</p>
         <div id="modal-time-open">
           <div class="time-wheel" id="modal-time-wheel">
@@ -108,12 +109,12 @@ require __DIR__ . '/partials/guard.php';
       </div>
 
       <div id="modal-panel-hours" class="hidden mb-4">
-        <label class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">จำนวนชั่วโมง</label>
-        <div id="modal-hour-buttons" class="grid grid-cols-3 gap-2"></div>
+        <p id="modal-hours-label" class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">จำนวนชั่วโมง</p>
+        <div id="modal-hour-buttons" class="grid grid-cols-3 gap-2" role="group" aria-labelledby="modal-hours-label"></div>
         <p id="modal-hours-warning" class="hidden text-warning text-xs mt-2">เวลาที่เลือกเกินเวลาปิดห้องสมุด ระบบจะปรับให้ออกตอนปิดแทน</p>
       </div>
 
-      <p id="modal-error" class="hidden text-error text-sm mb-3"></p>
+      <p id="modal-error" role="alert" aria-live="assertive" class="hidden text-error text-sm mb-3"></p>
 
       <button type="button" id="modal-checkin-until-closing" class="w-full h-10 text-xs font-bold text-primary dark:text-primary-fixed-dim mb-4 hover:underline">
         หรือเลือก "จนกว่าจะปิด"

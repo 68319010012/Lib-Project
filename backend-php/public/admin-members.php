@@ -18,7 +18,7 @@ require __DIR__ . '/partials/guard.php';
     <header class="admin-hero-pattern text-on-primary py-10 md:h-[240px] md:py-0 flex items-end pb-8 md:pb-20 px-gutter">
       <div class="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
-          <h2 class="font-headline-xl text-headline-xl mb-2">ทำเนียบสมาชิก</h2>
+          <h1 class="font-headline-xl text-headline-xl mb-2">ทำเนียบสมาชิก</h1>
           <p class="font-body-lg text-body-lg text-on-primary/80">รายชื่อนักศึกษาที่ได้รับการอนุมัติ บัญชีจะถูกสร้างขึ้นอัตโนมัติเมื่อนักศึกษาสมัครสมาชิก</p>
         </div>
         <div class="hidden md:flex gap-4 mb-2">
@@ -34,15 +34,15 @@ require __DIR__ . '/partials/guard.php';
       <div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-stretch lg:items-end mb-8">
         <div class="w-full lg:flex-1 relative">
           <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-          <input id="members-search" class="w-full pl-12 pr-4 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text" />
+          <input id="members-search" aria-label="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้" class="w-full pl-12 pr-4 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text" />
         </div>
         <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
-            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
+            <label for="members-department" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
             <select id="members-department" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
           </div>
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
-            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ระดับชั้น</label>
+            <label for="members-level" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ระดับชั้น</label>
             <select id="members-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
               <option value="">ทุกระดับชั้น</option>
               <option value="ปวช.">ปวช.</option>
@@ -50,11 +50,11 @@ require __DIR__ . '/partials/guard.php';
             </select>
           </div>
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
-            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
+            <label for="members-year-level" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
             <select id="members-year-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
           </div>
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
-            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">สถานะ</label>
+            <label for="members-status" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">สถานะ</label>
             <select id="members-status" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
               <option value="approved">ใช้งานได้</option>
               <option value="pending">รออนุมัติ</option>
@@ -116,15 +116,15 @@ require __DIR__ . '/partials/guard.php';
       </div>
 
       <div class="p-6 member-edit-body space-y-3">
-        <p id="member-edit-error" class="hidden rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
+        <p id="member-edit-error" role="alert" aria-live="assertive" class="hidden rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
 
         <div class="flex gap-4">
           <div class="flex flex-col gap-1 flex-1">
-            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">รหัสนักศึกษา</label>
+            <label for="member-edit-prefix" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">รหัสนักศึกษา</label>
             <p id="member-edit-student-id" class="font-label-code text-primary dark:text-primary-fixed-dim py-2.5 px-3"></p>
           </div>
           <div class="flex flex-col gap-1 flex-1">
-            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชื่อผู้ใช้</label>
+            <label for="member-edit-prefix" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชื่อผู้ใช้</label>
             <p id="member-edit-username" class="font-label-code text-on-surface-variant dark:text-dm-text-secondary py-2.5 px-3"></p>
           </div>
         </div>

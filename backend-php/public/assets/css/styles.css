@@ -3682,3 +3682,81 @@ html.dark .lib-banner { filter: brightness(.88); }
   }
   .login-main > div { width: 100%; }
 }
+
+/* ===================================================================
+   แก้ตามผลตรวจ accessibility (WCAG 2.1 AA)
+   =================================================================== */
+
+/* --- คอนทราสต์ในโหมดมืด ---
+   สีชุดนี้เป็นสีที่เลือกมาสำหรับพื้นสว่าง แต่ถูกใช้บนพื้นมืดด้วย
+   ผลตรวจจากสีที่เรนเดอร์จริง: ป้าย "เช็คอิน" 2.75:1 และไอคอนช่องค้นหา
+   2.47:1 ทั้งที่ต้องการ 4.5:1 และ 3:1 ตามลำดับ
+   ในโหมดมืดจึงต้องใช้เฉดที่สว่างขึ้น ไม่ใช่เฉดเดียวกับพื้นสว่าง */
+html.dark .text-outline { color: rgb(148 163 184); }
+html.dark .text-status-success { color: rgb(52 211 153); }
+html.dark .text-warning { color: rgb(251 191 36); }
+
+/* --- ตัวหนังสือไล่สีในแบนเนอร์ ---
+   h2 ใช้ background-clip: text คู่กับ color: transparent ถ้าเบราว์เซอร์
+   ไม่รองรับ clip ตัวหนังสือจะหายทั้งบรรทัด และเครื่องมือตรวจอ่านค่าได้
+   1.00:1 เสมอ ใช้สีทึบแทน อ่านได้แน่นอนและวัดค่าได้จริง */
+.lib-banner h2 {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: rgba(219, 234, 254, .88);
+  animation: lib-banner-fadeUp .7s ease .38s forwards;
+}
+
+/* --- เป้าแตะ (WCAG 2.5.8 ต้องไม่ต่ำกว่า 24x24) ---
+   ปุ่มในตารางเป็นตัวหนังสือสูง 16px ทั้งที่เป็นทางเดียวที่จะแก้ข้อมูล
+   หรือรีเซ็ตรหัสผ่าน บนมือถือกดพลาดง่ายมาก ขยายด้วย padding แทนการ
+   เพิ่มขนาดตัวอักษร เพื่อไม่ให้ตารางแน่นขึ้น */
+#members-tbody .edit-member-btn,
+#members-tbody .reset-password-btn,
+#active-tbody .force-checkout-btn,
+#dashboard-view-history {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 6px;
+}
+/* margin เดิมวัดจากขอบตัวอักษร พอมี padding แล้วต้องลดลงไม่ให้ห่างเกิน */
+#members-tbody .reset-password-btn { margin-left: 8px; }
+
+/* ลิงก์ข้อความในหน้า login/signup ที่เป็นทางเดียวไปหน้าถัดไป */
+#login-signup-link a,
+.signup-back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 2px 4px;
+}
+
+/* ซ่อนจากสายตาแต่โปรแกรมอ่านหน้าจอยังอ่านเจอ — ไม่ใช้ display:none หรือ
+   visibility:hidden เพราะทั้งคู่ทำให้ถูกข้ามไปด้วย
+   ใช้กับ h1 ของหน้านักศึกษา ที่หน้าไม่มีหัวเรื่องซึ่งมองเห็นได้ */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ไอคอนในช่องค้นหา/ตัวกรอง เป็นไอคอนที่สื่อความหมาย (แว่นขยาย ปฏิทิน)
+   จึงต้องผ่านเกณฑ์ 3:1 เหมือนองค์ประกอบกราฟิกอื่น ผลตรวจได้ 2.47-2.56:1
+   เพราะสีมาจากค่า default ที่เลือกไว้สำหรับพื้นสว่าง */
+html.dark .material-symbols-outlined.text-text-secondary { color: rgb(148 163 184); }
+html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
+
+/* ลิงก์ "กลับไปหน้าเข้าสู่ระบบ" ในหน้าสมัครสมาชิก สูงแค่ 24px */
+.signup-page-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 2px 4px;
+}

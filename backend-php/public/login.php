@@ -43,7 +43,7 @@
     <div class="max-w-xl mx-auto">
       <div class="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
         <div class="p-8 md:p-12">
-          <p id="login-error" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
+          <p id="login-error" role="alert" aria-live="assertive" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
 
           <form class="space-y-6" id="login-form">
             <div>
@@ -53,7 +53,7 @@
               <div class="relative">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
                 <input
-                  id="login-username"
+                  id="login-username" autocomplete="username"
                   class="w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200"
                   placeholder="รหัสนักศึกษา หรือชื่อผู้ใช้แอดมิน"
                   required
@@ -66,7 +66,7 @@
               <div class="relative">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">lock</span>
                 <input
-                  id="login-password"
+                  id="login-password" autocomplete="current-password"
                   class="w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200"
                   placeholder="••••••••"
                   required

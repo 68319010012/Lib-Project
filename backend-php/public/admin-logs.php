@@ -15,11 +15,11 @@ require __DIR__ . '/partials/guard.php';
     <section class="admin-hero-pattern pt-12 pb-24 px-gutter relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 class="text-on-primary font-headline-xl text-headline-xl mb-2">ประวัติการเช็คชื่อทั้งหมด</h2>
+          <h1 class="text-on-primary font-headline-xl text-headline-xl mb-2">ประวัติการเช็คชื่อทั้งหมด</h1>
           <p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายการเช็คอินและเช็คเอาต์ทุกครั้งของห้องสมุด กรองตามวันที่และแผนกวิชาได้</p>
         </div>
         <div class="flex gap-4">
-          <a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" target="_blank" rel="noreferrer">
+          <a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" target="_blank" rel="noopener noreferrer" aria-label="พิมพ์รายงาน (เปิดแท็บใหม่)">
             <span class="material-symbols-outlined">print</span>
             <span>พิมพ์รายงาน</span>
           </a>
@@ -56,14 +56,14 @@ require __DIR__ . '/partials/guard.php';
         <div class="p-6 border-b border-outline-variant/30 dark:border-dm-border bg-surface-container-low dark:bg-dm-bg flex flex-wrap gap-4 items-center">
           <div class="flex-1 min-w-[260px] relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
-            <input id="logs-search" class="w-full pl-12 pr-4 py-3 bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="ค้นหาด้วยชื่อ รหัสนักศึกษา หรือแผนกวิชา..." type="text" />
+            <input id="logs-search" aria-label="ค้นหาด้วยชื่อ รหัสนักศึกษา หรือแผนกวิชา" class="w-full pl-12 pr-4 py-3 bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="ค้นหาด้วยชื่อ รหัสนักศึกษา หรือแผนกวิชา..." type="text" />
           </div>
-          <select id="logs-action-filter" class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary">
+          <select id="logs-action-filter" aria-label="กรองตามประเภทการเช็คชื่อ" class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary">
             <option value="">ทุกประเภท</option>
             <option value="in">เช็คอิน</option>
             <option value="out">เช็คเอาต์</option>
           </select>
-          <input id="logs-date-filter" class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" type="date" />
+          <input id="logs-date-filter" aria-label="กรองตามวันที่" class="bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 font-body-md text-body-md focus:ring-2 focus:ring-primary" type="date" />
           <button id="logs-date-clear" type="button" class="bg-surface-white dark:bg-dm-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 hover:bg-surface-container-high dark:hover:bg-dm-bg transition-colors font-bold dark:text-inverse-on-surface">เดือนนี้</button>
         </div>
         <div class="overflow-x-auto">

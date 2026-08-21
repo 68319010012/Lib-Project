@@ -29,14 +29,14 @@ require __DIR__ . '/partials/guard.php';
           <div class="space-y-10">
             <div class="grid md:grid-cols-2 gap-8">
               <div class="space-y-2">
-                <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary flex items-center gap-2">
+                <label for="profile-student-id" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary flex items-center gap-2">
                   <span class="material-symbols-outlined text-[16px]">lock</span>
                   รหัสนักศึกษา
                 </label>
                 <input id="profile-student-id" class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border bg-surface-container-low text-text-secondary dark:bg-dm-surface-alt dark:text-dm-text-secondary cursor-not-allowed font-label-code text-label-code" readonly type="text" value="…" />
               </div>
               <div class="space-y-2">
-                <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary flex items-center gap-2">
+                <label for="profile-display-name" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary flex items-center gap-2">
                   <span class="material-symbols-outlined text-[16px]">lock</span>
                   ชื่อ-สกุล
                 </label>
@@ -47,21 +47,21 @@ require __DIR__ . '/partials/guard.php';
             <hr class="border-outline-variant/30 dark:border-dm-border" />
 
             <div class="space-y-6">
-              <h3 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
+              <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
                 <span class="material-symbols-outlined">school</span>
                 ข้อมูลการศึกษา
               </h3>
               <div class="grid md:grid-cols-3 gap-6">
                 <div class="space-y-2">
-                  <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">แผนกวิชา</label>
+                  <label for="profile-department" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">แผนกวิชา</label>
                   <input id="profile-department" class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border bg-surface-container-low text-text-secondary dark:bg-dm-surface-alt dark:text-dm-text-secondary cursor-not-allowed font-body-md" readonly type="text" value="-" />
                 </div>
                 <div class="space-y-2">
-                  <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">ระดับชั้น</label>
+                  <label for="profile-level" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">ระดับชั้น</label>
                   <input id="profile-level" class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border bg-surface-container-low text-text-secondary dark:bg-dm-surface-alt dark:text-dm-text-secondary cursor-not-allowed font-body-md" readonly type="text" value="-" />
                 </div>
                 <div class="space-y-2">
-                  <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">ชั้นปี</label>
+                  <label for="profile-year-level" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">ชั้นปี</label>
                   <input id="profile-year-level" class="w-full px-4 py-3 rounded-lg border border-outline-variant dark:border-dm-border bg-surface-container-low text-text-secondary dark:bg-dm-surface-alt dark:text-dm-text-secondary cursor-not-allowed font-body-md" readonly type="text" value="-" />
                 </div>
               </div>
@@ -70,18 +70,18 @@ require __DIR__ . '/partials/guard.php';
             <hr class="border-outline-variant/30 dark:border-dm-border" />
 
             <form class="space-y-6" id="profile-password-form">
-              <h3 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
+              <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
                 <span class="material-symbols-outlined">security</span>
                 ตั้งค่าความปลอดภัย
               </h3>
               <div class="grid md:grid-cols-2 gap-8">
                 <div class="space-y-2">
-                  <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านปัจจุบัน</label>
-                  <input id="profile-current-password" class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" placeholder="ยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน" required type="password" />
+                  <label for="profile-current-password" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านปัจจุบัน</label>
+                  <input id="profile-current-password" autocomplete="current-password" class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" placeholder="ยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน" required type="password" />
                 </div>
                 <div class="space-y-2">
-                  <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านใหม่</label>
-                  <input id="profile-new-password" class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" minlength="8" placeholder="อย่างน้อย 8 ตัวอักษร" required type="password" />
+                  <label for="profile-new-password" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านใหม่</label>
+                  <input id="profile-new-password" autocomplete="new-password" class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" minlength="8" placeholder="อย่างน้อย 8 ตัวอักษร" required type="password" />
                 </div>
               </div>
               <div class="flex justify-end pt-4">
@@ -99,7 +99,7 @@ require __DIR__ . '/partials/guard.php';
         <div class="bg-tertiary-fixed dark:bg-dm-surface p-6 rounded-xl border border-tertiary-container/10 dark:border-dm-border flex items-start gap-4">
           <span class="material-symbols-outlined text-tertiary-container dark:text-tertiary-fixed-dim text-4xl">info</span>
           <div>
-            <h4 class="font-bold text-on-tertiary-fixed dark:text-inverse-on-surface mb-1">ข้อมูลที่แก้ไขไม่ได้</h4>
+            <h3 class="font-bold text-on-tertiary-fixed dark:text-inverse-on-surface mb-1">ข้อมูลที่แก้ไขไม่ได้</h3>
             <p class="text-on-tertiary-fixed-variant dark:text-dm-text-secondary text-body-md">
               รหัสนักศึกษา ชื่อ-สกุล แผนกวิชา ระดับชั้น และชั้นปี มาจากทะเบียนของวิทยาลัย ไม่สามารถแก้ไขได้ในหน้านี้
               หากข้อมูลไม่ถูกต้อง กรุณาติดต่อฝ่ายทะเบียน

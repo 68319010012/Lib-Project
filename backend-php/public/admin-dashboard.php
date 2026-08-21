@@ -15,20 +15,20 @@ require __DIR__ . '/partials/guard.php';
     <header class="admin-hero-pattern pt-8 pb-32 px-gutter">
       <div class="rise-in max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 class="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h2>
+          <h1 class="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h1>
           <p id="ad-subtitle" class="text-on-primary-container font-body-lg text-body-lg">กำลังโหลดข้อมูลการเข้าใช้…</p>
         </div>
         <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/20">
           <div class="px-4 py-2">
-            <p class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">ช่วงเวลา</p>
-            <select id="view-select" class="bg-transparent text-white border-none focus:ring-0 font-bold p-0 text-body-md cursor-pointer">
+            <p id="view-select-label" class="text-[10px] text-white/60 font-label-caps mb-1 uppercase">ช่วงเวลา</p>
+            <select id="view-select" aria-labelledby="view-select-label" class="bg-transparent text-white border-none focus:ring-0 font-bold p-0 text-body-md cursor-pointer">
               <option value="month" class="text-text-primary">เดือนนี้</option>
               <option value="week" class="text-text-primary">7 วันล่าสุด</option>
               <option value="today" class="text-text-primary">วันนี้</option>
             </select>
           </div>
           <div class="h-10 w-[1px] bg-white/20"></div>
-          <a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank" rel="noreferrer">
+          <a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank" rel="noopener noreferrer" aria-label="พิมพ์รายงาน (เปิดแท็บใหม่)">
             <span class="material-symbols-outlined">print</span>
             <span class="font-label-caps">พิมพ์รายงาน</span>
           </a>
@@ -42,7 +42,7 @@ require __DIR__ . '/partials/guard.php';
           </div>
           <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
-          <h3 id="kpi-total" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
+          <p id="kpi-total" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
@@ -50,7 +50,7 @@ require __DIR__ . '/partials/guard.php';
           </div>
           <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
-          <h3 id="kpi-unique" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
+          <p id="kpi-unique" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
@@ -58,7 +58,7 @@ require __DIR__ . '/partials/guard.php';
           </div>
           <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
-          <h3 id="kpi-avg" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
+          <p id="kpi-avg" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
         </div>
         <div class="lift-on-hover bg-primary-container rounded-xl p-6 shadow-stamp border border-primary relative overflow-hidden">
           <div class="absolute top-0 right-0 p-4">
@@ -69,7 +69,7 @@ require __DIR__ . '/partials/guard.php';
           </div>
           <p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
           <div class="skeleton kpi-skeleton h-8 w-20 bg-white/20"></div>
-          <h3 id="kpi-inside" class="hidden kpi-value text-headline-lg font-headline-lg text-white font-bold font-label-code">0</h3>
+          <p id="kpi-inside" class="hidden kpi-value text-headline-lg font-headline-lg text-white font-bold font-label-code">0</p>
         </div>
       </div>
     </header>
@@ -77,7 +77,7 @@ require __DIR__ . '/partials/guard.php';
     <div class="admin-kpi-clear max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
-          <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h4>
+          <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h2>
           <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">จำนวนการเช็คอิน/เช็คเอาต์รายวันในช่วงเวลาที่เลือก — เลื่อนเมาส์หรือแตะแท่งกราฟเพื่อดูตัวเลขรายวัน คลิกเพื่อดูรายละเอียดของวันนั้น</p>
         </div>
         <div class="trend-chart" id="trend-chart"></div>
@@ -85,7 +85,7 @@ require __DIR__ . '/partials/guard.php';
       </section>
 
       <section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
-        <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h4>
+        <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h2>
         <div class="space-y-6" id="dept-bars">
           <p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด…</p>
         </div>
@@ -97,7 +97,7 @@ require __DIR__ . '/partials/guard.php';
 
       <section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
-          <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">ช่วงเวลาและวันที่คนเข้าใช้มากที่สุด</h4>
+          <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">ช่วงเวลาและวันที่คนเข้าใช้มากที่สุด</h2>
           <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">นับเฉพาะการเช็คอิน (การเข้ามาใช้ห้องสมุด) ในช่วงเวลาที่เลือก แท่งเข้มคือช่วงที่คนเยอะที่สุด</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

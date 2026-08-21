@@ -43,7 +43,7 @@
             </button>
           </div>
         </div>
-        <a class="text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login">เข้าสู่ระบบ</a>
+        <a class="signup-page-back text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login">เข้าสู่ระบบ</a>
       </div>
     </div>
   </nav>
@@ -65,9 +65,9 @@
 
           <form class="space-y-8" id="signup-form">
             <div>
-              <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสนักศึกษา</label>
+              <label for="signup-student-id" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสนักศึกษา</label>
               <input
-                id="signup-student-id"
+                id="signup-student-id" autocomplete="username"
                 class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-label-code text-primary dark:text-primary-fixed-dim"
                 placeholder="6XXXXXXX"
                 required
@@ -77,7 +77,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-[140px_1fr_1fr] gap-6">
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">คำนำหน้า</label>
+                <label for="signup-prefix" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">คำนำหน้า</label>
                 <select id="signup-prefix" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
                   <option value="นาย">นาย</option>
                   <option value="นาง">นาง</option>
@@ -85,18 +85,18 @@
                 </select>
               </div>
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชื่อ</label>
-                <input id="signup-first-name" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" placeholder="ชื่อ" required type="text" />
+                <label for="signup-first-name" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชื่อ</label>
+                <input id="signup-first-name" autocomplete="given-name" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" placeholder="ชื่อ" required type="text" />
               </div>
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">นามสกุล</label>
-                <input id="signup-last-name" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" placeholder="นามสกุล" required type="text" />
+                <label for="signup-last-name" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">นามสกุล</label>
+                <input id="signup-last-name" autocomplete="family-name" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" placeholder="นามสกุล" required type="text" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">เพศ</label>
+                <label for="signup-gender" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">เพศ</label>
                 <select id="signup-gender" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
                   <option value="male">ชาย</option>
                   <option value="female">หญิง</option>
@@ -105,36 +105,36 @@
             </div>
 
             <div>
-              <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">แผนกวิชา</label>
+              <label for="signup-department" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">แผนกวิชา</label>
               <select id="signup-department" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required></select>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ระดับชั้น</label>
+                <label for="signup-level" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ระดับชั้น</label>
                 <select id="signup-level" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
                   <option value="ปวช.">ปวช.</option>
                   <option value="ปวส.">ปวส.</option>
                 </select>
               </div>
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชั้นปีที่</label>
+                <label for="signup-year-level" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชั้นปีที่</label>
                 <select id="signup-year-level" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required></select>
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
+                <label for="signup-password" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
                 <div class="relative">
-                  <input id="signup-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
+                  <input id="signup-password" autocomplete="new-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
                   <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">lock</span>
                 </div>
               </div>
               <div>
-                <label class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ยืนยันรหัสผ่าน</label>
+                <label for="signup-confirm-password" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ยืนยันรหัสผ่าน</label>
                 <div class="relative">
-                  <input id="signup-confirm-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
+                  <input id="signup-confirm-password" autocomplete="new-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
                   <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">verified_user</span>
                 </div>
               </div>
@@ -168,7 +168,7 @@
       <div id="signup-result-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
         <span class="material-symbols-outlined text-4xl" id="signup-result-icon-glyph"></span>
       </div>
-      <h3 id="signup-result-title" class="font-headline-md text-headline-md text-text-primary dark:text-inverse-on-surface mb-2"></h3>
+      <h3 id="signup-result-title" role="alert" aria-live="assertive" class="font-headline-md text-headline-md text-text-primary dark:text-inverse-on-surface mb-2"></h3>
       <p id="signup-result-message" class="text-body-md text-on-surface-variant dark:text-dm-text-secondary mb-6"></p>
       <button type="button" id="signup-result-close" class="w-full h-12 rounded-lg bg-primary text-white font-headline-md text-headline-md">ตกลง</button>
     </div>
