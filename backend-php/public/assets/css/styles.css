@@ -3648,3 +3648,37 @@ html.dark .lib-banner { filter: brightness(.88); }
 /* ปุ่มจัดการสองอันในเซลล์เดียวกันชนกันจนอ่านเป็นก้อนเดียว ("แก้ไขรีเซ็ตรหัสผ่าน")
    ทั้งบนจอใหญ่และจอเล็ก — คั่นให้เป็นสองปุ่มที่เห็นชัดว่าแยกกัน */
 #members-tbody .reset-password-btn { margin-left: 14px; }
+
+/* ---------------------------------------------------------------------
+   หน้าล็อกอิน — เก็บความเทอะทะ
+   เดิมมีหัวเรื่องสองชุดซ้อนกัน: โลโก้กับชื่อภาษาอังกฤษบรรทัดหนึ่ง แล้วกล่อง
+   มีกรอบอีกใบใส่ชื่อภาษาไทย กล่องนั้นลอยอยู่กลางแถบน้ำเงินกว้างๆ จนอ่านเป็น
+   ป้ายสุ่มมากกว่าหัวเว็บ เอากรอบออกแล้วรวมเป็นบรรทัดเดียว
+   --------------------------------------------------------------------- */
+.lib-banner .title-frame {
+  display: block;
+  margin-top: 2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+/* ห้องสมุด กับ ชื่อวิทยาลัย อยู่บรรทัดเดียวกัน ไม่ใช่กองซ้อนกันสองชั้น */
+.lib-banner h1 { display: inline; font-size: 19px; vertical-align: baseline; }
+.lib-banner h2 { display: inline; font-size: 15px; margin-left: 9px; vertical-align: baseline; }
+.lib-banner .eyebrow { font-size: 9.5px; opacity: .85; }
+
+/* การ์ดล็อกอินอยู่ชิดบน ปล่อยพื้นที่ว่างก้อนใหญ่ไว้ใต้มันจนดูเหมือนหน้ายังโหลด
+   ไม่เสร็จ จัดให้อยู่กลางพื้นที่ที่เหลือแทน — เฉพาะจอที่สูงพอ ไม่งั้นบนมือถือ
+   จะดันการ์ดลงไปใต้ fold */
+@media (min-height: 700px) {
+  .login-main {
+    display: flex; align-items: center; justify-content: center;
+    /* mt-5 กับ pb-16 ของ main ทำให้ "กลาง" เอียงลงล่าง 44px ปิดทั้งคู่
+       ตอนจัดกลาง เพื่อให้ช่องว่างบนกับล่างเท่ากันจริง */
+    margin-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .login-main > div { width: 100%; }
+}

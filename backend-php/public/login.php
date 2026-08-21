@@ -39,7 +39,7 @@
     <?php include __DIR__ . '/partials/lib-banner.php'; ?>
   </div>
 
-  <main class="flex-grow relative px-gutter mt-5 pb-16">
+  <main class="login-main flex-grow relative px-gutter mt-5 pb-16">
     <div class="max-w-xl mx-auto">
       <div class="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
         <div class="p-8 md:p-12">
