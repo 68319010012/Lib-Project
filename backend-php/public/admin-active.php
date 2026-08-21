@@ -39,7 +39,7 @@ require __DIR__ . '/partials/guard.php';
 
       <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline dark:border-dm-border overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="admin-table w-full text-left border-collapse">
             <thead class="bg-surface-container-high dark:bg-dm-bg">
               <tr>
                 <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">ชื่อนักศึกษา</th>

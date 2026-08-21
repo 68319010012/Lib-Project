@@ -67,7 +67,7 @@ require __DIR__ . '/partials/guard.php';
           <button id="logs-date-clear" type="button" class="bg-surface-white dark:bg-dm-surface border border-outline-variant dark:border-dm-border rounded-lg px-4 py-3 hover:bg-surface-container-high dark:hover:bg-dm-bg transition-colors font-bold dark:text-inverse-on-surface">เดือนนี้</button>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="admin-table w-full text-left border-collapse">
             <thead class="bg-surface-container-high dark:bg-dm-bg">
               <tr>
                 <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">วันเวลา</th>

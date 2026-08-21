@@ -35,9 +35,9 @@ require __DIR__ . '/partials/guard.php';
         </div>
       </div>
 
-      <div class="rise-in-group max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
+      <div class="admin-kpi-grid rise-in-group max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
-          <div class="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
+          <div class="kpi-icon w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
             <span class="material-symbols-outlined">group</span>
           </div>
           <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
@@ -45,7 +45,7 @@ require __DIR__ . '/partials/guard.php';
           <h3 id="kpi-total" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
-          <div class="w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
+          <div class="kpi-icon w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
             <span class="material-symbols-outlined">person_search</span>
           </div>
           <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
@@ -53,7 +53,7 @@ require __DIR__ . '/partials/guard.php';
           <h3 id="kpi-unique" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</h3>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
-          <div class="w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
+          <div class="kpi-icon w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
             <span class="material-symbols-outlined">calendar_today</span>
           </div>
           <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
@@ -64,7 +64,7 @@ require __DIR__ . '/partials/guard.php';
           <div class="absolute top-0 right-0 p-4">
             <div class="w-3 h-3 bg-white rounded-full stamp-pulse"></div>
           </div>
-          <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
+          <div class="kpi-icon w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
             <span class="material-symbols-outlined">meeting_room</span>
           </div>
           <p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
@@ -74,7 +74,7 @@ require __DIR__ . '/partials/guard.php';
       </div>
     </header>
 
-    <div class="max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="admin-kpi-clear max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
           <h4 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h4>

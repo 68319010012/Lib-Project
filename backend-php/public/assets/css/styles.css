@@ -3496,3 +3496,155 @@ html.dark .lib-banner { filter: brightness(.88); }
    set the property. */
 .member-edit-panel button:disabled { opacity: .5; cursor: not-allowed; }
 .member-edit-panel select:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------------
+   Admin dashboard on a phone.
+   The page was laid out for a desktop: the hero reserves 128px of bottom
+   padding for a row of KPI cards that are then translated up into it, and
+   each card stacks a 48px icon puck above its label and its number. On a
+   390px screen that works out to roughly one card per screenful — four
+   scrolls to read four numbers, with a screen of empty blue in between.
+   Two-up, icon shrunk and the reserved gap cut to match.
+   --------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .admin-hero-pattern { padding-top: 14px; padding-bottom: 64px; }
+  .admin-hero-pattern h2 { font-size: 23px; line-height: 1.25; margin-bottom: 4px; }
+  .admin-hero-pattern #ad-subtitle { font-size: 13px; line-height: 1.4; }
+
+  .admin-kpi-grid {
+    /* minmax(0, 1fr) ไม่ใช่ 1fr เฉยๆ: 1fr = minmax(auto, 1fr) ซึ่งห้าม
+       คอลัมน์หดต่ำกว่าความกว้างขั้นต่ำของเนื้อหา ป้ายภาษาไทยยาวๆ ไม่มี
+       ช่องว่างจึงเป็น "คำเดียว" ที่ตัดไม่ได้ แล้วดันคอลัมน์ล้นออกนอกจอ
+       (grid-cols-1 ของ Tailwind ที่ถูกทับไปใช้ minmax(0,1fr) อยู่แล้ว) */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+    transform: translateY(32px);
+  }
+  /* Grid children default to min-width:auto, so a label that cannot wrap
+     pushes its column wider than the track. Thai has no spaces, so
+     "อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)" is one unbreakable word — the card
+     grew past the right edge of the screen and the page scrolled sideways. */
+  .admin-kpi-grid > div {
+    padding: 12px 12px 13px; border-radius: 14px;
+    min-width: 0; overflow: hidden;
+  }
+  .admin-kpi-grid > div > p { overflow-wrap: anywhere; }
+  .admin-kpi-grid .kpi-icon { width: 26px; height: 26px; margin-bottom: 7px; }
+  .admin-kpi-grid .kpi-icon .material-symbols-outlined { font-size: 16px; }
+  .admin-kpi-grid > div > p { font-size: 10px; line-height: 1.35; margin-bottom: 3px; }
+  .admin-kpi-grid .kpi-value { font-size: 22px; line-height: 1.1; }
+  .admin-kpi-grid .kpi-skeleton { height: 22px; width: 54px; }
+  /* pt-24 existed to clear cards translated 64px up; they now move 32px. */
+  .admin-kpi-clear { padding-top: 52px; }
+}
+
+/* ---------------------------------------------------------------------
+   Visit history on a phone.
+   Three boxed cells per row times ten rows is thirty boxes on one screen,
+   and at that width each box is too narrow for its contents anyway. Below
+   560px the row becomes the box: date on its own line, the two times side
+   by side underneath with their own labels, since the table head is gone.
+   --------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  /* A tr set to display:grid leaves table layout, so the table's
+     border-spacing no longer separates the rows — the gap has to come
+     from the row itself. tbody goes block for the same reason. */
+  .visit-table, .visit-table tbody { display: block; }
+  .visit-table thead { display: none; }
+  .visit-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 10px;
+    margin-bottom: 8px;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 12px;
+    padding: 9px 12px 10px;
+    background: rgb(241 245 249);
+  }
+  .dark .visit-table tr { background: rgb(21 31 54); border-color: rgb(61 80 121); }
+  .visit-table td { padding: 0; }
+  .visit-table td:first-child { grid-column: 1 / -1; margin-bottom: 3px; }
+  /* The cells stop being boxes — the row is the box now. */
+  .visit-table .visit-cell {
+    border: 0; background: none; padding: 0; border-radius: 0;
+  }
+  .visit-table .visit-date { font-size: 13px; }
+  .visit-table .visit-dow { display: inline; font-size: 11px; margin-left: 6px; }
+  /* The head row carried these labels; without it each time needs its own. */
+  .visit-table td:nth-child(2) .visit-cell::before { content: 'เข้า'; }
+  .visit-table td:nth-child(3) .visit-cell::before { content: 'ออก'; }
+  .visit-table td:nth-child(2) .visit-cell::before,
+  .visit-table td:nth-child(3) .visit-cell::before {
+    display: block; font-size: 9.5px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; color: rgb(100 116 139); margin-bottom: 1px;
+  }
+  .dark .visit-table td:nth-child(2) .visit-cell::before,
+  .dark .visit-table td:nth-child(3) .visit-cell::before { color: rgb(148 163 184); }
+  .visit-table .visit-time { font-size: 13.5px; }
+  .visit-table .visit-cell.open .visit-time { font-size: 11.5px; }
+  .visit-table .visit-note { font-size: 10px; }
+}
+
+/* ---------------------------------------------------------------------
+   Admin tables on a phone.
+   Seven columns in 390px means a horizontal scrollbar, names broken into
+   five lines, and the row's action buttons parked off-screen where nobody
+   finds them. Below 700px each row becomes a card instead: the name leads,
+   the identifiers sit under it on one line, and the actions come last where
+   a thumb can reach them. Ordering is per table because the three tables
+   don't share a column order.
+   --------------------------------------------------------------------- */
+@media (max-width: 700px) {
+  .admin-table thead { display: none; }
+  .admin-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    padding: 12px 14px;
+  }
+  .admin-table tbody td {
+    padding: 0 !important;
+    text-align: left !important;
+    border: 0;
+  }
+  /* Everything defaults to sitting inline; the rules below promote the
+     fields that deserve their own line. */
+  .admin-table tbody td { flex: 0 1 auto; }
+  .admin-table .row-full { flex: 1 0 100%; }
+
+  /* ทำเนียบสมาชิก: รหัส ชื่อ แผนก ระดับ ปี ล่าสุด จัดการ */
+  #members-tbody td:nth-child(2) { flex: 1 0 100%; order: 1; font-size: 14px; }
+  #members-tbody td:nth-child(1) { flex: 1 0 100%; order: 2; font-size: 12px; }
+  #members-tbody td:nth-child(3) { order: 3; font-size: 12px; }
+  #members-tbody td:nth-child(4) { order: 4; font-size: 12px; }
+  #members-tbody td:nth-child(5) { order: 5; font-size: 12px; }
+  #members-tbody td:nth-child(4)::before,
+  #members-tbody td:nth-child(5)::before { content: '· '; }
+  #members-tbody td:nth-child(6) { flex: 1 0 100%; order: 6; font-size: 11.5px; }
+  #members-tbody td:nth-child(7) { flex: 1 0 100%; order: 7; text-align: right !important; margin-top: 6px; }
+
+  /* ประวัติการเข้าใช้: วันเวลา ชื่อ รหัส แผนก ประเภท */
+  #logs-tbody td:nth-child(2) { flex: 1 0 100%; order: 1; font-size: 14px; }
+  #logs-tbody td:nth-child(3) { order: 2; font-size: 12px; }
+  #logs-tbody td:nth-child(5) { order: 3; margin-left: auto; }
+  #logs-tbody td:nth-child(1) { flex: 1 0 100%; order: 4; font-size: 11.5px; }
+  #logs-tbody td:nth-child(4) { flex: 1 0 100%; order: 5; font-size: 12px; }
+
+  /* กำลังใช้งานอยู่: ชื่อ รหัส แผนก เช็คอินเมื่อ อยู่มาแล้ว จัดการ */
+  #active-tbody td:nth-child(1) { flex: 1 0 100%; order: 1; font-size: 14px; }
+  #active-tbody td:nth-child(2) { order: 2; font-size: 12px; }
+  #active-tbody td:nth-child(3) { order: 3; font-size: 12px; }
+  #active-tbody td:nth-child(3)::before { content: '· '; }
+  #active-tbody td:nth-child(4) { flex: 1 0 100%; order: 4; font-size: 11.5px; }
+  #active-tbody td:nth-child(5) { flex: 1 0 100%; order: 5; font-size: 12px; }
+  #active-tbody td:nth-child(6) { flex: 1 0 100%; order: 6; text-align: right !important; margin-top: 6px; }
+
+  /* แถวสถานะ (กำลังโหลด / ไม่พบข้อมูล) ใช้ colspan ปล่อยให้เต็มแถวตามเดิม */
+  .admin-table tbody td[colspan] { flex: 1 0 100%; }
+}
+
+/* ปุ่มจัดการสองอันในเซลล์เดียวกันชนกันจนอ่านเป็นก้อนเดียว ("แก้ไขรีเซ็ตรหัสผ่าน")
+   ทั้งบนจอใหญ่และจอเล็ก — คั่นให้เป็นสองปุ่มที่เห็นชัดว่าแยกกัน */
+#members-tbody .reset-password-btn { margin-left: 14px; }

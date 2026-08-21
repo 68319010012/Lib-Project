@@ -67,7 +67,7 @@ require __DIR__ . '/partials/guard.php';
 
       <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline-variant dark:border-dm-border overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="admin-table w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-container-low dark:bg-dm-bg border-b border-outline-variant dark:border-dm-border">
                 <th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">รหัสนักศึกษา</th>
