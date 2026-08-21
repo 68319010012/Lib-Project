@@ -1,21 +1,26 @@
-# อัปโหลด backend-php ขึ้น Hostinger ผ่าน FTP
+# อัปโหลดไฟล์ที่เปลี่ยนขึ้น ntclibrary.com ผ่าน FTP
 #
-# โครงไฟล์บนเซิร์ฟเวอร์ (ยืนยันจากหน้า FTP Accounts + ตรวจจากฝั่งเว็บแล้ว):
+# โครงจริงบนเซิร์ฟเวอร์ (พิสูจน์ด้วยการ LIST จริง ไม่ใช่เดาจากหน้า hPanel):
 #
-#   /home/u938419322/domains/ntclibrary.com/   <- home ของบัญชี FTP u938419322.deploy
-#       public_html/                           <- document root = เนื้อใน backend-php/public/
-#       src/  fonts/  vendor/  .env            <- อยู่เหนือ docroot จึงเข้าจากเว็บไม่ได้
+#   /                       <- chroot ของบัญชี u938419322.deploy
+#                              = /home/u938419322/domains/ntclibrary.com
+#       .env                <- ห้ามแตะ ไม่มีใน repo
+#       vendor/             <- mpdf ห้ามแตะ ไม่มีใน repo
+#       fonts/
+#       src/                <- backend-php/src/
+#       public_html/        <- document root = backend-php/public/
 #
-# เพราะ public/ ถูกกางออกเป็น public_html การอัปจึงต้องแยกสองชุด อัปรวมชุดเดียว
-# จะได้โฟลเดอร์ public/ ที่ไม่มีใครเรียก ส่วนหน้าเว็บจริงยังเป็นโค้ดเก่า =
-# backend ใหม่ frontend เก่า ซึ่งพังแบบเงียบๆ
+# บัญชีล็อกอินมาโผล่ที่ /public_html ไม่ใช่ราก จึงต้องใช้ %2F ระบุ path จากราก
+# ของ chroot (curl ตัด ".." ออกจาก URL เอง path แบบสัมพัทธ์จึงขึ้นชั้นบนไม่ได้)
+#
+# ใช้ curl ตรงๆ แทน FTP-Deploy-Action เพราะลำดับการอัปสำคัญกว่าความสะดวก:
+# ไฟล์ใน src/ กับ public/ พึ่งกัน การ sync ทั้งโฟลเดอร์พร้อมกันทำให้มีช่วงที่
+# เว็บพัง action สั่งลำดับแบบนี้ไม่ได้
 #
 # ต้องตั้งใน GitHub (Settings → Secrets and variables → Actions → Secrets):
 #   FTP_SERVER     ftp.ntclibrary.com
 #   FTP_USERNAME   u938419322.deploy
-#   FTP_PASSWORD   รหัสของบัญชี deploy นั้น
-#
-# รหัสผ่านอยู่ใน GitHub Secrets เท่านั้น ไม่อยู่ในไฟล์นี้และไม่อยู่ใน repo
+#   FTP_PASSWORD   รหัสของบัญชีนั้น
 
 name: Deploy to Hostinger
 
@@ -31,20 +36,10 @@ on:
         required: true
         default: ''
 
-  # เปิดใช้เมื่อพร้อมให้ deploy อัตโนมัติทุกครั้งที่ push เข้า main
-  # push:
-  #   branches: [main]
-  #   paths: ['backend-php/**']
-
 concurrency:
-  # กัน deploy ซ้อนกัน สองงานที่อัปทับไฟล์ชุดเดียวกันพร้อมกันจะทิ้งเซิร์ฟเวอร์
-  # ไว้ครึ่งๆ กลางๆ
+  # สอง deploy พร้อมกันจะอัปทับกันจนเซิร์ฟเวอร์ค้างครึ่งๆ กลางๆ
   group: deploy-production
   cancel-in-progress: false
-
-env:
-  # แยกไว้ตรงนี้เพราะ FTP สองสเต็ปข้างล่างต้องใช้ค่าเดียวกัน
-  DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
 
 jobs:
   deploy:
@@ -53,7 +48,7 @@ jobs:
 
     steps:
       - name: ยืนยันคำสั่ง
-        if: github.event_name == 'workflow_dispatch' && inputs.confirm != 'deploy'
+        if: inputs.confirm != 'deploy'
         run: |
           echo "ต้องพิมพ์คำว่า deploy ในช่องยืนยันถึงจะทำงานต่อ"
           exit 1
@@ -67,59 +62,71 @@ jobs:
           find backend-php -name '*.php' -not -path 'backend-php/vendor/*' -print0 \
             | xargs -0 -n1 -P4 php -l
 
-      - name: บอกโหมดที่กำลังจะรัน
+      - name: อัปโหลด
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          if [ "$DRY_RUN" = "true" ]; then
-            echo "โหมดซ้อม — จะแสดงรายการไฟล์ที่จะถูกอัป แต่ไม่เขียนอะไรลงเซิร์ฟเวอร์"
-          else
-            echo "โหมดจริง — ไฟล์จะถูกเขียนทับบน ntclibrary.com"
+          set -uo pipefail
+          umask 077
+          printf 'machine %s\nlogin %s\npassword %s\n' \
+            "$FTP_SERVER" "$FTP_USERNAME" "$FTP_PASSWORD" > "$RUNNER_TEMP/netrc"
+
+          FAIL=0
+          upload() {
+            rel="$1"
+            case "$rel" in
+              public/*) remote="%2Fpublic_html/${rel#public/}" ;;
+              src/*)    remote="%2Fsrc/${rel#src/}" ;;
+              *)        echo "  ข้าม (ไม่รู้ปลายทาง): $rel"; return ;;
+            esac
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "  [ซ้อม] $rel"
+              return
+            fi
+            if curl -sS --netrc-file "$RUNNER_TEMP/netrc" --max-time 120 \
+                 --ftp-create-dirs -T "backend-php/$rel" \
+                 "ftp://$FTP_SERVER/$remote"; then
+              echo "  ok   $rel"
+            else
+              echo "  FAIL $rel"; FAIL=$((FAIL+1))
+            fi
+          }
+
+          # ลำดับนี้ทำให้เว็บใช้งานได้ตลอดระหว่างอัป: ของที่ถูกอ้างถึงต้องขึ้น
+          # ก่อนของที่อ้างถึงมันเสมอ index.php ประกาศ route จึงต้องท้ายสุด
+          upload src/constants.php
+          upload public/partials/guard.php
+          upload src/auth.php
+
+          for f in $(git diff --name-only "$(git rev-parse HEAD~1)" HEAD -- backend-php/src \
+                     | sed 's|^backend-php/||' | grep -v '^src/constants.php$' | grep -v '^src/auth.php$'); do
+            upload "$f"
+          done
+          for f in $(git diff --name-only "$(git rev-parse HEAD~1)" HEAD -- backend-php/public \
+                     | sed 's|^backend-php/||' | grep -v '^public/index.php$' \
+                     | grep -v '^public/partials/guard.php$'); do
+            upload "$f"
+          done
+          upload public/index.php
+
+          rm -f "$RUNNER_TEMP/netrc"
+          echo "ล้มเหลว $FAIL ไฟล์"
+          exit $((FAIL > 0 ? 1 : 0))
+
+      - name: ตรวจเว็บหลังอัป
+        if: inputs.dry_run == false
+        run: |
+          for p in / /login /library-info; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://ntclibrary.com$p")
+            echo "  $p -> $code"
+          done
+          # src ต้องเข้าจากเว็บไม่ได้ ถ้าวันไหนได้ 200 แปลว่าอัปผิดชั้น
+          code=$(curl -s -o /dev/null -L -w '%{http_code}' --max-time 20 "https://ntclibrary.com/src/auth.php")
+          if [ "$code" != "404" ]; then
+            echo "เตือน: /src/auth.php ตอบ $code ควรเป็น 404"
+            exit 1
           fi
-
-      # ชุดที่ 1: เนื้อใน public/ ลง public_html (document root)
-      - name: อัป public/ → public_html/
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./backend-php/public/
-          server-dir: ./public_html/
-          dry-run: ${{ env.DRY_RUN }}
-          # ไม่ล้างไฟล์ฝั่งเซิร์ฟเวอร์เด็ดขาด
-          dangerous-clean-slate: false
-          state-name: .ftp-deploy-public.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.env
-
-      # ชุดที่ 2: ที่เหลือ (src, fonts, migrations, scripts, composer.json)
-      # ลงระดับเหนือ docroot
-      - name: อัปส่วนที่เหลือ → domains/ntclibrary.com/
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./backend-php/
-          server-dir: ./
-          dry-run: ${{ env.DRY_RUN }}
-          dangerous-clean-slate: false
-          state-name: .ftp-deploy-root.json
-          # public/** ถูกอัปไปแล้วในชุดที่ 1 ถ้าไม่กันไว้จะได้โฟลเดอร์ public/
-          # ซ้ำอีกชุดที่ไม่มีใครเรียก
-          #
-          # .env กับ vendor/ ไม่ได้อยู่ใน repo อยู่แล้ว (อยู่ใน .gitignore)
-          # ใส่ไว้กันพลาดถ้าวันหนึ่งมีคนเผลอ commit เข้ามา — ทับ .env เมื่อไหร่
-          # คือรหัส DB production หายทันที
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.env
-            public/**
-            vendor/**
-            tests/**
-            Dockerfile
-            docker/**
-            Student.xlsx
-            **/node_modules/**
+          echo "  /src/auth.php -> 404 (ถูกต้อง)"
