@@ -123,7 +123,15 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     // div versions of those same charts are hidden below so the PDF shows
     // each set of numbers once. Sparklines and the meter ring stay dropped —
     // they are decoration on a KPI card, not the datum.
-    $pdfStyle = <<<CSS
+    // Nowdoc, not heredoc. A bare <<<CSS interpolates like a double-quoted
+    // string, and this block mentions $content and $pdfCharts in its own
+    // comments — which PHP happily substituted: the array raised "Array to
+    // string conversion", and that warning printed ahead of the %PDF header,
+    // corrupting every downloaded file. The string one was worse for being
+    // silent, pasting the whole report body inside a CSS comment. Nothing in
+    // this stylesheet is meant to be dynamic, so quoting the identifier ends
+    // the whole class of bug rather than escaping two sigils.
+    $pdfStyle = <<<'CSS'
     * { box-sizing: border-box; page-break-inside: auto; }
     body { font-family: ibmplexsansthai; font-size: 12px; color: #0f172a; }
     h1 { font-size: 18px; color: #1e3a8a; margin: 0 0 4px; }
