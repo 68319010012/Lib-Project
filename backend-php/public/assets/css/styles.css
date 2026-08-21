@@ -3458,6 +3458,11 @@ html.dark .lib-banner { filter: brightness(.88); }
   /* Momentum scrolling on iOS, so a flick behaves like every other wheel
      the person has used on that phone. */
   -webkit-overflow-scrolling: touch;
+  /* Fade the ends instead of slicing them. Without this the first and last
+     visible rows are cut through the middle of a digit at a hard edge, which
+     reads as a rendering fault rather than as numbers curving away. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 70%, transparent 100%);
 }
 .time-wheel-col::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .time-wheel-col:focus-visible { box-shadow: 0 0 0 2px rgb(30 58 138); border-radius: 10px; }

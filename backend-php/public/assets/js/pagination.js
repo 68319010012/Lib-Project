@@ -6,7 +6,9 @@
 // slow to lay out and impossible to read. The JSON payload is unchanged —
 // moving to real server-side LIMIT/OFFSET would need API changes on top.
 
-const PAGE_SIZE = 15;
+// 10 ไม่ใช่ 15: หน้าจอโทรศัพท์เห็นได้ประมาณนี้พอดีโดยไม่ต้องเลื่อนยาว
+// และตรงกับ HISTORY_PAGE_SIZE ในโมดัลประวัติ ทำให้ทุกตารางในระบบนับหน้าเท่ากัน
+const PAGE_SIZE = 10;
 
 // Clamps `page` into range and returns the slice plus everything the pager
 // needs to describe itself. Clamping (rather than trusting the caller) is

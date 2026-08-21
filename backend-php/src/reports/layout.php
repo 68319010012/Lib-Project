@@ -387,6 +387,25 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     box-shadow: 0 2px 12px rgba(0,0,0,.04);
   }
   .table-scroll { overflow-x: auto; }
+
+  /* Screen-only paging for long report tables. The monthly report is one row
+     per student, so on a phone it was 700+ rows in a single scroll. Rows are
+     hidden with a class rather than removed from the DOM: printing has to get
+     the whole table back, and a report that prints only the visible page is
+     not a report. The @media print block below restores them. */
+  .is-paged-out { display: none; }
+  .report-pager {
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+    padding: 10px 2px 2px; font-size: 12px; color: var(--on-surface-variant);
+  }
+  .report-pager .rp-info { margin-right: auto; }
+  .report-pager button {
+    font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px;
+    border: 1px solid var(--outline-variant); background: var(--surface-white);
+    color: var(--primary); cursor: pointer;
+  }
+  .report-pager button:disabled { opacity: .45; cursor: not-allowed; }
+  .report-pager button:hover:not(:disabled) { background: #e8f0fe; }
   table { width: 100%; border-collapse: collapse; min-width: 640px; }
   th, td { padding: 10px 14px; font-size: 13px; text-align: left; border-bottom: 1px solid var(--outline-variant); }
   th { background: var(--primary); color: #fff; font-weight: 700; white-space: nowrap; }
@@ -515,6 +534,10 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     header.report-head h2 { opacity: 1; color: #444; }
     main.report-body { max-width: none; padding: 12px 0; }
     .table-wrap { box-shadow: none; border-radius: 0; }
+    /* Paging is a screen convenience only — the printed report carries every
+       row, which is the whole reason someone prints it. */
+    .is-paged-out { display: table-row !important; }
+    .report-pager { display: none !important; }
     th { background: #f0f0f0 !important; color: #111 !important; }
     /* Every bar, track and pill in these reports IS a background colour — not
        text, not a border — and browsers drop background fills when printing
@@ -692,6 +715,51 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   // "date: N รายการ" line into that chart's .trend-detail-text, and a
   // native title="" attribute still covers mouse hover. Works for both
   // dashboard.php and department.php's trend charts without per-report JS.
+  // Long tables get a pager on screen. Threshold matches PAGE_SIZE in
+  // assets/js/pagination.js so every table in the app counts pages the same
+  // way. mPDF never runs this — the ?format=pdf path renders the PHP output
+  // directly — so the exported file is unaffected.
+  var REPORT_ROWS_PER_PAGE = 10;
+  document.querySelectorAll('.table-wrap table tbody').forEach(function (tbody) {
+    var rows = Array.prototype.slice.call(tbody.children).filter(function (el) {
+      return el.tagName === 'TR';
+    });
+    if (rows.length <= REPORT_ROWS_PER_PAGE) return;
+
+    var wrap = tbody.closest('.table-wrap');
+    if (!wrap) return;
+    var pager = document.createElement('div');
+    pager.className = 'report-pager print-hidden';
+    wrap.parentNode.insertBefore(pager, wrap.nextSibling);
+
+    var page = 1;
+    var totalPages = Math.ceil(rows.length / REPORT_ROWS_PER_PAGE);
+
+    function draw() {
+      var start = (page - 1) * REPORT_ROWS_PER_PAGE;
+      var end = start + REPORT_ROWS_PER_PAGE;
+      rows.forEach(function (tr, i) {
+        if (i < start || i >= end) tr.classList.add('is-paged-out');
+        else tr.classList.remove('is-paged-out');
+      });
+      pager.innerHTML =
+        '<span class="rp-info">แสดง ' + (start + 1).toLocaleString() + '–' +
+        Math.min(end, rows.length).toLocaleString() + ' จาก ' + rows.length.toLocaleString() +
+        ' แถว (พิมพ์ออกมาได้ครบทุกแถว)</span>' +
+        '<button type="button" data-rp="prev"' + (page === 1 ? ' disabled' : '') + '>ก่อนหน้า</button>' +
+        '<span>หน้า ' + page + ' / ' + totalPages + '</span>' +
+        '<button type="button" data-rp="next"' + (page === totalPages ? ' disabled' : '') + '>ถัดไป</button>';
+      pager.querySelectorAll('button[data-rp]').forEach(function (b) {
+        if (b.disabled) return;
+        b.addEventListener('click', function () {
+          page += b.dataset.rp === 'next' ? 1 : -1;
+          draw();
+        });
+      });
+    }
+    draw();
+  });
+
   document.querySelectorAll('.trend-chart .bar-wrap[data-count]').forEach(function (wrap) {
     wrap.addEventListener('click', function () {
       var container = wrap.closest('.mini-panel, .panel');
