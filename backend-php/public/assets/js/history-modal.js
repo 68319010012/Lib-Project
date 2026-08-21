@@ -2,51 +2,88 @@
 // frontend-react/src/components/HistoryModal.jsx, extended with pagination
 // (10 rows/page instead of a single 50-row fetch) since the list can grow
 // large over a school year. Markup lives in partials/history-modal.php
-// (hidden by default); this file wires open/close, paging, and the
-// /me/history fetch + render. Reached from AppHeader's avatar menu.
+// (hidden by default); this file wires open/close, paging, and the fetch +
+// render. Reached from AppHeader's avatar menu.
+//
+// Reads /me/visits, not /me/history: the raw log is one row per event, so a
+// single trip to the library arrived as two separate cards and the reader had
+// to pair them up by eye. The server pairs them (handle_my_visits) and this
+// renders one table row per visit — date, time in, time out.
 
 const HISTORY_PAGE_SIZE = 10;
 let historyPageOffset = 0;
 
-function formatHistoryTimestamp(ts) {
-  return new Date(ts).toLocaleString('th-TH', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+function formatVisitDate(ts) {
+  const d = new Date(ts);
+  return {
+    date: d.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' }),
+    dow: d.toLocaleDateString('th-TH', { weekday: 'short' }),
+  };
 }
 
-function renderHistoryRows(history) {
+function formatVisitTime(ts) {
+  return new Date(ts).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Who wrote the check-out. A student who never tapped "เช็คเอาต์" should be
+// able to see why a time is sitting there anyway, rather than reading it as
+// something they did and forgot.
+const CHECKOUT_SOURCE_NOTE = {
+  auto: 'ระบบบันทึกให้',
+  admin_forced: 'เจ้าหน้าที่บันทึกให้',
+};
+
+function renderVisitRows(visits) {
   const body = document.getElementById('history-modal-body');
   if (!body) return;
-  if (history === null) {
-    body.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด…</p>';
+  if (visits === null) {
+    body.innerHTML = '<p class="visit-empty">กำลังโหลด…</p>';
     return;
   }
-  if (history.length === 0) {
-    body.innerHTML = '<p class="text-body-md text-text-secondary dark:text-dm-text-secondary">ยังไม่มีประวัติการเช็คอิน</p>';
+  if (visits.length === 0) {
+    body.innerHTML = '<p class="visit-empty">ยังไม่มีประวัติการเข้าใช้</p>';
     return;
   }
-  body.innerHTML = history
-    .map((row) => {
-      const isIn = row.type === 'in';
+
+  const rows = visits
+    .map((visit) => {
+      const { date, dow } = formatVisitDate(visit.checkin_at);
+      const note = CHECKOUT_SOURCE_NOTE[visit.checkout_source];
+      const checkoutCell = visit.checkout_at
+        ? `<span class="visit-cell out">
+             <span class="visit-time">${escapeHtml(formatVisitTime(visit.checkout_at))} น.</span>
+             ${note ? `<span class="visit-note">${escapeHtml(note)}</span>` : ''}
+           </span>`
+        : `<span class="visit-cell out open">
+             <span class="visit-time">ยังอยู่ในห้องสมุด</span>
+           </span>`;
       return `
-        <div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low dark:bg-dm-bg border-l-4 ${isIn ? 'border-status-success' : 'border-warning'}">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-warning/10 text-warning'}">
-              <span class="material-symbols-outlined">${isIn ? 'login' : 'logout'}</span>
-            </div>
-            <div>
-              <p class="font-bold text-text-primary dark:text-inverse-on-surface">${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}</p>
-              <p class="text-xs text-text-secondary dark:text-dm-text-secondary">${formatHistoryTimestamp(row.timestamp)}</p>
-            </div>
-          </div>
-        </div>
+        <tr>
+          <td>
+            <span class="visit-cell">
+              <span class="visit-date">${escapeHtml(date)}</span>
+              <span class="visit-dow">${escapeHtml(dow)}</span>
+            </span>
+          </td>
+          <td>
+            <span class="visit-cell in">
+              <span class="visit-time">${escapeHtml(formatVisitTime(visit.checkin_at))} น.</span>
+            </span>
+          </td>
+          <td>${checkoutCell}</td>
+        </tr>
       `;
     })
     .join('');
+
+  body.innerHTML = `
+    <table class="visit-table">
+      <thead>
+        <tr><th>วันที่</th><th>เช็คอิน</th><th>เช็คเอาต์</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
 
 function updateHistoryPagerState(pageRowCount, hasMore) {
@@ -64,18 +101,17 @@ function updateHistoryPagerState(pageRowCount, hasMore) {
 }
 
 async function loadHistoryPage() {
-  renderHistoryRows(null);
+  renderVisitRows(null);
   try {
-    // Fetch one extra row to know whether a next page exists, without
-    // changing /me/history's response shape (still a plain array — other
-    // callers like dashboard.js rely on that).
-    const rows = await apiFetch(`/me/history?limit=${HISTORY_PAGE_SIZE + 1}&offset=${historyPageOffset}`);
-    const hasMore = rows.length > HISTORY_PAGE_SIZE;
-    const pageRows = hasMore ? rows.slice(0, HISTORY_PAGE_SIZE) : rows;
-    renderHistoryRows(pageRows);
-    updateHistoryPagerState(pageRows.length, hasMore);
+    // One extra row to learn whether a next page exists, without the endpoint
+    // needing to count the whole table.
+    const visits = await apiFetch(`/me/visits?limit=${HISTORY_PAGE_SIZE + 1}&offset=${historyPageOffset}`);
+    const hasMore = visits.length > HISTORY_PAGE_SIZE;
+    const pageVisits = hasMore ? visits.slice(0, HISTORY_PAGE_SIZE) : visits;
+    renderVisitRows(pageVisits);
+    updateHistoryPagerState(pageVisits.length, hasMore);
   } catch (_err) {
-    renderHistoryRows([]);
+    renderVisitRows([]);
     updateHistoryPagerState(0, false);
   }
 }

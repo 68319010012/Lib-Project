@@ -134,7 +134,7 @@ function handle_report_monthly(): void
 <form class="filter-bar" method="get">
   <div class="field">
     <label for="month">เดือน</label>
-    <input type="month" id="month" name="month" value="<?= htmlspecialchars($month) ?>">
+    <?= render_month_select($month) ?>
   </div>
   <div class="field">
     <label for="academic_year">ปีการศึกษา</label>
@@ -301,8 +301,32 @@ function handle_report_monthly(): void
     <?php
     $content = ob_get_clean();
 
+    // Redrawn as PNGs by GD — the .dept-bar-track/.dept-bar-fill pairs on
+    // screen are divs mPDF cannot measure. See layout.php.
+    $pdfCharts = [];
+    if ($weekly) {
+        $pdfCharts[] = [
+            'title' => 'แนวโน้มรายสัปดาห์',
+            'orientation' => 'vertical',
+            'height' => 150,
+            'labels' => array_map(fn($w) => 'ส.' . (int) $w['week'], $weekly),
+            'values' => array_column($weekly, 'count'),
+        ];
+    }
+    if ($deptBreakdown) {
+        // Same top-8 slice the on-screen panel shows, so the PDF is not a
+        // different report from the page it was saved off.
+        $pdfTopDepts = array_slice($deptBreakdown, 0, 8);
+        $pdfCharts[] = [
+            'title' => 'แผนกที่เข้าใช้มากที่สุด',
+            'orientation' => 'horizontal',
+            'labels' => array_column($pdfTopDepts, 'name'),
+            'values' => array_column($pdfTopDepts, 'count'),
+        ];
+    }
+
     render_report_layout('รายงานสรุปรายเดือน', "รายงานสรุปการเช็คชื่อประจำเดือน $month", $content, $extraStyle, [
         'csv' => "/admin/reports/print/monthly?month=$month&format=csv",
         'excel' => "/admin/reports/print/monthly?month=$month&format=excel",
-    ]);
+    ], $pdfCharts);
 }

@@ -19,3 +19,9 @@ const DEPARTMENTS = [
 ];
 
 const YEAR_OPTIONS = { 'ปวช.': ['1', '2', '3'], 'ปวส.': ['1', '2'] };
+
+// Mirrors valid_prefixes() in src/constants.php — the API only accepts these
+// three, so the admin edit form must not offer a fourth. signup.php still
+// hardcodes the same three as <option> tags in its markup; if a prefix is ever
+// added, all three places change together.
+const PREFIXES = ['นาย', 'นาง', 'นางสาว'];

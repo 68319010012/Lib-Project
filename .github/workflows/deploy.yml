@@ -1,0 +1,125 @@
+# อัปโหลด backend-php ขึ้น Hostinger ผ่าน FTP
+#
+# โครงไฟล์บนเซิร์ฟเวอร์ (ยืนยันจากหน้า FTP Accounts + ตรวจจากฝั่งเว็บแล้ว):
+#
+#   /home/u938419322/domains/ntclibrary.com/   <- home ของบัญชี FTP u938419322.deploy
+#       public_html/                           <- document root = เนื้อใน backend-php/public/
+#       src/  fonts/  vendor/  .env            <- อยู่เหนือ docroot จึงเข้าจากเว็บไม่ได้
+#
+# เพราะ public/ ถูกกางออกเป็น public_html การอัปจึงต้องแยกสองชุด อัปรวมชุดเดียว
+# จะได้โฟลเดอร์ public/ ที่ไม่มีใครเรียก ส่วนหน้าเว็บจริงยังเป็นโค้ดเก่า =
+# backend ใหม่ frontend เก่า ซึ่งพังแบบเงียบๆ
+#
+# ต้องตั้งใน GitHub (Settings → Secrets and variables → Actions → Secrets):
+#   FTP_SERVER     ftp.ntclibrary.com
+#   FTP_USERNAME   u938419322.deploy
+#   FTP_PASSWORD   รหัสของบัญชี deploy นั้น
+#
+# รหัสผ่านอยู่ใน GitHub Secrets เท่านั้น ไม่อยู่ในไฟล์นี้และไม่อยู่ใน repo
+
+name: Deploy to Hostinger
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'ซ้อมก่อน (ไม่เขียนไฟล์จริง) — ปล่อย true ไว้ในรอบแรกเสมอ'
+        type: boolean
+        default: true
+      confirm:
+        description: 'พิมพ์ deploy เพื่อยืนยันว่าทดสอบแล้วจริง'
+        required: true
+        default: ''
+
+  # เปิดใช้เมื่อพร้อมให้ deploy อัตโนมัติทุกครั้งที่ push เข้า main
+  # push:
+  #   branches: [main]
+  #   paths: ['backend-php/**']
+
+concurrency:
+  # กัน deploy ซ้อนกัน สองงานที่อัปทับไฟล์ชุดเดียวกันพร้อมกันจะทิ้งเซิร์ฟเวอร์
+  # ไว้ครึ่งๆ กลางๆ
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  # แยกไว้ตรงนี้เพราะ FTP สองสเต็ปข้างล่างต้องใช้ค่าเดียวกัน
+  DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: ยืนยันคำสั่ง
+        if: github.event_name == 'workflow_dispatch' && inputs.confirm != 'deploy'
+        run: |
+          echo "ต้องพิมพ์คำว่า deploy ในช่องยืนยันถึงจะทำงานต่อ"
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - name: ตรวจ syntax ทุกไฟล์ PHP ก่อนอัป
+        # ด่านสุดท้ายที่ถูกที่สุด ไฟล์เดียวที่ parse ไม่ผ่านทำให้ทั้งเว็บขาวได้
+        # และการกู้คืนคือต้องอัปทับใหม่ผ่าน FTP ซึ่งช้ากว่าการหยุดตรงนี้มาก
+        run: |
+          find backend-php -name '*.php' -not -path 'backend-php/vendor/*' -print0 \
+            | xargs -0 -n1 -P4 php -l
+
+      - name: บอกโหมดที่กำลังจะรัน
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "โหมดซ้อม — จะแสดงรายการไฟล์ที่จะถูกอัป แต่ไม่เขียนอะไรลงเซิร์ฟเวอร์"
+          else
+            echo "โหมดจริง — ไฟล์จะถูกเขียนทับบน ntclibrary.com"
+          fi
+
+      # ชุดที่ 1: เนื้อใน public/ ลง public_html (document root)
+      - name: อัป public/ → public_html/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./backend-php/public/
+          server-dir: ./public_html/
+          dry-run: ${{ env.DRY_RUN }}
+          # ไม่ล้างไฟล์ฝั่งเซิร์ฟเวอร์เด็ดขาด
+          dangerous-clean-slate: false
+          state-name: .ftp-deploy-public.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.env
+
+      # ชุดที่ 2: ที่เหลือ (src, fonts, migrations, scripts, composer.json)
+      # ลงระดับเหนือ docroot
+      - name: อัปส่วนที่เหลือ → domains/ntclibrary.com/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./backend-php/
+          server-dir: ./
+          dry-run: ${{ env.DRY_RUN }}
+          dangerous-clean-slate: false
+          state-name: .ftp-deploy-root.json
+          # public/** ถูกอัปไปแล้วในชุดที่ 1 ถ้าไม่กันไว้จะได้โฟลเดอร์ public/
+          # ซ้ำอีกชุดที่ไม่มีใครเรียก
+          #
+          # .env กับ vendor/ ไม่ได้อยู่ใน repo อยู่แล้ว (อยู่ใน .gitignore)
+          # ใส่ไว้กันพลาดถ้าวันหนึ่งมีคนเผลอ commit เข้ามา — ทับ .env เมื่อไหร่
+          # คือรหัส DB production หายทันที
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.env
+            public/**
+            vendor/**
+            tests/**
+            Dockerfile
+            docker/**
+            Student.xlsx
+            **/node_modules/**

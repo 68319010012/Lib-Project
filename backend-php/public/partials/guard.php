@@ -11,6 +11,10 @@
 require __DIR__ . '/../../src/env.php';
 load_env(__DIR__ . '/../../.env');
 date_default_timezone_set(env('APP_TIMEZONE', 'Asia/Bangkok'));
+// bootstrap_session() reads SESSION_LIFETIME_SECONDS from constants.php, so the
+// pages that come in through this guard need it loaded too — index.php requires
+// it for the JSON API, but that front controller is not in this path.
+require __DIR__ . '/../../src/constants.php';
 require __DIR__ . '/../../src/helpers.php';
 require __DIR__ . '/../../src/auth.php';
 

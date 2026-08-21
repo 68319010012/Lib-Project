@@ -181,7 +181,7 @@ function handle_report_select(): void
       <h2>รายงานแบบแดชบอร์ด</h2>
       <p class="desc">สรุปภาพรวมแบบ KPI การ์ดและกราฟ พร้อมตัวกรองแผนก/ระดับชั้น/ภาคเรียน เห็นภาพรวมได้ในหน้าเดียว</p>
       <label for="dashboard_month">เดือน</label>
-      <input type="month" id="dashboard_month" name="month" value="<?= htmlspecialchars($thisMonth) ?>">
+      <?= render_month_select($thisMonth, 'month', 'dashboard_month') ?>
       <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
     </form>
 
@@ -190,7 +190,7 @@ function handle_report_select(): void
       <h2>สรุปสำหรับผู้บริหาร</h2>
       <p class="desc">ภาพรวมระดับผู้บริหาร พร้อม % เทียบกับเดือนก่อนหน้าและแผนกยอดนิยม</p>
       <label for="executive_month">เดือน</label>
-      <input type="month" id="executive_month" name="month" value="<?= htmlspecialchars($thisMonth) ?>">
+      <?= render_month_select($thisMonth, 'month', 'executive_month') ?>
       <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
     </form>
 
@@ -220,7 +220,7 @@ function handle_report_select(): void
       <h2>รายงานสรุปรายเดือน</h2>
       <p class="desc">จำนวนครั้งที่เช็คชื่อของนักศึกษาแต่ละคน พร้อมเปรียบเทียบกับเดือนก่อนหน้า</p>
       <label for="month">เดือน</label>
-      <input type="month" id="month" name="month" value="<?= htmlspecialchars($thisMonth) ?>">
+      <?= render_month_select($thisMonth, 'month', 'month') ?>
       <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> ดูรายงาน</button>
     </form>
 
@@ -243,9 +243,9 @@ function handle_report_select(): void
       <h2>เปรียบเทียบช่วงเวลา</h2>
       <p class="desc">เทียบตัวชี้วัดและแผนกวิชาระหว่าง 2 เดือนที่เลือก</p>
       <label for="month_a">ช่วง A</label>
-      <input type="month" id="month_a" name="month_a" value="<?= htmlspecialchars(date('Y-m', strtotime('-1 month'))) ?>">
+      <?= render_month_select(date('Y-m', strtotime('-1 month')), 'month_a', 'month_a') ?>
       <label for="month_b" style="margin-top:8px;">ช่วง B</label>
-      <input type="month" id="month_b" name="month_b" value="<?= htmlspecialchars($thisMonth) ?>">
+      <?= render_month_select($thisMonth, 'month_b', 'month_b') ?>
       <button type="submit"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span> เปรียบเทียบ</button>
     </form>
 

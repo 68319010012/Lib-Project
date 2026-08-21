@@ -507,7 +507,7 @@ function handle_report_dashboard(): void
   <input type="hidden" name="orientation" value="<?= htmlspecialchars($orientation) ?>">
   <div class="field">
     <label for="month">เดือน</label>
-    <input type="month" id="month" name="month" value="<?= htmlspecialchars($useCustomRange ? '' : $month) ?>">
+    <?= render_month_select($useCustomRange ? '' : $month, 'month', 'month', 18, '— ใช้ช่วงวันที่ด้านล่าง —') ?>
   </div>
   <div class="field">
     <label for="start_date">จากวันที่ (ถ้าใช้ช่วงวันที่)</label>

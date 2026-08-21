@@ -228,8 +228,29 @@ function handle_report_semester(): void
     <?php
     $content = ob_get_clean();
 
+    // Redrawn as PNGs by GD — the .month-track/.dept-bar-track pairs on screen
+    // are divs mPDF cannot measure. See layout.php.
+    $pdfCharts = [];
+    if ($monthly) {
+        $pdfCharts[] = [
+            'title' => 'แนวโน้มรายเดือน',
+            'orientation' => 'vertical',
+            'height' => 150,
+            'labels' => array_column($monthly, 'ym'),
+            'values' => array_column($monthly, 'cnt'),
+        ];
+    }
+    if ($topDepts) {
+        $pdfCharts[] = [
+            'title' => 'Ranking แผนกวิชา',
+            'orientation' => 'horizontal',
+            'labels' => array_column($topDepts, 'name'),
+            'values' => array_column($topDepts, 'count'),
+        ];
+    }
+
     render_report_layout('รายงานภาคเรียน', "สรุปผลการใช้ห้องสมุด — $periodLabel", $content, $extraStyle, [
         'csv' => "/admin/reports/print/semester?academic_year=$academicYear&semester=$semester&format=csv",
         'excel' => "/admin/reports/print/semester?academic_year=$academicYear&semester=$semester&format=excel",
-    ]);
+    ], $pdfCharts);
 }

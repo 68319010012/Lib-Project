@@ -97,7 +97,12 @@ require __DIR__ . '/partials/guard.php';
         <label class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</label>
         <p id="modal-time-closed" class="hidden text-warning text-sm">ห้องสมุดปิดแล้ว</p>
         <div id="modal-time-open">
-          <input type="text" id="modal-checkout-time" inputmode="numeric" autocomplete="off" placeholder="เช่น 17:00" maxlength="5" class="w-full h-11 px-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg text-center tracking-widest font-label-code" />
+          <div class="time-wheel" id="modal-time-wheel">
+            <div class="time-wheel-band" aria-hidden="true"></div>
+            <div class="time-wheel-col" id="modal-wheel-hour" tabindex="0" role="spinbutton" aria-label="ชั่วโมงที่จะออก"></div>
+            <span class="time-wheel-sep" aria-hidden="true">:</span>
+            <div class="time-wheel-col" id="modal-wheel-minute" tabindex="0" role="spinbutton" aria-label="นาทีที่จะออก"></div>
+          </div>
           <p id="modal-time-hint" class="text-xs text-text-secondary dark:text-dm-text-secondary mt-2"></p>
         </div>
       </div>

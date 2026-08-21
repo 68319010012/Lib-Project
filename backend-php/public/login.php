@@ -43,37 +43,26 @@
     <div class="max-w-xl mx-auto">
       <div class="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-lg overflow-hidden border border-outline-variant/30 dark:border-dm-border transition-all-200">
         <div class="p-8 md:p-12">
-          <div class="flex mb-8 bg-surface-container-low dark:bg-dm-bg rounded-lg p-1">
-            <button type="button" data-role-tab="student" class="flex-1 h-11 rounded-md font-headline-md text-body-md flex items-center justify-center gap-2 transition-all-200 bg-surface-white dark:bg-dm-surface text-primary dark:text-primary-fixed-dim shadow-sm border border-outline-variant dark:border-dm-border">
-              <span class="material-symbols-outlined text-xl">school</span>
-              นักศึกษา
-            </button>
-            <button type="button" data-role-tab="admin" class="flex-1 h-11 rounded-md font-headline-md text-body-md flex items-center justify-center gap-2 transition-all-200 text-on-surface-variant dark:text-dm-text-secondary">
-              <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
-              แอดมิน
-            </button>
-          </div>
-
           <p id="login-error" class="hidden mb-6 rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
 
           <form class="space-y-6" id="login-form">
             <div>
-              <label id="login-username-label" class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">
-                ชื่อผู้ใช้ (รหัสนักศึกษา)
+              <label id="login-username-label" for="login-username" class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">
+                ชื่อผู้ใช้
               </label>
               <div class="relative">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
                 <input
                   id="login-username"
                   class="w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200"
-                  placeholder="ชื่อผู้ใช้บัญชีของคุณ"
+                  placeholder="รหัสนักศึกษา หรือชื่อผู้ใช้แอดมิน"
                   required
                   type="text"
                 />
               </div>
             </div>
             <div>
-              <label class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
+              <label for="login-password" class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
               <div class="relative">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">lock</span>
                 <input
