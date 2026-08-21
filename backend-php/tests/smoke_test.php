@@ -21,8 +21,11 @@ require __DIR__ . '/../src/db.php';
 
 $BASE = $argv[1] ?? 'http://localhost:8000';
 // student_id/username share a column (students.student_id VARCHAR(20)), so
-// keep this short: "smk" + 8 hex chars = 11 chars.
-$STUDENT_USERNAME = 'smk' . bin2hex(random_bytes(4));
+// keep this short (11 chars), and DIGITS ONLY: /register enforces
+// /^[0-9]{5,20}$/ on student_id, so the old "smk" + hex fixture could never
+// register at all — every assertion after it failed on a 400 the test itself
+// caused. The 99 prefix keeps generated IDs away from real roster numbers.
+$STUDENT_USERNAME = '99' . str_pad((string) random_int(0, 999999999), 9, '0', STR_PAD_LEFT);
 $ADMIN_USERNAME = 'smka' . bin2hex(random_bytes(4));
 $STUDENT_PASSWORD = 'SmokeTest!1234';
 $ADMIN_PASSWORD = 'SmokeAdmin!1234';
@@ -87,7 +90,9 @@ try {
         'gender' => 'male',
         'first_name' => 'Smoke',
         'last_name' => 'Test',
-        'department' => 'แผนกทดสอบ',
+        // Must be a real entry in valid_departments() (src/constants.php) —
+        // /register whitelists it, so the old placeholder was a guaranteed 400.
+        'department' => 'เทคโนโลยีสารสนเทศ',
         'level' => 'ปวช.',
         'year_level' => '1',
     ], $studentJar);
@@ -98,7 +103,7 @@ try {
     [$status] = http('POST', "$BASE/register", [
         'student_id' => $STUDENT_USERNAME, 'username' => $STUDENT_USERNAME, 'password' => $STUDENT_PASSWORD,
         'prefix' => 'นาย', 'gender' => 'male', 'first_name' => 'Smoke', 'last_name' => 'Test',
-        'department' => 'แผนกทดสอบ', 'level' => 'ปวช.', 'year_level' => '1',
+        'department' => 'เทคโนโลยีสารสนเทศ', 'level' => 'ปวช.', 'year_level' => '1',
     ]);
     check('duplicate register -> 409', $status === 409, "got $status");
 
