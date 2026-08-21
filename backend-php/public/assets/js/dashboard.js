@@ -5,8 +5,13 @@ let closingTime = '17:00';
 let busy = false;
 let elapsedTimerId = null;
 let reminderWatcherId = null;
+let historyRefreshId = null;
 let reminderNotifiedKey = null;
 let selectedHours = null;
+
+// Slow background refresh, deliberately nowhere near the 1s elapsed tick: this
+// only has to notice a state change that happened server-side, not animate one.
+const HISTORY_REFRESH_MS = 60000;
 
 function formatClock(totalSeconds) {
   const hrs = Math.floor(totalSeconds / 3600);
@@ -30,17 +35,138 @@ function toHHMM(date) {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-// Auto-inserts the ":" as the student types 4 digits, so a plain numeric
-// keyboard (the common case on mobile) is enough — no native time-picker
-// wheel, which was the actual complaint (fiddly on touch).
-function formatTimeTyping(el) {
-  const digits = el.value.replace(/\D/g, '').slice(0, 4);
-  el.value = digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+// --- Scroll-wheel time picker --------------------------------------------
+// Replaces the typed HH:MM field. Typing four digits to say "about an hour
+// from now" is a lot of keyboard for an answer nobody holds to the minute.
+// This is NOT the native <input type="time"> wheel — that one was the
+// original complaint and is what the typed field existed to escape. It is an
+// in-page list scrolled with the thumb already on the glass, with no OS
+// overlay to summon or dismiss.
+//
+// WHEEL_ITEM_H must match .time-wheel-item's height in assets/css/styles.css:
+// the selected value is derived from scrollTop, so if the two disagree the
+// value read back is not the row sitting under the centre band.
+const WHEEL_ITEM_H = 44;
+const WHEEL_VISIBLE_H = 176;
+
+function timeToMinutes(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
 }
 
-function parseTypedTime(value) {
-  const trimmed = value.trim();
-  return /^([01]\d|2[0-3]):[0-5]\d$/.test(trimmed) ? trimmed : null;
+function minutesToTime(total) {
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
+function fillWheel(el, values) {
+  el.innerHTML = values
+    .map((v) => `<div class="time-wheel-item" data-v="${v}">${String(v).padStart(2, '0')}</div>`)
+    .join('');
+  // Half a wheel of blank space at each end, so the first and last values can
+  // reach the centre band like any other row instead of being unselectable.
+  const pad = (WHEEL_VISIBLE_H - WHEEL_ITEM_H) / 2;
+  el.style.paddingTop = `${pad}px`;
+  el.style.paddingBottom = `${pad}px`;
+}
+
+function wheelIndex(el) {
+  const count = el.children.length;
+  if (!count) return -1;
+  return Math.min(count - 1, Math.max(0, Math.round(el.scrollTop / WHEEL_ITEM_H)));
+}
+
+function paintWheel(el) {
+  const idx = wheelIndex(el);
+  Array.from(el.children).forEach((item, i) => {
+    item.classList.toggle('is-selected', i === idx);
+    item.classList.toggle('is-near', Math.abs(i - idx) === 1);
+  });
+}
+
+function wheelValue(el) {
+  const idx = wheelIndex(el);
+  return idx < 0 ? null : Number(el.children[idx].dataset.v);
+}
+
+function setWheelValue(el, value) {
+  const idx = Array.from(el.children).findIndex((item) => Number(item.dataset.v) === value);
+  if (idx < 0) return;
+  // Instant rather than smooth: a smooth scroll fights scroll-snap and can
+  // settle a row away from where it was sent.
+  el.scrollTop = idx * WHEEL_ITEM_H;
+  paintWheel(el);
+}
+
+let wheelBounds = null;
+
+// Pulls the selection back inside the open window once the scroll settles, so
+// a time past closing can't be chosen at all — rather than being chosen and
+// then rejected by an error message on confirm.
+function clampWheels() {
+  if (!wheelBounds) return;
+  const hourEl = document.getElementById('modal-wheel-hour');
+  const minuteEl = document.getElementById('modal-wheel-minute');
+  const h = wheelValue(hourEl);
+  const m = wheelValue(minuteEl);
+  if (h === null || m === null) return;
+  const chosen = h * 60 + m;
+  const clamped = Math.min(timeToMinutes(wheelBounds.max), Math.max(timeToMinutes(wheelBounds.min), chosen));
+  if (clamped === chosen) return;
+  setWheelValue(hourEl, Math.floor(clamped / 60));
+  setWheelValue(minuteEl, clamped % 60);
+}
+
+function scheduleWheelSettle(el) {
+  clearTimeout(el.settleTimer);
+  el.settleTimer = setTimeout(clampWheels, 120);
+}
+
+function wireWheel(el) {
+  if (el.dataset.wired) return;
+  el.dataset.wired = '1';
+  el.addEventListener('scroll', () => {
+    paintWheel(el);
+    setModalError('');
+    scheduleWheelSettle(el);
+  });
+  // Arrow keys step a row at a time once a column has focus, so the picker is
+  // reachable without a pointer.
+  el.addEventListener('keydown', (e) => {
+    const step = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = Math.min(el.children.length - 1, Math.max(0, wheelIndex(el) + step));
+    el.scrollTop = next * WHEEL_ITEM_H;
+    paintWheel(el);
+    scheduleWheelSettle(el);
+  });
+}
+
+function buildTimeWheels(bounds) {
+  wheelBounds = bounds;
+  const hourEl = document.getElementById('modal-wheel-hour');
+  const minuteEl = document.getElementById('modal-wheel-minute');
+
+  const hours = [];
+  for (let h = Number(bounds.min.slice(0, 2)); h <= Number(bounds.max.slice(0, 2)); h++) hours.push(h);
+  const minutes = [];
+  for (let m = 0; m < 60; m++) minutes.push(m);
+  fillWheel(hourEl, hours);
+  fillWheel(minuteEl, minutes);
+  wireWheel(hourEl);
+  wireWheel(minuteEl);
+
+  // Opens on "an hour from now" — the answer most people are about to give —
+  // capped at closing time.
+  const start = Math.min(timeToMinutes(bounds.max), timeToMinutes(bounds.min) + 60);
+  setWheelValue(hourEl, Math.floor(start / 60));
+  setWheelValue(minuteEl, start % 60);
+}
+
+function readTimeWheels() {
+  const h = wheelValue(document.getElementById('modal-wheel-hour'));
+  const m = wheelValue(document.getElementById('modal-wheel-minute'));
+  return h === null || m === null ? null : minutesToTime(h * 60 + m);
 }
 
 function timeInputBounds(closing) {
@@ -77,6 +203,43 @@ async function loadHistory() {
   render();
 }
 
+function isCheckinModalOpen() {
+  return !document.getElementById('checkin-modal').classList.contains('hidden');
+}
+
+// The dashboard is the one page a student leaves open for hours, and its view
+// of "am I checked in?" goes stale on its own: the auto-checkout sweep
+// (backend-php/src/handlers/checkin_handlers.php) closes the visit server-side
+// and nothing tells this tab, so the pill stays green and the elapsed timer
+// keeps climbing past a checkout that already happened.
+function refreshHistoryQuietly() {
+  // Don't pull the ground out from under an open check-in modal: a re-render
+  // mid-typing rebuilds the hour buttons and the closing-time bounds under the
+  // student's finger. The interval keeps running; the next tick picks it up.
+  if (isCheckinModalOpen()) return;
+  // A stamp in flight reloads the history itself when it lands (performCheckin),
+  // so refreshing on top of it only races the request it is about to supersede.
+  if (busy) return;
+  // Silent on failure. This fires unattended every minute, and one toast per
+  // failed poll would bury the page whenever the phone is on a flaky connection.
+  // The next tick retries, and anything the student actually pressed still
+  // reports its own error.
+  loadHistory().catch(() => {});
+}
+
+function startHistoryAutoRefresh() {
+  stopHistoryAutoRefresh();
+  historyRefreshId = setInterval(refreshHistoryQuietly, HISTORY_REFRESH_MS);
+}
+
+// Nothing navigates away from this page in-place today, but a timer that
+// outlives the page it was started for is the kind of leak that only shows up
+// once someone adds that navigation.
+function stopHistoryAutoRefresh() {
+  if (historyRefreshId) clearInterval(historyRefreshId);
+  historyRefreshId = null;
+}
+
 function render() {
   const last = getLast();
   const checkedIn = isCheckedIn();
@@ -93,9 +256,12 @@ function render() {
   document.getElementById('elapsed-wrap').classList.toggle('hidden', !checkedIn);
   document.getElementById('stamp-pulse-ring').classList.toggle('hidden', !checkedIn);
 
-  // Stamp button.
+  // Stamp button. Green to go in, red to come out — the colour carries the
+  // action, so a student glancing at their phone doesn't have to read the
+  // label to know which way the press will take them. Checking out was blue
+  // (bg-secondary), which read the same as every other button on the page.
   const stampBtn = document.getElementById('stamp-btn');
-  stampBtn.classList.toggle('bg-secondary', checkedIn);
+  stampBtn.classList.toggle('bg-error', checkedIn);
   stampBtn.classList.toggle('bg-status-success', !checkedIn);
   document.getElementById('stamp-icon').textContent = checkedIn ? 'logout' : 'sync_alt';
   document.getElementById('stamp-label').textContent = checkedIn ? 'เช็คเอาต์' : 'เช็คอิน';
@@ -280,11 +446,12 @@ function openCheckinModal() {
   document.getElementById('modal-hours-warning').classList.add('hidden');
 
   const bounds = timeInputBounds(closingTime);
-  const timeInput = document.getElementById('modal-checkout-time');
-  timeInput.value = '';
   document.getElementById('modal-time-open').classList.toggle('hidden', !bounds.isOpen);
   document.getElementById('modal-time-closed').classList.toggle('hidden', bounds.isOpen);
-  document.getElementById('modal-time-hint').textContent = `กรอกเวลาระหว่าง ${bounds.min} - ${bounds.max} น. (เกินเวลานี้ระบบจะปรับให้ออกตอนปิดแทน)`;
+  document.getElementById('modal-time-hint').textContent = `เลื่อนเลือกเวลาระหว่าง ${bounds.min} - ${bounds.max} น.`;
+  // Built here, after the dialog has been un-hidden above: the wheels position
+  // themselves by scrollTop, which is pinned at 0 while the box is display:none.
+  if (bounds.isOpen) buildTimeWheels(bounds);
 
   renderHourButtons();
 }
@@ -301,13 +468,16 @@ function confirmModal() {
       setModalError('ห้องสมุดปิดแล้ว ไม่สามารถเช็คอินได้');
       return;
     }
-    const checkoutTimeValue = parseTypedTime(document.getElementById('modal-checkout-time').value);
+    const checkoutTimeValue = readTimeWheels();
     if (!checkoutTimeValue) {
-      setModalError('กรุณากรอกเวลาในรูปแบบ HH:MM เช่น 17:00');
+      setModalError('กรุณาเลือกเวลาที่จะออก');
       return;
     }
+    // The wheels already clamp to this window, so this catches only the case
+    // where the window moved while the modal sat open: opened before closing
+    // time, confirmed after it.
     if (checkoutTimeValue < bounds.min || checkoutTimeValue > bounds.max) {
-      setModalError(`กรุณากรอกเวลาระหว่าง ${bounds.min} - ${bounds.max} น.`);
+      setModalError(`กรุณาเลือกเวลาระหว่าง ${bounds.min} - ${bounds.max} น.`);
       return;
     }
     closeCheckinModal();
@@ -339,10 +509,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-modal-tab]').forEach((btn) => {
     btn.addEventListener('click', () => setModalTab(btn.dataset.modalTab));
   });
-  document.getElementById('modal-checkout-time').addEventListener('input', (e) => {
-    formatTimeTyping(e.target);
-    setModalError('');
-  });
   document.getElementById('modal-checkin-until-closing').addEventListener('click', checkinUntilClosing);
   document.getElementById('modal-cancel').addEventListener('click', closeCheckinModal);
   document.getElementById('modal-confirm').addEventListener('click', confirmModal);
@@ -353,4 +519,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-extend]').forEach((btn) => {
     btn.addEventListener('click', () => extendCheckout(Number(btn.dataset.extend)));
   });
+
+  startHistoryAutoRefresh();
+
+  // The common stale case is not an idle desktop tab — it is a phone locked or
+  // switched away from for an hour, where background timers are throttled or
+  // frozen outright. Catch up on the way back in instead of showing a stale
+  // status for the rest of the interval.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshHistoryQuietly();
+  });
+
+  // pagehide over beforeunload: it also fires when the page enters the
+  // back/forward cache, and pageshow re-arms the timer if the student comes
+  // back to a restored page. startHistoryAutoRefresh() clears first, so the
+  // pageshow that follows this initial load can't stack a second interval.
+  window.addEventListener('pagehide', stopHistoryAutoRefresh);
+  window.addEventListener('pageshow', startHistoryAutoRefresh);
 });

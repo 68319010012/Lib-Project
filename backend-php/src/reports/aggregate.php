@@ -391,3 +391,50 @@ function build_summary_sentence(string $periodLabel, array $agg, ?array $busiest
     }
     return $html;
 }
+
+// A month <select> listing recent months by name, used instead of
+// <input type="month"> on every report filter.
+//
+// The native control is a wheel on phones: the admin has to drag a spinner for
+// month and another for year, on a page they only ever visit to pick "this
+// month" or "last month". A plain <select> is a tap and a list on both iOS and
+// Android, and it also spells the month in Thai with the Buddhist year, which
+// the native picker renders as "2026-08" regardless of locale.
+//
+// $selected is 'YYYY-MM'. Months outside the listed window are prepended so a
+// bookmarked or hand-edited URL still shows its own month as the current value
+// rather than silently snapping to another one.
+//
+// $blankLabel adds an empty first option for the reports where "no month" is a
+// real choice — dashboard.php reads it as "use the custom date range instead",
+// department.php as "all time" — so the select can express everything the
+// month input could.
+function render_month_select(
+    string $selected,
+    string $name = 'month',
+    string $id = 'month',
+    int $months = 18,
+    ?string $blankLabel = null
+): string {
+    $options = [];
+    $cursor = new DateTime('first day of this month');
+    for ($i = 0; $i < $months; $i++) {
+        $options[] = $cursor->format('Y-m');
+        $cursor->modify('-1 month');
+    }
+    if ($selected !== '' && !in_array($selected, $options, true)) {
+        array_unshift($options, $selected);
+    }
+
+    $html = '<select id="' . htmlspecialchars($id) . '" name="' . htmlspecialchars($name) . '">';
+    if ($blankLabel !== null) {
+        $html .= '<option value=""' . ($selected === '' ? ' selected' : '') . '>'
+            . htmlspecialchars($blankLabel) . '</option>';
+    }
+    foreach ($options as $opt) {
+        $html .= '<option value="' . htmlspecialchars($opt) . '"'
+            . ($opt === $selected ? ' selected' : '') . '>'
+            . htmlspecialchars(thai_month_label($opt)) . '</option>';
+    }
+    return $html . '</select>';
+}

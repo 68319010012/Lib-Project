@@ -12,8 +12,20 @@ function handle_admin_members(): void
     $level = trim((string) ($_GET['level'] ?? ''));
     $yearLevel = trim((string) ($_GET['year_level'] ?? ''));
 
-    $conditions = ["u.account_status = 'approved'"];
+    // 'approved' by default so the page opens on the working roster, but any
+    // single status — or 'all' — can be asked for. The retire sweep moves
+    // accounts to 'retired' on its own, and an account the admin cannot see is
+    // an account the admin cannot put back.
+    $status = trim((string) ($_GET['status'] ?? 'approved'));
+    $conditions = [];
     $params = [];
+    if ($status !== 'all') {
+        if (!in_array($status, ['pending', 'approved', 'retired'], true)) {
+            $status = 'approved';
+        }
+        $conditions[] = 'u.account_status = ?';
+        $params[] = $status;
+    }
     if ($search !== '') {
         $conditions[] = '(s.first_name LIKE ? OR s.last_name LIKE ? OR s.student_id LIKE ? OR u.username LIKE ?)';
         $like = "%$search%";
@@ -31,9 +43,12 @@ function handle_admin_members(): void
         $conditions[] = 's.year_level = ?';
         $params[] = $yearLevel;
     }
-    $whereClause = implode(' AND ', $conditions);
+    // 'all' with no other filter leaves $conditions empty, and "WHERE" with
+    // nothing after it is a syntax error.
+    $whereClause = $conditions ? implode(' AND ', $conditions) : '1';
 
-    $sql = "SELECT u.user_id, u.username, s.student_id, s.prefix, s.first_name, s.last_name,
+    $sql = "SELECT u.user_id, u.username, u.role, u.account_status,
+                   s.student_id, s.prefix, s.gender, s.first_name, s.last_name,
                    s.department, s.level, s.year_level, s.room,
                    (SELECT MAX(c.timestamp) FROM checkin_logs c WHERE c.user_id = u.user_id) AS last_visit
             FROM users u
@@ -178,4 +193,199 @@ function handle_admin_reports(): void
         $row['timestamp'] = to_isoformat($row['timestamp']);
     }
     json_response($rows);
+}
+
+// --- Member editing -------------------------------------------------------
+//
+// Three separate endpoints on purpose. Editing a profile, changing what
+// someone is allowed to do, and destroying records are three different levels
+// of consequence; sharing one code path would let a stray field in a request
+// body cross between them. Each re-reads its target from the database rather
+// than trusting anything the form said about it.
+
+// Resolves the target of an admin action, or ends the request with the right
+// error — so a caller can treat the return value as "this user exists".
+function admin_target_user(PDO $conn, int $userId): array
+{
+    if ($userId <= 0) {
+        json_error('user_id ไม่ถูกต้อง', 400);
+    }
+    $stmt = $conn->prepare('SELECT user_id, username, role, student_id, account_status FROM users WHERE user_id = ?');
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+    if ($user === false) {
+        json_error('ไม่พบผู้ใช้นี้', 404);
+    }
+    return $user;
+}
+
+// The system must never reach a state where nobody can administer it. Demoting,
+// retiring and deleting can each produce that, so all three ask this first.
+function admin_count_other_admins(PDO $conn, int $excludingUserId): int
+{
+    $stmt = $conn->prepare(
+        "SELECT COUNT(*) FROM users
+         WHERE role = 'admin' AND account_status = 'approved' AND user_id <> ?"
+    );
+    $stmt->execute([$excludingUserId]);
+    return (int) $stmt->fetchColumn();
+}
+
+function handle_admin_member_update(): void
+{
+    require_login();
+    require_admin();
+
+    $conn = get_db_connection();
+    $body = request_body();
+    $user = admin_target_user($conn, (int) ($body['user_id'] ?? 0));
+
+    if ($user['student_id'] === null) {
+        json_error('บัญชีนี้ไม่มีข้อมูลนักศึกษาให้แก้ไข', 400);
+    }
+
+    $profile = [
+        'prefix' => body_str($body, 'prefix'),
+        'gender' => body_str($body, 'gender'),
+        'first_name' => body_str($body, 'first_name'),
+        'last_name' => body_str($body, 'last_name'),
+        'department' => body_str($body, 'department'),
+        'level' => body_str($body, 'level'),
+        'year_level' => body_str($body, 'year_level'),
+    ];
+    // Exactly the rules signup enforces — validate_student_profile() in
+    // src/constants.php. An edit form that accepted more than signup does
+    // would be a way around the whitelist rather than a convenience.
+    if (!validate_student_profile($profile, $profileError)) {
+        json_error($profileError, 400);
+    }
+
+    $room = body_str($body, 'room');
+    if (mb_strlen($room) > 10) {
+        json_error('ห้องยาวเกินไป (ไม่เกิน 10 ตัวอักษร)', 400);
+    }
+
+    $status = body_str($body, 'account_status');
+    if (!in_array($status, ['pending', 'approved', 'retired'], true)) {
+        json_error('สถานะบัญชีไม่ถูกต้อง', 400);
+    }
+    $isSelf = (int) $user['user_id'] === (int) $_SESSION['user_id'];
+    // Locking yourself out shouldn't be reachable from a form. Recovering from
+    // it means editing `users` by hand in SQL.
+    if ($isSelf && $status !== $user['account_status']) {
+        json_error('เปลี่ยนสถานะบัญชีของตัวเองไม่ได้', 400);
+    }
+    if (
+        $user['role'] === 'admin' && $status !== 'approved'
+        && admin_count_other_admins($conn, (int) $user['user_id']) === 0
+    ) {
+        json_error('ระงับบัญชีนี้ไม่ได้ — เป็นแอดมินคนสุดท้ายที่ใช้งานได้', 400);
+    }
+
+    $conn->beginTransaction();
+    try {
+        $conn->prepare(
+            'UPDATE students SET prefix = ?, gender = ?, first_name = ?, last_name = ?,
+                                 department = ?, level = ?, year_level = ?, room = ?
+             WHERE student_id = ?'
+        )->execute([
+            $profile['prefix'], $profile['gender'], $profile['first_name'], $profile['last_name'],
+            $profile['department'], $profile['level'], $profile['year_level'],
+            $room === '' ? null : $room,
+            $user['student_id'],
+        ]);
+        $conn->prepare('UPDATE users SET account_status = ? WHERE user_id = ?')
+            ->execute([$status, $user['user_id']]);
+        $conn->commit();
+    } catch (Throwable $e) {
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        throw $e;
+    }
+
+    json_response(['message' => 'บันทึกข้อมูลแล้ว']);
+}
+
+function handle_admin_member_role(): void
+{
+    require_login();
+    require_admin();
+
+    $conn = get_db_connection();
+    $body = request_body();
+    $user = admin_target_user($conn, (int) ($body['user_id'] ?? 0));
+
+    $role = body_str($body, 'role');
+    if (!in_array($role, ['student', 'admin'], true)) {
+        json_error('สิทธิ์ไม่ถูกต้อง', 400);
+    }
+    // Editing your own role is either a no-op or a self-demotion, and the
+    // second one takes the page away underneath the request that did it.
+    if ((int) $user['user_id'] === (int) $_SESSION['user_id']) {
+        json_error('เปลี่ยนสิทธิ์ของตัวเองไม่ได้', 400);
+    }
+    if (
+        $user['role'] === 'admin' && $role === 'student'
+        && admin_count_other_admins($conn, (int) $user['user_id']) === 0
+    ) {
+        json_error('ลดสิทธิ์ไม่ได้ — เป็นแอดมินคนสุดท้ายที่ใช้งานได้', 400);
+    }
+
+    $conn->prepare('UPDATE users SET role = ? WHERE user_id = ?')->execute([$role, $user['user_id']]);
+    json_response([
+        'message' => $role === 'admin' ? 'ตั้งเป็นแอดมินแล้ว' : 'เปลี่ยนเป็นนักศึกษาแล้ว',
+    ]);
+}
+
+function handle_admin_member_delete(): void
+{
+    require_login();
+    require_admin();
+
+    $conn = get_db_connection();
+    $body = request_body();
+    $user = admin_target_user($conn, (int) ($body['user_id'] ?? 0));
+
+    if ((int) $user['user_id'] === (int) $_SESSION['user_id']) {
+        json_error('ลบบัญชีของตัวเองไม่ได้', 400);
+    }
+    if ($user['role'] === 'admin' && admin_count_other_admins($conn, (int) $user['user_id']) === 0) {
+        json_error('ลบไม่ได้ — เป็นแอดมินคนสุดท้ายที่ใช้งานได้', 400);
+    }
+
+    $deletedLogs = 0;
+    $conn->beginTransaction();
+    try {
+        // checkin_logs.user_id is a plain FK with no ON DELETE rule, so the
+        // visit history has to go first or the delete is refused outright.
+        // That history is also what every report counts, so deleting an account
+        // changes past reports — the UI confirmation says so, and the count
+        // comes back below so the admin sees the size of what just happened.
+        $logStmt = $conn->prepare('SELECT COUNT(*) FROM checkin_logs WHERE user_id = ?');
+        $logStmt->execute([$user['user_id']]);
+        $deletedLogs = (int) $logStmt->fetchColumn();
+
+        $conn->prepare('DELETE FROM checkin_logs WHERE user_id = ?')->execute([$user['user_id']]);
+        $conn->prepare('DELETE FROM users WHERE user_id = ?')->execute([$user['user_id']]);
+
+        // The students row is the profile, not the account, and the roster
+        // import (scripts/import_students.php) can create one with no account
+        // attached. Only drop it when this was the last account pointing at it.
+        if ($user['student_id'] !== null) {
+            $refStmt = $conn->prepare('SELECT COUNT(*) FROM users WHERE student_id = ?');
+            $refStmt->execute([$user['student_id']]);
+            if ((int) $refStmt->fetchColumn() === 0) {
+                $conn->prepare('DELETE FROM students WHERE student_id = ?')->execute([$user['student_id']]);
+            }
+        }
+        $conn->commit();
+    } catch (Throwable $e) {
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        throw $e;
+    }
+
+    json_response(['message' => 'ลบบัญชีแล้ว', 'deleted_logs' => $deletedLogs]);
 }

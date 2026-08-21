@@ -19,9 +19,6 @@ function handle_register(): void
     if ($studentId === '' || $password === '') {
         json_error('กรุณากรอกรหัสนักศึกษาและรหัสผ่าน', 400);
     }
-    if ($prefix === '' || $firstName === '' || $lastName === '' || $department === '') {
-        json_error('กรุณากรอกคำนำหน้า ชื่อ นามสกุล และแผนกวิชา', 400);
-    }
     // Everything below re-checks what the signup form already constrains.
     // The form is a convenience; anything can POST here directly, so the
     // dropdowns' option lists only mean something if the API enforces them.
@@ -31,37 +28,20 @@ function handle_register(): void
     if (!password_length_ok($password, $passwordError)) {
         json_error($passwordError, 400);
     }
-    if (!in_array($prefix, valid_prefixes(), true)) {
-        json_error('คำนำหน้าไม่ถูกต้อง', 400);
-    }
-    if (!in_array($department, valid_departments(), true)) {
-        json_error('แผนกวิชาไม่ถูกต้อง', 400);
-    }
-    // Names are free text, so they get bounds rather than a whitelist.
-    // mb_strlen counts Thai characters, not UTF-8 bytes, so a legitimate
-    // Thai name isn't rejected for being "too long" at the 100-char column.
-    foreach (['ชื่อ' => $firstName, 'นามสกุล' => $lastName] as $label => $value) {
-        if (mb_strlen($value) > 100) {
-            json_error("$label ยาวเกินไป (ไม่เกิน 100 ตัวอักษร)", 400);
-        }
-        // Belt-and-braces against stored XSS: the admin tables escape on
-        // output (see escapeHtml in assets/js/api.js), which is the fix that
-        // actually matters. Refusing angle brackets here just means a payload
-        // never reaches the database to begin with — no Thai or English name
-        // needs them.
-        if (preg_match('/[<>]/', $value)) {
-            json_error("$label มีอักขระที่ไม่อนุญาต", 400);
-        }
-    }
-    if (!in_array($gender, ['male', 'female'], true)) {
-        json_error('กรุณาเลือกเพศ', 400);
-    }
-    if (!in_array($level, ['ปวช.', 'ปวส.'], true)) {
-        json_error('ระดับชั้นต้องเป็น ปวช. หรือ ปวส.', 400);
-    }
-    $validYears = $level === 'ปวช.' ? ['1', '2', '3'] : ['1', '2'];
-    if (!in_array($yearLevel, $validYears, true)) {
-        json_error("ชั้นปีของ $level ต้องเป็นหนึ่งใน " . implode(', ', $validYears), 400);
+    // The profile rules live in validate_student_profile() (src/constants.php)
+    // because the admin edit form writes these same columns and has to accept
+    // exactly what signup accepts, no more.
+    $profile = [
+        'prefix' => $prefix,
+        'gender' => $gender,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'department' => $department,
+        'level' => $level,
+        'year_level' => $yearLevel,
+    ];
+    if (!validate_student_profile($profile, $profileError)) {
+        json_error($profileError, 400);
     }
 
     $conn = get_db_connection();

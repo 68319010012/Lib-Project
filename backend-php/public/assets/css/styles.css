@@ -3102,23 +3102,6 @@ html.dark .shadow-stamp {
   box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.45);
 }
 
-/* trend-bar (admin-dashboard.js daily chart): min-w-[3px] and the
-   focus-visible:* trio were missing the same way — bars could shrink to
-   0-width with enough days in view, and keyboard users got no focus
-   indicator moving between bars (mouse hover already worked via
-   hover:bg-primary/40, which IS in the compiled bundle). */
-.trend-bar {
-  min-width: 3px;
-}
-.trend-bar:focus-visible {
-  outline: none;
-  background-color: rgb(30 58 138 / 0.4);
-  box-shadow: 0 0 0 2px rgb(30 58 138);
-}
-html.dark .trend-bar:focus-visible {
-  box-shadow: 0 0 0 2px rgb(147 197 253);
-}
-
 /* dept-bar-entry (admin-dashboard.js department list): the row is a real
    button (click drills into that department's students) but nothing
    signaled that on hover/keyboard-focus — group-hover:underline was
@@ -3227,11 +3210,11 @@ html.dark .lib-banner { filter: brightness(.88); }
 }
 @keyframes lib-banner-shimmerBar { from { background-position-x: 0%; } to { background-position-x: -200%; } }
 
+/* Retired outright, at every width. These used to appear above 1320px, which
+   is exactly where there was room to notice how busy they were. The markup
+   still emits them (partials/lib-banner.php) so the decision is reversible in
+   one rule; nothing here is load-bearing. */
 .lib-banner .dotgrid, .lib-banner .divider, .lib-banner .illust, .lib-banner .spark { display: none; }
-@media (min-width: 1320px) {
-  .lib-banner .dotgrid { display: grid; }
-  .lib-banner .illust, .lib-banner .spark { display: block; }
-}
 
 .lib-banner .dotgrid { position: absolute; top: 34px; right: 70px; grid-template-columns: repeat(7,10px); gap: 6px; }
 .lib-banner .dotgrid span { width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: .35; animation: lib-banner-dotPulse 3s ease-in-out infinite; }
@@ -3246,15 +3229,15 @@ html.dark .lib-banner { filter: brightness(.88); }
    codebase are silently missing from the compiled output. */
 .login-theme-menu { position: absolute; top: 12px; right: 12px; z-index: 60; }
 
-.lib-banner .content { position: relative; z-index: 2; padding: 24px 24px; max-width: 640px; margin: 0 auto; text-align: center; }
-@media (min-width: 900px) { .lib-banner .content { padding: 28px 40px; } }
+.lib-banner .content { position: relative; z-index: 2; padding: 14px 24px 16px; max-width: 640px; margin: 0 auto; text-align: center; }
+@media (min-width: 900px) { .lib-banner .content { padding: 16px 40px 18px; } }
 /* Clears the theme-toggle button (absolute, top-3 right-3 in the banner box)
    on narrow screens, where .content spans nearly the full width and would
    otherwise sit directly under it. */
 @media (max-width: 480px) { .lib-banner .content { padding-top: 64px; } }
 .lib-banner .logo-row { display: flex; align-items: center; justify-content: center; gap: 14px; opacity: 0; animation: lib-banner-fadeUp .7s ease .1s forwards; }
 .lib-banner .logo-badge {
-  width: 58px; height: 58px; border-radius: 9999px; display: flex; align-items: center;
+  width: 42px; height: 42px; border-radius: 9999px; display: flex; align-items: center;
   justify-content: center; flex-shrink: 0; box-shadow: 0 8px 24px -6px rgba(15,23,42,.5);
   /* Gradient border via layered backgrounds, not border-image: border-image
      ignores border-radius in every browser (confirmed via real render —
@@ -3266,33 +3249,34 @@ html.dark .lib-banner { filter: brightness(.88); }
   animation: lib-banner-logoGlow 3.4s ease-in-out infinite;
 }
 @keyframes lib-banner-logoGlow { 0%,100% { box-shadow: 0 8px 24px -6px rgba(15,23,42,.5); } 50% { box-shadow: 0 8px 30px -4px rgba(96,165,250,.55); } }
-.lib-banner .logo-badge img { width: 52px; height: 52px; border-radius: 9999px; object-fit: cover; }
+.lib-banner .logo-badge img { width: 36px; height: 36px; border-radius: 9999px; object-fit: cover; }
 
-.lib-banner .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #93c5fd; text-transform: uppercase; }
-.lib-banner .brand { font-size: 14.5px; font-weight: 700; color: #fff; margin-top: 2px; }
+.lib-banner .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: #93c5fd; text-transform: uppercase; }
+/* The <h2> in .title-frame says the same words two lines down. */
+.lib-banner .brand { display: none; }
 
 .lib-banner .title-frame {
-  display: inline-block; margin-top: 16px; padding: 14px 20px 16px;
+  display: inline-block; margin-top: 10px; padding: 8px 18px 10px;
   background: rgba(0,0,0,.22); border: 1.5px solid rgba(147,197,253,.5); border-radius: 14px;
   backdrop-filter: blur(1px);
   opacity: 0; animation: lib-banner-frameIn .6s ease .18s forwards;
   box-shadow: 0 10px 26px -10px rgba(2,6,23,.5);
 }
 @keyframes lib-banner-frameIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.lib-banner h1 { font-size: 27px; font-weight: 700; margin-top: 0; opacity: 0; animation: lib-banner-fadeUp .7s ease .32s forwards; color: #fff; line-height: 1.2; }
+.lib-banner h1 { font-size: 20px; font-weight: 700; margin-top: 0; opacity: 0; animation: lib-banner-fadeUp .7s ease .32s forwards; color: #fff; line-height: 1.2; }
 .lib-banner h2 {
-  font-size: 16px; font-weight: 700; margin-top: 2px; opacity: 0;
+  font-size: 13px; font-weight: 700; margin-top: 2px; opacity: 0;
   background: linear-gradient(90deg,#ffffff,#bfdbfe,#ffffff); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: lib-banner-fadeUp .7s ease .38s forwards, lib-banner-goldShimmer 5s linear infinite 1.1s;
 }
 @keyframes lib-banner-goldShimmer { from { background-position-x: 0%; } to { background-position-x: -200%; } }
 
-.lib-banner .sub { color: #cbd5e1; font-size: 13.5px; margin-top: 8px; opacity: 0; animation: lib-banner-fadeUp .7s ease .5s forwards; }
+.lib-banner .sub { display: none; }
 
 @keyframes lib-banner-fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
-.lib-banner .footer-line { margin-top: 18px; font-size: 11.5px; font-weight: 500; color: #cbd5e1; opacity: 0; animation: lib-banner-fadeUp .7s ease .9s forwards; }
+.lib-banner .footer-line { display: none; }
 /* Thai has no spaces between words, so the browser's automatic line-break
    dictionary can split mid-word on narrow screens (e.g. cutting
    "เช็คเอาท์" in half). Keeping each phrase in one nowrap span means a
@@ -3328,10 +3312,8 @@ html.dark .lib-banner { filter: brightness(.88); }
 .lib-banner .spark { position: absolute; border-radius: 9999px; background: #60a5fa; opacity: 0; animation: lib-banner-twinkle 3s ease-in-out infinite; }
 @keyframes lib-banner-twinkle { 0%,100% { opacity: 0; transform: scale(.6); } 50% { opacity: .9; transform: scale(1.2); } }
 
+/* Retired with the rest of the scene above. */
 .lib-banner .corner-deco { display: none; position: absolute; top: 50%; opacity: .4; }
-@media (min-width: 860px) {
-  .lib-banner .corner-deco { display: block; animation: lib-banner-cornerFloat 6s ease-in-out infinite; }
-}
 .lib-banner .corner-deco.left { left: 32px; }
 .lib-banner .corner-deco.right { right: 32px; animation-delay: 1.4s; }
 @keyframes lib-banner-cornerFloat { 0%,100% { transform: translateY(-50%); } 50% { transform: translateY(calc(-50% - 8px)); } }
@@ -3366,17 +3348,16 @@ html.dark .lib-banner { filter: brightness(.88); }
 .dark .pager-btn:focus-visible { outline-color: rgb(147 197 253); }
 
 /* ---------------------------------------------------------------------
-   Trend chart (admin dashboard) — an area+line, not a bar per day.
-   A month range put ~30 bars in a 700px card, which reads as a barcode:
-   bars are for comparing discrete magnitudes, a line is for shape over
-   time. Drawn as inline SVG sized in JS, so plain CSS here (styles.css is
+   Trend chart (admin dashboard) — one bar per day. The question the card
+   answers is "how busy was this day, and how does it compare to the one
+   beside it", a comparison of discrete magnitudes and so a bar's job.
+   Drawn as inline SVG sized in JS, so plain CSS here (styles.css is
    a prebuilt bundle — unused Tailwind utilities are absent from it).
    --------------------------------------------------------------------- */
 .trend-chart { position: relative; width: 100%; height: 256px; }
 .trend-chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
-/* Only the hit bands take the pointer. The crosshair and hover marker are
-   drawn last so they sit above the line, which also put them in front of the
-   bands and swallowed the click that opens a day's detail. */
+/* Only the hit bands take the pointer, so hovering anywhere in a day's column
+   registers and the bar itself never swallows the click that opens its detail. */
 .trend-chart svg > * { pointer-events: none; }
 .trend-chart svg > .trend-hit { pointer-events: all; }
 
@@ -3386,24 +3367,127 @@ html.dark .lib-banner { filter: brightness(.88); }
 .trend-axis-text { fill: rgb(100 116 139); font-size: 10px; letter-spacing: .04em; }
 .dark .trend-axis-text { fill: rgb(148 163 184); }
 
-.trend-area { fill: rgb(30 58 138 / .10); }
-.dark .trend-area { fill: rgb(147 197 253 / .14); }
-.trend-line { fill: none; stroke: rgb(30 58 138); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-.dark .trend-line { stroke: rgb(147 197 253); }
+.trend-bar { fill: rgb(30 58 138); transition: fill .12s ease; }
+.dark .trend-bar { fill: rgb(147 197 253); }
+/* A day nobody came is a 2px stub, muted so it reads as "counted, and the
+   answer was zero" instead of as one more short-but-real day. */
+.trend-bar.is-zero { fill: rgb(100 116 139 / .3); }
+.dark .trend-bar.is-zero { fill: rgb(148 163 184 / .3); }
+.trend-bar.is-active { fill: rgb(37 99 235); }
+.dark .trend-bar.is-active { fill: rgb(191 219 254); }
 
-/* Surface ring keeps a dot legible where it sits on the line. */
-.trend-dot { fill: rgb(30 58 138); stroke: #fff; stroke-width: 2; }
-.dark .trend-dot { fill: rgb(147 197 253); stroke: rgb(21 31 54); }
 .trend-peak-label { fill: rgb(30 58 138); font-size: 11px; font-weight: 700; }
 .dark .trend-peak-label { fill: rgb(147 197 253); }
-
-.trend-crosshair { stroke: rgb(30 58 138 / .35); stroke-width: 1; }
-.dark .trend-crosshair { stroke: rgb(147 197 253 / .45); }
-/* Invisible per-point column: the hit target is the whole band, not the
-   2px line, so a 30-day series is still comfortably hoverable. */
+/* Invisible per-day column: the hit target is the whole band, not just the
+   drawn bar, so even a zero day's 2px stub stays comfortably hoverable. */
 .trend-hit { fill: transparent; cursor: pointer; }
 .trend-hit:focus-visible { fill: rgb(30 58 138 / .08); outline: none; }
 .dark .trend-hit:focus-visible { fill: rgb(147 197 253 / .12); }
 
 .trend-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: rgb(100 116 139); font-size: 14px; }
 .dark .trend-empty { color: rgb(148 163 184); }
+
+/* ---------------------------------------------------------------------
+   Visit history table (partials/history-modal.php). One row per VISIT —
+   date, time in, time out — instead of one card per raw event, which made
+   a single trip to the library read as two unrelated entries that the
+   reader had to pair up by eye. Plain CSS for the usual reason: styles.css
+   is a prebuilt bundle with no live Tailwind step, so utilities that
+   aren't already used elsewhere are simply absent from it.
+   --------------------------------------------------------------------- */
+.visit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.visit-table th {
+  text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: rgb(100 116 139); padding: 0 4px 2px;
+}
+.dark .visit-table th { color: rgb(148 163 184); }
+.visit-table td { padding: 0 4px; vertical-align: middle; }
+/* Each cell is its own box, so a row reads as a date and two separate
+   stamps rather than one run-on line. */
+.visit-cell {
+  display: block; border-radius: 10px; padding: 8px 10px;
+  background: rgb(241 245 249); border: 1px solid rgb(226 232 240);
+}
+.dark .visit-cell { background: rgb(21 31 54); border-color: rgb(61 80 121); }
+.visit-date { font-weight: 700; font-size: 13px; color: rgb(15 23 42); }
+.dark .visit-date { color: rgb(226 232 240); }
+.visit-dow { display: block; font-size: 11px; font-weight: 400; color: rgb(100 116 139); }
+.dark .visit-dow { color: rgb(148 163 184); }
+/* Tabular figures so the two time columns line up digit for digit down the
+   list — proportional digits make a column of clock times look ragged. */
+.visit-time { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.visit-cell.in .visit-time { color: rgb(5 150 105); }
+.visit-cell.out .visit-time { color: rgb(71 85 105); }
+.dark .visit-cell.out .visit-time { color: rgb(203 213 225); }
+/* A visit with no check-out yet is the one row whose second box has no time
+   to show. Dashed, so it reads as "not finished" rather than as missing data. */
+.visit-cell.open { border-style: dashed; }
+.visit-cell.open .visit-time { color: rgb(217 119 6); font-size: 12px; }
+.visit-note { display: block; font-size: 10.5px; font-weight: 400; color: rgb(100 116 139); margin-top: 1px; }
+.dark .visit-note { color: rgb(148 163 184); }
+.visit-empty { font-size: 14px; color: rgb(100 116 139); }
+.dark .visit-empty { color: rgb(148 163 184); }
+
+/* ---------------------------------------------------------------------
+   Scroll-wheel time picker (dashboard.php's check-in modal). Replaces a
+   typed HH:MM field: on a phone, "when will you leave" is a value you
+   nudge to, not one you spell out, and the field made you type four
+   digits to say "an hour from now".
+   NOT the native <input type="time"> wheel, which was the original
+   complaint and is exactly what the typed field was introduced to escape
+   — this is an in-page list that scrolls with the thumb already on the
+   screen, with no OS overlay to dismiss.
+   Item height is mirrored by WHEEL_ITEM_H in assets/js/dashboard.js; the
+   two must agree or the snapped row and the read-back value drift apart.
+   --------------------------------------------------------------------- */
+.time-wheel {
+  position: relative; display: flex; align-items: stretch; justify-content: center;
+  gap: 4px; height: 176px; -webkit-user-select: none; user-select: none;
+}
+/* The stationary centre row. Scrolling moves the numbers past this, so the
+   selected value is always the one framed here. */
+.time-wheel-band {
+  position: absolute; left: 0; right: 0; top: 50%; height: 44px;
+  transform: translateY(-50%); border-radius: 10px;
+  background: rgb(30 58 138 / .07); pointer-events: none;
+}
+.dark .time-wheel-band { background: rgb(147 197 253 / .12); }
+.time-wheel-col {
+  flex: 0 0 88px; overflow-y: scroll; scroll-snap-type: y mandatory;
+  text-align: center; outline: none; scrollbar-width: none; -ms-overflow-style: none;
+  /* Momentum scrolling on iOS, so a flick behaves like every other wheel
+     the person has used on that phone. */
+  -webkit-overflow-scrolling: touch;
+}
+.time-wheel-col::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.time-wheel-col:focus-visible { box-shadow: 0 0 0 2px rgb(30 58 138); border-radius: 10px; }
+.dark .time-wheel-col:focus-visible { box-shadow: 0 0 0 2px rgb(147 197 253); }
+.time-wheel-item {
+  height: 44px; line-height: 44px; scroll-snap-align: center;
+  font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: rgb(148 163 184); opacity: .45;
+  transition: opacity .12s ease, color .12s ease;
+}
+/* Two steps of fade rather than one, so the column reads as a wheel curving
+   away instead of a list with one highlighted row. */
+.time-wheel-item.is-near { opacity: .75; }
+.time-wheel-item.is-selected { opacity: 1; color: rgb(15 23 42); }
+.dark .time-wheel-item.is-selected { color: rgb(226 232 240); }
+.time-wheel-sep {
+  align-self: center; font-size: 22px; font-weight: 700;
+  color: rgb(100 116 139); padding-bottom: 2px;
+}
+.dark .time-wheel-sep { color: rgb(148 163 184); }
+
+/* Edit-member dialog (admin-members.php). The panel is a column so the profile
+   fields scroll while the header, the role/delete strip and the save row stay
+   put. Plain CSS because max-h-[85vh], grid-cols-2 and col-span-2 are not in
+   the prebuilt styles.css bundle — writing them would have looked right in the
+   markup and done nothing in the browser. */
+.member-edit-panel { display: flex; flex-direction: column; max-height: 88vh; }
+.member-edit-body { overflow-y: auto; }
+/* opacity-50 isn't in the bundle, and a disabled button that looks enabled is
+   worse than no affordance at all. Keyed off :disabled so the JS only has to
+   set the property. */
+.member-edit-panel button:disabled { opacity: .5; cursor: not-allowed; }
+.member-edit-panel select:disabled { opacity: .6; cursor: not-allowed; }

@@ -53,6 +53,15 @@ require __DIR__ . '/partials/guard.php';
             <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
             <select id="members-year-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
           </div>
+          <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
+            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">สถานะ</label>
+            <select id="members-status" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+              <option value="approved">ใช้งานได้</option>
+              <option value="pending">รออนุมัติ</option>
+              <option value="retired">ระงับ</option>
+              <option value="all">ทุกสถานะ</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -89,6 +98,115 @@ require __DIR__ . '/partials/guard.php';
       </div>
     </footer>
   </main>
+
+  <!-- Edit member. Student ID and username are shown but not editable: the ID
+       is the primary key of `students`, the foreign key from `users`, and the
+       login name, so changing it is a three-table rename, not a field edit.
+       A mistyped ID is fixed by deleting the account and signing up again. -->
+  <div id="member-edit-modal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+    <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-lg w-full member-edit-panel">
+      <div class="flex items-center justify-between p-6 border-b border-outline-variant dark:border-dm-border">
+        <div>
+          <h3 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">แก้ไขข้อมูลสมาชิก</h3>
+          <p id="member-edit-subject" class="text-body-md text-text-secondary dark:text-dm-text-secondary"></p>
+        </div>
+        <button type="button" id="member-edit-close" aria-label="ปิด" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container-low dark:hover:bg-dm-bg text-on-surface-variant dark:text-dm-text-secondary">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 member-edit-body space-y-3">
+        <p id="member-edit-error" class="hidden rounded-lg bg-error-container text-on-error-container px-4 py-3 text-body-md"></p>
+
+        <div class="flex gap-4">
+          <div class="flex flex-col gap-1 flex-1">
+            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">รหัสนักศึกษา</label>
+            <p id="member-edit-student-id" class="font-label-code text-primary dark:text-primary-fixed-dim py-2.5 px-3"></p>
+          </div>
+          <div class="flex flex-col gap-1 flex-1">
+            <label class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชื่อผู้ใช้</label>
+            <p id="member-edit-username" class="font-label-code text-on-surface-variant dark:text-dm-text-secondary py-2.5 px-3"></p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
+            <label for="member-edit-prefix" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">คำนำหน้า</label>
+            <select id="member-edit-prefix" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
+          </div>
+          <div class="flex flex-col gap-1 flex-1">
+            <label for="member-edit-gender" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">เพศ</label>
+            <select id="member-edit-gender" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+              <option value="male">ชาย</option>
+              <option value="female">หญิง</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex flex-col gap-1 flex-1">
+            <label for="member-edit-first-name" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชื่อ</label>
+            <input id="member-edit-first-name" type="text" maxlength="100" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" />
+          </div>
+          <div class="flex flex-col gap-1 flex-1">
+            <label for="member-edit-last-name" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">นามสกุล</label>
+            <input id="member-edit-last-name" type="text" maxlength="100" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="member-edit-department" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
+          <select id="member-edit-department" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex flex-col gap-1 flex-1">
+            <label for="member-edit-level" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ระดับชั้น</label>
+            <select id="member-edit-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+              <option value="ปวช.">ปวช.</option>
+              <option value="ปวส.">ปวส.</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1 flex-1">
+            <label for="member-edit-year-level" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ชั้นปี</label>
+            <select id="member-edit-year-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
+          </div>
+          <div class="flex flex-col gap-1 flex-1">
+            <label for="member-edit-room" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ห้อง</label>
+            <input id="member-edit-room" type="text" maxlength="10" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary" />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="member-edit-status" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">สถานะบัญชี</label>
+          <select id="member-edit-status" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+            <option value="approved">ใช้งานได้</option>
+            <option value="pending">รออนุมัติ</option>
+            <option value="retired">ระงับ (ครบกำหนด)</option>
+          </select>
+          <p class="text-xs text-text-secondary dark:text-dm-text-secondary ml-1">บัญชีที่ระงับจะเข้าสู่ระบบไม่ได้ ระบบจะระงับให้เองเมื่อครบ 1 ปีการศึกษา</p>
+        </div>
+      </div>
+
+      <!-- Role and delete sit below a rule, apart from the profile fields:
+           they change what the account can do rather than what it says, and
+           they take effect on click instead of on save. -->
+      <div class="px-6 py-4 border-t border-outline-variant dark:border-dm-border">
+        <p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">สิทธิ์และการลบ</p>
+        <div class="flex gap-3 items-center">
+          <span id="member-edit-role-label" class="text-body-md font-bold text-on-surface dark:text-inverse-on-surface flex-1"></span>
+          <button type="button" id="member-edit-role-btn" class="h-9 px-4 rounded-full border border-outline-variant dark:border-dm-border text-text-primary dark:text-inverse-on-surface font-bold text-xs"></button>
+          <button type="button" id="member-edit-delete-btn" class="h-9 px-4 rounded-full bg-error text-white font-bold text-xs">ลบบัญชี</button>
+        </div>
+        <p id="member-edit-self-note" class="hidden text-xs text-text-secondary dark:text-dm-text-secondary mt-2">นี่คือบัญชีของคุณเอง เปลี่ยนสิทธิ์ ระงับ หรือลบตัวเองไม่ได้</p>
+      </div>
+
+      <div class="flex gap-3 p-6 border-t border-outline-variant dark:border-dm-border">
+        <button type="button" id="member-edit-cancel" class="flex-1 h-11 rounded-full border border-outline-variant dark:border-dm-border text-text-primary dark:text-inverse-on-surface font-bold text-sm">ยกเลิก</button>
+        <button type="button" id="member-edit-save" class="flex-1 h-11 rounded-full bg-primary text-white font-bold text-sm hover:brightness-95 transition-all">บันทึก</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Reset-password result — a large centered modal, not the old cramped
        corner toast: the admin has to read this temp password aloud to the

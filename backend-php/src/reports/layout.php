@@ -8,11 +8,14 @@
 // such risk: GD draws it, mPDF just places it, done. Uses the same Sarabun
 // TTF as the rest of the PDF so Thai department names render correctly
 // (GD's built-in bitmap fonts are Latin-only).
-function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical', int $verticalHeight = 220): string
+function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical', int $verticalHeight = 220, ?int $scaleMax = null): string
 {
     $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
     $n = count($values);
-    $max = max(1, ...array_merge($values, [0]));
+    // $scaleMax lets a caller pin two charts to one axis (e.g. the same
+    // departments in month A and month B). Still folded through max() with the
+    // real values so an under-stated ceiling can never clip a bar off the top.
+    $max = max(1, $scaleMax ?? 0, ...array_merge($values, [0]));
 
     if ($orientation === 'horizontal') {
         $width = 720;
@@ -114,9 +117,12 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     // layout into 50-300+ blank pages. A fixed, plain-HTML-only stylesheet
     // covering the handful of class names actually shared across reports
     // (kpi-card, story-box, status/type pills, bar charts) is what's
-    // reliable — charts/sparklines/heatmaps are dropped from the PDF since
-    // mPDF can't render them properly anyway; the data table is what a
-    // saved report is actually for.
+    // reliable. The charts are not dropped: each report hands its series to
+    // render_report_layout() as $pdfCharts and GD draws them as flat PNGs
+    // (see render_pdf_bar_chart above), which mPDF only has to place. The
+    // div versions of those same charts are hidden below so the PDF shows
+    // each set of numbers once. Sparklines and the meter ring stay dropped —
+    // they are decoration on a KPI card, not the datum.
     $pdfStyle = <<<CSS
     * { box-sizing: border-box; page-break-inside: auto; }
     body { font-family: ibmplexsansthai; font-size: 12px; color: #0f172a; }
@@ -160,6 +166,16 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
        original div version is dropped here to avoid a duplicate/blank
        leftover section. */
     .mini-panel-row { display: none; }
+    /* The same swap, one report at a time. Each of these blocks is now drawn
+       into the PDF as a GD image by its report's $pdfCharts, so leaving the
+       div original visible would print every department twice.
+       .trend-chart earns its place here twice over: department.php's copy sits
+       outside .mini-panel-row, and a flex row of %-height divs is the exact
+       shape that mis-measured a 1-page report into 50-300 blank ones. */
+    .trend-chart,
+    .rank-bars, .mom-row, .mom-legend,
+    .dept-row, .month-row,
+    .dept-compare-row, .compare-legend { display: none; }
     .meta { display: inline-block; margin-bottom: 10px; font-size: 11px; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; }
     /* float, not inline-block. mPDF promotes an inline-block box back to a
        block once it contains block children — which every KPI card does
@@ -169,14 +185,35 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
        wider, but the layout was never actually working; Sarabun was just small
        enough that the rest of the page still fit. Floats mPDF does honour.
        Verified: 3 cards per row, one page. */
-    .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card {
+    .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card,
+    .headline-grid .headline-card {
       float: left; width: 30%; border: 1px solid #cbd5e1;
       border-radius: 8px; padding: 5px 7px; margin: 0 1.5% 5px 0;
     }
     /* Without this the section after a strip wraps around the floats. */
-    .summary-strip::after, .kpi-strip::after, .kpi-grid::after {
+    .summary-strip::after, .kpi-strip::after, .kpi-grid::after, .headline-grid::after {
       content: ''; display: block; clear: both;
     }
+    .headline-card .label { font-size: 9px; color: #666; }
+    .headline-card .value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
+    .headline-card .delta { font-size: 8.5px; }
+    /* executive.php's ranked department rows are three divs that mPDF puts on
+       a line each. Its CSS engine is unreliable with long descendant chains,
+       so these stay single-class and lay the parts out with widths instead of
+       display:inline — floats it does honour. */
+    .rank-list .rank-row { border-bottom: 1px solid #eef2f7; padding: 1px 0; }
+    .rank-num { float: left; width: 6%; font-weight: bold; color: #1e3a8a; font-size: 10px; }
+    .rank-row .name { float: left; width: 64%; font-size: 10px; font-weight: bold; }
+    .rank-row .count { float: left; width: 28%; font-size: 10px; color: #475569; text-align: right; }
+    .rank-row::after { content: ''; display: block; clear: both; }
+    /* executive.php's three breakdown tables. Same reason as the cards above:
+       mPDF has no flexbox, so .split-row would stack them full-width and cost
+       a page. */
+    .split-col { float: left; width: 31.5%; margin-right: 2%; }
+    .split-row::after { content: ''; display: block; clear: both; }
+    .split-col .section-head { font-size: 11px; margin: 4px 0 3px; }
+    .mini-table th { font-size: 8px; padding: 2px 3px; }
+    .mini-table td { font-size: 9px; padding: 2px 3px; }
     .summary-strip .label, .kpi-card .label, .kpi-label { font-size: 9px; color: #666; text-transform: uppercase; }
     .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
     table { width: 100%; border-collapse: collapse; }
@@ -196,7 +233,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
 
     $chartsHtml = '';
     foreach ($pdfCharts as $chart) {
-        $img = render_pdf_bar_chart($chart['labels'], $chart['values'], $chart['orientation'] ?? 'vertical', $chart['height'] ?? 220);
+        $img = render_pdf_bar_chart($chart['labels'], $chart['values'], $chart['orientation'] ?? 'vertical', $chart['height'] ?? 220, $chart['scale_max'] ?? null);
         $chartsHtml .= '<div style="margin-bottom:8px;">'
             . '<div style="font-size:12px; font-weight:bold; color:#1e3a8a; margin-bottom:4px;">' . htmlspecialchars($chart['title']) . '</div>'
             . '<img src="' . $img . '" style="width:100%;">'
@@ -300,6 +337,14 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   .toolbar button:hover { filter: brightness(1.1); }
   .toolbar a { background: var(--surface); color: var(--primary); border: 1px solid var(--outline-variant); }
   .toolbar a:hover { background: #e8f0fe; }
+  /* The solid fill follows the primary ACTION, not the element type. Saving the
+     PDF is what this toolbar is for — it produces a real file with the charts
+     drawn server-side by GD — while window.print() is now the secondary "print
+     the page as it looks" escape hatch. */
+  .toolbar a.primary-action { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .toolbar a.primary-action:hover { background: var(--primary); filter: brightness(1.1); }
+  .toolbar button.secondary-action { background: var(--surface); color: var(--primary); border: 1px solid var(--outline-variant); }
+  .toolbar button.secondary-action:hover { background: #e8f0fe; filter: none; }
 
   header.report-head {
     background: linear-gradient(135deg, var(--primary-container) 0%, #0f172a 100%);
@@ -462,7 +507,27 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     header.report-head h2 { opacity: 1; color: #444; }
     main.report-body { max-width: none; padding: 12px 0; }
     .table-wrap { box-shadow: none; border-radius: 0; }
-    th { background: #f0f0f0 !important; color: #111 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { background: #f0f0f0 !important; color: #111 !important; }
+    /* Every bar, track and pill in these reports IS a background colour — not
+       text, not a border — and browsers drop background fills when printing
+       unless the reader ticks "Background graphics", which is off by default.
+       That is the whole reason the charts print as empty boxes: the markup and
+       the layout are fine, the ink just never lands. th carried this exemption
+       on its own; the data-bearing fills need it at least as much, since a
+       missing table-header tint is cosmetic while a missing bar is the datum.
+       Deliberately NOT applied to * — the title bar and filter strip are
+       chrome, and forcing those would put a solid dark band across the top of
+       every printed page without adding a single number to it. */
+    th,
+    .trend-chart .bar,
+    .bar-track, .bar-fill,
+    .dept-bar-track, .dept-bar-fill,
+    .month-track, .month-fill,
+    .rank-track, .rank-fill, .rank-badge,
+    .g-track, .g-fill,
+    .swatch, .status-pill, .type-pill {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
     .report-foot { max-width: none; padding: 8px 0 0; border-top: 1px solid #ccc; }
   }
 </style>
@@ -475,8 +540,8 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     $pdfParams['format'] = 'pdf';
     $pdfUrl = '?' . http_build_query($pdfParams);
   ?>
-  <button onclick="window.print()" type="button"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์ / บันทึกเป็น PDF (มีกราฟครบ)</button>
-  <a href="<?= htmlspecialchars($pdfUrl) ?>"><span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> บันทึก PDF แบบข้อมูล (ไม่มีกราฟ)</a>
+  <a class="primary-action" href="<?= htmlspecialchars($pdfUrl) ?>"><span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> ดาวน์โหลด PDF</a>
+  <button class="secondary-action" onclick="window.print()" type="button"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์หน้านี้</button>
   <?php if (isset($exportUrls['csv'])): ?>
   <a href="<?= htmlspecialchars($exportUrls['csv']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด CSV</a>
   <?php endif; ?>
@@ -603,7 +668,11 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   // as it contains a submit button, even a display:none one.
   document.querySelectorAll(
     '.filter-bar select, .filter-bar input[type="date"], .filter-bar input[type="month"], .filter-bar input[type="number"], ' +
-    '.compare-filter input[type="month"], .month-filter input[type="month"]'
+    // The month pickers are <select> now (render_month_select) — matching only
+    // input[type=month] here left them without their re-submit, so changing the
+    // month quietly did nothing.
+    '.compare-filter select, .compare-filter input[type="month"], ' +
+    '.month-filter select, .month-filter input[type="month"]'
   ).forEach(function (el) {
     el.addEventListener('change', function () {
       el.form.submit();

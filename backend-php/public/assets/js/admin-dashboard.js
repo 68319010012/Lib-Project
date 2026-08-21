@@ -176,11 +176,12 @@ function svgEl(name, attrs = {}) {
   return el;
 }
 
-// Area + line rather than one bar per day. Bars compare discrete magnitudes;
-// across a month that becomes ~30 slivers with no shape to read. A line is the
-// form for change-over-time, and it stays legible whether the range is 7 days
-// or 31. Sized against the container's real width so the labels stay crisp
-// instead of being scaled by a viewBox.
+// One bar per day. Bars are what this chart is read for: "how busy was the
+// 14th, and was it busier than the 13th" is a comparison of discrete daily
+// magnitudes, which is a bar's job. The range selector tops out at a month, so
+// the widest case is ~31 slots across the card — each still wide enough to
+// compare by eye. Sized against the container's real width so the axis text
+// stays at its intended size instead of being scaled by a viewBox.
 function renderTrendChart(bars) {
   const host = document.getElementById('trend-chart');
   if (!host) return;
@@ -196,12 +197,16 @@ function renderTrendChart(bars) {
   const padL = 34, padR = 12, padT = 16, padB = 24;
   const plotW = Math.max(1, W - padL - padR);
   const plotH = Math.max(1, H - padT - padB);
+  const baseline = padT + plotH;
 
   const maxY = niceCeiling(Math.max(1, ...bars.map((b) => b.count)));
-  // A single day has no line to draw — place its point mid-plot so the dot and
-  // its label aren't pinned to the left edge.
-  const x = (i) => (bars.length === 1 ? padL + plotW / 2 : padL + (i / (bars.length - 1)) * plotW);
-  const y = (v) => padT + plotH - (v / maxY) * plotH;
+  // One slot per day with the bar centred in it. Capped at 46px so a one-day
+  // range doesn't draw a single slab the width of the card, and the 0.72 gap
+  // ratio keeps neighbours visually separate at a full month.
+  const slot = plotW / bars.length;
+  const barW = Math.max(2, Math.min(slot * 0.72, 46));
+  const cx = (i) => padL + slot * (i + 0.5);
+  const y = (v) => baseline - (v / maxY) * plotH;
 
   const svg = svgEl('svg', { width: W, height: H, role: 'img' });
   svg.setAttribute('aria-label', `แนวโน้มการเข้าใช้ ${bars.length} วัน สูงสุด ${Math.max(...bars.map((b) => b.count))} ครั้ง`);
@@ -216,14 +221,22 @@ function renderTrendChart(bars) {
     svg.appendChild(label);
   }
 
-  const linePts = bars.map((b, i) => `${x(i)},${y(b.count)}`).join(' ');
-  if (bars.length > 1) {
-    svg.appendChild(svgEl('polygon', {
-      class: 'trend-area',
-      points: `${padL},${padT + plotH} ${linePts} ${padL + plotW},${padT + plotH}`,
-    }));
-    svg.appendChild(svgEl('polyline', { class: 'trend-line', points: linePts }));
-  }
+  // A day with no visits still gets a 2px stub in a muted fill. Drawing
+  // literally nothing would leave a gap that reads as missing data; the stub
+  // says the day was counted and the answer was zero.
+  const barEls = bars.map((b, i) => {
+    const h = b.count > 0 ? Math.max(2, (b.count / maxY) * plotH) : 2;
+    const rect = svgEl('rect', {
+      class: b.count > 0 ? 'trend-bar' : 'trend-bar is-zero',
+      x: cx(i) - barW / 2,
+      y: baseline - h,
+      width: barW,
+      height: h,
+      rx: Math.min(3, barW / 2),
+    });
+    svg.appendChild(rect);
+    return rect;
+  });
 
   // Date ticks, thinned so they never collide. The last day always gets a
   // label, so a stepped one landing right beside it is dropped — otherwise a
@@ -233,44 +246,45 @@ function renderTrendChart(bars) {
   bars.forEach((b, i) => {
     if (i !== 0 && i !== lastIdx && i % step !== 0) return;
     if (i !== 0 && i !== lastIdx && lastIdx - i < step * 0.7) return;
-    const t = svgEl('text', { class: 'trend-axis-text', x: x(i), y: H - 6, 'text-anchor': 'middle' });
+    const t = svgEl('text', { class: 'trend-axis-text', x: cx(i), y: H - 6, 'text-anchor': 'middle' });
     t.textContent = formatShortDate(b.day);
     svg.appendChild(t);
   });
 
-  // Selective labelling: the busiest day is named, the rest are left to hover.
+  // Selective labelling: the busiest day carries its number, the rest are left
+  // to hover, so the chart isn't a wall of digits.
   const peakIdx = bars.reduce((best, b, i) => (b.count > bars[best].count ? i : best), 0);
-  const dotsForEvery = bars.length <= 10;
-  bars.forEach((b, i) => {
-    if (!dotsForEvery && i !== peakIdx) return;
-    svg.appendChild(svgEl('circle', { class: 'trend-dot', cx: x(i), cy: y(b.count), r: 4 }));
-  });
   if (bars[peakIdx].count > 0) {
     const pl = svgEl('text', {
       class: 'trend-peak-label',
-      x: Math.min(Math.max(x(peakIdx), padL + 14), W - padR - 14),
-      y: Math.max(y(bars[peakIdx].count) - 10, padT + 8),
+      x: Math.min(Math.max(cx(peakIdx), padL + 14), W - padR - 14),
+      y: Math.max(y(bars[peakIdx].count) - 8, padT + 8),
       'text-anchor': 'middle',
     });
     pl.textContent = bars[peakIdx].count.toLocaleString();
     svg.appendChild(pl);
   }
 
-  // Hover/focus layer: one full-height band per day, so the target is the
-  // column rather than the 2px line.
-  const crosshair = svgEl('line', { class: 'trend-crosshair', x1: 0, y1: padT, x2: 0, y2: padT + plotH, opacity: 0 });
-  const marker = svgEl('circle', { class: 'trend-dot', cx: 0, cy: 0, r: 5, opacity: 0 });
-  const bandW = bars.length === 1 ? plotW : plotW / (bars.length - 1);
+  // Hover/focus layer: one full-height band per day, so the target is the whole
+  // column rather than the drawn bar. A zero day is a 2px stub, and asking
+  // anyone to hit that is asking them to give up on it. Appended after the bars
+  // so the bands sit on top and keep the click that opens a day's detail.
+  let active = null;
+  const clearActive = () => {
+    if (active) active.classList.remove('is-active');
+    active = null;
+  };
   bars.forEach((b, i) => {
     const hit = svgEl('rect', {
       class: 'trend-hit',
-      x: x(i) - bandW / 2, y: padT, width: bandW, height: plotH,
+      x: cx(i) - slot / 2, y: padT, width: slot, height: plotH,
       tabindex: '0', role: 'button',
     });
     hit.setAttribute('aria-label', `${formatThaiDate(b.day)}: เข้าใช้ ${b.count} ครั้ง`);
     const show = () => {
-      crosshair.setAttribute('x1', x(i)); crosshair.setAttribute('x2', x(i)); crosshair.setAttribute('opacity', 1);
-      marker.setAttribute('cx', x(i)); marker.setAttribute('cy', y(b.count)); marker.setAttribute('opacity', 1);
+      clearActive();
+      active = barEls[i];
+      active.classList.add('is-active');
       describeTrendPoint(b);
     };
     hit.addEventListener('pointerenter', show);
@@ -281,12 +295,7 @@ function renderTrendChart(bars) {
     });
     svg.appendChild(hit);
   });
-  svg.appendChild(crosshair);
-  svg.appendChild(marker);
-  host.addEventListener('pointerleave', () => {
-    crosshair.setAttribute('opacity', 0);
-    marker.setAttribute('opacity', 0);
-  });
+  host.addEventListener('pointerleave', clearActive);
 
   host.appendChild(svg);
 }
@@ -518,7 +527,7 @@ function render() {
   document.querySelectorAll('.kpi-skeleton').forEach((el) => el.classList.add('hidden'));
   document.querySelectorAll('.kpi-value').forEach((el) => el.classList.remove('hidden'));
 
-  document.getElementById('trend-detail').textContent = 'เลื่อนหรือแตะบนกราฟเพื่อดูจำนวนคนเข้าใช้ในแต่ละวัน';
+  document.getElementById('trend-detail').textContent = 'แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนคนเข้าใช้ในแต่ละวัน';
   lastTrendBars = stats.trendBars;
   renderTrendChart(lastTrendBars);
 

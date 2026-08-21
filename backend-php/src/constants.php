@@ -56,3 +56,83 @@ function password_length_ok(string $password, ?string &$error = null): bool
     }
     return true;
 }
+
+// How long a login survives. The cookie previously used lifetime => 0, i.e.
+// "until the browser closes", so quitting the browser on a phone logged the
+// student out — the exact thing they were asking not to happen. A month covers
+// normal term-time use without keeping a session alive forever.
+//
+// Always paired with session.gc_maxlifetime in bootstrap_session(): the cookie
+// decides how long the BROWSER keeps presenting the session ID, gc_maxlifetime
+// decides how long the SERVER keeps the record behind it. Raise one without the
+// other and the longer half is decorative.
+const SESSION_LIFETIME_SECONDS = 60 * 60 * 24 * 30;
+
+// Mirrors YEAR_OPTIONS in public/assets/js/constants.js.
+function valid_year_levels(string $level): array
+{
+    return $level === 'ปวช.' ? ['1', '2', '3'] : ['1', '2'];
+}
+
+// Shared by signup (handle_register) and the admin edit form
+// (handle_admin_member_update). Both write the same columns of `students`, so
+// both have to agree on what a valid value is — a whitelist only one of them
+// enforces is a whitelist with a way around it.
+//
+// $profile keys: prefix, gender, first_name, last_name, department, level,
+// year_level. Values are expected already trimmed. $error receives the first
+// reason it failed, ready to hand straight to json_error().
+function validate_student_profile(array $profile, ?string &$error = null): bool
+{
+    $prefix = (string) ($profile['prefix'] ?? '');
+    $gender = (string) ($profile['gender'] ?? '');
+    $firstName = (string) ($profile['first_name'] ?? '');
+    $lastName = (string) ($profile['last_name'] ?? '');
+    $department = (string) ($profile['department'] ?? '');
+    $level = (string) ($profile['level'] ?? '');
+    $yearLevel = (string) ($profile['year_level'] ?? '');
+
+    if ($prefix === '' || $firstName === '' || $lastName === '' || $department === '') {
+        $error = 'กรุณากรอกคำนำหน้า ชื่อ นามสกุล และแผนกวิชา';
+        return false;
+    }
+    if (!in_array($prefix, valid_prefixes(), true)) {
+        $error = 'คำนำหน้าไม่ถูกต้อง';
+        return false;
+    }
+    if (!in_array($department, valid_departments(), true)) {
+        $error = 'แผนกวิชาไม่ถูกต้อง';
+        return false;
+    }
+    // Names are free text, so they get bounds rather than a whitelist.
+    // mb_strlen counts Thai characters, not UTF-8 bytes, so a legitimate Thai
+    // name isn't rejected for being "too long" at the 100-char column.
+    foreach (['ชื่อ' => $firstName, 'นามสกุล' => $lastName] as $label => $value) {
+        if (mb_strlen($value) > 100) {
+            $error = "$label ยาวเกินไป (ไม่เกิน 100 ตัวอักษร)";
+            return false;
+        }
+        // Belt-and-braces against stored XSS: the admin tables escape on output
+        // (escapeHtml in assets/js/api.js), which is the fix that actually
+        // matters. Refusing angle brackets here just means a payload never
+        // reaches the database to begin with — no Thai or English name needs them.
+        if (preg_match('/[<>]/', $value)) {
+            $error = "$label มีอักขระที่ไม่อนุญาต";
+            return false;
+        }
+    }
+    if (!in_array($gender, ['male', 'female'], true)) {
+        $error = 'กรุณาเลือกเพศ';
+        return false;
+    }
+    if (!in_array($level, ['ปวช.', 'ปวส.'], true)) {
+        $error = 'ระดับชั้นต้องเป็น ปวช. หรือ ปวส.';
+        return false;
+    }
+    $validYears = valid_year_levels($level);
+    if (!in_array($yearLevel, $validYears, true)) {
+        $error = "ชั้นปีของ $level ต้องเป็นหนึ่งใน " . implode(', ', $validYears);
+        return false;
+    }
+    return true;
+}

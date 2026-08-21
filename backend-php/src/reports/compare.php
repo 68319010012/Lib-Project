@@ -143,12 +143,12 @@ function handle_report_compare(): void
 <form class="compare-filter" method="get">
   <div class="field">
     <label for="month_a">ช่วง A</label>
-    <input type="month" id="month_a" name="month_a" value="<?= htmlspecialchars($monthA) ?>">
+    <?= render_month_select($monthA, 'month_a', 'month_a') ?>
   </div>
   <span class="vs">เทียบกับ</span>
   <div class="field">
     <label for="month_b">ช่วง B</label>
-    <input type="month" id="month_b" name="month_b" value="<?= htmlspecialchars($monthB) ?>">
+    <?= render_month_select($monthB, 'month_b', 'month_b') ?>
   </div>
   <button type="submit">เปรียบเทียบ</button>
 </form>
@@ -208,8 +208,31 @@ function handle_report_compare(): void
     <?php
     $content = ob_get_clean();
 
+    // Both months are drawn against one shared scale. Two charts each sized to
+    // their own maximum would put a quiet month's bars level with a busy one's
+    // and silently invert the comparison this whole report exists to make.
+    $pdfCharts = [];
+    if ($deptCompare) {
+        $sharedMax = (int) max(1, max(array_column($deptCompare, 'a')), max(array_column($deptCompare, 'b')));
+        $deptNames = array_column($deptCompare, 'name');
+        $pdfCharts[] = [
+            'title' => "เปรียบเทียบตามแผนกวิชา — $monthA",
+            'orientation' => 'horizontal',
+            'labels' => $deptNames,
+            'values' => array_column($deptCompare, 'a'),
+            'scale_max' => $sharedMax,
+        ];
+        $pdfCharts[] = [
+            'title' => "เปรียบเทียบตามแผนกวิชา — $monthB",
+            'orientation' => 'horizontal',
+            'labels' => $deptNames,
+            'values' => array_column($deptCompare, 'b'),
+            'scale_max' => $sharedMax,
+        ];
+    }
+
     render_report_layout('เปรียบเทียบช่วงเวลา', "เปรียบเทียบการเช็คชื่อ — $monthA เทียบกับ $monthB", $content, $extraStyle, [
         'csv' => "/admin/reports/print/compare?month_a=$monthA&month_b=$monthB&format=csv",
         'excel' => "/admin/reports/print/compare?month_a=$monthA&month_b=$monthB&format=excel",
-    ]);
+    ], $pdfCharts);
 }

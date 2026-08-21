@@ -161,7 +161,7 @@ function handle_report_department(): void
 <form class="filter-bar" method="get">
   <div class="field">
     <label for="month">เดือน (ไม่ใส่ = ทุกช่วงเวลา)</label>
-    <input type="month" id="month" name="month" value="<?= htmlspecialchars($month) ?>">
+    <?= render_month_select($month, 'month', 'month', 18, '— ทุกช่วงเวลา —') ?>
   </div>
   <div class="field">
     <label for="academic_year">ปีการศึกษา</label>
@@ -340,8 +340,51 @@ function handle_report_department(): void
         'academic_year' => $filters['academic_year'] ?: null,
     ]);
     $qsString = $qs ? '?' . http_build_query($qs) . '&' : '?';
+    // The screen charts are divs with percentage heights, which mPDF cannot
+    // measure — they are hidden from the PDF (layout.php's $pdfStyle) and
+    // redrawn here as flat PNGs by GD instead, so the saved file carries the
+    // same picture the page does.
+    $pdfCharts = [];
+    if ($deptBreakdown) {
+        $pdfCharts[] = [
+            'title' => 'Ranking แผนกวิชา',
+            'orientation' => 'horizontal',
+            'labels' => array_column($deptBreakdown, 'name'),
+            'values' => array_column($deptBreakdown, 'count'),
+        ];
+    }
+    if ($deptTrend !== null && array_sum(array_column($deptTrend, 'count')) > 0) {
+        $pdfCharts[] = [
+            'title' => "แนวโน้มการเข้าใช้ของ $selectedDept",
+            'orientation' => 'vertical',
+            'height' => 150,
+            'labels' => array_map(fn($row) => (string) ((int) substr($row['date'], -2)), $deptTrend),
+            'values' => array_column($deptTrend, 'count'),
+        ];
+    }
+    if ($momRows) {
+        // Shared scale for the same reason as compare.php: the point of the
+        // pair is which month is taller.
+        $momNames = array_column($momRows, 'name');
+        $momScale = (int) max(1, $momMax);
+        $pdfCharts[] = [
+            'title' => 'เปรียบเทียบแต่ละแผนกวิชา — เดือนก่อนหน้า',
+            'orientation' => 'horizontal',
+            'labels' => $momNames,
+            'values' => array_column($momRows, 'previous'),
+            'scale_max' => $momScale,
+        ];
+        $pdfCharts[] = [
+            'title' => 'เปรียบเทียบแต่ละแผนกวิชา — เดือนนี้',
+            'orientation' => 'horizontal',
+            'labels' => $momNames,
+            'values' => array_column($momRows, 'current'),
+            'scale_max' => $momScale,
+        ];
+    }
+
     render_report_layout('รายงานสรุปตามแผนกวิชา', $subtitle, $content, $extraStyle, [
         'csv' => "/admin/reports/print/department{$qsString}format=csv",
         'excel' => "/admin/reports/print/department{$qsString}format=excel",
-    ]);
+    ], $pdfCharts);
 }
