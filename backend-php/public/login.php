@@ -94,9 +94,9 @@
     </div>
   </main>
 
-  <footer class="bg-surface-container-highest dark:bg-dm-surface py-8 mt-auto border-t border-outline-variant dark:border-dm-border">
+  <footer class="login-page-footer bg-surface-container-highest dark:bg-dm-surface py-8 mt-auto border-t border-outline-variant dark:border-dm-border">
     <div class="max-w-7xl mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex flex-col items-center md:items-start">
+      <div class="footer-brand flex flex-col items-center md:items-start">
         <span class="font-label-caps text-label-caps font-bold text-primary dark:text-primary-fixed-dim mb-2">ห้องสมุด NTC</span>
         <p class="font-body-md text-body-md text-on-surface-variant dark:text-dm-text-secondary text-center md:text-left">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
       </div>

@@ -3760,3 +3760,48 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
   min-height: 32px;
   padding: 2px 4px;
 }
+
+/* ---------------------------------------------------------------------
+   หน้าล็อกอิน — สัดส่วนแนวนอน
+   วัดที่จอ 1440 ได้สามกล่องที่ใช้คนละมาตรวัดบนหน้าเดียวกัน:
+     เนื้อในแบนเนอร์  640px   (ในแถบกว้าง 1424 เหลือว่างข้างละ 392)
+     การ์ดล็อกอิน     576px
+     เนื้อใน footer  1280px  เริ่มที่ x=72
+   ตัวหนังสือ footer จึงไปเกาะขอบซ้ายสุด ไม่ตรงกับอะไรที่อยู่เหนือมันเลย
+   และ footer สูง 111px เกือบเท่าแบนเนอร์ 102px ทั้งที่มีแค่บรรทัดลิขสิทธิ์
+
+   แก้สองอย่าง: ให้ทุกกล่องใช้มาตรเดียวกับการ์ด และลดน้ำหนักของ footer
+   ลงให้สมกับเนื้อหาที่มันมี
+   --------------------------------------------------------------------- */
+
+/* แถบน้ำเงินยังเต็มความกว้างเหมือนเดิม แต่เนื้อในใช้มาตรเดียวกับการ์ด */
+.lib-banner .content { max-width: 640px; }
+
+/* ตัวหนังสือในแบนเนอร์เล็กเกินไปเมื่อเทียบกับแถบที่มันอยู่ — กลุ่มโลโก้กับ
+   ชื่อรวมกันเป็นหมึกแค่ราว 200px กลางแถบ 1424px ขยายขึ้นให้เนื้อหาถือครอง
+   แถบได้จริง ไม่ใช่ลอยอยู่ตรงกลางเหมือนสติกเกอร์ */
+.lib-banner .logo-badge { width: 44px; height: 44px; }
+.lib-banner .logo-badge img { width: 38px; height: 38px; }
+.lib-banner .eyebrow { font-size: 10.5px; letter-spacing: .1em; }
+.lib-banner h1 { font-size: 25px; }
+.lib-banner h2 { font-size: 16.5px; margin-left: 11px; }
+.lib-banner .content { padding-top: 16px; padding-bottom: 18px; }
+
+/* footer: ใช้มาตรเดียวกับการ์ด และจัดกลางให้ตรงแนวกับทุกอย่างเหนือมัน
+   py-8 (32px บนล่าง) มากเกินไปสำหรับสองบรรทัด ลดเหลือ 20px */
+.login-page-footer { padding-top: 20px; padding-bottom: 20px; }
+.login-page-footer > div {
+  max-width: 576px;
+  justify-content: center;
+  gap: 4px;
+}
+.login-page-footer .footer-brand { align-items: center; }
+.login-page-footer .footer-brand > span { margin-bottom: 2px; }
+.login-page-footer .footer-brand > p { text-align: center; }
+
+@media (max-width: 760px) {
+  .lib-banner h1 { font-size: 20px; }
+  .lib-banner h2 { font-size: 13.5px; margin-left: 8px; }
+  .lib-banner .logo-badge { width: 38px; height: 38px; }
+  .lib-banner .logo-badge img { width: 33px; height: 33px; }
+}
