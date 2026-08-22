@@ -42,6 +42,9 @@ function handle_report_select(): void
     background: var(--surface);
     min-height: 100vh;
   }
+  /* Same reason as layout.php: no Tailwind preflight on this standalone page,
+     so form controls would otherwise render in the browser's Arial default. */
+  button, select, option, input, textarea { font-family: inherit; }
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;

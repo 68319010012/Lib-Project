@@ -325,6 +325,14 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     color: #0f172a;
     background: var(--surface);
   }
+  /* Form controls do not inherit font-family — the browser gives them its own
+     UA default — so every <button>, <select> and <option> on these pages was
+     rendering in Arial while the body around them was IBM Plex Sans Thai. The
+     app's own pages get this from Tailwind's preflight; these standalone
+     report pages have no preflight, so it has to be said here. Thai in Arial
+     falls back again to whatever the OS picks, which is how the filter bar
+     ended up in a visibly different face from the report under it. */
+  button, select, option, input, textarea { font-family: inherit; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
 
   .toolbar {
@@ -353,6 +361,49 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   .toolbar a.primary-action:hover { background: var(--primary); filter: brightness(1.1); }
   .toolbar button.secondary-action { background: var(--surface); color: var(--primary); border: 1px solid var(--outline-variant); }
   .toolbar button.secondary-action:hover { background: #e8f0fe; filter: none; }
+
+  /* Navigation reads as links, not as more buttons: it is the way out of the
+     report, not something you came here to do. margin-right:auto pushes the
+     actions to the far end so the two groups never look like one long row. */
+  .toolbar-nav { display: flex; align-items: center; gap: 4px; margin-right: auto; }
+  .toolbar-nav a {
+    background: none; border: 0; color: var(--primary);
+    padding: 7px 10px; font-size: 13px; font-weight: 700;
+  }
+  .toolbar-nav a:hover { background: #e8f0fe; }
+
+  .toolbar-actions { display: flex; align-items: center; gap: 10px; }
+  .toolbar-more { position: relative; }
+  .toolbar-more > summary {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 999px; cursor: pointer;
+    font-size: 13px; font-weight: 700;
+    background: var(--surface); color: var(--primary);
+    border: 1px solid var(--outline-variant);
+    list-style: none;
+  }
+  /* Both are needed: WebKit uses the pseudo-element, everyone else the
+     list-style above. Without them the row carries a stray triangle. */
+  .toolbar-more > summary::-webkit-details-marker { display: none; }
+  .toolbar-more > summary::marker { content: ''; }
+  .toolbar-more > summary:hover { background: #e8f0fe; }
+  .toolbar-more[open] > summary { background: #e8f0fe; }
+  .toolbar-more-menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 30;
+    display: flex; flex-direction: column; gap: 2px; min-width: 210px;
+    padding: 6px; border-radius: 12px;
+    background: var(--surface-white);
+    border: 1px solid var(--outline-variant);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .16);
+  }
+  .toolbar-more-menu a,
+  .toolbar-more-menu button {
+    justify-content: flex-start; width: 100%;
+    background: none; border: 0; color: var(--primary);
+    border-radius: 8px; padding: 9px 12px; font-size: 13px; text-align: left;
+  }
+  .toolbar-more-menu a:hover,
+  .toolbar-more-menu button:hover { background: #e8f0fe; filter: none; }
 
   header.report-head {
     background: linear-gradient(135deg, var(--primary-container) 0%, #0f172a 100%);
@@ -478,7 +529,14 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   @media (max-width: 640px) {
     header.report-head { padding: 22px 16px 18px; }
     main.report-body { padding: 16px 12px 32px; }
-    .toolbar { padding: 12px 16px; }
+    .toolbar { padding: 10px 14px; gap: 8px; }
+    .toolbar-nav { margin-right: 0; flex: 1 0 100%; }
+    .toolbar-nav a { padding: 6px 8px; font-size: 12.5px; }
+    .toolbar-actions { flex: 1 0 100%; }
+    .toolbar-actions .primary-action { flex: 1 1 auto; justify-content: center; }
+    /* Anchored to the right edge of a full-width row, the menu would hang off
+       the screen; on a phone it spans the row instead. */
+    .toolbar-more-menu { left: 0; right: 0; min-width: 0; }
   }
 
   /* Reports that don't declare their own @page via $extraStyle get this
@@ -571,18 +629,37 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     $pdfParams['format'] = 'pdf';
     $pdfUrl = '?' . http_build_query($pdfParams);
   ?>
-  <a class="primary-action" href="<?= htmlspecialchars($pdfUrl) ?>"><span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> ดาวน์โหลด PDF</a>
-  <button class="secondary-action" onclick="window.print()" type="button"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์หน้านี้</button>
-  <?php if (isset($exportUrls['csv'])): ?>
-  <a href="<?= htmlspecialchars($exportUrls['csv']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด CSV</a>
-  <?php endif; ?>
-  <?php if (isset($exportUrls['excel'])): ?>
-  <a href="<?= htmlspecialchars($exportUrls['excel']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด Excel</a>
-  <?php endif; ?>
-  <button class="settings-toggle-btn" type="button" onclick="document.getElementById('print-settings-panel').hidden = false;">
-    <span class="material-symbols-outlined" style="font-size:16px;">tune</span> ตั้งค่าการพิมพ์
-  </button>
-  <a href="/admin/reports/print"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> เลือกเทมเพลตอื่น</a>
+  <!-- Every report was a dead end: the only way out was "เลือกเทมเพลตอื่น",
+       which leads back to the picker, so anyone who arrived from the
+       dashboard had no route home but the browser's own back button. The two
+       ways out now lead the row, as quiet links rather than more buttons
+       competing with the actions on the right. -->
+  <nav class="toolbar-nav" aria-label="ออกจากรายงาน">
+    <a href="/admin-dashboard"><span class="material-symbols-outlined" style="font-size:16px;">home</span> หน้าหลัก</a>
+    <a href="/admin/reports/print"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> เลือกเทมเพลตอื่น</a>
+  </nav>
+
+  <!-- One primary action, everything else behind "เพิ่มเติม". Six equally
+       loud pills gave no clue which one people actually came for, and on a
+       phone they wrapped into three rows above the report itself. <details>
+       does the disclosure with no JS, so it still works in the print/PDF
+       pipeline where scripts are stripped. -->
+  <div class="toolbar-actions">
+    <a class="primary-action" href="<?= htmlspecialchars($pdfUrl) ?>"><span class="material-symbols-outlined" style="font-size:16px;">picture_as_pdf</span> ดาวน์โหลด PDF</a>
+    <details class="toolbar-more">
+      <summary><span class="material-symbols-outlined" style="font-size:16px;">more_horiz</span> เพิ่มเติม</summary>
+      <div class="toolbar-more-menu">
+        <button type="button" onclick="window.print()"><span class="material-symbols-outlined" style="font-size:16px;">print</span> พิมพ์หน้านี้</button>
+        <?php if (isset($exportUrls['csv'])): ?>
+        <a href="<?= htmlspecialchars($exportUrls['csv']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด CSV</a>
+        <?php endif; ?>
+        <?php if (isset($exportUrls['excel'])): ?>
+        <a href="<?= htmlspecialchars($exportUrls['excel']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด Excel</a>
+        <?php endif; ?>
+        <button type="button" onclick="document.getElementById('print-settings-panel').hidden = false; this.closest('details').open = false;"><span class="material-symbols-outlined" style="font-size:16px;">tune</span> ตั้งค่าการพิมพ์</button>
+      </div>
+    </details>
+  </div>
 </div>
 
 <div id="print-settings-panel" class="settings-panel" hidden>

@@ -178,10 +178,32 @@ function handle_report_dashboard(): void
 
     $conn = get_db_connection();
 
-    $month = $_GET['month'] ?? date('Y-m');
+    // The month <select> and the date-range pair are two ways to say the same
+    // thing, and they used to be resolved by "a full range always wins". That
+    // made the month box dead in the one state people actually met it in:
+    // clicking "สัปดาห์นี้" navigates to a URL carrying start_date/end_date,
+    // those land in the form's date inputs, and every later submit still
+    // carried them — so choosing a month changed the dropdown and nothing
+    // else. It looked broken because it was.
+    //
+    // An explicitly submitted month now wins instead. The distinction that
+    // makes this safe is present-and-non-empty vs absent: the "สัปดาห์นี้"
+    // link carries no month key at all, and the select's placeholder option
+    // ("— ใช้ช่วงวันที่ด้านล่าง —") submits an empty one, so neither is
+    // mistaken for a real choice.
+    $monthParam = isset($_GET['month']) ? trim((string) $_GET['month']) : '';
     $startDateParam = trim((string) ($_GET['start_date'] ?? ''));
     $endDateParam = trim((string) ($_GET['end_date'] ?? ''));
-    $useCustomRange = $startDateParam !== '' && $endDateParam !== '';
+    $useCustomRange = $startDateParam !== '' && $endDateParam !== '' && $monthParam === '';
+
+    // A range that no longer applies must not stay filled in, or the form
+    // would show a date span that the report on screen is not using — and the
+    // next submit would silently resurrect it.
+    if ($monthParam !== '') {
+        $startDateParam = '';
+        $endDateParam = '';
+    }
+    $month = $monthParam !== '' ? $monthParam : date('Y-m');
 
     $filters = [
         'department' => trim((string) ($_GET['department'] ?? '')),
@@ -371,8 +393,21 @@ function handle_report_dashboard(): void
   .rank-fill { display: block; height: 100%; background: var(--secondary, #2563eb); border-radius: 999px; }
   .rank-count { flex-shrink: 0; width: 120px; text-align: right; font-size: 11px; color: #666; }
   @media (max-width: 640px) {
-    .rank-name { flex-basis: 88px; width: 88px; }
-    .rank-count { width: 88px; }
+    .rank-row {
+      flex-wrap: wrap;
+      row-gap: 4px;
+      padding-bottom: 6px;
+    }
+    .rank-name {
+      flex: 1 1 auto; width: auto; min-width: 0;
+      white-space: normal; overflow: visible; text-overflow: clip;
+    }
+    /* Second line: the badge already sat first, so an explicit order keeps
+       the bar and its count together under the name rather than either one
+       drifting up beside it. */
+    .rank-track { order: 3; flex: 1 1 60%; }
+    .rank-count { order: 4; width: auto; flex: 0 0 auto; }
+    .meter-info .meter-dept-name { white-space: normal; overflow: visible; text-overflow: clip; }
   }
 
   /* Compact 2-across chart strip (daily / hourly) instead of one big
@@ -570,7 +605,7 @@ function handle_report_dashboard(): void
 
 <div class="kpi-strip" data-print-section="KPI สรุป">
   <div class="kpi-card hero" title="จำนวนนักศึกษาที่มาเข้าห้องสมุดในช่วงเวลานี้ นับคนซ้ำแค่ครั้งเดียวแม้จะเข้ามาหลายรอบ">
-    <div class="kpi-head"><span class="kpi-label">นักศึกษาที่เข้าใช้บริการ (ไม่ซ้ำคน)</span></div>
+    <div class="kpi-head"><span class="kpi-label">นักศึกษาที่เข้าใช้บริการ</span></div>
     <div class="kpi-value"><?= number_format($agg['unique_students']) ?></div>
     <?php if ($uniqueDelta !== null): ?><span class="kpi-sub"><?= render_dashboard_delta($uniqueDelta, true) ?></span><?php endif; ?>
   </div>
@@ -658,33 +693,33 @@ function handle_report_dashboard(): void
     <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
   </div>
+</div>
 
-  <div class="mini-panel" title="สัดส่วนเพศของนักศึกษาไม่ซ้ำคนที่เข้าใช้บริการในช่วงเวลานี้ — 'ไม่ระบุ' คือบัญชีที่นำเข้าจากรายชื่อ ยังไม่เคยกรอกเพศเอง">
-    <h3>สัดส่วนเพศผู้เข้าใช้</h3>
-    <?php if ($genderBreakdown['total'] > 0): ?>
-    <div class="gender-list">
-      <div class="gender-row male">
-        <span class="g-label">ชาย</span>
-        <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['male_pct'] ?>%;"></span></span>
-        <span class="g-count"><?= $genderBreakdown['male'] ?> คน · <?= $genderBreakdown['male_pct'] ?>%</span>
-      </div>
-      <div class="gender-row female">
-        <span class="g-label">หญิง</span>
-        <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['female_pct'] ?>%;"></span></span>
-        <span class="g-count"><?= $genderBreakdown['female'] ?> คน · <?= $genderBreakdown['female_pct'] ?>%</span>
-      </div>
-      <?php if ($genderBreakdown['unknown'] > 0): ?>
-      <div class="gender-row unknown">
-        <span class="g-label">ไม่ระบุ</span>
-        <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['unknown_pct'] ?>%;"></span></span>
-        <span class="g-count"><?= $genderBreakdown['unknown'] ?> คน · <?= $genderBreakdown['unknown_pct'] ?>%</span>
-      </div>
-      <?php endif; ?>
+<div class="panel" data-print-section="สัดส่วนเพศผู้เข้าใช้" title="สัดส่วนเพศของนักศึกษาไม่ซ้ำคนที่เข้าใช้บริการในช่วงเวลานี้ — 'ไม่ระบุ' คือบัญชีที่นำเข้าจากรายชื่อ ยังไม่เคยกรอกเพศเอง">
+  <h3>สัดส่วนเพศผู้เข้าใช้</h3>
+  <?php if ($genderBreakdown['total'] > 0): ?>
+  <div class="gender-list">
+    <div class="gender-row male">
+      <span class="g-label">ชาย</span>
+      <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['male_pct'] ?>%;"></span></span>
+      <span class="g-count"><?= $genderBreakdown['male'] ?> คน · <?= $genderBreakdown['male_pct'] ?>%</span>
     </div>
-    <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูล</p>
+    <div class="gender-row female">
+      <span class="g-label">หญิง</span>
+      <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['female_pct'] ?>%;"></span></span>
+      <span class="g-count"><?= $genderBreakdown['female'] ?> คน · <?= $genderBreakdown['female_pct'] ?>%</span>
+    </div>
+    <?php if ($genderBreakdown['unknown'] > 0): ?>
+    <div class="gender-row unknown">
+      <span class="g-label">ไม่ระบุ</span>
+      <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['unknown_pct'] ?>%;"></span></span>
+      <span class="g-count"><?= $genderBreakdown['unknown'] ?> คน · <?= $genderBreakdown['unknown_pct'] ?>%</span>
+    </div>
     <?php endif; ?>
   </div>
+  <?php else: ?>
+  <p class="empty-note">ไม่มีข้อมูล</p>
+  <?php endif; ?>
 </div>
 
 <div class="panel" data-print-section="แผนกวิชาทั้งหมด" style="margin-bottom:6px;">
