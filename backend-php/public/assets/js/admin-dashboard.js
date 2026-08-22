@@ -466,7 +466,14 @@ function renderHourChart(stats) {
     return;
   }
 
-  const labelStep = Math.max(1, Math.ceil(stats.hourBars.length / 8));
+  // How many ticks the axis can actually spell out, rather than a flat 8.
+  // Every hour gets a flex-1 span so the ticks stay aligned to their bars, so
+  // a 24-hour range on a 390px phone gives each span about 9px — narrower
+  // than the two digits it has to hold. Budgeting ~42px per label and
+  // deriving the step from the real width keeps them legible at any size.
+  const axisWidth = axis.clientWidth || container.clientWidth || 320;
+  const maxLabels = Math.max(3, Math.floor(axisWidth / 42));
+  const labelStep = Math.max(1, Math.ceil(stats.hourBars.length / maxLabels));
   stats.hourBars.forEach((bar, i) => {
     const isPeak = bar.hour === stats.peakHour;
 
@@ -477,7 +484,7 @@ function renderHourChart(stats) {
     container.appendChild(barEl);
 
     const tick = document.createElement('span');
-    tick.className = 'flex-1 text-center truncate';
+    tick.className = 'flex-1 text-center whitespace-nowrap';
     if (i === 0 || i === stats.hourBars.length - 1 || i % labelStep === 0) tick.textContent = pad2(bar.hour);
     axis.appendChild(tick);
   });
@@ -608,4 +615,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('day-detail-close').addEventListener('click', closeDayModal);
   }
+
+  // ⓘ on each KPI card unfolds one sentence saying what the number counts.
+  // Only one is open at a time: on a phone the cards are two-up, and two
+  // notes open at once push the second row of cards off the screen. The
+  // class is toggled alongside aria-expanded so the two never disagree.
+  document.querySelectorAll('.kpi-info').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const note = document.getElementById(btn.dataset.kpiNote);
+      if (!note) return;
+      const opening = note.classList.contains('hidden');
+      document.querySelectorAll('.kpi-note').forEach((n) => n.classList.add('hidden'));
+      document.querySelectorAll('.kpi-info').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      if (opening) {
+        note.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
 });

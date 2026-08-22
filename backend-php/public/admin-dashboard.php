@@ -40,25 +40,34 @@ require __DIR__ . '/partials/guard.php';
           <div class="kpi-icon w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
             <span class="material-symbols-outlined">group</span>
           </div>
-          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนรายการทั้งหมด</p>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนครั้งที่เข้าใช้
+            <button type="button" class="kpi-info" data-kpi-note="kpi-total-note" aria-expanded="false" aria-controls="kpi-total-note" aria-label="คำอธิบาย จำนวนครั้งที่เข้าใช้"><span class="material-symbols-outlined" aria-hidden="true">info</span></button>
+          </p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
           <p id="kpi-total" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
+          <p id="kpi-total-note" class="kpi-note hidden">จำนวนครั้งที่มีการเข้าใช้ห้องสมุดทั้งหมดในช่วงเวลาที่เลือก</p>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
             <span class="material-symbols-outlined">person_search</span>
           </div>
-          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้งานไม่ซ้ำคน</p>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนนักศึกษาที่เข้าใช้
+            <button type="button" class="kpi-info" data-kpi-note="kpi-unique-note" aria-expanded="false" aria-controls="kpi-unique-note" aria-label="คำอธิบาย จำนวนนักศึกษาที่เข้าใช้"><span class="material-symbols-outlined" aria-hidden="true">info</span></button>
+          </p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
           <p id="kpi-unique" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
+          <p id="kpi-unique-note" class="kpi-note hidden">จำนวนผู้เข้าใช้ที่ไม่ซ้ำกัน โดยนับแต่ละคนเพียง 1 คน</p>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
             <span class="material-symbols-outlined">calendar_today</span>
           </div>
-          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยต่อวัน</p>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">เฉลี่ยการเข้าใช้ต่อวัน
+            <button type="button" class="kpi-info" data-kpi-note="kpi-avg-note" aria-expanded="false" aria-controls="kpi-avg-note" aria-label="คำอธิบาย เฉลี่ยการเข้าใช้ต่อวัน"><span class="material-symbols-outlined" aria-hidden="true">info</span></button>
+          </p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
           <p id="kpi-avg" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
+          <p id="kpi-avg-note" class="kpi-note hidden">จำนวนครั้งที่เข้าใช้ห้องสมุดโดยเฉลี่ยในแต่ละวัน</p>
         </div>
         <div class="lift-on-hover bg-primary-container rounded-xl p-6 shadow-stamp border border-primary relative overflow-hidden">
           <div class="absolute top-0 right-0 p-4">
@@ -67,9 +76,12 @@ require __DIR__ . '/partials/guard.php';
           <div class="kpi-icon w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white mb-4">
             <span class="material-symbols-outlined">meeting_room</span>
           </div>
-          <p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
+          <p class="text-on-primary-container font-label-caps uppercase text-xs mb-1">ผู้ที่อยู่ในห้องสมุดขณะนี้
+            <button type="button" class="kpi-info on-blue" data-kpi-note="kpi-inside-note" aria-expanded="false" aria-controls="kpi-inside-note" aria-label="คำอธิบาย ผู้ที่อยู่ในห้องสมุดขณะนี้"><span class="material-symbols-outlined" aria-hidden="true">info</span></button>
+          </p>
           <div class="skeleton kpi-skeleton h-8 w-20 bg-white/20"></div>
           <p id="kpi-inside" class="hidden kpi-value text-headline-lg font-headline-lg text-white font-bold font-label-code">0</p>
+          <p id="kpi-inside-note" class="kpi-note on-blue hidden">จำนวนผู้ที่เช็กอินแล้วและยังไม่ได้เช็กเอาต์ออก</p>
         </div>
       </div>
     </header>

@@ -30,11 +30,11 @@ function admin_nav_class(string $href, string $active): string
 </aside>
 
 <!-- Mobile: slim hamburger strip right under AppHeader, opens the same nav as a drawer. -->
-<div class="md:hidden fixed top-16 left-0 right-0 z-40 h-12 bg-surface-white dark:bg-dm-surface border-b border-outline-variant dark:border-dm-border shadow-sm flex items-center justify-between px-4">
-  <p class="text-xs uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลเจ้าหน้าที่</p>
-  <button type="button" id="admin-mobile-menu-btn" aria-label="เปิดเมนู" class="w-9 h-9 flex items-center justify-center rounded-lg text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg">
+<div class="md:hidden fixed top-16 left-0 right-0 z-40 h-12 bg-surface-white dark:bg-dm-surface border-b border-outline-variant dark:border-dm-border shadow-sm flex items-center gap-2 px-4">
+  <button type="button" id="admin-mobile-menu-btn" aria-label="เปิดเมนู" class="w-9 h-9 -ml-2 flex items-center justify-center rounded-lg text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg">
     <span class="material-symbols-outlined">menu</span>
   </button>
+  <p class="text-xs uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลเจ้าหน้าที่</p>
 </div>
 
 <div id="admin-mobile-drawer" class="hidden md:hidden fixed inset-0 z-[60] bg-black/50">

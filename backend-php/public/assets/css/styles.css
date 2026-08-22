@@ -2089,6 +2089,19 @@ video {
      actually ships, so this keeps IBM Plex Sans Thai rendering everywhere. */
   font-weight: 700;
 }
+/* 48px is a desktop hero size. Every page title in the app carries this
+   class, so on a 390px phone the four admin headings ("ภาพรวมการใช้งาน
+   ห้องสมุด", "ประวัติการเช็คชื่อทั้งหมด", …) each took two full lines and
+   most of the first screen before any content. Thai sets no smaller than
+   Latin at the same px, and these strings are long, so the drop is steep.
+
+   Placed ABOVE the signup rules below deliberately: that page tuned its own
+   title to 32px to hold one line inside a fixed-height hero, and being later
+   in the file it still wins at the width it cares about.
+   --------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .text-headline-xl { font-size: 28px; line-height: 1.25; }
+}
 /* "สร้างบัญชีของคุณ" at 48px needs ~369px but a phone only gives it ~310-340px,
    so it wraps to 2 lines — inside signup.php's hero section (fixed h-80,
    overflow:hidden) that pushes the paragraph below it past the section's
@@ -3388,6 +3401,49 @@ html.dark .lib-banner { filter: brightness(.88); }
 .dark .trend-empty { color: rgb(148 163 184); }
 
 /* ---------------------------------------------------------------------
+   KPI card explanations (admin-dashboard.php).
+
+   The four numbers on the dashboard read as bare figures — 98, 6, 4, 0 —
+   and the labels above them said what was counted only if you already knew
+   the system. The labels now say it outright; this is the second half: an
+   ⓘ per card that unfolds one sentence of detail.
+
+   Unfolded rather than always shown, because the cards are two-up on a
+   phone and a permanent second paragraph in each would make the strip taller
+   than the screen. The note is display:none until asked for, so the card
+   keeps exactly the height it has today.
+   --------------------------------------------------------------------- */
+.kpi-info {
+  display: inline-flex; align-items: center; justify-content: center;
+  vertical-align: -3px; margin-left: 3px;
+  width: 18px; height: 18px; border-radius: 999px; border: 0;
+  background: none; color: rgb(100 116 139); cursor: pointer; padding: 0;
+  transition: background-color .15s, color .15s;
+}
+.kpi-info .material-symbols-outlined { font-size: 15px; }
+.kpi-info:hover { background: rgb(30 58 138 / .1); color: rgb(30 58 138); }
+.kpi-info[aria-expanded="true"] { background: rgb(30 58 138 / .12); color: rgb(30 58 138); }
+.dark .kpi-info { color: rgb(148 163 184); }
+.dark .kpi-info:hover,
+.dark .kpi-info[aria-expanded="true"] { background: rgb(147 197 253 / .16); color: rgb(147 197 253); }
+/* The fourth card sits on the filled primary-container, where the slate greys
+   above have almost no contrast. */
+.kpi-info.on-blue { color: rgb(255 255 255 / .75); }
+.kpi-info.on-blue:hover,
+.kpi-info.on-blue[aria-expanded="true"] { background: rgb(255 255 255 / .2); color: #fff; }
+.dark .kpi-info.on-blue { color: rgb(255 255 255 / .75); }
+.kpi-info:focus-visible { outline: 2px solid rgb(30 58 138); outline-offset: 2px; }
+.dark .kpi-info:focus-visible { outline-color: rgb(147 197 253); }
+.kpi-info.on-blue:focus-visible { outline-color: #fff; }
+
+.kpi-note {
+  margin-top: 6px; font-size: 11.5px; line-height: 1.45;
+  color: rgb(100 116 139); text-transform: none; letter-spacing: 0;
+}
+.dark .kpi-note { color: rgb(148 163 184); }
+.kpi-note.on-blue { color: rgb(255 255 255 / .85); }
+
+/* ---------------------------------------------------------------------
    Visit history panel (partials/history-modal.php).
 
    Replaces a three-column table of dates and times. Ten rows of that was
@@ -3729,6 +3785,7 @@ html.dark .lib-banner { filter: brightness(.88); }
   .admin-kpi-grid > div > p { font-size: 10px; line-height: 1.35; margin-bottom: 3px; }
   .admin-kpi-grid .kpi-value { font-size: 22px; line-height: 1.1; }
   .admin-kpi-grid .kpi-skeleton { height: 22px; width: 54px; }
+  .admin-kpi-grid > div > p.kpi-note { font-size: 10.5px; line-height: 1.4; margin-bottom: 0; }
   /* pt-24 existed to clear cards translated 64px up; they now move 32px. */
   .admin-kpi-clear { padding-top: 52px; }
 }

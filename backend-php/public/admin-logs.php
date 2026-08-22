@@ -40,7 +40,7 @@ require __DIR__ . '/partials/guard.php';
           <span class="p-2 bg-accent-stats/10 text-accent-stats rounded-lg w-fit mb-4">
             <span class="material-symbols-outlined">group</span>
           </span>
-          <p class="text-text-secondary dark:text-dm-text-secondary font-label-caps text-label-caps uppercase">อยู่ในห้องสมุดตอนนี้ (โดยประมาณ)</p>
+          <p class="text-text-secondary dark:text-dm-text-secondary font-label-caps text-label-caps uppercase">อยู่ในห้องสมุดตอนนี้</p>
           <p class="text-headline-md font-label-code text-primary dark:text-primary-fixed-dim" id="logs-stat-inside">–</p>
         </div>
         <div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border flex flex-col justify-between">
