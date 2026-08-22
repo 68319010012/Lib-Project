@@ -141,6 +141,9 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/toast.js?v=<?= ntc_asset_v('assets/js/toast.js') ?>"></script>
   <script src="/assets/js/header.js?v=<?= ntc_asset_v('assets/js/header.js') ?>"></script>
   <script src="/assets/js/confirm-modal.js?v=<?= ntc_asset_v('assets/js/confirm-modal.js') ?>"></script>
+  <!-- renderPager(): the history modal pages server-side now, but the pager
+       strip it draws is the same one the admin tables use. -->
+  <script src="/assets/js/pagination.js?v=<?= ntc_asset_v('assets/js/pagination.js') ?>"></script>
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/dashboard.js?v=<?= ntc_asset_v('assets/js/dashboard.js') ?>"></script>
 </body>

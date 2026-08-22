@@ -64,6 +64,52 @@ function handle_change_password(): void
 // after it is one still open. That is exact rather than "the next out
 // anywhere below", which would mis-pair if two check-ins ever landed in a row.
 // Paging is applied to the 'in' rows, so a page is always whole visits.
+//
+// The pairing subquery is shared by every query this endpoint runs (the page,
+// the range summary, and the count behind the pager), so it lives here once
+// instead of being pasted three times and drifting apart.
+function my_visits_paired_sql(): string
+{
+    return "SELECT
+                log_id,
+                type,
+                timestamp AS checkin_at,
+                planned_checkout_at,
+                LEAD(type)            OVER (ORDER BY log_id) AS next_type,
+                LEAD(timestamp)       OVER (ORDER BY log_id) AS next_timestamp,
+                LEAD(checkout_source) OVER (ORDER BY log_id) AS next_source
+            FROM checkin_logs
+            WHERE user_id = :uid";
+}
+
+// Reads one YYYY-MM-DD query parameter, or null if it is absent or is not a
+// real calendar date.
+//
+// Deliberately not a 400: the value comes from an <input type="date">, so a
+// malformed one means a hand-edited URL or a browser quirk, and answering
+// with the student's whole history is more use to the person staring at the
+// modal than an error that empties it with no way back. 2026-02-31 counts as
+// malformed — createFromFormat would roll it forward to March 3rd, and a
+// filter that quietly moves the day you asked for is worse than one that
+// ignores it.
+function visits_date_param(string $key): ?string
+{
+    $raw = trim((string) ($_GET[$key] ?? ''));
+    if ($raw === '') {
+        return null;
+    }
+    // '!' zeroes the time fields, so anything that parses is a pure date.
+    $parsed = DateTime::createFromFormat('!Y-m-d', $raw);
+    // getLastErrors() returns false (nothing wrong) on PHP 8.2+ and an array
+    // of zero counts before that; both shapes have to read as clean.
+    $errors = DateTime::getLastErrors();
+    $rolledOver = is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0);
+    if ($parsed === false || $rolledOver) {
+        return null;
+    }
+    return $parsed->format('Y-m-d');
+}
+
 function handle_my_visits(): void
 {
     require_login();
@@ -78,28 +124,51 @@ function handle_my_visits(): void
         $offset = 0;
     }
 
+    $from = visits_date_param('from');
+    $to = visits_date_param('to');
+    // A backwards range is someone filling the second picker before the
+    // first, not a request to be shown nothing. Swap instead of returning
+    // an empty list they have to work out how to escape.
+    if ($from !== null && $to !== null && $from > $to) {
+        [$from, $to] = [$to, $from];
+    }
+
+    // The date filter is applied to the PAIRED rows, never inside the
+    // subquery. LEAD() has to see the whole log to work: a visit starting on
+    // the last day of the range keeps its check-out row outside the range,
+    // and narrowing first would hide that row and report a finished visit as
+    // one the student never came back from.
+    //
+    // Both ends cover the whole day. checkin_at is a DATETIME, so the upper
+    // bound is "< the day after" rather than "<= the day", which would cut
+    // off every visit that started after midnight on the last day.
+    $dateWhere = '';
+    $dateParams = [];
+    if ($from !== null) {
+        $dateWhere .= ' AND paired.checkin_at >= :from_at';
+        $dateParams[':from_at'] = $from . ' 00:00:00';
+    }
+    if ($to !== null) {
+        $dateWhere .= ' AND paired.checkin_at < :to_at';
+        $dateParams[':to_at'] = (new DateTime($to))->modify('+1 day')->format('Y-m-d') . ' 00:00:00';
+    }
+
     $conn = get_db_connection();
+    $paired = my_visits_paired_sql();
+
     $stmt = $conn->prepare(
         "SELECT checkin_at, planned_checkout_at, next_type, next_timestamp, next_source
-         FROM (
-             SELECT
-                 log_id,
-                 type,
-                 timestamp AS checkin_at,
-                 planned_checkout_at,
-                 LEAD(type)            OVER (ORDER BY log_id) AS next_type,
-                 LEAD(timestamp)       OVER (ORDER BY log_id) AS next_timestamp,
-                 LEAD(checkout_source) OVER (ORDER BY log_id) AS next_source
-             FROM checkin_logs
-             WHERE user_id = :uid
-         ) paired
-         WHERE paired.type = 'in'
+         FROM ({$paired}) paired
+         WHERE paired.type = 'in'{$dateWhere}
          ORDER BY paired.log_id DESC
          LIMIT :row_limit OFFSET :row_offset"
     );
     $stmt->bindValue(':uid', $_SESSION['user_id'], PDO::PARAM_INT);
     $stmt->bindValue(':row_limit', $limit, PDO::PARAM_INT);
     $stmt->bindValue(':row_offset', $offset, PDO::PARAM_INT);
+    foreach ($dateParams as $name => $value) {
+        $stmt->bindValue($name, $value);
+    }
     $stmt->execute();
 
     $visits = array_map(function (array $row): array {
@@ -116,7 +185,68 @@ function handle_my_visits(): void
         ];
     }, $stmt->fetchAll());
 
-    json_response($visits);
+    // Totals for the whole filtered range, not for the page. The pager needs
+    // the count to say "page 3 of 12" instead of only offering a Next button
+    // that gives no idea how far back the list goes, and the summary line
+    // answers "how much was I here this month" — the actual reason someone
+    // sets a date range.
+    //
+    // Minutes add up over CLOSED visits only: an open one has no end yet, and
+    // measuring it against "now" would make the total creep up on every
+    // reload of the same range.
+    $summaryStmt = $conn->prepare(
+        "SELECT
+             COUNT(*) AS total_visits,
+             SUM(CASE WHEN paired.next_type = 'out' THEN 1 ELSE 0 END) AS closed_visits,
+             SUM(CASE WHEN paired.next_type = 'out'
+                      THEN TIMESTAMPDIFF(MINUTE, paired.checkin_at, paired.next_timestamp)
+                 END) AS total_minutes
+         FROM ({$paired}) paired
+         WHERE paired.type = 'in'{$dateWhere}"
+    );
+    $summaryStmt->bindValue(':uid', $_SESSION['user_id'], PDO::PARAM_INT);
+    foreach ($dateParams as $name => $value) {
+        $summaryStmt->bindValue($name, $value);
+    }
+    $summaryStmt->execute();
+    $summary = $summaryStmt->fetch() ?: [];
+
+    $totalVisits = (int) ($summary['total_visits'] ?? 0);
+    $closedVisits = (int) ($summary['closed_visits'] ?? 0);
+    $totalMinutes = (int) ($summary['total_minutes'] ?? 0);
+
+    // Unfiltered on purpose, so the two date pickers can clamp themselves to
+    // the span the student actually has rows in. Being free to pick a month
+    // from before they enrolled only produces an empty list to back out of.
+    $boundsStmt = $conn->prepare(
+        "SELECT DATE(MIN(timestamp)) AS first_date, DATE(MAX(timestamp)) AS last_date
+         FROM checkin_logs
+         WHERE user_id = ? AND type = 'in'"
+    );
+    $boundsStmt->execute([$_SESSION['user_id']]);
+    $bounds = $boundsStmt->fetch() ?: [];
+
+    // An object, not the bare array this used to return: the page alone can't
+    // tell the modal how many visits the range holds. assets/js/history-modal.js
+    // is the only caller.
+    json_response([
+        'visits' => $visits,
+        'total' => $totalVisits,
+        'summary' => [
+            'visits' => $totalVisits,
+            'closed_visits' => $closedVisits,
+            'total_minutes' => $totalMinutes,
+            // Averaged over closed visits to match total_minutes. Dividing by
+            // every visit would pull the average down by one whole trip for
+            // each one still open.
+            'avg_minutes' => $closedVisits > 0 ? (int) round($totalMinutes / $closedVisits) : 0,
+        ],
+        'range' => ['from' => $from, 'to' => $to],
+        'bounds' => [
+            'first' => $bounds['first_date'] ?? null,
+            'last' => $bounds['last_date'] ?? null,
+        ],
+    ]);
 }
 
 function handle_my_history(): void
