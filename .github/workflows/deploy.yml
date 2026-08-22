@@ -35,6 +35,10 @@ on:
         description: 'พิมพ์ deploy เพื่อยืนยันว่าทดสอบแล้วจริง'
         required: true
         default: ''
+      since_ref:
+        description: 'อัปไฟล์ที่เปลี่ยนตั้งแต่ commit ไหน (ปล่อย HEAD~1 ถ้า deploy ทีละ commit)'
+        required: false
+        default: 'HEAD~1'
 
 concurrency:
   # สอง deploy พร้อมกันจะอัปทับกันจนเซิร์ฟเวอร์ค้างครึ่งๆ กลางๆ
@@ -54,6 +58,12 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v4
+        with:
+          # ค่าเริ่มต้นของ checkout คือ fetch-depth: 1 ได้มา commit เดียว
+          # `git rev-parse HEAD~1` จึง fatal, $(...) กลายเป็นค่าว่าง แล้ว
+          # `git diff --name-only "" HEAD` fatal ตาม ลูปไม่ทำงานสักรอบ —
+          # deploy จะ "สำเร็จ" ทั้งที่อัปแค่ 4 ไฟล์ที่ระบุตายตัว ไม่มีอะไรเตือน
+          fetch-depth: 0
 
       - name: ตรวจ syntax ทุกไฟล์ PHP ก่อนอัป
         # ด่านสุดท้ายที่ถูกที่สุด ไฟล์เดียวที่ parse ไม่ผ่านทำให้ทั้งเว็บขาวได้
@@ -68,11 +78,21 @@ jobs:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           DRY_RUN: ${{ inputs.dry_run }}
+          SINCE_REF: ${{ inputs.since_ref }}
         run: |
           set -uo pipefail
           umask 077
           printf 'machine %s\nlogin %s\npassword %s\n' \
             "$FTP_SERVER" "$FTP_USERNAME" "$FTP_PASSWORD" > "$RUNNER_TEMP/netrc"
+
+          # HEAD~1 ตายตัวถือว่า "หนึ่ง deploy ต่อหนึ่ง commit" เสมอ ซึ่งไม่จริง:
+          # งานรอบเดียวมักถูกแยกเป็นหลาย commit ตามเรื่อง แล้วไฟล์ของ commit
+          # ก่อนหน้าจะไม่ถูกอัปเลยโดยไม่มีอะไรฟ้อง จึงให้ระบุจุดตั้งต้นเองได้
+          BASE=$(git rev-parse --verify "${SINCE_REF}^{commit}" 2>/dev/null) || {
+            echo "หา commit '${SINCE_REF}' ไม่เจอ — หยุดดีกว่าอัปไม่ครบแบบเงียบๆ"
+            exit 1
+          }
+          echo "อัปไฟล์ที่เปลี่ยนตั้งแต่ $BASE ถึง $(git rev-parse HEAD)"
 
           FAIL=0
           upload() {
@@ -101,11 +121,11 @@ jobs:
           upload public/partials/guard.php
           upload src/auth.php
 
-          for f in $(git diff --name-only "$(git rev-parse HEAD~1)" HEAD -- backend-php/src \
+          for f in $(git diff --name-only "$BASE" HEAD -- backend-php/src \
                      | sed 's|^backend-php/||' | grep -v '^src/constants.php$' | grep -v '^src/auth.php$'); do
             upload "$f"
           done
-          for f in $(git diff --name-only "$(git rev-parse HEAD~1)" HEAD -- backend-php/public \
+          for f in $(git diff --name-only "$BASE" HEAD -- backend-php/public \
                      | sed 's|^backend-php/||' | grep -v '^public/index.php$' \
                      | grep -v '^public/partials/guard.php$'); do
             upload "$f"
