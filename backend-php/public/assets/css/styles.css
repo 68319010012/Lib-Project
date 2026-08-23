@@ -4078,3 +4078,58 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
   .lib-banner .logo-badge { width: 38px; height: 38px; }
   .lib-banner .logo-badge img { width: 33px; height: 33px; }
 }
+
+/* ---------------------------------------------------------------------
+   หน้าล็อกอิน — แถบหัวเว็บ (23 ส.ค. 2569)
+   แถบเดิมสูงราว 130px ซึ่งเป็นความสูงของ "แถบเมนู" ไม่ใช่ "แบนเนอร์" จึง
+   อ่านเหมือน header มากกว่าหน้าปกของเว็บ ตรึงความสูงไว้ที่ ~190px แล้วจัด
+   เนื้อหาให้อยู่กลางแถบ
+
+   ใช้ min-height ไม่ใช่ padding: ฟอร์มล็อกอินต้องยังอยู่เหนือ fold บนมือถือ
+   ถ้าดันด้วย padding ความสูงจะไหลตามขนาดตัวอักษรที่เปลี่ยนตามจอ คุมไม่ได้
+   --------------------------------------------------------------------- */
+.lib-banner .content {
+  min-height: 192px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+/* ขยายโลโก้และชื่อขึ้นราว 15% ตามที่ขอ — "ห้องสมุด วิทยาลัยเทคนิคนครนายก"
+   เป็นบรรทัดที่ใหญ่ที่สุดในหน้า ส่วนชื่อภาษาอังกฤษยังเป็นบรรทัดรอง */
+.lib-banner .logo-badge { width: 52px; height: 52px; }
+.lib-banner .logo-badge img { width: 45px; height: 45px; }
+.lib-banner .eyebrow { font-size: 11.5px; }
+.lib-banner h1 { font-size: 29px; }
+.lib-banner h2 { font-size: 19.5px; margin-left: 12px; }
+
+@media (max-width: 760px) {
+  .lib-banner h1 { font-size: 23px; }
+  .lib-banner h2 { font-size: 16px; margin-left: 9px; }
+  .lib-banner .logo-badge { width: 44px; height: 44px; }
+  .lib-banner .logo-badge img { width: 38px; height: 38px; }
+}
+
+/* บนจอแคบ ปุ่มตั้งค่าธีมลอยอยู่มุมขวาบนของแถบ เว้นที่ด้านบนให้พ้นกัน
+   (min-height ยังคุมความสูงรวมอยู่ padding แค่ดันจุดกึ่งกลางลงมา) */
+@media (max-width: 480px) {
+  .lib-banner .content { min-height: 186px; padding-top: 40px; padding-bottom: 18px; }
+}
+
+/* ---------------------------------------------------------------------
+   ปุ่มเปิด/ปิดการมองเห็นรหัสผ่าน
+   เขียนเป็น CSS ธรรมดา ไม่ใช่คลาส Tailwind: โปรเจคนี้เสิร์ฟ styles.css ที่
+   build ไว้แล้ว ไม่มีขั้นตอน build ตอนรัน คลาสอย่าง pr-12 ที่ยังไม่เคยถูกใช้
+   ที่อื่นจึงไม่มีอยู่ในไฟล์ผลลัพธ์ (เหมือนกรณี .login-theme-menu ด้านบน)
+   --------------------------------------------------------------------- */
+.pw-field .pw-input { padding-right: 52px; }
+.pw-toggle {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; border-radius: 9999px; cursor: pointer;
+  color: var(--outline, #79747e); transition: background-color .15s, color .15s;
+}
+.pw-toggle:hover { background: rgba(120, 120, 130, .12); color: var(--primary, #1e3a8a); }
+.pw-toggle:focus-visible { outline: 2px solid var(--primary, #1e3a8a); outline-offset: 2px; }
+.pw-toggle[aria-pressed="true"] { color: var(--primary, #1e3a8a); }
+.pw-toggle .material-symbols-outlined { font-size: 22px; }
+html.dark .pw-toggle { color: #9aa4b2; }
+html.dark .pw-toggle:hover { background: rgba(255, 255, 255, .08); color: #cbd5e1; }

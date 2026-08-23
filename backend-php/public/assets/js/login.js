@@ -43,3 +43,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// ปุ่มดวงตาข้างช่องรหัสผ่าน — สลับ type ระหว่าง password กับ text
+//
+// สลับที่ตัว input เดิม ไม่ได้สร้าง input ใหม่ ค่าที่พิมพ์ไว้จึงไม่หาย และ
+// ตัวจัดการรหัสผ่านของเบราว์เซอร์ยังเห็นเป็นช่องเดิม
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('login-password');
+  const btn = document.getElementById('login-password-toggle');
+  if (!input || !btn) return;
+  const icon = btn.querySelector('.material-symbols-outlined');
+
+  btn.addEventListener('click', () => {
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+    const label = show ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    if (icon) icon.textContent = show ? 'visibility_off' : 'visibility';
+    // คืนโฟกัสให้ช่องพิมพ์ พร้อมวางเคอร์เซอร์ไว้ท้ายข้อความเดิม เพื่อให้
+    // กดดูแล้วพิมพ์ต่อได้ทันทีโดยไม่ต้องแตะช่องซ้ำ
+    const end = input.value.length;
+    input.focus();
+    try { input.setSelectionRange(end, end); } catch (_) { /* type=text เท่านั้นที่รองรับ */ }
+  });
+});

@@ -63,15 +63,18 @@
             </div>
             <div>
               <label for="login-password" class="block font-label-caps text-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
-              <div class="relative">
+              <div class="relative pw-field">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">lock</span>
                 <input
                   id="login-password" autocomplete="current-password"
-                  class="w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200"
+                  class="pw-input w-full h-14 pl-12 pr-4 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all-200"
                   placeholder="••••••••"
                   required
                   type="password"
                 />
+                <button type="button" id="login-password-toggle" class="pw-toggle" aria-controls="login-password" aria-pressed="false" aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน">
+                  <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                </button>
               </div>
             </div>
             <button
