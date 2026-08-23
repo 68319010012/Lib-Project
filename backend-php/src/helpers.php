@@ -79,6 +79,33 @@ function library_closing_time(): string
     return env('LIBRARY_CLOSING_TIME', '17:00');
 }
 
+// คำเรียกผู้เรียนตามระดับชั้น: ปวช. = นักเรียน, ปวส. = นักศึกษา
+//
+// ระดับชั้นที่ไม่รู้จักหรือว่าง (เช่น บัญชีเจ้าหน้าที่ หรือข้อมูลที่นำเข้ามา
+// ไม่ครบ) คืนคำกลางว่า "ผู้ใช้บริการ" แทนที่จะเดาเป็นอย่างใดอย่างหนึ่ง
+function level_person_word(?string $level): string
+{
+    $level = trim((string) $level);
+    if ($level === 'ปวช.') {
+        return 'นักเรียน';
+    }
+    if ($level === 'ปวส.') {
+        return 'นักศึกษา';
+    }
+    return 'ผู้ใช้บริการ';
+}
+
+// คำเรียกพร้อมวงเล็บกำกับระดับชั้น เช่น "นักเรียน (ปวช.)"
+function level_person_label(?string $level): string
+{
+    $level = trim((string) $level);
+    $word = level_person_word($level);
+    return $level === '' ? $word : "$word ($level)";
+}
+
+// คำเรียกรวมทั้งสองกลุ่ม ใช้เมื่อพูดถึงผู้ใช้ทุกคนโดยไม่แยกระดับชั้น
+const ALL_LEARNERS_WORD = 'นักเรียน/นักศึกษา';
+
 // วันที่ห้องสมุดเปิดทำการ เก็บเป็นเลขวันแบบ ISO-8601 (จันทร์ = 1 ... อาทิตย์ = 7)
 // ค่าเริ่มต้นคือจันทร์ถึงศุกร์ ตั้งทับได้ด้วย LIBRARY_OPEN_DAYS ใน .env เผื่อ
 // ภาคเรียนไหนเปิดเสาร์ หรือมีวันหยุดพิเศษ เช่น LIBRARY_OPEN_DAYS=1,2,3,4,5,6

@@ -376,7 +376,7 @@ function aggregate_monthly_totals(PDO $conn, array $filters = []): array
 function build_summary_sentence(string $periodLabel, array $agg, ?array $busiestDay, array $topDepts, ?array $peakHour): string
 {
     $html = 'ใน' . htmlspecialchars($periodLabel) . ' ห้องสมุดมีการเช็คชื่อเข้า-ออกรวม '
-        . "<b>{$agg['total_events']} รายการ</b> จากนักศึกษา <b>{$agg['unique_students']} คน</b> "
+        . "<b>{$agg['total_events']} รายการ</b> จากผู้ใช้บริการ <b>{$agg['unique_students']} คน</b> "
         . "เฉลี่ย <b>{$agg['avg_daily']} รายการต่อวัน</b>";
     if ($busiestDay) {
         $html .= ' โดยวันที่มีผู้ใช้บริการมากที่สุดคือ <b>' . htmlspecialchars((string) $busiestDay['day'])

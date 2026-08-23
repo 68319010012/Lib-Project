@@ -76,6 +76,128 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
     return 'data:image/png;base64,' . base64_encode($data);
 }
 
+// วาดกราฟวงกลมแบบโดนัทเป็นรูป PNG แล้วคืนค่าเป็น data: URI
+//
+// เหตุผลเดียวกับ render_pdf_bar_chart(): mPDF วาด SVG/CSS ที่ซับซ้อนไม่ได้
+// ให้ GD วาดเป็นภาพแบนๆ แล้ว mPDF แค่วางลงไป
+//
+// $slices = [['label' => 'ชาย', 'value' => 5, 'color' => [37, 99, 235]], ...]
+// $centerLabel = ข้อความกลางวง (เช่น จำนวนคนทั้งหมด)
+function render_pdf_donut_chart(array $slices, string $centerTop = '', string $centerBottom = '', int $width = 720, int $height = 250, string $unit = 'คน'): string
+{
+    $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
+    $bold = __DIR__ . '/../../fonts/Sarabun-Bold.ttf';
+    if (!is_file($bold)) {
+        $bold = $font;
+    }
+
+    $total = 0.0;
+    foreach ($slices as $s) {
+        $total += max(0.0, (float) $s['value']);
+    }
+
+    $img = imagecreatetruecolor($width, $height);
+    imagefill($img, 0, 0, imagecolorallocate($img, 255, 255, 255));
+    $ink = imagecolorallocate($img, 15, 23, 42);
+    $muted = imagecolorallocate($img, 100, 116, 139);
+
+    $d = min($height - 24, 210);
+    $cx = 16 + $d / 2;
+    $cy = $height / 2;
+
+    if ($total > 0) {
+        // วาดใหญ่ 4 เท่าแล้วย่อลง เพราะ imagefilledarc ไม่มี anti-alias
+        // ขอบวงจะหยักเป็นบันไดถ้าวาดที่ขนาดจริง
+        $ss = 4;
+        $big = (int) ($d * $ss);
+        $pie = imagecreatetruecolor($big, $big);
+        imagefill($pie, 0, 0, imagecolorallocate($pie, 255, 255, 255));
+        $pc = (int) ($big / 2);
+
+        // คำนวณมุมสะสมก่อน แล้วค่อยปัดเศษทีเดียวที่ขอบแต่ละชิ้น
+        // ถ้าปัดความกว้างของแต่ละชิ้นแยกกัน ขอบที่ติดกันจะไม่ตรงกันพอดี
+        // และเหลือเส้นขาวบางๆ คั่นระหว่างชิ้น
+        $bounds = [-90.0];
+        $acc = 0.0;
+        foreach ($slices as $s) {
+            $acc += max(0.0, (float) $s['value']);
+            $bounds[] = -90.0 + ($acc / $total) * 360.0;
+        }
+        foreach ($slices as $i => $s) {
+            $a1 = (int) round($bounds[$i]);
+            $a2 = (int) round($bounds[$i + 1]);
+            if ($a2 <= $a1) {
+                continue;   // ชิ้นที่เล็กจนปัดแล้วกว้าง 0 องศา — วาดแล้วจะได้วงเต็มแทน
+            }
+            $col = imagecolorallocate($pie, $s['color'][0], $s['color'][1], $s['color'][2]);
+            imagefilledarc($pie, $pc, $pc, $big, $big, $a1, $a2, $col, IMG_ARC_PIE);
+        }
+        // เจาะรูตรงกลางให้เป็นโดนัท เทียบสัดส่วนด้วยความยาวส่วนโค้งง่ายกว่าวงกลมทึบ
+        imagefilledellipse($pie, $pc, $pc, (int) ($big * 0.54), (int) ($big * 0.54), imagecolorallocate($pie, 255, 255, 255));
+
+        imagecopyresampled($img, $pie, (int) ($cx - $d / 2), (int) ($cy - $d / 2), 0, 0, (int) $d, (int) $d, $big, $big);
+        imagedestroy($pie);
+    }
+
+    // ข้อความกลางวง
+    $centered = function (string $text, int $size, string $fontFile, int $color, float $yCenter) use ($img, $cx) {
+        if ($text === '') {
+            return;
+        }
+        $box = imagettfbbox($size, 0, $fontFile, $text);
+        $w = $box[2] - $box[0];
+        $h = $box[1] - $box[7];
+        imagettftext($img, $size, 0, (int) ($cx - $w / 2), (int) ($yCenter + $h / 2), $color, $fontFile, $text);
+    };
+    $centered($centerTop, 20, $bold, $ink, $cy - 8);
+    $centered($centerBottom, 11, $font, $muted, $cy + 20);
+
+    // คำอธิบายสัญลักษณ์ วางด้านขวาของวง
+    $lx = (int) ($cx + $d / 2 + 30);
+    $n = max(1, count($slices));
+    // ย่อระยะบรรทัดเมื่อมีหลายชิ้น ไม่งั้นคำอธิบายจะสูงเกินขอบรูป
+    $rowH = $n > 4 ? max(17, (int) floor(($height - 16) / $n)) : 34;
+    $labelSize = $rowH >= 30 ? 13 : ($rowH >= 24 ? 11.5 : 9.5);
+    $detailSize = $labelSize - 0.5;
+    $swatch = $rowH >= 30 ? 14 : 10;
+    $ly = (int) ($cy - ($n * $rowH) / 2 + $rowH / 2 + 2);
+
+    foreach ($slices as $s) {
+        $col = imagecolorallocate($img, $s['color'][0], $s['color'][1], $s['color'][2]);
+        imagefilledrectangle($img, $lx, (int) ($ly - $swatch + 2), $lx + $swatch, $ly + 2, $col);
+
+        $pct = $total > 0 ? round((float) $s['value'] / $total * 100, 1) : 0;
+        $detail = number_format((float) $s['value']) . ' ' . $unit . ' · ' . $pct . '%';
+        // ตัวเลขชิดขวาของรูป แล้วปล่อยพื้นที่ที่เหลือทั้งหมดให้ชื่อ — ชื่อแผนก
+        // ภาษาไทยยาวกว่าที่ตำแหน่งตายตัวจะรองรับได้
+        $dbox = imagettfbbox($detailSize, 0, $font, $detail);
+        $dx = $width - 8 - ($dbox[2] - $dbox[0]);
+        imagettftext($img, $detailSize, 0, $dx, $ly, $muted, $font, $detail);
+
+        // ตัดชื่อที่ยาวเกินช่องว่างที่เหลือ แทนที่จะปล่อยให้ทับตัวเลข
+        $labelX = $lx + $swatch + 10;
+        $maxLabelW = $dx - $labelX - 10;
+        $label = (string) $s['label'];
+        $lbox = imagettfbbox($labelSize, 0, $bold, $label);
+        if ($lbox[2] - $lbox[0] > $maxLabelW) {
+            while ($label !== '' && ($lbox[2] - $lbox[0]) > $maxLabelW) {
+                $label = mb_substr($label, 0, mb_strlen($label) - 1);
+                $lbox = imagettfbbox($labelSize, 0, $bold, $label . '…');
+            }
+            $label .= '…';
+        }
+        imagettftext($img, $labelSize, 0, $labelX, $ly, $ink, $bold, $label);
+
+        $ly += $rowH;
+    }
+
+    ob_start();
+    imagepng($img);
+    $data = ob_get_clean();
+    imagedestroy($img);
+    return 'data:image/png;base64,' . base64_encode($data);
+}
+
 // Renders $content (report-specific HTML built by the caller via
 // ob_start()/ob_get_clean()) as a real PDF file via mPDF, instead of the
 // browser's own print-to-PDF (window.print()) — a genuine file the OS Save
