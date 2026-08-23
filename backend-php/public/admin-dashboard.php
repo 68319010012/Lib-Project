@@ -87,6 +87,32 @@ require __DIR__ . '/partials/guard.php';
     </header>
 
     <div class="admin-kpi-clear max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- วางไว้บนสุดของส่วนเนื้อหา เพราะเดิมไม่มีช่องนี้อยู่เลย ข้อความประกาศ
+           ถูกเขียนตายไว้ในหน้านักศึกษา เจ้าหน้าที่จึงหาที่แก้ไม่เจอ -->
+      <section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
+        <div class="mb-6">
+          <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">ประกาศถึงนักศึกษา</h2>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary text-body-md">ข้อความที่พิมพ์ไว้ตรงนี้จะขึ้นบนหน้าหลักของนักศึกษาทุกคน</p>
+        </div>
+        <form id="announcement-form" class="ann-form">
+          <label for="announcement-input" class="ann-label">ข้อความประกาศ</label>
+          <textarea id="announcement-input" class="ann-input" rows="3" maxlength="500"
+            placeholder="เช่น ห้องสมุดปิดปรับปรุงวันศุกร์ที่ 28 ส.ค. 2569"></textarea>
+          <div class="ann-row">
+            <label class="ann-toggle" for="announcement-enabled">
+              <input type="checkbox" id="announcement-enabled">
+              <span>แสดงประกาศนี้บนหน้านักศึกษา</span>
+            </label>
+            <span class="ann-count" id="announcement-count" aria-live="polite">0 / 500</span>
+          </div>
+          <p id="announcement-error" role="alert" class="ann-error hidden"></p>
+          <div class="ann-actions">
+            <p class="ann-meta" id="announcement-meta"></p>
+            <button type="submit" id="announcement-save" class="ann-save">บันทึกประกาศ</button>
+          </div>
+        </form>
+      </section>
+
       <section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
           <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h2>
@@ -165,5 +191,6 @@ require __DIR__ . '/partials/guard.php';
   <script src="/assets/js/history-modal.js?v=<?= ntc_asset_v('assets/js/history-modal.js') ?>"></script>
   <script src="/assets/js/admin-sidebar.js?v=<?= ntc_asset_v('assets/js/admin-sidebar.js') ?>"></script>
   <script src="/assets/js/admin-dashboard.js?v=<?= ntc_asset_v('assets/js/admin-dashboard.js') ?>"></script>
+  <script src="/assets/js/admin-announcement.js?v=<?= ntc_asset_v('assets/js/admin-announcement.js') ?>"></script>
 </body>
 </html>

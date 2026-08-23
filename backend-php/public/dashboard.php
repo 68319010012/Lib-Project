@@ -14,9 +14,12 @@ require __DIR__ . '/partials/guard.php';
     <h1 class="visually-hidden">หน้าหลักนักศึกษา — เช็คอินและประวัติการเข้าใช้ห้องสมุด</h1>
     <section class="relative hero-pattern overflow-hidden flex flex-col justify-center py-8">
       <div class="relative z-10 max-w-7xl mx-auto px-gutter w-full">
-        <div class="rise-in mb-4">
+        <!-- ข้อความมาจาก GET /announcement ซึ่งเจ้าหน้าที่แก้ได้จากหน้าภาพรวมของแอดมิน
+             ซ่อนไว้ก่อนเสมอ แล้วค่อยเปิดเมื่อมีประกาศจริง จะได้ไม่เห็นหัวข้อลอยๆ
+             ที่ไม่มีเนื้อหาระหว่างรอโหลด -->
+        <div id="announcement-block" class="rise-in mb-4 hidden">
           <h2 class="font-headline-md text-headline-md text-on-primary mb-1">ประกาศจากเจ้าหน้าที่</h2>
-          <p class="text-body-md text-on-primary/80">ห้องสมุดจะปิดทำการในสุดสัปดาห์นี้เพื่อตรวจนับครุภัณฑ์</p>
+          <p id="announcement-text" class="announcement-text text-body-md text-on-primary/80"></p>
         </div>
 
         <div class="rise-in inline-flex items-center gap-3 bg-surface-container-highest/20 text-on-primary px-4 py-2.5 rounded-full border border-on-primary/20 shadow-lg">
@@ -48,7 +51,7 @@ require __DIR__ . '/partials/guard.php';
               <span id="stamp-label" class="font-headline-md text-headline-md">เช็คอิน</span>
             </button>
           </div>
-          <p class="text-body-md text-text-secondary dark:text-dm-text-secondary max-w-sm mx-auto">กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NTC</p>
+          <p id="stamp-hint" class="text-body-md text-text-secondary dark:text-dm-text-secondary max-w-sm mx-auto">กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NTC</p>
 
           <div id="planned-checkout-wrap" class="hidden flex flex-col items-center gap-2 mt-5">
             <p id="planned-checkout-time" class="text-body-md text-text-secondary dark:text-dm-text-secondary"></p>

@@ -2,6 +2,13 @@
 
 let historyRows = [];
 let closingTime = '17:00';
+// ห้องสมุดเปิดจันทร์-ศุกร์ (ตั้งค่าได้ที่ LIBRARY_OPEN_DAYS ฝั่งเซิร์ฟเวอร์)
+// ค่าตั้งต้นเป็น "เปิด" เพื่อไม่ให้ปุ่มถูกปิดไว้ก่อนระหว่างรอ /library-info
+// ตอบกลับ — ถ้าวันนี้ปิดจริง เซิร์ฟเวอร์ก็ยังปฏิเสธการเช็คอินอยู่ดี
+let libraryOpenToday = true;
+let closedMessage = 'วันนี้ห้องสมุดปิดทำการ';
+const STAMP_HINT_OPEN = 'กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NTC';
+let historyLoaded = false;
 let busy = false;
 let elapsedTimerId = null;
 let reminderWatcherId = null;
@@ -193,6 +200,20 @@ function isCheckedIn() {
   return !!last && last.type === 'in';
 }
 
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+// จบการใช้งานของวันนี้ไปแล้ว — เช็คอินแล้วและเช็คเอาต์แล้วในวันเดียวกัน
+// แยกจาก "ยังไม่ได้เช็คอินวันนี้" เพราะสองอย่างนี้ไม่เหมือนกัน และป้ายสีส้ม
+// ที่บอกว่ายังไม่ได้เช็คอินก็ผิดสำหรับคนที่เพิ่งเช็คเอาต์ออกไป
+function checkedOutToday() {
+  const last = getLast();
+  if (!last || last.type !== 'out') return null;
+  const at = new Date(last.timestamp);
+  return isSameDay(at, new Date()) ? at : null;
+}
+
 function getPlannedCheckoutAt() {
   const last = getLast();
   return isCheckedIn() && last.planned_checkout_at ? new Date(last.planned_checkout_at) : null;
@@ -200,6 +221,7 @@ function getPlannedCheckoutAt() {
 
 async function loadHistory() {
   historyRows = await apiFetch('/me/history?limit=20');
+  historyLoaded = true;
   render();
 }
 
@@ -246,11 +268,18 @@ function render() {
   const checkedInSince = checkedIn ? new Date(last.timestamp) : null;
   const plannedCheckoutAt = getPlannedCheckoutAt();
 
-  // Status pill.
-  document.getElementById('status-dot').classList.toggle('bg-status-success', checkedIn);
-  document.getElementById('status-dot').classList.toggle('bg-warning', !checkedIn);
+  // ป้ายสถานะ — สามสถานะ: อยู่ในห้องสมุด / ออกไปแล้ววันนี้ / ยังไม่ได้เช็คอิน
+  const doneAt = checkedIn ? null : checkedOutToday();
+  const dot = document.getElementById('status-dot');
+  dot.classList.toggle('bg-status-success', checkedIn);
+  dot.classList.toggle('bg-primary', !checkedIn && !!doneAt);
+  dot.classList.toggle('bg-warning', !checkedIn && !doneAt);
   document.getElementById('status-ping').classList.toggle('hidden', !checkedIn);
-  document.getElementById('status-text').textContent = checkedIn ? 'อยู่ในห้องสมุดตอนนี้' : 'ยังไม่ได้เช็คอินวันนี้';
+  document.getElementById('status-text').textContent = checkedIn
+    ? 'อยู่ในห้องสมุดตอนนี้'
+    : doneAt
+      ? `เช็คเอาต์แล้วเมื่อ ${formatHM(doneAt)} น.`
+      : 'ยังไม่ได้เช็คอินวันนี้';
 
   // Elapsed timer.
   document.getElementById('elapsed-wrap').classList.toggle('hidden', !checkedIn);
@@ -265,6 +294,12 @@ function render() {
   stampBtn.classList.toggle('bg-status-success', !checkedIn);
   document.getElementById('stamp-icon').textContent = checkedIn ? 'logout' : 'sync_alt';
   document.getElementById('stamp-label').textContent = checkedIn ? 'เช็คเอาต์' : 'เช็คอิน';
+
+  // วันหยุด: ปิดปุ่มเช็คอินไปเลย แทนที่จะปล่อยให้กดแล้วเจอ error จากเซิร์ฟเวอร์
+  // คนที่ยังค้างอยู่ในห้องสมุดจากวันทำการยังกดเช็คเอาต์ได้ตามปกติ
+  syncStampDisabled();
+  document.getElementById('stamp-hint').textContent =
+    !libraryOpenToday && !checkedIn ? closedMessage : STAMP_HINT_OPEN;
 
   // Planned checkout + extend buttons.
   const plannedWrap = document.getElementById('planned-checkout-wrap');
@@ -315,7 +350,12 @@ function restartElapsedTimer(checkedInSince) {
 function restartReminderWatcher(checkedInSince, plannedCheckoutAt) {
   if (reminderWatcherId) clearInterval(reminderWatcherId);
   reminderWatcherId = null;
-  if (!checkedInSince || !plannedCheckoutAt) return;
+  if (!checkedInSince || !plannedCheckoutAt) {
+    // ไม่ได้อยู่ในห้องสมุดแล้ว คำเตือนเรื่องเวลาออกจึงไม่มีความหมาย
+    hideReminder();
+    reminderNotifiedKey = null;
+    return;
+  }
   function tick() {
     const minutesLeft = Math.ceil((plannedCheckoutAt.getTime() - Date.now()) / 60000);
     const key = plannedCheckoutAt.toISOString();
@@ -338,9 +378,17 @@ function hideReminder() {
   document.getElementById('reminder-banner').classList.add('hidden');
 }
 
+function stampDisabled() {
+  return busy || (!libraryOpenToday && !isCheckedIn());
+}
+
+function syncStampDisabled() {
+  document.getElementById('stamp-btn').disabled = stampDisabled();
+}
+
 function setBusy(next) {
   busy = next;
-  document.getElementById('stamp-btn').disabled = busy;
+  syncStampDisabled();
 }
 
 async function performCheckin(body) {
@@ -372,6 +420,10 @@ async function extendCheckout(minutes) {
 
 function handleStamp() {
   if (!isCheckedIn()) {
+    if (!libraryOpenToday) {
+      showToast(closedMessage, { type: 'error' });
+      return;
+    }
     openCheckinModal();
     return
   }
@@ -499,7 +551,14 @@ function checkinUntilClosing() {
 
 document.addEventListener('DOMContentLoaded', () => {
   apiFetch('/library-info')
-    .then((data) => { closingTime = data.closing_time; })
+    .then((data) => {
+      closingTime = data.closing_time;
+      libraryOpenToday = data.is_open_today !== false;
+      if (data.closed_message) closedMessage = data.closed_message;
+      // สองคำขอนี้วิ่งคู่กัน ถ้าประวัติมาถึงก่อน render() รอบนั้นยังไม่รู้ว่า
+      // วันนี้ห้องสมุดปิด — วาดใหม่ให้ปุ่มกับข้อความตรงกับความจริง
+      if (historyLoaded) render();
+    })
     .catch(() => {});
 
   loadHistory();
@@ -537,3 +596,20 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pagehide', stopHistoryAutoRefresh);
   window.addEventListener('pageshow', startHistoryAutoRefresh);
 });
+
+// ประกาศจากเจ้าหน้าที่ — โหลดแยกจากประวัติ เพราะล้มเหลวคนละเรื่องกัน
+// ถ้าดึงไม่ได้ก็แค่ไม่มีประกาศ ไม่ควรมี toast มารบกวนการเช็คอิน
+function loadAnnouncement() {
+  apiFetch('/announcement')
+    .then((data) => {
+      const block = document.getElementById('announcement-block');
+      const text = (data && data.text ? data.text : '').trim();
+      const show = !!(data && data.enabled) && text !== '';
+      block.classList.toggle('hidden', !show);
+      // textContent ไม่ใช่ innerHTML — ข้อความมาจากช่องพิมพ์ของแอดมิน
+      if (show) document.getElementById('announcement-text').textContent = text;
+    })
+    .catch(() => {});
+}
+
+document.addEventListener('DOMContentLoaded', loadAnnouncement);

@@ -4133,3 +4133,56 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
 .pw-toggle .material-symbols-outlined { font-size: 22px; }
 html.dark .pw-toggle { color: #9aa4b2; }
 html.dark .pw-toggle:hover { background: rgba(255, 255, 255, .08); color: #cbd5e1; }
+
+/* ประกาศจากเจ้าหน้าที่ (หน้าหลักนักศึกษา) — เจ้าหน้าที่อาจขึ้นบรรทัดใหม่ใน
+   ช่องพิมพ์ ให้แสดงตามที่พิมพ์จริง แต่ยังตัดบรรทัดเองเมื่อยาวเกินจอ */
+.announcement-text { white-space: pre-line; }
+
+/* ---------------------------------------------------------------------
+   ช่องพิมพ์ประกาศของเจ้าหน้าที่ (หน้าภาพรวมแอดมิน)
+   เขียนเป็น CSS ธรรมดาเช่นเดียวกับ .pw-toggle — คลาส Tailwind ที่ยังไม่เคย
+   ถูกใช้ที่อื่นจะไม่มีอยู่ใน styles.css ที่ build ไว้แล้ว
+   --------------------------------------------------------------------- */
+.ann-form { display: flex; flex-direction: column; gap: 12px; }
+.ann-label {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--on-surface-variant, #49454f);
+}
+.ann-input {
+  width: 100%; min-height: 88px; resize: vertical;
+  padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--outline-variant, #cac4d0);
+  background: var(--surface-container-low, #f7f8fb);
+  color: inherit; font: inherit; line-height: 1.7;
+}
+.ann-input:focus { outline: none; border-color: var(--primary, #1e3a8a); box-shadow: 0 0 0 2px rgba(30, 58, 138, .18); }
+
+/* ตัวนับตัวอักษรกับสวิตช์เปิด/ปิดอยู่บรรทัดเดียวกันบนจอกว้าง แต่บนมือถือ
+   ต้องยอมให้ตกบรรทัด ไม่งั้นข้อความสวิตช์จะถูกบีบจนอ่านไม่ออก */
+.ann-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.ann-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+.ann-toggle input { width: 18px; height: 18px; accent-color: var(--primary, #1e3a8a); cursor: pointer; }
+.ann-count { font-size: 12px; color: var(--text-secondary, #6b7280); font-variant-numeric: tabular-nums; }
+.ann-error {
+  margin: 0; font-size: 13px; border-radius: 10px; padding: 8px 12px;
+  background: var(--error-container, #fde8e8); color: var(--on-error-container, #8c1d18);
+}
+.ann-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.ann-meta { margin: 0; font-size: 12px; color: var(--text-secondary, #6b7280); }
+.ann-save {
+  height: 44px; padding: 0 24px; border: 0; border-radius: 9999px; cursor: pointer;
+  background: var(--primary, #1e3a8a); color: #fff; font: inherit; font-weight: 700;
+  transition: filter .15s, opacity .15s;
+}
+.ann-save:hover { filter: brightness(1.1); }
+.ann-save:disabled { opacity: .6; cursor: default; }
+
+html.dark .ann-input { background: #131a25; border-color: #2a3648; }
+html.dark .ann-label, html.dark .ann-count, html.dark .ann-meta { color: #9aa4b2; }
+
+/* บนมือถือปุ่มบันทึกควรกดง่ายสุด ให้กว้างเต็มแถวแทนที่จะเป็นปุ่มเล็กมุมขวา */
+@media (max-width: 640px) {
+  .ann-actions { flex-direction: column; align-items: stretch; }
+  .ann-save { width: 100%; }
+  .ann-meta { order: 2; text-align: center; }
+}

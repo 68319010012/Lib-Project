@@ -79,6 +79,51 @@ function library_closing_time(): string
     return env('LIBRARY_CLOSING_TIME', '17:00');
 }
 
+// วันที่ห้องสมุดเปิดทำการ เก็บเป็นเลขวันแบบ ISO-8601 (จันทร์ = 1 ... อาทิตย์ = 7)
+// ค่าเริ่มต้นคือจันทร์ถึงศุกร์ ตั้งทับได้ด้วย LIBRARY_OPEN_DAYS ใน .env เผื่อ
+// ภาคเรียนไหนเปิดเสาร์ หรือมีวันหยุดพิเศษ เช่น LIBRARY_OPEN_DAYS=1,2,3,4,5,6
+function library_open_days(): array
+{
+    $raw = env('LIBRARY_OPEN_DAYS', '1,2,3,4,5');
+    $days = [];
+    foreach (explode(',', $raw) as $part) {
+        $n = (int) trim($part);
+        if ($n >= 1 && $n <= 7) {
+            $days[$n] = true;
+        }
+    }
+    // ค่าที่ตั้งมาผิดทั้งหมด (พิมพ์ผิด/ว่าง) จะกลายเป็น "ปิดทุกวัน" ซึ่งทำให้
+    // ทั้งระบบเช็คอินไม่ได้เลย ถอยกลับไปใช้ค่าเริ่มต้นแทนที่จะล็อกตัวเองไว้
+    return $days ? array_keys($days) : [1, 2, 3, 4, 5];
+}
+
+// วันนี้ (หรือวันของ $reference) ห้องสมุดเปิดหรือไม่
+function library_is_open_on(?DateTime $reference = null): bool
+{
+    $reference = $reference ?? new DateTime();
+    return in_array((int) $reference->format('N'), library_open_days(), true);
+}
+
+// ชื่อวันภาษาไทยของวันที่เปิดทำการ ใช้ประกอบข้อความแจ้งผู้ใช้
+function library_open_days_label(): string
+{
+    $names = [1 => 'จันทร์', 2 => 'อังคาร', 3 => 'พุธ', 4 => 'พฤหัสบดี', 5 => 'ศุกร์', 6 => 'เสาร์', 7 => 'อาทิตย์'];
+    $days = library_open_days();
+    sort($days);
+    // ช่วงต่อเนื่องเขียนเป็น "จันทร์-ศุกร์" อ่านง่ายกว่าไล่ชื่อทั้งห้าวัน
+    $isRun = count($days) > 2 && ($days[count($days) - 1] - $days[0] + 1) === count($days);
+    if ($isRun) {
+        return $names[$days[0]] . '-' . $names[$days[count($days) - 1]];
+    }
+    return implode(', ', array_map(static fn ($d) => $names[$d], $days));
+}
+
+// ข้อความบอกว่าวันนี้ปิด ใช้ทั้งฝั่ง API และฝั่งหน้าเว็บ
+function library_closed_today_message(): string
+{
+    return 'วันนี้ห้องสมุดปิดทำการ เปิดให้บริการวัน' . library_open_days_label();
+}
+
 // `$reference`'s date combined with library_closing_time(), as a DateTime.
 function closing_datetime(DateTime $reference): DateTime
 {

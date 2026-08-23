@@ -51,6 +51,21 @@ CREATE TABLE IF NOT EXISTS checkin_logs (
     INDEX idx_checkin_logs_user_time (user_id, timestamp)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- ค่าตั้งค่าทั่วไปของระบบแบบ key/value ตอนนี้ใช้เก็บประกาศจากเจ้าหน้าที่ที่
+-- แสดงบนหน้าหลักของนักศึกษา (คีย์ announcement_text, announcement_enabled)
+--
+-- src/handlers/announcement_handlers.php สร้างตารางนี้เองด้วย
+-- CREATE TABLE IF NOT EXISTS ตอนใช้งานครั้งแรก เพราะการ deploy อัปแต่ไฟล์
+-- ไม่ได้รัน .sql ให้ — ประกาศไว้ตรงนี้ด้วยเพื่อให้ schema ยังเป็นภาพรวมที่ครบ
+CREATE TABLE IF NOT EXISTS app_settings (
+    setting_key VARCHAR(50) PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- ชื่อผู้ใช้ของแอดมินที่แก้ล่าสุด เก็บเป็นข้อความ ไม่ใช่ FK ไป users:
+    -- ประกาศต้องอยู่ต่อได้แม้บัญชีที่เขียนมันถูกลบไปแล้ว
+    updated_by VARCHAR(50) NULL
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- New: backs rate_limit.php's DB-backed replacement for Flask-Limiter.
 -- Only FAILED logins land here; see src/rate_limit.php for why successes are
 -- not counted (the whole college shares one public IP).

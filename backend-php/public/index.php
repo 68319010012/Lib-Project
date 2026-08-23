@@ -24,6 +24,7 @@ require __DIR__ . '/../src/handlers/auth_handlers.php';
 require __DIR__ . '/../src/handlers/checkin_handlers.php';
 require __DIR__ . '/../src/handlers/profile_handlers.php';
 require __DIR__ . '/../src/handlers/admin_handlers.php';
+require __DIR__ . '/../src/handlers/announcement_handlers.php';
 require __DIR__ . '/../src/reports/layout.php';
 require __DIR__ . '/../src/reports/export.php';
 require __DIR__ . '/../src/reports/select.php';
@@ -53,6 +54,7 @@ $routes = [
     'POST /checkin' => 'handle_checkin',
     'POST /checkin/extend' => 'handle_checkin_extend',
     'GET /library-info' => 'handle_library_info',
+    'GET /announcement' => 'handle_announcement',
     'GET /me' => 'handle_me',
     'POST /profile/change-password' => 'handle_change_password',
     'GET /me/history' => 'handle_my_history',
@@ -64,6 +66,7 @@ $routes = [
     'POST /admin/members/update' => 'handle_admin_member_update',
     'POST /admin/members/role' => 'handle_admin_member_role',
     'POST /admin/members/delete' => 'handle_admin_member_delete',
+    'POST /admin/announcement' => 'handle_admin_announcement_save',
     'GET /admin/reports' => 'handle_admin_reports',
     'GET /admin/reports/print' => 'handle_report_select',
     'GET /admin/reports/print/daily' => 'handle_report_daily',

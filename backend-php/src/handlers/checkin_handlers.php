@@ -17,6 +17,10 @@ function handle_checkin(): void
     $plannedCheckoutAt = null;
 
     if ($nextType === 'in') {
+        if (!library_is_open_on()) {
+            json_error(library_closed_today_message(), 400);
+        }
+
         $durationMinutes = null;
         if (array_key_exists('duration_minutes', $body) && $body['duration_minutes'] !== null && $body['duration_minutes'] !== '') {
             if (!is_numeric($body['duration_minutes'])) {
@@ -108,7 +112,13 @@ function handle_checkin_extend(): void
 function handle_library_info(): void
 {
     require_login();
-    json_response(['closing_time' => library_closing_time()]);
+    json_response([
+        'closing_time' => library_closing_time(),
+        'open_days' => library_open_days(),
+        'open_days_label' => library_open_days_label(),
+        'is_open_today' => library_is_open_on(),
+        'closed_message' => library_closed_today_message(),
+    ]);
 }
 
 // Closes out anyone whose visit is over but who never pressed the button.
