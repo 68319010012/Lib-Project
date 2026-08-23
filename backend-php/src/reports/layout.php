@@ -502,19 +502,9 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   }
   .filter-note { font-size: 11px; color: var(--text-secondary); font-style: italic; margin: -12px 0 16px; }
 
-  /* Shared by both reports that use a .trend-chart bar chart (dashboard.php,
-     department.php) — clicking/tapping a bar updates a detail line below
-     the chart (see the script near the end of this file); hovering still
-     shows the native title="" tooltip. A per-bar number label was tried
-     here too but looked cluttered with ~30 bars in a month view, so this
-     stays hover/click-only, not always-on. */
-  .trend-chart .bar-wrap { cursor: pointer; }
-  .trend-chart .bar-wrap.bar-wrap-active .bar { background: var(--primary, #1e3a8a); }
-  .trend-detail-text {
-    margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--primary, #1e3a8a);
-    background: var(--surface, #f8fafc); border: 1px solid var(--outline-variant, #cbd5e1);
-    border-radius: 8px; padding: 6px 10px;
-  }
+  /* แท่งกราฟใน .trend-chart (dashboard.php, department.php) แสดงค่าผ่าน
+     tooltip ของเบราว์เซอร์ (title="") อย่างเดียว ไม่มีการกดเลือก — หน้ารายงาน
+     มีไว้สั่งพิมพ์และส่งออก PDF การกดเลือกจึงไม่มีผลอะไรกับไฟล์ที่ได้ */
 
   /* Shared by every report's auto-generated executive-summary paragraph
      (see aggregate.php's build_summary_sentence()) — was executive.php-only
@@ -787,11 +777,6 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     });
   });
 
-  // Every .trend-chart bar already carries its exact count as an always-
-  // visible label (CSS above); clicking/tapping one also writes a full
-  // "date: N รายการ" line into that chart's .trend-detail-text, and a
-  // native title="" attribute still covers mouse hover. Works for both
-  // dashboard.php and department.php's trend charts without per-report JS.
   // Long tables get a pager on screen. Threshold matches PAGE_SIZE in
   // assets/js/pagination.js so every table in the app counts pages the same
   // way. mPDF never runs this — the ?format=pdf path renders the PHP output
@@ -835,19 +820,6 @@ function render_report_layout(string $title, string $subtitle, string $content, 
       });
     }
     draw();
-  });
-
-  document.querySelectorAll('.trend-chart .bar-wrap[data-count]').forEach(function (wrap) {
-    wrap.addEventListener('click', function () {
-      var container = wrap.closest('.mini-panel, .panel');
-      var detail = container ? container.querySelector('.trend-detail-text') : null;
-      if (!detail) return;
-      (container.querySelectorAll('.bar-wrap') || []).forEach(function (b) {
-        b.classList.remove('bar-wrap-active');
-      });
-      wrap.classList.add('bar-wrap-active');
-      detail.textContent = wrap.dataset.label + ': ' + wrap.dataset.count + ' รายการ';
-    });
   });
 </script>
 </body>

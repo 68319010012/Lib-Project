@@ -50,7 +50,7 @@ function handle_report_monthly(): void
          JOIN students s ON s.student_id = u.student_id
          WHERE " . implode(' AND ', $conditions) . '
          GROUP BY s.student_id, s.prefix, s.first_name, s.last_name, s.department, s.level, s.year_level
-         ORDER BY s.student_id'
+         ORDER BY LENGTH(s.student_id), s.student_id'
     );
     $stmt->execute($params);
     $rows = $stmt->fetchAll();

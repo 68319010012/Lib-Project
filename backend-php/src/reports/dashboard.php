@@ -670,7 +670,6 @@ function handle_report_dashboard(): void
       <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[0]['date']))) ?></span>
       <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[count($dailyTrend) - 1]['date']))) ?></span>
     </div>
-    <p class="trend-detail-text">แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนและวันที่</p>
     <?php else: ?>
     <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>
@@ -688,7 +687,6 @@ function handle_report_dashboard(): void
       <?php endforeach; ?>
     </div>
     <div class="trend-labels"><span>00:00</span><span>23:00</span></div>
-    <p class="trend-detail-text">แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนและช่วงเวลา</p>
     <?php else: ?>
     <p class="empty-note">ไม่มีข้อมูล</p>
     <?php endif; ?>

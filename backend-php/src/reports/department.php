@@ -288,7 +288,6 @@ function handle_report_department(): void
     </div>
     <?php endforeach; ?>
   </div>
-  <p class="trend-detail-text">แตะหรือคลิกแท่งกราฟเพื่อดูจำนวนและวันที่</p>
   <?php else: ?>
   <p class="empty-note">แผนกนี้ไม่มีข้อมูลการเช็คชื่อในช่วงที่แสดง</p>
   <?php endif; ?>

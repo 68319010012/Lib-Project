@@ -20,7 +20,7 @@ function handle_report_student_lookup(): void
             'SELECT s.student_id, s.prefix, s.first_name, s.last_name, s.department, s.level, s.year_level
              FROM students s
              WHERE s.student_id LIKE ? OR s.first_name LIKE ? OR s.last_name LIKE ? OR s.department LIKE ?
-             ORDER BY s.first_name, s.last_name
+             ORDER BY LENGTH(s.student_id), s.student_id
              LIMIT 50'
         );
         $stmt->execute([$like, $like, $like, $like]);

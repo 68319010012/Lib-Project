@@ -47,6 +47,9 @@ function handle_admin_members(): void
     // nothing after it is a syntax error.
     $whereClause = $conditions ? implode(' AND ', $conditions) : '1';
 
+    // เรียงตามรหัสนักศึกษา ไม่ใช่ชื่อ ก-ฮ: เจ้าหน้าที่ค้นจากรหัสที่อยู่ในเอกสาร
+    // LENGTH() มาก่อนเพราะ student_id เป็น VARCHAR — ถ้ารหัสยาวไม่เท่ากัน
+    // การเรียงแบบข้อความล้วนจะวางรหัสสั้นกว่าไว้ผิดที่ (9 ตกไปอยู่หลัง 10)
     $sql = "SELECT u.user_id, u.username, u.role, u.account_status,
                    s.student_id, s.prefix, s.gender, s.first_name, s.last_name,
                    s.department, s.level, s.year_level, s.room,
@@ -54,7 +57,7 @@ function handle_admin_members(): void
             FROM users u
             JOIN students s ON s.student_id = u.student_id
             WHERE $whereClause
-            ORDER BY s.first_name, s.last_name";
+            ORDER BY LENGTH(s.student_id), s.student_id";
 
     $conn = get_db_connection();
     $stmt = $conn->prepare($sql);

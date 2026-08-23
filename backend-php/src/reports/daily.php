@@ -35,7 +35,7 @@ function handle_report_daily(): void
          JOIN users u ON u.user_id = c.user_id
          JOIN students s ON s.student_id = u.student_id
          WHERE $where
-         ORDER BY s.student_id, c.timestamp"
+         ORDER BY LENGTH(s.student_id), s.student_id, c.timestamp"
     );
     $stmt->execute($params);
     $logs = $stmt->fetchAll();
