@@ -76,20 +76,80 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
     return 'data:image/png;base64,' . base64_encode($data);
 }
 
+// ไอคอนสี่เหลี่ยมมุมมนพร้อมรูปสัญลักษณ์ วาดด้วย GD แล้วคืนเป็น data: URI
+//
+// วาดเป็นรูปแทนการใช้ฟอนต์ไอคอน เพราะฟอนต์ที่ฝังใน PDF มีแต่ Sarabun กับ
+// IBM Plex Sans Thai ซึ่งไม่มีอักขระรูปสัญลักษณ์ — ตัวที่ไม่มีจะกลายเป็น
+// กล่องสี่เหลี่ยมว่าง (เช่นเดียวกับที่ ▲ ▼ เคยขึ้นเป็นกล่องในการ์ดตัวเลข)
+function render_pdf_icon_tile(string $kind, array $tint, array $accent, int $size = 96): string
+{
+    $ss = 4;                       // วาดใหญ่แล้วย่อ ขอบมุมมนกับวงกลมจะได้ไม่หยัก
+    $big = $size * $ss;
+    $img = imagecreatetruecolor($big, $big);
+    imagesavealpha($img, true);
+    imagefill($img, 0, 0, imagecolorallocatealpha($img, 255, 255, 255, 127));
+
+    $bg = imagecolorallocate($img, $tint[0], $tint[1], $tint[2]);
+    $fg = imagecolorallocate($img, $accent[0], $accent[1], $accent[2]);
+
+    // สี่เหลี่ยมมุมมน: สี่เหลี่ยมสองอันไขว้กัน บวกวงกลมที่มุมทั้งสี่
+    $r = (int) ($big * 0.28);
+    imagefilledrectangle($img, $r, 0, $big - $r, $big, $bg);
+    imagefilledrectangle($img, 0, $r, $big, $big - $r, $bg);
+    foreach ([[$r, $r], [$big - $r, $r], [$r, $big - $r], [$big - $r, $big - $r]] as [$px, $py]) {
+        imagefilledellipse($img, $px, $py, $r * 2, $r * 2, $bg);
+    }
+
+    $c = (int) ($big / 2);
+    if ($kind === 'people') {
+        // สองคนซ้อนกัน
+        imagefilledellipse($img, (int) ($c - $big * 0.13), (int) ($c - $big * 0.13), (int) ($big * 0.20), (int) ($big * 0.20), $fg);
+        imagefilledellipse($img, (int) ($c + $big * 0.15), (int) ($c - $big * 0.11), (int) ($big * 0.17), (int) ($big * 0.17), $fg);
+        imagefilledarc($img, (int) ($c - $big * 0.13), (int) ($c + $big * 0.20), (int) ($big * 0.42), (int) ($big * 0.34), 180, 360, $fg, IMG_ARC_PIE);
+        imagefilledarc($img, (int) ($c + $big * 0.16), (int) ($c + $big * 0.21), (int) ($big * 0.34), (int) ($big * 0.28), 180, 360, $fg, IMG_ARC_PIE);
+    } elseif ($kind === 'clock') {
+        $rad = (int) ($big * 0.30);
+        imagesetthickness($img, (int) ($big * 0.055));
+        imagearc($img, $c, $c, $rad * 2, $rad * 2, 0, 360, $fg);
+        imageline($img, $c, $c, $c, (int) ($c - $rad * 0.55), $fg);
+        imageline($img, $c, $c, (int) ($c + $rad * 0.45), $c, $fg);
+        imagesetthickness($img, 1);
+    } else {
+        // คนเดียว
+        imagefilledellipse($img, $c, (int) ($c - $big * 0.13), (int) ($big * 0.24), (int) ($big * 0.24), $fg);
+        imagefilledarc($img, $c, (int) ($c + $big * 0.22), (int) ($big * 0.46), (int) ($big * 0.36), 180, 360, $fg, IMG_ARC_PIE);
+    }
+
+    $out = imagecreatetruecolor($size, $size);
+    imagesavealpha($out, true);
+    imagefill($out, 0, 0, imagecolorallocatealpha($out, 255, 255, 255, 127));
+    imagecopyresampled($out, $img, 0, 0, 0, 0, $size, $size, $big, $big);
+    imagedestroy($img);
+
+    ob_start();
+    imagepng($out);
+    $data = ob_get_clean();
+    imagedestroy($out);
+    return 'data:image/png;base64,' . base64_encode($data);
+}
+
 // วาดกราฟวงกลมแบบโดนัทเป็นรูป PNG แล้วคืนค่าเป็น data: URI
 //
 // เหตุผลเดียวกับ render_pdf_bar_chart(): mPDF วาด SVG/CSS ที่ซับซ้อนไม่ได้
 // ให้ GD วาดเป็นภาพแบนๆ แล้ว mPDF แค่วางลงไป
 //
-// $slices = [['label' => 'ชาย', 'value' => 5, 'color' => [37, 99, 235]], ...]
-// $centerLabel = ข้อความกลางวง (เช่น จำนวนคนทั้งหมด)
-function render_pdf_donut_chart(array $slices, string $centerTop = '', string $centerBottom = '', int $width = 720, int $height = 250, string $unit = 'คน'): string
+// $slices = [['label' => 'ปวช.', 'value' => 1084, 'color' => [37, 99, 235]], ...]
+// $opt    = ['center_top' => 'รวม', 'unit' => 'ครั้ง', 'legend_width' => 300]
+function render_pdf_donut_chart(array $slices, string $centerValue = '', string $centerUnit = '', int $width = 720, int $height = 250, array $opt = []): string
 {
     $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
     $bold = __DIR__ . '/../../fonts/Sarabun-Bold.ttf';
     if (!is_file($bold)) {
         $bold = $font;
     }
+    $unit = (string) ($opt['unit'] ?? 'ครั้ง');
+    $centerTopLabel = (string) ($opt['center_top'] ?? '');
+    $scale = (float) ($opt['scale'] ?? 1.0);
 
     $total = 0.0;
     foreach ($slices as $s) {
@@ -98,11 +158,11 @@ function render_pdf_donut_chart(array $slices, string $centerTop = '', string $c
 
     $img = imagecreatetruecolor($width, $height);
     imagefill($img, 0, 0, imagecolorallocate($img, 255, 255, 255));
-    $ink = imagecolorallocate($img, 15, 23, 42);
+    $ink = imagecolorallocate($img, 30, 41, 59);
     $muted = imagecolorallocate($img, 100, 116, 139);
 
-    $d = min($height - 24, 210);
-    $cx = 16 + $d / 2;
+    $d = (int) min($height - 16, (int) ($opt['diameter'] ?? 210));
+    $cx = 12 + $d / 2;
     $cy = $height / 2;
 
     if ($total > 0) {
@@ -133,60 +193,69 @@ function render_pdf_donut_chart(array $slices, string $centerTop = '', string $c
             imagefilledarc($pie, $pc, $pc, $big, $big, $a1, $a2, $col, IMG_ARC_PIE);
         }
         // เจาะรูตรงกลางให้เป็นโดนัท เทียบสัดส่วนด้วยความยาวส่วนโค้งง่ายกว่าวงกลมทึบ
-        imagefilledellipse($pie, $pc, $pc, (int) ($big * 0.54), (int) ($big * 0.54), imagecolorallocate($pie, 255, 255, 255));
+        imagefilledellipse($pie, $pc, $pc, (int) ($big * 0.56), (int) ($big * 0.56), imagecolorallocate($pie, 255, 255, 255));
 
         imagecopyresampled($img, $pie, (int) ($cx - $d / 2), (int) ($cy - $d / 2), 0, 0, (int) $d, (int) $d, $big, $big);
         imagedestroy($pie);
     }
 
     // ข้อความกลางวง
-    $centered = function (string $text, int $size, string $fontFile, int $color, float $yCenter) use ($img, $cx) {
+    $centered = function (string $text, float $size, string $fontFile, int $color, float $baseline) use ($img, $cx) {
         if ($text === '') {
             return;
         }
         $box = imagettfbbox($size, 0, $fontFile, $text);
-        $w = $box[2] - $box[0];
-        $h = $box[1] - $box[7];
-        imagettftext($img, $size, 0, (int) ($cx - $w / 2), (int) ($yCenter + $h / 2), $color, $fontFile, $text);
+        imagettftext($img, $size, 0, (int) ($cx - ($box[2] - $box[0]) / 2), (int) $baseline, $color, $fontFile, $text);
     };
-    $centered($centerTop, 20, $bold, $ink, $cy - 8);
-    $centered($centerBottom, 11, $font, $muted, $cy + 20);
+    if ($centerTopLabel !== '') {
+        $centered($centerTopLabel, 11 * $scale, $font, $muted, $cy - 16 * $scale);
+        $centered($centerValue, 23 * $scale, $bold, $ink, $cy + 12 * $scale);
+        $centered($centerUnit, 11 * $scale, $font, $muted, $cy + 32 * $scale);
+    } else {
+        $centered($centerValue, 24 * $scale, $bold, $ink, $cy + 2 * $scale);
+        $centered($centerUnit, 11.5 * $scale, $font, $muted, $cy + 24 * $scale);
+    }
 
-    // คำอธิบายสัญลักษณ์ วางด้านขวาของวง
-    $lx = (int) ($cx + $d / 2 + 30);
+    // คำอธิบายสัญลักษณ์ วางด้านขวาของวง จัดเป็น 3 คอลัมน์: ชื่อ / เปอร์เซ็นต์ / จำนวน
+    $lx = (int) ($cx + $d / 2 + 26);
     $n = max(1, count($slices));
-    // ย่อระยะบรรทัดเมื่อมีหลายชิ้น ไม่งั้นคำอธิบายจะสูงเกินขอบรูป
-    $rowH = $n > 4 ? max(17, (int) floor(($height - 16) / $n)) : 34;
-    $labelSize = $rowH >= 30 ? 13 : ($rowH >= 24 ? 11.5 : 9.5);
-    $detailSize = $labelSize - 0.5;
-    $swatch = $rowH >= 30 ? 14 : 10;
-    $ly = (int) ($cy - ($n * $rowH) / 2 + $rowH / 2 + 2);
+    $rowH = $n > 5 ? max(16, (int) floor(($height - 22) / $n)) : (int) (26 * $scale);
+    $labelSize = min(13.5 * $scale, $rowH * 0.56);
+    $swatch = (int) max(8, min(12, $rowH * 0.45));
+
+    // จองความกว้างคงที่ให้สองคอลัมน์ขวา ตัวเลขจึงเรียงตรงกันทุกบรรทัด
+    $countW = (int) (104 * $scale);
+    $pctW = (int) (74 * $scale);
+    $countX = $width - 8 - $countW;
+    $pctX = $countX - $pctW;
+
+    $ly = (int) ($cy - ($n * $rowH) / 2 + $rowH / 2 + $labelSize * 0.38);
 
     foreach ($slices as $s) {
         $col = imagecolorallocate($img, $s['color'][0], $s['color'][1], $s['color'][2]);
-        imagefilledrectangle($img, $lx, (int) ($ly - $swatch + 2), $lx + $swatch, $ly + 2, $col);
+        // จุดสีเป็นสี่เหลี่ยมมุมมนแบบง่าย — วงกลมเล็กขนาดนี้ GD วาดแล้วขอบหยัก
+        imagefilledrectangle($img, $lx, (int) ($ly - $swatch + 1), $lx + $swatch, $ly + 1, $col);
 
         $pct = $total > 0 ? round((float) $s['value'] / $total * 100, 1) : 0;
-        $detail = number_format((float) $s['value']) . ' ' . $unit . ' · ' . $pct . '%';
-        // ตัวเลขชิดขวาของรูป แล้วปล่อยพื้นที่ที่เหลือทั้งหมดให้ชื่อ — ชื่อแผนก
-        // ภาษาไทยยาวกว่าที่ตำแหน่งตายตัวจะรองรับได้
-        $dbox = imagettfbbox($detailSize, 0, $font, $detail);
-        $dx = $width - 8 - ($dbox[2] - $dbox[0]);
-        imagettftext($img, $detailSize, 0, $dx, $ly, $muted, $font, $detail);
+        $pctText = $pct . '%';
+        $countText = '(' . number_format((float) $s['value']) . ' ' . $unit . ')';
+
+        imagettftext($img, $labelSize, 0, $pctX, $ly, $ink, $font, $pctText);
+        imagettftext($img, $labelSize, 0, $countX, $ly, $muted, $font, $countText);
 
         // ตัดชื่อที่ยาวเกินช่องว่างที่เหลือ แทนที่จะปล่อยให้ทับตัวเลข
-        $labelX = $lx + $swatch + 10;
-        $maxLabelW = $dx - $labelX - 10;
+        $labelX = $lx + $swatch + 9;
+        $maxLabelW = $pctX - $labelX - 8;
         $label = (string) $s['label'];
-        $lbox = imagettfbbox($labelSize, 0, $bold, $label);
+        $lbox = imagettfbbox($labelSize, 0, $font, $label);
         if ($lbox[2] - $lbox[0] > $maxLabelW) {
             while ($label !== '' && ($lbox[2] - $lbox[0]) > $maxLabelW) {
                 $label = mb_substr($label, 0, mb_strlen($label) - 1);
-                $lbox = imagettfbbox($labelSize, 0, $bold, $label . '…');
+                $lbox = imagettfbbox($labelSize, 0, $font, $label . '…');
             }
             $label .= '…';
         }
-        imagettftext($img, $labelSize, 0, $labelX, $ly, $ink, $bold, $label);
+        imagettftext($img, $labelSize, 0, $labelX, $ly, $ink, $font, $label);
 
         $ly += $rowH;
     }
@@ -204,7 +273,7 @@ function render_pdf_donut_chart(array $slices, string $centerTop = '', string $c
 // dialog can save anywhere, with correct Thai text (Sarabun, bundled under
 // ../../fonts, registered as the default font below since mPDF's own bundled
 // fonts have no Thai glyphs).
-function render_report_pdf(string $title, string $subtitle, string $content, string $extraStyle, string $filenameBase, array $pdfCharts = []): void
+function render_report_pdf(string $title, string $subtitle, string $content, string $extraStyle, string $filenameBase, array $pdfCharts = [], bool $ownHeading = false): void
 {
     $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'L' : 'P';
 
@@ -370,8 +439,11 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
             . '</div>';
     }
 
+    $heading = $ownHeading
+        ? ''
+        : '<h1>วิทยาลัยเทคนิคนครนายก</h1><h2>' . htmlspecialchars($subtitle) . '</h2>';
     $html = '<style>' . $pdfStyle . '</style>'
-        . '<h1>วิทยาลัยเทคนิคนครนายก</h1><h2>' . htmlspecialchars($subtitle) . '</h2>'
+        . $heading
         . $chartsHtml
         . $content
         . '<p style="margin-top:16px; font-size:9px; color:#475569;">สร้างรายงานเมื่อ ' . htmlspecialchars(date('d/m/Y H:i'))
@@ -400,13 +472,13 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
 // $extraStyle) via ob_start()/ob_get_clean(), then calls render_report_layout().
 // $exportUrls is an optional ['csv' => url, 'excel' => url] map — omitted by
 // dashboard.php (a print-only 1-pager, not a row-per-record report).
-function render_report_layout(string $title, string $subtitle, string $content, string $extraStyle = '', array $exportUrls = [], array $pdfCharts = []): void
+function render_report_layout(string $title, string $subtitle, string $content, string $extraStyle = '', array $exportUrls = [], array $pdfCharts = [], bool $ownPdfHeading = false): void
 {
     if (($_GET['format'] ?? '') === 'pdf') {
         // \p{M} keeps Thai combining vowel/tone marks (e.g. ั ่ ้) intact —
         // without it they'd be stripped to underscores since they're not \p{L}.
         $filenameBase = preg_replace('/[^\p{L}\p{N}\p{M}_-]+/u', '_', $title) . '_' . date('Y-m-d');
-        render_report_pdf($title, $subtitle, $content, $extraStyle, $filenameBase, $pdfCharts);
+        render_report_pdf($title, $subtitle, $content, $extraStyle, $filenameBase, $pdfCharts, $ownPdfHeading);
     }
 
     header('Content-Type: text/html; charset=utf-8');

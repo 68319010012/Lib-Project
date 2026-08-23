@@ -4257,3 +4257,88 @@ html.dark .announcement-card {
   .announcement-title { font-size: 14px; }
   .announcement-text { font-size: 13.5px; }
 }
+
+/* ---------------------------------------------------------------------
+   หน้าภาพรวมของเจ้าหน้าที่ — แถวกราฟวงกลม (24 ส.ค. 2569)
+
+   เขียนเป็น CSS ธรรมดาเช่นเดียวกับส่วนอื่นที่เพิ่มทีหลัง เพราะโปรเจคเสิร์ฟ
+   styles.css ที่ build ไว้แล้ว คลาส Tailwind ที่ยังไม่เคยถูกใช้ที่อื่นจะไม่มี
+   อยู่ในไฟล์ผลลัพธ์
+   --------------------------------------------------------------------- */
+.dash-donut-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.dash-panel {
+  background: #fff;
+  border: 1px solid rgba(202, 196, 208, .3);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+  padding: 20px 22px 22px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dash-panel-head { margin-bottom: 14px; }
+.dash-panel-head h2 {
+  font-size: 17px; font-weight: 700; line-height: 1.35;
+  color: var(--primary, #1e3a8a); margin: 0;
+}
+.dash-panel-head p {
+  font-size: 12.5px; line-height: 1.5; margin: 2px 0 0;
+  color: var(--on-surface-variant, #49454f);
+}
+.dash-panel-body { flex: 1; min-width: 0; }
+
+/* วงกลมกับคำอธิบายเรียงกันในแนวตั้ง — กล่องกว้างเพียงหนึ่งในสามของหน้า
+   การวางคำอธิบายไว้ข้างวงจะเหลือความกว้างให้ชื่อแผนกไม่พอ */
+.donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; }
+.donut-chart { position: relative; width: 168px; height: 168px; flex-shrink: 0; }
+.donut-svg { width: 100%; height: 100%; display: block; }
+.donut-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.donut-center-value { font-size: 27px; font-weight: 700; line-height: 1.1; color: var(--primary, #1e3a8a); }
+.donut-center-unit { font-size: 12px; color: var(--text-secondary, #6b7280); margin-top: 1px; }
+
+.donut-legend { list-style: none; margin: 0; padding: 0; width: 100%; min-width: 0; }
+.donut-legend li {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; line-height: 1.5; padding: 3px 0; min-width: 0;
+}
+.donut-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+/* ชื่อแผนกภาษาไทยยาวกว่าช่องที่มี ตัดด้วย ellipsis แทนการดันตัวเลขตกบรรทัด
+   (min-width: 0 จำเป็น — flex item ตั้งต้นที่ auto ซึ่งไม่ยอมหดต่ำกว่าเนื้อหา) */
+.donut-label {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-weight: 600; color: var(--text-primary, #1f2937);
+}
+.donut-value { flex-shrink: 0; font-size: 12.5px; color: var(--text-secondary, #6b7280); font-variant-numeric: tabular-nums; }
+.donut-empty { color: var(--text-secondary, #6b7280); font-style: italic; justify-content: center; }
+
+html.dark .dash-panel { background: #101828; border-color: #2a3648; }
+html.dark .dash-panel-head h2 { color: #93c5fd; }
+html.dark .dash-panel-head p, html.dark .donut-value, html.dark .donut-center-unit { color: #9aa4b2; }
+html.dark .donut-label { color: #e2e8f0; }
+html.dark .donut-center-value { color: #93c5fd; }
+html.dark { --donut-track: #26334a; }
+
+@media (max-width: 1024px) {
+  .dash-donut-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .dash-donut-row { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .dash-panel { padding: 16px 16px 18px; border-radius: 14px; }
+  .donut-chart { width: 148px; height: 148px; }
+  .donut-center-value { font-size: 24px; }
+}
+
+/* แถวคำอธิบายที่กดได้ (ชื่อแผนกในกราฟวงกลม) — ต้องดูออกว่ากดได้ก่อนกด */
+.donut-legend li.donut-clickable { cursor: pointer; border-radius: 6px; margin: 0 -6px; padding-left: 6px; padding-right: 6px; }
+.donut-legend li.donut-clickable:hover { background: rgba(37, 99, 235, .08); }
+.donut-legend li.donut-clickable:hover .donut-label { text-decoration: underline; }
+.donut-legend li.donut-clickable:focus-visible { outline: 2px solid var(--primary, #1e3a8a); outline-offset: 1px; }
+html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 253, .12); }

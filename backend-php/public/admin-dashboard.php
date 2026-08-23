@@ -51,12 +51,12 @@ require __DIR__ . '/partials/guard.php';
           <div class="kpi-icon w-12 h-12 rounded-full bg-secondary-container/10 dark:bg-secondary-fixed-dim/15 flex items-center justify-center text-secondary dark:text-secondary-fixed-dim mb-4">
             <span class="material-symbols-outlined">person_search</span>
           </div>
-          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">จำนวนนักศึกษาที่เข้าใช้
-            <button type="button" class="kpi-info" data-kpi-note="kpi-unique-note" aria-expanded="false" aria-controls="kpi-unique-note" aria-label="คำอธิบาย จำนวนนักศึกษาที่เข้าใช้"><span class="material-symbols-outlined" aria-hidden="true">info</span></button>
+          <p class="text-on-surface-variant dark:text-dm-text-secondary font-label-caps uppercase text-xs mb-1">ผู้ใช้บริการ (ไม่ซ้ำคน)
+            <button type="button" class="kpi-info" data-kpi-note="kpi-unique-note" aria-expanded="false" aria-controls="kpi-unique-note" aria-label="คำอธิบาย ผู้ใช้บริการ (ไม่ซ้ำคน)"><span class="material-symbols-outlined" aria-hidden="true">info</span></button>
           </p>
           <div class="skeleton kpi-skeleton h-8 w-20"></div>
           <p id="kpi-unique" class="hidden kpi-value text-headline-lg font-headline-lg text-primary dark:text-primary-fixed-dim font-bold font-label-code">0</p>
-          <p id="kpi-unique-note" class="kpi-note hidden">จำนวนผู้เข้าใช้ที่ไม่ซ้ำกัน โดยนับแต่ละคนเพียง 1 คน</p>
+          <p id="kpi-unique-note" class="kpi-note hidden">จำนวนผู้เข้าใช้ที่ไม่ซ้ำกัน นับแต่ละคนเพียง 1 ครั้ง ไม่ว่าจะเข้ามากี่รอบ</p>
         </div>
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-accent-stats/10 dark:bg-accent-stats/25 flex items-center justify-center text-accent-stats mb-4">
@@ -113,6 +113,34 @@ require __DIR__ . '/partials/guard.php';
         </form>
       </section>
 
+      <!-- แถวโดนัท: ตอบ "ผู้ใช้เป็นใคร" ก่อนกราฟที่ตอบ "ใช้เมื่อไร" ด้านล่าง
+           สามกล่องเรียงเท่ากันบนจอกว้าง และซ้อนกันเองบนมือถือ -->
+      <section class="lg:col-span-3 dash-donut-row">
+        <div class="dash-panel">
+          <div class="dash-panel-head">
+            <h2>สัดส่วนผู้ใช้ตามระดับชั้น</h2>
+            <p>นับผู้ใช้ไม่ซ้ำคนในช่วงเวลาที่เลือก</p>
+          </div>
+          <div id="donut-level" class="dash-panel-body"></div>
+        </div>
+
+        <div class="dash-panel">
+          <div class="dash-panel-head">
+            <h2>สัดส่วนเพศของผู้ใช้บริการ</h2>
+            <p>นับผู้ใช้ไม่ซ้ำคนในช่วงเวลาที่เลือก</p>
+          </div>
+          <div id="donut-gender" class="dash-panel-body"></div>
+        </div>
+
+        <div class="dash-panel">
+          <div class="dash-panel-head">
+            <h2>สัดส่วนการเข้าใช้ตามแผนกวิชา</h2>
+            <p>นับเป็นจำนวนครั้ง แผนกที่เหลือรวมเป็น “อื่นๆ”</p>
+          </div>
+          <div id="donut-dept" class="dash-panel-body"></div>
+        </div>
+      </section>
+
       <section class="lg:col-span-2 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
         <div class="mb-8">
           <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim">แนวโน้มการเข้าใช้</h2>
@@ -123,11 +151,8 @@ require __DIR__ . '/partials/guard.php';
       </section>
 
       <section class="bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
-        <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">แผนกที่เข้าใช้มากที่สุด</h2>
-        <div class="space-y-6" id="dept-bars">
-          <p class="text-body-md text-text-secondary dark:text-dm-text-secondary">กำลังโหลด…</p>
-        </div>
-        <div class="mt-10 p-4 bg-surface-container-low dark:bg-dm-bg rounded-xl border border-dashed border-outline-variant dark:border-dm-border flex items-center gap-4">
+        <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim mb-6">สรุปสั้น</h2>
+        <div class="p-4 bg-surface-container-low dark:bg-dm-bg rounded-xl border border-dashed border-outline-variant dark:border-dm-border flex items-center gap-4">
           <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-3xl">lightbulb</span>
           <p class="text-sm text-on-surface-variant dark:text-dm-text-secondary italic" id="peak-text">กำลังคำนวณช่วงเวลาที่มีคนใช้มากที่สุด…</p>
         </div>

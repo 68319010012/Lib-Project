@@ -72,56 +72,97 @@ function render_dashboard_ring(float $pct, string $color): string
 // ที่นี่ใช้เฉพาะสิ่งที่ mPDF วาดได้แน่นอน: <table>, inline style และรูป PNG
 // ที่ GD วาดมาให้แล้ว
 // ---------------------------------------------------------------------
-function dashboard_pdf_kpi_cell(string $label, string $value, string $note = ''): string
+// สีของการ์ดตัวเลขสำคัญ — ไล่ตามภาพต้นแบบ: น้ำเงิน เขียว ส้มอ่อน ม่วง
+const DASH_KPI_TINTS = [
+    ['people', [238, 242, 255], [79, 110, 247]],
+    ['people', [233, 249, 239], [34, 197, 94]],
+    ['person', [255, 244, 229], [246, 167, 35]],
+    ['clock',  [245, 236, 254], [168, 85, 247]],
+];
+
+// จานสีของกราฟวงกลมแผนกวิชา เรียงตามภาพต้นแบบ
+const DASH_DEPT_PALETTE = [
+    [37, 99, 235], [16, 163, 127], [34, 197, 94], [234, 179, 8], [245, 158, 11],
+    [249, 115, 22], [168, 85, 247], [147, 51, 234], [126, 34, 206],
+];
+
+function dashboard_pdf_kpi_card(int $index, string $label, string $value, string $unit, ?float $delta): string
 {
-    $html = '<td style="width:25%; border:1px solid #d5dde7; border-radius:6px; padding:5px 8px;">'
-        . '<div style="font-size:8px; color:#64748b;">' . htmlspecialchars($label) . '</div>'
-        . '<div style="font-size:16px; font-weight:bold; color:#1c4e8f;">' . htmlspecialchars($value) . '</div>';
-    if ($note !== '') {
-        $html .= '<div style="font-size:7.5px; color:#8a97a8;">' . htmlspecialchars($note) . '</div>';
+    [$iconKind, $tint, $accent] = DASH_KPI_TINTS[$index % count(DASH_KPI_TINTS)];
+
+    // แถวบอกการเปลี่ยนแปลง: ขึ้นเป็นเขียว ลงเป็นแดง เท่าเดิมเป็นเทา
+    $deltaHtml = '<div style="font-size:10px; color:#94a3b8;">เทียบช่วงก่อนหน้าไม่ได้</div>';
+    if ($delta !== null) {
+        $up = $delta > 0;
+        $flat = abs($delta) < 0.05;
+        $color = $flat ? '#94a3b8' : ($up ? '#16a34a' : '#dc2626');
+        $word = $flat ? 'เท่าเดิม' : ($up ? 'เพิ่มขึ้น' : 'ลดลง');
+        $deltaHtml = '<div style="font-size:10px;">'
+            . '<span style="color:' . $color . '; font-weight:bold;">' . $word . ' '
+            . abs(round($delta, 1)) . '%</span>'
+            . '<span style="color:#94a3b8;"> จากช่วงก่อนหน้า</span></div>';
     }
-    return $html . '</td>';
+
+    return '<td style="width:25%; vertical-align:top;">'
+        . '<table style="width:100%; border:1px solid #e7ebf3; border-radius:10px; background:#ffffff;"><tr>'
+        . '<td style="width:44px; padding:11px 0 11px 11px; vertical-align:top;">'
+        . '<img src="' . render_pdf_icon_tile($iconKind, $tint, $accent) . '" style="width:33px;">'
+        . '</td>'
+        . '<td style="padding:11px 12px 11px 8px;">'
+        . '<div style="font-size:11px; color:#64748b;">' . htmlspecialchars($label) . '</div>'
+        . '<div style="font-size:23px; font-weight:bold; color:#111827;">' . htmlspecialchars($value)
+        . '<span style="font-size:11px; font-weight:normal; color:#64748b;"> ' . htmlspecialchars($unit) . '</span></div>'
+        . $deltaHtml
+        . '</td></tr></table></td>';
 }
 
-function dashboard_pdf_panel_title(string $title): string
+function dashboard_pdf_panel_open(string $title): string
 {
-    return '<div style="font-size:16px; font-weight:bold; color:#10243f; margin:0 0 3px;">'
+    return '<td style="width:50%; vertical-align:top;">'
+        . '<table style="width:100%; border:1px solid #e7ebf3; border-radius:10px; background:#ffffff;"><tr>'
+        . '<td style="padding:10px 12px 12px;">'
+        . '<div style="font-size:21px; font-weight:bold; color:#111827; margin-bottom:6px;">'
         . htmlspecialchars($title) . '</div>';
 }
 
-// รวมแผนกที่มีสัดส่วนน้อยเข้าเป็น "อื่นๆ" — กราฟวงกลมที่มี 14 ชิ้นอ่านไม่ออก
-// ชิ้นท้ายๆ จะบางจนมองไม่เห็นและคำอธิบายก็ยาวเกินพื้นที่
-function dashboard_group_departments(array $breakdown, int $keep = 6): array
+function dashboard_pdf_panel_close(): string
 {
-    $palette = [
-        [37, 99, 235], [13, 148, 136], [22, 163, 74],
-        [234, 179, 8], [249, 115, 22], [147, 51, 234],
-    ];
+    return '</td></tr></table></td>';
+}
+
+// รวมแผนกที่มีสัดส่วนน้อยเข้าเป็น "อื่นๆ" — กราฟวงกลมที่มีสิบกว่าชิ้นอ่านไม่ออก
+// ชิ้นท้ายๆ จะบางจนมองไม่เห็นและคำอธิบายก็ยาวเกินความสูงของกล่อง
+function dashboard_group_departments(array $breakdown, int $keep = 9): array
+{
     $slices = [];
     foreach (array_slice($breakdown, 0, $keep) as $i => $d) {
-        $slices[] = ['label' => $d['name'], 'value' => $d['count'], 'color' => $palette[$i % count($palette)]];
+        $slices[] = [
+            'label' => $d['name'],
+            'value' => $d['count'],
+            'color' => DASH_DEPT_PALETTE[$i % count(DASH_DEPT_PALETTE)],
+        ];
     }
     $rest = array_slice($breakdown, $keep);
     if ($rest) {
         $slices[] = [
-            'label' => 'อื่นๆ (' . count($rest) . ' แผนก)',
+            'label' => 'อื่นๆ',
             'value' => array_sum(array_column($rest, 'count')),
-            'color' => [148, 163, 184],
+            'color' => [176, 184, 196],
         ];
     }
     return $slices;
 }
 
 // ---------------------------------------------------------------------
-// เนื้อหาของไฟล์ PDF สำหรับรายงานแดชบอร์ด — ออกแบบให้จบใน A4 แนวนอน 1 หน้า
+// เนื้อหาของไฟล์ PDF สำหรับรายงานแดชบอร์ด — จบใน A4 แนวนอน 1 หน้า
 //
 // สร้างแยกจากหน้าจอทั้งก้อน ไม่ใช่เอา HTML ของหน้าจอมาซ่อนบางส่วนด้วย CSS
 // อย่างที่รายงานอื่นทำ เหตุผลคือ mPDF ไม่รองรับ flexbox/grid/SVG และหน้าจอ
 // ของรายงานนี้สร้างจากสามอย่างนั้นเกือบทั้งหมด การไล่ซ่อนทีละคลาสเคยทำให้
 // ได้ไฟล์ที่มีหน้าว่าง 50-300 หน้า และเหลือส่วนที่หลุดมาแบบไม่มีสไตล์
 //
-// ที่นี่ใช้เฉพาะสิ่งที่ mPDF วาดได้แน่นอน: <table>, inline style และรูป PNG
-// ที่ GD วาดมาให้แล้ว
+// การจัดหน้าใช้ <table> ซ้อนกันแทน div เพราะ mPDF ไม่มี flexbox — ตารางคือ
+// วิธีเดียวที่มันจัดของสองกล่องให้อยู่ข้างกันได้อย่างแน่นอน
 //
 // สิ่งที่ "ไม่" อยู่ในหน้านี้โดยตั้งใจ: ตารางรายวันทั้งเดือน ตารางแผนกแบบ
 // เรียงอันดับยาว และกราฟแนวโน้มรายวัน — ทั้งสามอย่างทำให้เอกสารกลายเป็น
@@ -131,24 +172,13 @@ function dashboard_group_departments(array $breakdown, int $keep = 6): array
 function render_dashboard_pdf_body(array $c): string
 {
     $agg = $c['agg'];
-    $out = '';
 
-    // ---- แถบบอกว่ารายงานนี้ครอบคลุมอะไร ----
-    $filterBits = [];
-    foreach ([
-        'department' => 'แผนกวิชา',
-        'level' => 'ระดับชั้น',
-        'semester' => 'ภาคเรียน',
-        'academic_year' => 'ปีการศึกษา',
-    ] as $key => $label) {
-        if (($c['filters'][$key] ?? '') !== '') {
-            $filterBits[] = "$label: " . $c['filters'][$key];
-        }
-    }
-    $out .= '<div style="font-size:8.5px; color:#475569; border:1px solid #d5dde7; border-radius:5px; '
-        . 'padding:4px 8px; margin-bottom:6px;">'
-        . '<b>ช่วงเวลา</b> ' . htmlspecialchars($c['periodLabel'])
-        . ' &nbsp;|&nbsp; <b>ตัวกรอง</b> ' . htmlspecialchars($filterBits ? implode(' · ', $filterBits) : 'ทั้งหมด (ไม่กรอง)')
+    // ---- หัวเรื่องกึ่งกลาง ----
+    $out = '<div style="text-align:center; margin-bottom:9px;">'
+        . '<div style="font-size:9.5px; color:#94a3b8;">วิทยาลัยเทคนิคนครนายก</div>'
+        . '<div style="font-size:21px; font-weight:bold; color:#111827;">ภาพรวมการใช้งานห้องสมุด</div>'
+        . '<div style="font-size:10.5px; color:#64748b;">สรุปข้อมูลการเข้าใช้ห้องสมุด — '
+        . htmlspecialchars($c['periodLabel']) . '</div>'
         . '</div>';
 
     if ($agg['total_events'] === 0) {
@@ -156,95 +186,90 @@ function render_dashboard_pdf_body(array $c): string
             . 'text-align:center; color:#475569;">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลาที่เลือก</div>';
     }
 
-    // ---- ตัวเลขสำคัญ 4 ช่อง ----
+    // ---- การ์ดตัวเลขสำคัญ 4 ใบ ----
     $avgMin = $c['avgSessionMinutes'];
-    $peak = $c['hourly']['peak_hour'];
-    $deltaText = static function (?float $d): string {
-        if ($d === null) {
-            return '';
-        }
-        return ($d > 0 ? 'เพิ่มขึ้น ' : ($d < 0 ? 'ลดลง ' : 'เท่าเดิม ')) . abs(round($d, 1)) . '% จากเดือนก่อน';
-    };
+    $avgHours = $avgMin !== null ? round($avgMin / 60, 2) : null;
 
-    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:4px 0;"><tr>'
-        . dashboard_pdf_kpi_cell('จำนวนการเข้าใช้ทั้งหมด', number_format($agg['total_events']) . ' ครั้ง', $deltaText($c['totalDelta']))
-        . dashboard_pdf_kpi_cell('ผู้ใช้ไม่ซ้ำ', number_format($agg['unique_students']) . ' คน', $deltaText($c['uniqueDelta']))
-        . dashboard_pdf_kpi_cell('เฉลี่ยการเข้าใช้ต่อวัน', number_format($agg['avg_daily']) . ' ครั้ง', 'เฉพาะวันที่มีการใช้งาน')
-        . dashboard_pdf_kpi_cell('เวลาใช้งานเฉลี่ย', $avgMin !== null ? round($avgMin) . ' นาที' : '-', 'ต่อการเข้าใช้ 1 ครั้ง')
+    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:5px 0;"><tr>'
+        . dashboard_pdf_kpi_card(0, 'จำนวนการเข้าใช้ทั้งหมด', number_format($agg['total_events']), 'ครั้ง', $c['totalDelta'])
+        . dashboard_pdf_kpi_card(1, 'ผู้ใช้ไม่ซ้ำ', number_format($agg['unique_students']), 'คน', $c['uniqueDelta'])
+        . dashboard_pdf_kpi_card(2, 'เฉลี่ยการเข้าใช้ต่อวัน', number_format($agg['avg_daily']), 'ครั้ง', null)
+        . dashboard_pdf_kpi_card(3, 'เวลาใช้งานเฉลี่ย', $avgHours !== null ? number_format($avgHours, 2) : '-', 'ชม.', null)
         . '</tr></table>';
 
-    // ---- แถวที่ 1: ประเภทผู้ใช้ | แผนกวิชา ----
-    $lv = $c['levelBreakdown'];
+    // ---- แถวที่ 1: ระดับชั้น | แผนกวิชา ----
+    // ทั้งสามวงนับเป็น "ครั้ง" เท่ากันหมด ตัวเลขกลางวงจึงตรงกับการ์ดใบแรก
+    // และเทียบกันได้ — ถ้าวงหนึ่งนับคนอีกวงนับครั้ง ตัวเลขกลางจะไม่ตรงกัน
+    // และคนอ่านจะเข้าใจผิดว่าข้อมูลขัดกันเอง
+    $lv = $c['levelVisits'];
     $levelSlices = [];
-    if ($lv['vocational'] > 0) {
-        $levelSlices[] = ['label' => 'ปวช.', 'value' => $lv['vocational'], 'color' => [37, 99, 235]];
+    if ($lv['ปวช.'] > 0) {
+        $levelSlices[] = ['label' => 'ปวช.', 'value' => $lv['ปวช.'], 'color' => [37, 99, 235]];
     }
-    if ($lv['diploma'] > 0) {
-        $levelSlices[] = ['label' => 'ปวส.', 'value' => $lv['diploma'], 'color' => [16, 163, 127]];
+    if ($lv['ปวส.'] > 0) {
+        $levelSlices[] = ['label' => 'ปวส.', 'value' => $lv['ปวส.'], 'color' => [16, 163, 127]];
     }
-    if ($lv['unknown'] > 0) {
-        $levelSlices[] = ['label' => 'ไม่ระบุระดับชั้น', 'value' => $lv['unknown'], 'color' => [148, 163, 184]];
+    if ($lv['other'] > 0) {
+        $levelSlices[] = ['label' => 'ไม่ระบุระดับชั้น', 'value' => $lv['other'], 'color' => [148, 163, 184]];
     }
 
-    $deptSlices = dashboard_group_departments($c['deptBreakdown']);
-
-    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:4px 0; margin-top:6px;"><tr>'
-        . '<td style="width:50%; border:1px solid #d5dde7; border-radius:6px; padding:6px 8px; vertical-align:top;">'
-        . dashboard_pdf_panel_title('สัดส่วนผู้ใช้ตามระดับชั้น')
-        . ($levelSlices
-            ? '<img src="' . render_pdf_donut_chart($levelSlices, number_format($lv['total']), 'คน', 640, 262) . '" style="width:100%;">'
-            : '<div style="font-size:9px; color:#8a97a8;">ไม่มีข้อมูล</div>')
-        . '</td>'
-        . '<td style="width:50%; border:1px solid #d5dde7; border-radius:6px; padding:6px 8px; vertical-align:top;">'
-        . dashboard_pdf_panel_title('สัดส่วนการเข้าใช้ตามแผนกวิชา')
-        . '<img src="' . render_pdf_donut_chart($deptSlices, number_format($agg['total_events']), 'ครั้ง', 640, 262, 'ครั้ง') . '" style="width:100%;">'
-        . '</td>'
+    $totalText = number_format($agg['total_events']);
+    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:5px 0; margin-top:7px;"><tr>'
+        . dashboard_pdf_panel_open('สัดส่วนผู้ใช้ตามประเภท')
+        . '<img src="' . render_pdf_donut_chart($levelSlices, $totalText, 'ครั้ง', 700, 288, ['unit' => 'ครั้ง', 'diameter' => 236, 'scale' => 1.2]) . '" style="width:100%;">'
+        . dashboard_pdf_panel_close()
+        . dashboard_pdf_panel_open('สัดส่วนการเข้าใช้ตามแผนก')
+        . '<img src="' . render_pdf_donut_chart(
+            dashboard_group_departments($c['deptBreakdown']),
+            $totalText,
+            'ครั้ง',
+            700,
+            288,
+            ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 218, 'scale' => 1.1]
+        ) . '" style="width:100%;">'
+        . dashboard_pdf_panel_close()
         . '</tr></table>';
 
-    // ---- แถวที่ 2: ช่วงเวลาที่ใช้มากที่สุด | สัดส่วนเพศ ----
-    $g = $c['genderBreakdown'];
+    // ---- แถวที่ 2: ช่วงเวลาที่ใช้มากที่สุด | เพศ ----
+    $gv = $c['genderVisits'];
     $genderSlices = [];
-    if ($g['male'] > 0) {
-        $genderSlices[] = ['label' => 'ชาย', 'value' => $g['male'], 'color' => [37, 99, 235]];
+    if ($gv['male'] > 0) {
+        $genderSlices[] = ['label' => 'ชาย', 'value' => $gv['male'], 'color' => [37, 99, 235]];
     }
-    if ($g['female'] > 0) {
-        $genderSlices[] = ['label' => 'หญิง', 'value' => $g['female'], 'color' => [219, 39, 119]];
+    if ($gv['female'] > 0) {
+        $genderSlices[] = ['label' => 'หญิง', 'value' => $gv['female'], 'color' => [219, 39, 119]];
     }
-    if ($g['unknown'] > 0) {
-        $genderSlices[] = ['label' => 'ไม่ระบุ', 'value' => $g['unknown'], 'color' => [148, 163, 184]];
+    if ($gv['unknown'] > 0) {
+        $genderSlices[] = ['label' => 'ไม่ระบุ', 'value' => $gv['unknown'], 'color' => [148, 163, 184]];
     }
 
-    $peakText = $peak
-        ? sprintf('%02d:00 - %02d:00 น.', $peak['hour'], $peak['hour'] + 1)
-        : '-';
-    $peakCount = $peak ? number_format($peak['count']) . ' ครั้ง' : '';
+    $peak = $c['hourly']['peak_hour'];
+    $peakText = $peak ? sprintf('%02d:00 - %02d:00 น.', $peak['hour'], $peak['hour'] + 1) : '-';
+    $peakCount = $peak ? number_format($peak['count']) : '-';
 
-    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:4px 0; margin-top:6px;"><tr>'
-        . '<td style="width:50%; border:1px solid #d5dde7; border-radius:6px; padding:6px 8px; vertical-align:top;">'
-        . dashboard_pdf_panel_title('ช่วงเวลาที่มีการใช้งานมากที่สุด')
-        . '<div style="font-size:19px; font-weight:bold; color:#1c4e8f;">' . htmlspecialchars($peakText) . '</div>'
-        . '<div style="font-size:9.5px; color:#64748b; margin-bottom:4px;">มีการเข้าใช้สูงสุด ' . htmlspecialchars($peakCount) . '</div>'
+    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:5px 0; margin-top:7px;"><tr>'
+        . dashboard_pdf_panel_open('ช่วงเวลาที่มีการใช้งานมากที่สุด')
+        . '<table style="width:100%;"><tr>'
+        . '<td style="width:31%; vertical-align:middle; text-align:center; padding-right:8px;">'
+        . '<img src="' . render_pdf_icon_tile('clock', [238, 242, 255], [37, 99, 235]) . '" style="width:52px;">'
+        . '<div style="font-size:29px; font-weight:bold; color:#2563eb; margin-top:6px;">' . htmlspecialchars($peakText) . '</div>'
+        . '<div style="font-size:18px; color:#64748b;">มีการเข้าใช้สูงสุด</div>'
+        . '<div style="font-size:38px; font-weight:bold; color:#2563eb;">' . $peakCount
+        . '<span style="font-size:18px; font-weight:normal; color:#64748b;"> ครั้ง</span></div>'
+        . '</td>'
+        . '<td style="width:69%; vertical-align:middle;">'
         . '<img src="' . render_pdf_bar_chart(
             array_map(static fn ($h) => sprintf('%02d', $h['hour']), $c['hourly']['hours']),
             array_column($c['hourly']['hours'], 'count'),
             'vertical',
-            175
+            252
         ) . '" style="width:100%;">'
-        . '</td>'
-        . '<td style="width:50%; border:1px solid #d5dde7; border-radius:6px; padding:6px 8px; vertical-align:top;">'
-        . dashboard_pdf_panel_title('สัดส่วนเพศของผู้ใช้บริการ')
-        . ($genderSlices
-            ? '<img src="' . render_pdf_donut_chart($genderSlices, number_format($g['total']), 'คน', 640, 262) . '" style="width:100%;">'
-            : '<div style="font-size:9px; color:#8a97a8;">ไม่มีข้อมูล</div>')
-        . '</td>'
+        . '</td></tr></table>'
+        . dashboard_pdf_panel_close()
+        . dashboard_pdf_panel_open('สัดส่วนผู้ใช้ตามเพศ')
+        . '<img src="' . render_pdf_donut_chart($genderSlices, $totalText, 'ครั้ง', 700, 288, ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 236, 'scale' => 1.2]) . '" style="width:100%;">'
+        . dashboard_pdf_panel_close()
         . '</tr></table>';
-
-    // ---- สรุปเป็นประโยค ----
-    if ($c['summarySentence']) {
-        $out .= '<div style="border:1px solid #d5dde7; background:#f4f7fc; border-radius:6px; '
-            . 'padding:5px 9px; margin-top:6px; font-size:9px; line-height:1.5;">'
-            . $c['summarySentence'] . '</div>';
-    }
 
     return $out;
 }
@@ -307,6 +332,55 @@ function format_minutes_thai(?float $minutes): string
 // in [startDate, endDate] — "unspecified" covers roster-imported students,
 // since import_students.php doesn't collect gender (only self-signup does).
 // Self-contained here (not aggregate.php) since no other report needs it.
+// จำนวน "ครั้ง" ที่เข้าใช้ แยกตามระดับชั้นและตามเพศ
+//
+// ต่างจาก aggregate_level_breakdown()/aggregate_gender_breakdown() ที่นับ "คน"
+// ไม่ซ้ำ — กราฟวงกลมทั้งสามวงบนหน้าแดชบอร์ดนับเป็นครั้งเหมือนกันหมด ตัวเลข
+// ตรงกลางวงจึงเท่ากับการ์ด "จำนวนการเข้าใช้ทั้งหมด" และเทียบกันได้ ถ้าวงหนึ่ง
+// นับคนอีกวงนับครั้ง คนอ่านจะเข้าใจว่าข้อมูลขัดกันเอง
+function aggregate_visits_by(PDO $conn, string $column, string $startDate, string $endDate, array $filters = []): array
+{
+    [$filterClauses, $filterParams] = build_filter_clause($filters);
+    $where = implode(' AND ', array_merge(['DATE(c.timestamp) BETWEEN ? AND ?'], $filterClauses));
+    $stmt = $conn->prepare(
+        "SELECT s.$column AS k, COUNT(*) AS cnt
+         FROM checkin_logs c
+         JOIN users u ON u.user_id = c.user_id
+         JOIN students s ON s.student_id = u.student_id
+         WHERE $where
+         GROUP BY s.$column"
+    );
+    $stmt->execute(array_merge([$startDate, $endDate], $filterParams));
+
+    $out = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $out[trim((string) $row['k'])] = (int) $row['cnt'];
+    }
+    return $out;
+}
+
+function aggregate_level_visits(PDO $conn, string $startDate, string $endDate, array $filters = []): array
+{
+    $raw = aggregate_visits_by($conn, 'level', $startDate, $endDate, $filters);
+    $out = ['ปวช.' => 0, 'ปวส.' => 0, 'other' => 0];
+    foreach ($raw as $level => $count) {
+        $key = isset($out[$level]) ? $level : 'other';
+        $out[$key] += $count;
+    }
+    return $out;
+}
+
+function aggregate_gender_visits(PDO $conn, string $startDate, string $endDate, array $filters = []): array
+{
+    $raw = aggregate_visits_by($conn, 'gender', $startDate, $endDate, $filters);
+    $out = ['male' => 0, 'female' => 0, 'unknown' => 0];
+    foreach ($raw as $gender => $count) {
+        $key = isset($out[$gender]) && $gender !== '' ? $gender : 'unknown';
+        $out[$key] += $count;
+    }
+    return $out;
+}
+
 // สัดส่วนผู้ใช้แยกตามระดับชั้น (ปวช. / ปวส.) นับ "คน" ไม่ซ้ำ ไม่ใช่จำนวนครั้ง
 // เพราะคำถามที่กราฟนี้ตอบคือ "ผู้ใช้ห้องสมุดเป็นนักเรียนหรือนักศึกษามากกว่ากัน"
 function aggregate_level_breakdown(PDO $conn, string $startDate, string $endDate, array $filters = []): array
@@ -479,6 +553,8 @@ function handle_report_dashboard(): void
     $avgSessionMinutes = aggregate_avg_session_minutes($conn, $startDate, $endDate, $filters);
     $genderBreakdown = aggregate_gender_breakdown($conn, $startDate, $endDate, $filters);
     $levelBreakdown = aggregate_level_breakdown($conn, $startDate, $endDate, $filters);
+    $levelVisits = aggregate_level_visits($conn, $startDate, $endDate, $filters);
+    $genderVisits = aggregate_gender_visits($conn, $startDate, $endDate, $filters);
     $dailyTrend = aggregate_daily_trend($conn, $startDate, $endDate, $filters);
     $hourly = aggregate_hourly($conn, $startDate, $endDate, $filters);
     $deptBreakdown = aggregate_department_breakdown($conn, $startDate, $endDate, $filters);
@@ -1048,6 +1124,8 @@ function handle_report_dashboard(): void
             'avgSessionMinutes' => $avgSessionMinutes,
             'genderBreakdown' => $genderBreakdown,
             'levelBreakdown' => $levelBreakdown,
+            'levelVisits' => $levelVisits,
+            'genderVisits' => $genderVisits,
             'dailyTrend' => $dailyTrend,
             'hourly' => $hourly,
             'deptBreakdown' => $deptBreakdown,
@@ -1066,5 +1144,5 @@ function handle_report_dashboard(): void
     // $pdfStyle) instead of rendering as unstyled block text. Two
     // representations of the same numbers was what pushed this report to a
     // second, mostly-redundant page.
-    render_report_layout('รายงานแบบแดชบอร์ด', "สรุปภาพรวมการเช็คชื่อ — $periodLabel", $content, $extraStyle, [], []);
+    render_report_layout('รายงานแบบแดชบอร์ด', "สรุปภาพรวมการเช็คชื่อ — $periodLabel", $content, $extraStyle, [], [], true);
 }

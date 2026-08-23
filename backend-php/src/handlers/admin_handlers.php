@@ -181,7 +181,7 @@ function handle_admin_reports(): void
     $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
 
     $sql = "SELECT s.student_id, s.prefix, s.first_name, s.last_name, s.department, s.level, s.year_level,
-                   c.type, c.timestamp
+                   s.gender, c.type, c.timestamp
             FROM checkin_logs c
             JOIN users u ON u.user_id = c.user_id
             JOIN students s ON s.student_id = u.student_id

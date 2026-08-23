@@ -112,6 +112,42 @@ function computeStats(rows, view) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([dept, count]) => ({ dept, count, pct: total ? Math.round((count / total) * 100) : 0 }));
+  // สัดส่วนตามระดับชั้นและเพศ นับ "คน" ไม่ซ้ำ ไม่ใช่จำนวนครั้ง เพราะคำถามที่
+  // สองกราฟนี้ตอบคือ "ผู้ใช้ห้องสมุดเป็นใคร" ไม่ใช่ "เข้ามากี่รอบ"
+  const seen = new Map();
+  filtered.forEach((r) => {
+    if (!seen.has(r.student_id)) seen.set(r.student_id, r);
+  });
+  const people = [...seen.values()];
+
+  const levelCounts = { 'ปวช.': 0, 'ปวส.': 0, other: 0 };
+  const genderCounts = { male: 0, female: 0, unknown: 0 };
+  people.forEach((p) => {
+    const lv = (p.level || '').trim();
+    if (lv === 'ปวช.' || lv === 'ปวส.') levelCounts[lv]++;
+    else levelCounts.other++;
+    const g = p.gender === 'male' || p.gender === 'female' ? p.gender : 'unknown';
+    genderCounts[g]++;
+  });
+
+  const levelEntries = [
+    { name: 'ปวช.', count: levelCounts['ปวช.'], color: '#2563eb' },
+    { name: 'ปวส.', count: levelCounts['ปวส.'], color: '#10a37f' },
+    { name: 'ไม่ระบุระดับชั้น', count: levelCounts.other, color: '#94a3b8' },
+  ].filter((e) => e.count > 0);
+
+  const genderEntries = [
+    { name: 'ชาย', count: genderCounts.male, color: '#2563eb' },
+    { name: 'หญิง', count: genderCounts.female, color: '#db2777' },
+    { name: 'ไม่ระบุ', count: genderCounts.unknown, color: '#94a3b8' },
+  ].filter((e) => e.count > 0);
+
+  const deptAll = Object.entries(deptCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({ name, count }));
+
+  const uniquePeople = people.length;
+
 
   // Arrival patterns, from check-ins only ('in') — a check-out at 17:00 isn't
   // "usage at 17:00". Two one-dimensional views (hour-of-day and day-of-week)
@@ -149,7 +185,8 @@ function computeStats(rows, view) {
   }));
   const peakDay = totalCheckins ? weekdayCounts.indexOf(Math.max(...weekdayCounts)) : null;
 
-  return { total, uniqueUsers, avgDaily, currentlyInside, dayKeys, trendBars, deptEntries, totalCheckins, hourBars, peakHour, weekdayBars, peakDay };
+  return { total, uniqueUsers, avgDaily, currentlyInside, dayKeys, trendBars, deptEntries, totalCheckins,
+    hourBars, peakHour, weekdayBars, peakDay, levelEntries, genderEntries, deptAll, uniquePeople };
 }
 
 function describeTrendPoint(bar) {
@@ -302,6 +339,122 @@ function renderTrendChart(bars) {
 
 // Every row (in + out) for one calendar day, grouped by department — powers
 // the day-detail popup opened from a trend-bar click.
+
+// ---------------------------------------------------------------------
+// กราฟวงกลมแบบโดนัท วาดด้วย SVG
+//
+// วาดเองแทนการดึงไลบรารีกราฟเข้ามา ด้วยเหตุผลเดียวกับที่โปรเจคไม่ใช้เฟรมเวิร์ก
+// คือหน้านี้ต้องการโดนัทอย่างเดียว ไม่ได้ต้องการระบบกราฟทั้งชุด และการเพิ่ม
+// ไลบรารีหมายถึงไฟล์ที่ต้องโหลดเพิ่มบนมือถือของนักศึกษาทุกคน
+//
+// วาดด้วย stroke-dasharray บนวงกลมวงเดียว ไม่ใช่ path ต่อกันหลายชิ้น เพราะ
+// วิธีนี้ไม่มีปัญหาขอบชิ้นที่ติดกันเหลื่อมกันเป็นเส้นบางๆ
+// ---------------------------------------------------------------------
+const DONUT_COLORS = ['#2563eb', '#10a37f', '#16a34a', '#eab308', '#f97316', '#9333ea', '#94a3b8'];
+
+function renderDonut(container, slices, centerValue, centerUnit) {
+  container.innerHTML = '';
+  const total = slices.reduce((sum, s) => sum + Math.max(0, s.value), 0);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'donut-wrap';
+
+  const size = 168;
+  const stroke = 30;
+  const r = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * r;
+
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  svg.setAttribute('class', 'donut-svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', slices.map((s) => `${s.label} ${s.value}`).join(', ') || 'ไม่มีข้อมูล');
+
+  // วงพื้นหลัง เห็นเมื่อยังไม่มีข้อมูล จะได้ไม่เป็นพื้นที่ว่างเปล่า
+  const track = document.createElementNS(SVG_NS, 'circle');
+  track.setAttribute('cx', size / 2);
+  track.setAttribute('cy', size / 2);
+  track.setAttribute('r', r);
+  track.setAttribute('fill', 'none');
+  track.setAttribute('stroke', 'var(--donut-track, #e6ebf3)');
+  track.setAttribute('stroke-width', stroke);
+  svg.appendChild(track);
+
+  let offset = 0;
+  slices.forEach((s, i) => {
+    const value = Math.max(0, s.value);
+    if (!total || value <= 0) return;
+    const len = (value / total) * circumference;
+    const arc = document.createElementNS(SVG_NS, 'circle');
+    arc.setAttribute('cx', size / 2);
+    arc.setAttribute('cy', size / 2);
+    arc.setAttribute('r', r);
+    arc.setAttribute('fill', 'none');
+    arc.setAttribute('stroke', s.color || DONUT_COLORS[i % DONUT_COLORS.length]);
+    arc.setAttribute('stroke-width', stroke);
+    arc.setAttribute('stroke-dasharray', `${len} ${circumference - len}`);
+    arc.setAttribute('stroke-dashoffset', -offset);
+    // หมุนให้ชิ้นแรกเริ่มที่ 12 นาฬิกา ซึ่งเป็นจุดที่สายตาเริ่มอ่านวงกลม
+    arc.setAttribute('transform', `rotate(-90 ${size / 2} ${size / 2})`);
+    const title = document.createElementNS(SVG_NS, 'title');
+    title.textContent = `${s.label}: ${s.value.toLocaleString()}`;
+    arc.appendChild(title);
+    svg.appendChild(arc);
+    offset += len;
+  });
+
+  const hole = document.createElement('div');
+  hole.className = 'donut-center';
+  hole.innerHTML = `<span class="donut-center-value">${escapeHtml(centerValue)}</span>`
+    + `<span class="donut-center-unit">${escapeHtml(centerUnit)}</span>`;
+
+  const chart = document.createElement('div');
+  chart.className = 'donut-chart';
+  chart.appendChild(svg);
+  chart.appendChild(hole);
+
+  const legend = document.createElement('ul');
+  legend.className = 'donut-legend';
+  if (!slices.length || !total) {
+    legend.innerHTML = '<li class="donut-empty">ไม่มีข้อมูลในช่วงเวลาที่เลือก</li>';
+  } else {
+    legend.innerHTML = slices.map((s, i) => {
+      const pct = total ? Math.round((s.value / total) * 1000) / 10 : 0;
+      const color = s.color || DONUT_COLORS[i % DONUT_COLORS.length];
+      return `<li>
+        <span class="donut-dot" style="background:${color}"></span>
+        <span class="donut-label" title="${escapeHtml(s.label)}">${escapeHtml(s.label)}</span>
+        <span class="donut-value">${s.value.toLocaleString()} ${escapeHtml(s.unit || 'คน')} · ${pct}%</span>
+      </li>`;
+    }).join('');
+  }
+
+  wrap.appendChild(chart);
+  wrap.appendChild(legend);
+  container.appendChild(wrap);
+}
+
+// รวมรายการที่เล็กเข้าเป็น "อื่นๆ" — วงกลม 14 ชิ้นอ่านไม่ออก ชิ้นท้ายๆ บางจน
+// มองไม่เห็นและคำอธิบายก็ยาวเกินความสูงของกล่อง
+function groupSmallSlices(entries, keep, unit) {
+  const kept = entries.slice(0, keep).map((e, i) => ({
+    label: e.name,
+    value: e.count,
+    unit,
+    color: DONUT_COLORS[i % (DONUT_COLORS.length - 1)],
+  }));
+  const rest = entries.slice(keep);
+  if (rest.length) {
+    kept.push({
+      label: `อื่นๆ (${rest.length} แผนก)`,
+      value: rest.reduce((sum, e) => sum + e.count, 0),
+      unit,
+      color: '#94a3b8',
+    });
+  }
+  return kept;
+}
+
 function departmentBreakdownForDay(day) {
   const rows = allRows.filter((r) => r.timestamp.slice(0, 10) === day);
   const deptCounts = {};
@@ -524,7 +677,7 @@ function render() {
   const stats = computeStats(allRows, currentView);
 
   subtitle.textContent = stats.total
-    ? `มีการเข้าใช้ ${stats.total.toLocaleString()} ครั้ง จากนักศึกษา ${stats.uniqueUsers.toLocaleString()} คน ในช่วงเวลาที่เลือก`
+    ? `มีการเข้าใช้ ${stats.total.toLocaleString()} ครั้ง จากผู้ใช้บริการ ${stats.uniqueUsers.toLocaleString()} คน ในช่วงเวลาที่เลือก`
     : 'ไม่มีข้อมูลการเข้าใช้ในช่วงเวลาที่เลือก';
 
   document.getElementById('kpi-total').textContent = stats.total.toLocaleString();
@@ -539,7 +692,7 @@ function render() {
   renderTrendChart(lastTrendBars);
 
   const deptContainer = document.getElementById('dept-bars');
-  if (stats.deptEntries.length) {
+  if (deptContainer && stats.deptEntries.length) {
     deptContainer.innerHTML = stats.deptEntries
       .map(
         (entry, i) => `
@@ -559,7 +712,7 @@ function render() {
       const entry = stats.deptEntries[Number(btn.dataset.deptIndex)];
       btn.addEventListener('click', () => openDeptModal(entry.dept));
     });
-  } else {
+  } else if (deptContainer) {
     deptContainer.innerHTML = '<p class="text-body-md text-text-secondary">ไม่มีข้อมูลในช่วงเวลานี้</p>';
   }
 
@@ -570,6 +723,48 @@ function render() {
 
   renderHourChart(stats);
   renderWeekdayChart(stats);
+  renderOverviewDonuts(stats);
+}
+
+// สามวงบนสุดของหน้า ตอบคำถาม "ผู้ใช้เป็นใคร" ก่อนคำถาม "ใช้เมื่อไร"
+// ซึ่งเป็นลำดับที่เจ้าหน้าที่อ่านจริงเมื่อเปิดหน้านี้
+function renderOverviewDonuts(stats) {
+  renderDonut(
+    document.getElementById('donut-level'),
+    stats.levelEntries.map((e) => ({ label: e.name, value: e.count, color: e.color, unit: 'คน' })),
+    stats.uniquePeople.toLocaleString(),
+    'คน',
+  );
+  renderDonut(
+    document.getElementById('donut-gender'),
+    stats.genderEntries.map((e) => ({ label: e.name, value: e.count, color: e.color, unit: 'คน' })),
+    stats.uniquePeople.toLocaleString(),
+    'คน',
+  );
+  const deptDonut = document.getElementById('donut-dept');
+  renderDonut(
+    deptDonut,
+    groupSmallSlices(stats.deptAll, 6, 'ครั้ง'),
+    stats.total.toLocaleString(),
+    'ครั้ง',
+  );
+
+  // คลิกชื่อแผนกในคำอธิบายเพื่อดูรายชื่อผู้เข้าใช้ของแผนกนั้น — ย้ายมาจาก
+  // แผงอันดับแผนกเดิมที่ถูกเอาออกเพราะแสดงตัวเลขซ้ำกับวงกลมนี้
+  const realDepts = new Set(stats.deptAll.map((d) => d.name));
+  deptDonut.querySelectorAll('.donut-legend li').forEach((li) => {
+    const name = li.querySelector('.donut-label')?.textContent || '';
+    if (!realDepts.has(name)) return;   // แถว "อื่นๆ" ไม่ใช่แผนกเดียว เจาะดูไม่ได้
+    li.classList.add('donut-clickable');
+    li.tabIndex = 0;
+    li.setAttribute('role', 'button');
+    li.title = `ดูรายชื่อผู้เข้าใช้ของแผนก${name}`;
+    const open = () => openDeptModal(name);
+    li.addEventListener('click', open);
+    li.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+  });
 }
 
 function load() {
