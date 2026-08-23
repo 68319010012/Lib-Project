@@ -4134,10 +4134,6 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
 html.dark .pw-toggle { color: #9aa4b2; }
 html.dark .pw-toggle:hover { background: rgba(255, 255, 255, .08); color: #cbd5e1; }
 
-/* ประกาศจากเจ้าหน้าที่ (หน้าหลักนักศึกษา) — เจ้าหน้าที่อาจขึ้นบรรทัดใหม่ใน
-   ช่องพิมพ์ ให้แสดงตามที่พิมพ์จริง แต่ยังตัดบรรทัดเองเมื่อยาวเกินจอ */
-.announcement-text { white-space: pre-line; }
-
 /* ---------------------------------------------------------------------
    ช่องพิมพ์ประกาศของเจ้าหน้าที่ (หน้าภาพรวมแอดมิน)
    เขียนเป็น CSS ธรรมดาเช่นเดียวกับ .pw-toggle — คลาส Tailwind ที่ยังไม่เคย
@@ -4185,4 +4181,79 @@ html.dark .ann-label, html.dark .ann-count, html.dark .ann-meta { color: #9aa4b2
   .ann-actions { flex-direction: column; align-items: stretch; }
   .ann-save { width: 100%; }
   .ann-meta { order: 2; text-align: center; }
+}
+
+/* ---------------------------------------------------------------------
+   หน้าต่างประวัติการเข้าใช้ — เลื่อนดูรายการที่เหลือไม่ได้ (23 ส.ค. 2569)
+
+   markup เขียน max-h-[88vh] ไว้ แต่คลาสนั้นไม่เคยถูกใช้ที่อื่นในโปรเจค จึง
+   ไม่มีอยู่ใน styles.css ที่ build ไว้ล่วงหน้า (ปัญหาเดียวกับ .member-edit-panel
+   ที่ต้องเขียน max-height เองด้วยเหตุผลนี้) ผลคือกล่องไม่มีเพดานความสูง มัน
+   ยืดตามจำนวนแถวจนทะลุขอบล่างของจอ และ .visit-list ก็ไม่เคยเตี้ยกว่าเนื้อหา
+   ของตัวเอง overflow-y: auto จึงไม่เคยทำงาน — แถวที่เหลือเลยอยู่นอกจอถาวร
+
+   dvh มาหลัง vh: บนมือถือ 1vh คิดจากความสูงตอนแถบที่อยู่เว็บถูกซ่อน กล่องที่
+   สูง 88vh จึงยังล้นพื้นที่ที่มองเห็นจริงอยู่ดี ส่วน vh บรรทัดแรกเป็นค่าสำรอง
+   ให้เบราว์เซอร์เก่าที่ไม่รู้จัก dvh
+   --------------------------------------------------------------------- */
+.visit-panel {
+  max-height: 88vh;
+  max-height: 88dvh;
+}
+
+/* กันเหนียวอีกชั้น: ถ้าเนื้อหาส่วนหัว/ตัวกรอง/สรุป รวมกันสูงจนกล่องยังล้น
+   (จอเตี้ยมากๆ หรือผู้ใช้ตั้งขนาดตัวอักษรใหญ่) ให้เลื่อนทั้งกล่องได้ แทนที่
+   จะตัดทิ้งเฉยๆ */
+#history-modal { overflow-y: auto; }
+
+/* ---------------------------------------------------------------------
+   กล่องประกาศจากเจ้าหน้าที่ (หน้าหลักนักศึกษา)
+
+   เดิมเป็นหัวเรื่องกับข้อความลอยอยู่บนแถบ hero เฉยๆ อ่านปนกับสถานะที่อยู่
+   ใต้มัน ใส่กรอบให้เห็นว่าเป็นก้อนเดียวจบในตัว
+
+   สีพื้นใช้ค่าโปร่งใสของสีหลัก ไม่ใช่สีทึบ: แถบ hero ที่กล่องนี้วางอยู่เป็น
+   ไล่เฉดสีเข้ม กรอบจึงต้องยอมให้พื้นหลังด้านหลังส่องผ่าน ไม่งั้นจะเห็นเป็น
+   สี่เหลี่ยมทึบแปะทับ และเมื่อสลับธีมสว่าง/มืด ความจางก็ปรับตามพื้นที่อยู่
+   ข้างหลังเองโดยไม่ต้องกำหนดสีใหม่ทั้งชุด
+   --------------------------------------------------------------------- */
+.announcement-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(96, 165, 250, .13);
+  border: 1px solid rgba(147, 197, 253, .32);
+  box-shadow: 0 10px 24px -18px rgba(2, 6, 23, .9);
+  backdrop-filter: blur(2px);
+}
+.announcement-icon {
+  flex-shrink: 0;
+  font-size: 22px;
+  line-height: 1.35;
+  color: rgb(147, 197, 253);
+}
+.announcement-body { min-width: 0; }
+.announcement-title {
+  font-size: 15px; font-weight: 700; line-height: 1.4;
+  color: #fff; margin: 0 0 2px;
+}
+.announcement-text {
+  /* เจ้าหน้าที่อาจขึ้นบรรทัดใหม่ในช่องพิมพ์ ให้แสดงตามที่พิมพ์จริง แต่ยัง
+     ตัดบรรทัดเองเมื่อยาวเกินจอ */
+  white-space: pre-line;
+  margin: 0;
+  font-size: 14px; line-height: 1.65;
+  color: rgba(255, 255, 255, .82);
+  overflow-wrap: anywhere;
+}
+
+html.dark .announcement-card {
+  background: rgba(96, 165, 250, .09);
+  border-color: rgba(147, 197, 253, .22);
+}
+
+@media (max-width: 480px) {
+  .announcement-card { padding: 12px 14px; gap: 10px; border-radius: 14px; }
+  .announcement-title { font-size: 14px; }
+  .announcement-text { font-size: 13.5px; }
 }

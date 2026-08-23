@@ -18,8 +18,13 @@ require __DIR__ . '/partials/guard.php';
              ซ่อนไว้ก่อนเสมอ แล้วค่อยเปิดเมื่อมีประกาศจริง จะได้ไม่เห็นหัวข้อลอยๆ
              ที่ไม่มีเนื้อหาระหว่างรอโหลด -->
         <div id="announcement-block" class="rise-in mb-4 hidden">
-          <h2 class="font-headline-md text-headline-md text-on-primary mb-1">ประกาศจากเจ้าหน้าที่</h2>
-          <p id="announcement-text" class="announcement-text text-body-md text-on-primary/80"></p>
+          <div class="announcement-card">
+            <span class="announcement-icon material-symbols-outlined" aria-hidden="true">campaign</span>
+            <div class="announcement-body">
+              <h2 class="announcement-title">ประกาศจากเจ้าหน้าที่</h2>
+              <p id="announcement-text" class="announcement-text"></p>
+            </div>
+          </div>
         </div>
 
         <div class="rise-in inline-flex items-center gap-3 bg-surface-container-highest/20 text-on-primary px-4 py-2.5 rounded-full border border-on-primary/20 shadow-lg">

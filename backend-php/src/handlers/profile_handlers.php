@@ -199,8 +199,8 @@ function handle_my_visits(): void
              COUNT(*) AS total_visits,
              SUM(CASE WHEN paired.next_type = 'out' THEN 1 ELSE 0 END) AS closed_visits,
              SUM(CASE WHEN paired.next_type = 'out'
-                      THEN TIMESTAMPDIFF(MINUTE, paired.checkin_at, paired.next_timestamp)
-                 END) AS total_minutes
+                      THEN TIMESTAMPDIFF(SECOND, paired.checkin_at, paired.next_timestamp)
+                 END) AS total_seconds
          FROM ({$paired}) paired
          WHERE paired.type = 'in'{$dateWhere}"
     );
@@ -213,7 +213,7 @@ function handle_my_visits(): void
 
     $totalVisits = (int) ($summary['total_visits'] ?? 0);
     $closedVisits = (int) ($summary['closed_visits'] ?? 0);
-    $totalMinutes = (int) ($summary['total_minutes'] ?? 0);
+    $totalSeconds = (int) ($summary['total_seconds'] ?? 0);
 
     // Unfiltered on purpose, so the two date pickers can clamp themselves to
     // the span the student actually has rows in. Being free to pick a month
@@ -235,11 +235,11 @@ function handle_my_visits(): void
         'summary' => [
             'visits' => $totalVisits,
             'closed_visits' => $closedVisits,
-            'total_minutes' => $totalMinutes,
-            // Averaged over closed visits to match total_minutes. Dividing by
+            'total_seconds' => $totalSeconds,
+            // Averaged over closed visits to match total_seconds. Dividing by
             // every visit would pull the average down by one whole trip for
             // each one still open.
-            'avg_minutes' => $closedVisits > 0 ? (int) round($totalMinutes / $closedVisits) : 0,
+            'avg_seconds' => $closedVisits > 0 ? (int) round($totalSeconds / $closedVisits) : 0,
         ],
         'range' => ['from' => $from, 'to' => $to],
         'bounds' => [

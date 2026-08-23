@@ -49,24 +49,29 @@ function formatVisitTime(ts) {
   return new Date(ts).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 }
 
-// Minutes as something a person says out loud. Anything under a minute is
-// "ไม่ถึง 1 นาที" rather than "0 นาที", which reads like missing data.
-function formatDuration(minutes) {
-  if (minutes === null || minutes === undefined) return '';
-  if (minutes < 1) return 'ไม่ถึง 1 นาที';
+// ระยะเวลาแบบที่คนพูดออกเสียงจริง
+//
+// รับเป็นวินาที เพราะการเข้าใช้สั้นๆ มีอยู่จริงและเยอะ เดิมทุกครั้งที่ไม่ถึง
+// หนึ่งนาทีจะแสดงว่า "ไม่ถึง 1 นาที" เหมือนกันหมด ซึ่งบอกไม่ได้ว่า 3 วินาที
+// หรือ 55 วินาที — ต่ำกว่าหนึ่งนาทีจึงบอกเป็นวินาทีไปเลย
+function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined) return '';
+  const total = Math.max(0, Math.round(seconds));
+  if (total < 60) return `${total} วินาที`;
+  const minutes = Math.floor(total / 60);
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  if (hours === 0) return `${rest} นาที`;
+  if (hours === 0) return `${minutes} นาที`;
   if (rest === 0) return `${hours} ชม.`;
   return `${hours} ชม. ${rest} นาที`;
 }
 
 // null for a visit with no check-out yet — the caller shows "ยังอยู่", never a
 // number measured against the clock right now, which would grow on reload.
-function visitMinutes(visit) {
+function visitSeconds(visit) {
   if (!visit.checkout_at) return null;
   const spanMs = new Date(visit.checkout_at) - new Date(visit.checkin_at);
-  return Math.max(0, Math.round(spanMs / 60000));
+  return Math.max(0, Math.round(spanMs / 1000));
 }
 
 // Who wrote the check-out. A student who never tapped "เช็คเอาต์" should be
@@ -110,7 +115,7 @@ function visitRowHtml(visit) {
   const checkinDate = new Date(visit.checkin_at);
   const dayNum = checkinDate.toLocaleDateString('th-TH', { day: 'numeric' });
   const dow = checkinDate.toLocaleDateString('th-TH', { weekday: 'short' });
-  const minutes = visitMinutes(visit);
+  const seconds = visitSeconds(visit);
   const note = CHECKOUT_SOURCE_NOTE[visit.checkout_source];
 
   const outStop = visit.checkout_at
@@ -137,7 +142,7 @@ function visitRowHtml(visit) {
       </span>
       <span class="visit-dur">
         <span class="visit-dur-label">รวม</span>
-        <span class="visit-dur-value">${minutes === null ? 'กำลังนับ' : escapeHtml(formatDuration(minutes))}</span>
+        <span class="visit-dur-value">${seconds === null ? 'กำลังนับ' : escapeHtml(formatDuration(seconds))}</span>
       </span>
     </li>
   `;
@@ -200,9 +205,9 @@ function renderHistorySummary(summary) {
   // An em dash, not "0 นาที", when nothing in the range has finished yet —
   // there is no total to report, which is different from a total of zero.
   document.getElementById('history-stat-total').textContent =
-    summary && summary.closed_visits > 0 ? formatDuration(summary.total_minutes) : '—';
+    summary && summary.closed_visits > 0 ? formatDuration(summary.total_seconds) : '—';
   document.getElementById('history-stat-avg').textContent =
-    summary && summary.closed_visits > 0 ? formatDuration(summary.avg_minutes) : '—';
+    summary && summary.closed_visits > 0 ? formatDuration(summary.avg_seconds) : '—';
 }
 
 // Clamp the pickers to the days the student actually has rows in, so there is
