@@ -19,6 +19,10 @@ function build_filter_clause(array $filters): array
         'year_level' => 's.year_level',
         'semester' => 's.semester',
         'academic_year' => 's.academic_year',
+        // ชนิดเหตุการณ์ใน checkin_logs ('in' หรือ 'out') — ไม่ใช่คอลัมน์ของ
+        // students เหมือนคีย์อื่น แต่วางไว้ที่เดียวกันเพราะทุกคำสั่งที่เรียก
+        // ฟังก์ชันนี้ join ตาราง checkin_logs เป็น c อยู่แล้ว
+        'log_type' => 'c.type',
     ];
     $clauses = [];
     $params = [];

@@ -543,15 +543,19 @@ function handle_report_dashboard(): void
 
     $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'landscape' : 'portrait';
 
-    $agg = aggregate_checkin_period($conn, $startDate, $endDate, $filters);
+    // นับเฉพาะแถวที่เป็นการเข้า หนึ่งแถว = มาใช้บริการหนึ่งครั้ง
+    $visitFilters = $filters + ['log_type' => 'in'];
+
+    $agg = aggregate_checkin_period($conn, $startDate, $endDate, $visitFilters);
+    // ยกเว้นตัวนี้ที่ต้องเห็นทั้งเข้าและออก เพราะมันจับคู่สองแถวเพื่อหาระยะเวลา
     $avgSessionMinutes = aggregate_avg_session_minutes($conn, $startDate, $endDate, $filters);
-    $genderBreakdown = aggregate_gender_breakdown($conn, $startDate, $endDate, $filters);
-    $levelBreakdown = aggregate_level_breakdown($conn, $startDate, $endDate, $filters);
-    $levelVisits = aggregate_level_visits($conn, $startDate, $endDate, $filters);
-    $genderVisits = aggregate_gender_visits($conn, $startDate, $endDate, $filters);
-    $dailyTrend = aggregate_daily_trend($conn, $startDate, $endDate, $filters);
-    $hourly = aggregate_hourly($conn, $startDate, $endDate, $filters);
-    $deptBreakdown = aggregate_department_breakdown($conn, $startDate, $endDate, $filters);
+    $genderBreakdown = aggregate_gender_breakdown($conn, $startDate, $endDate, $visitFilters);
+    $levelBreakdown = aggregate_level_breakdown($conn, $startDate, $endDate, $visitFilters);
+    $levelVisits = aggregate_level_visits($conn, $startDate, $endDate, $visitFilters);
+    $genderVisits = aggregate_gender_visits($conn, $startDate, $endDate, $visitFilters);
+    $dailyTrend = aggregate_daily_trend($conn, $startDate, $endDate, $visitFilters);
+    $hourly = aggregate_hourly($conn, $startDate, $endDate, $visitFilters);
+    $deptBreakdown = aggregate_department_breakdown($conn, $startDate, $endDate, $visitFilters);
     $topDepts = array_slice($deptBreakdown, 0, 8);
 
     // Month-over-month context for the hero + first stat tile — only when
@@ -562,7 +566,7 @@ function handle_report_dashboard(): void
     $uniqueDelta = null;
     if (!$useCustomRange) {
         [$prevStart, $prevEnd] = month_bounds(previous_month($month));
-        $prevAgg = aggregate_checkin_period($conn, $prevStart, $prevEnd, $filters);
+        $prevAgg = aggregate_checkin_period($conn, $prevStart, $prevEnd, $visitFilters);
         $totalDelta = pct_delta($agg['total_events'], $prevAgg['total_events']);
         $uniqueDelta = pct_delta($agg['unique_students'], $prevAgg['unique_students']);
     }
