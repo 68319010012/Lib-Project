@@ -2,6 +2,16 @@
 // Ports app.py's /checkin. Auto-toggle reads the last log ordered by log_id
 // DESC (not timestamp) — must stay that way to match tie-break behavior on
 // same-timestamp inserts.
+// เวลาขั้นต่ำระหว่างการกดสองครั้งของคนเดียวกัน
+//
+// สั้นพอที่คนกดผิดแล้วอยากแก้ทันทีจะไม่ต้องรอนาน แต่ยาวพอให้การกดรัวๆ
+// กลายเป็นแถวขยะในฐานข้อมูลไม่ได้ ที่ผ่านมามีการเข้าใช้ที่เข้าและออกใน
+// วินาทีเดียวกันโผล่ในประวัติจริงมาแล้ว
+function checkin_cooldown_seconds(): int
+{
+    return max(0, (int) env('CHECKIN_COOLDOWN_SECONDS', '10'));
+}
+
 function handle_checkin(): void
 {
     require_login();
@@ -9,9 +19,20 @@ function handle_checkin(): void
     $body = request_body();
 
     $conn = get_db_connection();
-    $stmt = $conn->prepare('SELECT type FROM checkin_logs WHERE user_id = ? ORDER BY log_id DESC LIMIT 1');
+    $stmt = $conn->prepare('SELECT type, timestamp FROM checkin_logs WHERE user_id = ? ORDER BY log_id DESC LIMIT 1');
     $stmt->execute([$userId]);
     $last = $stmt->fetch();
+
+    $cooldown = checkin_cooldown_seconds();
+    if ($last !== false && $cooldown > 0) {
+        // max(0) กันกรณีแถวล่าสุดมีเวลาอยู่ในอนาคต ซึ่งเกิดได้จาก
+        // auto_checkout_sweep() ที่บันทึกเวลาปิดตามกำหนด ไม่ใช่เวลาที่รัน
+        $elapsed = max(0, time() - strtotime($last['timestamp']));
+        if ($elapsed < $cooldown) {
+            $wait = $cooldown - $elapsed;
+            json_error("กดถี่เกินไป กรุณารออีก {$wait} วินาทีแล้วลองใหม่", 429);
+        }
+    }
 
     $nextType = ($last !== false && $last['type'] === 'in') ? 'out' : 'in';
     $plannedCheckoutAt = null;

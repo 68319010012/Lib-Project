@@ -8,6 +8,11 @@ let closingTime = '17:00';
 let libraryOpenToday = true;
 let closedMessage = 'วันนี้ห้องสมุดปิดทำการ';
 const STAMP_HINT_OPEN = 'กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NTC';
+// ต้องตรงกับ CHECKIN_COOLDOWN_SECONDS ใน src/handlers/checkin_handlers.php
+// ฝั่งนี้แค่บอกให้เห็นล่วงหน้าว่ายังกดไม่ได้ ตัวที่บังคับจริงคือเซิร์ฟเวอร์
+const STAMP_COOLDOWN_MS = 10000;
+let cooldownUntil = 0;
+let cooldownTimerId = null;
 let historyLoaded = false;
 let busy = false;
 let elapsedTimerId = null;
@@ -298,8 +303,7 @@ function render() {
   // วันหยุด: ปิดปุ่มเช็คอินไปเลย แทนที่จะปล่อยให้กดแล้วเจอ error จากเซิร์ฟเวอร์
   // คนที่ยังค้างอยู่ในห้องสมุดจากวันทำการยังกดเช็คเอาต์ได้ตามปกติ
   syncStampDisabled();
-  document.getElementById('stamp-hint').textContent =
-    !libraryOpenToday && !checkedIn ? closedMessage : STAMP_HINT_OPEN;
+  paintStampHint();
 
   // Planned checkout + extend buttons.
   const plannedWrap = document.getElementById('planned-checkout-wrap');
@@ -378,8 +382,39 @@ function hideReminder() {
   document.getElementById('reminder-banner').classList.add('hidden');
 }
 
+function cooldownLeftMs() {
+  return Math.max(0, cooldownUntil - Date.now());
+}
+
+// เริ่มนับหลังบันทึกสำเร็จหนึ่งครั้ง เพื่อไม่ให้กดรัวจนเกิดแถวเข้า-ออกซ้อนกัน
+function startCooldown() {
+  cooldownUntil = Date.now() + STAMP_COOLDOWN_MS;
+  if (cooldownTimerId) clearInterval(cooldownTimerId);
+  cooldownTimerId = setInterval(() => {
+    if (cooldownLeftMs() === 0) {
+      clearInterval(cooldownTimerId);
+      cooldownTimerId = null;
+    }
+    syncStampDisabled();
+    paintStampHint();
+  }, 250);
+  syncStampDisabled();
+  paintStampHint();
+}
+
 function stampDisabled() {
-  return busy || (!libraryOpenToday && !isCheckedIn());
+  return busy || cooldownLeftMs() > 0 || (!libraryOpenToday && !isCheckedIn());
+}
+
+// ข้อความใต้ปุ่ม เรียงตามลำดับความสำคัญ: กำลังรอ > วันนี้ปิด > ข้อความปกติ
+function paintStampHint() {
+  const left = Math.ceil(cooldownLeftMs() / 1000);
+  const el = document.getElementById('stamp-hint');
+  if (left > 0) {
+    el.textContent = `บันทึกแล้ว กดได้อีกครั้งในอีก ${left} วินาที`;
+    return;
+  }
+  el.textContent = !libraryOpenToday && !isCheckedIn() ? closedMessage : STAMP_HINT_OPEN;
 }
 
 function syncStampDisabled() {
@@ -397,6 +432,7 @@ async function performCheckin(body) {
     const data = await apiPostJson('/checkin', body);
     reminderNotifiedKey = null;
     hideReminder();
+    startCooldown();
     await loadHistory();
     showToast(data.message, { type: 'success' });
   } catch (err) {

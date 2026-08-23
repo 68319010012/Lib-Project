@@ -120,6 +120,15 @@ try {
     // --- checkin toggle ---
     [$status, $data] = http('POST', "$BASE/checkin", null, $studentJar);
     check('checkin #1 -> in', $status === 200 && ($data['type'] ?? null) === 'in', "got $status " . json_encode($data));
+
+    // ด่านกันกดรัว: กดซ้ำทันทีต้องถูกปฏิเสธและต้องไม่บันทึกแถวใหม่
+    [$status, $data] = http('POST', "$BASE/checkin", null, $studentJar);
+    check('checkin ซ้ำทันที -> 429', $status === 429, "got $status " . json_encode($data));
+
+    // รอให้พ้นด่านก่อนกดครั้งถัดไป ค่าเริ่มต้นคือ 10 วินาที บวกกันเผื่อไว้
+    // หนึ่งวินาที เผื่อนาฬิกาของ PHP กับของฐานข้อมูลไม่ตรงกันเป๊ะ
+    sleep((int) env('CHECKIN_COOLDOWN_SECONDS', '10') + 1);
+
     [$status, $data] = http('POST', "$BASE/checkin", null, $studentJar);
     check('checkin #2 -> out', $status === 200 && ($data['type'] ?? null) === 'out', "got $status " . json_encode($data));
 
