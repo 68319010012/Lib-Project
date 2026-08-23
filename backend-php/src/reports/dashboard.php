@@ -72,12 +72,12 @@ function render_dashboard_ring(float $pct, string $color): string
 // ที่นี่ใช้เฉพาะสิ่งที่ mPDF วาดได้แน่นอน: <table>, inline style และรูป PNG
 // ที่ GD วาดมาให้แล้ว
 // ---------------------------------------------------------------------
-// สีของการ์ดตัวเลขสำคัญ — ไล่ตามภาพต้นแบบ: น้ำเงิน เขียว ส้มอ่อน ม่วง
+// ชนิดไอคอนและสีของการ์ดตัวเลขสำคัญ — ไล่ตามภาพต้นแบบ: น้ำเงิน เขียว ส้ม ม่วง
 const DASH_KPI_TINTS = [
-    ['people', [238, 242, 255], [79, 110, 247]],
-    ['people', [233, 249, 239], [34, 197, 94]],
-    ['person', [255, 244, 229], [246, 167, 35]],
-    ['clock',  [245, 236, 254], [168, 85, 247]],
+    ['people', [232, 238, 253], [79, 110, 247]],
+    ['people', [230, 247, 236], [34, 197, 94]],
+    ['person', [254, 243, 226], [246, 167, 35]],
+    ['clock',  [243, 232, 253], [168, 85, 247]],
 ];
 
 // จานสีของกราฟวงกลมแผนกวิชา เรียงตามภาพต้นแบบ
@@ -86,46 +86,44 @@ const DASH_DEPT_PALETTE = [
     [249, 115, 22], [168, 85, 247], [147, 51, 234], [126, 34, 206],
 ];
 
-function dashboard_pdf_kpi_card(int $index, string $label, string $value, string $unit, ?float $delta): string
+function dashboard_kpi_card(int $index, string $label, string $value, string $unit, ?float $delta): string
 {
     [$iconKind, $tint, $accent] = DASH_KPI_TINTS[$index % count(DASH_KPI_TINTS)];
 
     // แถวบอกการเปลี่ยนแปลง: ขึ้นเป็นเขียว ลงเป็นแดง เท่าเดิมเป็นเทา
-    $deltaHtml = '<div style="font-size:10px; color:#94a3b8;">เทียบช่วงก่อนหน้าไม่ได้</div>';
-    if ($delta !== null) {
-        $up = $delta > 0;
+    //
+    // ไม่ใช้อักขระลูกศร (▲ ▼) เพราะฟอนต์ที่ฝังใน PDF มีแต่ Sarabun กับ
+    // IBM Plex Sans Thai ซึ่งไม่มีรูปทรงพวกนี้ ตัวที่ไม่มีจะพิมพ์ออกมาเป็น
+    // กล่องสี่เหลี่ยมว่าง — ใช้สีของคำบอกทิศทางแทน
+    if ($delta === null) {
+        $deltaHtml = '<div class="dx-delta flat">เทียบช่วงก่อนหน้าไม่ได้</div>';
+    } else {
         $flat = abs($delta) < 0.05;
-        $color = $flat ? '#94a3b8' : ($up ? '#16a34a' : '#dc2626');
-        $word = $flat ? 'เท่าเดิม' : ($up ? 'เพิ่มขึ้น' : 'ลดลง');
-        $deltaHtml = '<div style="font-size:10px;">'
-            . '<span style="color:' . $color . '; font-weight:bold;">' . $word . ' '
-            . abs(round($delta, 1)) . '%</span>'
-            . '<span style="color:#94a3b8;"> จากช่วงก่อนหน้า</span></div>';
+        $dir = $flat ? 'flat' : ($delta > 0 ? 'up' : 'down');
+        $word = $flat ? 'เท่าเดิม' : ($delta > 0 ? 'เพิ่มขึ้น' : 'ลดลง');
+        $deltaHtml = '<div class="dx-delta ' . $dir . '"><b>' . $word . ' ' . abs(round($delta, 1)) . '%</b>'
+            . '<span> จากช่วงก่อนหน้า</span></div>';
     }
 
-    return '<td style="width:25%; vertical-align:top;">'
-        . '<table style="width:100%; border:1px solid #e7ebf3; border-radius:10px; background:#ffffff;"><tr>'
-        . '<td style="width:44px; padding:11px 0 11px 11px; vertical-align:top;">'
-        . '<img src="' . render_pdf_icon_tile($iconKind, $tint, $accent) . '" style="width:33px;">'
-        . '</td>'
-        . '<td style="padding:11px 12px 11px 8px;">'
-        . '<div style="font-size:11px; color:#64748b;">' . htmlspecialchars($label) . '</div>'
-        . '<div style="font-size:23px; font-weight:bold; color:#111827;">' . htmlspecialchars($value)
-        . '<span style="font-size:11px; font-weight:normal; color:#64748b;"> ' . htmlspecialchars($unit) . '</span></div>'
+    return '<td class="dx-kpi-cell">'
+        . '<table class="dx-kpi"><tr>'
+        . '<td class="dx-kpi-icon"><img width="33" src="' . render_pdf_icon_tile($iconKind, $tint, $accent) . '"></td>'
+        . '<td class="dx-kpi-text">'
+        . '<div class="dx-kpi-label">' . htmlspecialchars($label) . '</div>'
+        . '<div class="dx-kpi-value">' . htmlspecialchars($value)
+        . '<span class="dx-kpi-unit"> ' . htmlspecialchars($unit) . '</span></div>'
         . $deltaHtml
         . '</td></tr></table></td>';
 }
 
-function dashboard_pdf_panel_open(string $title): string
+function dashboard_panel_open(string $title): string
 {
-    return '<td style="width:50%; vertical-align:top;">'
-        . '<table style="width:100%; border:1px solid #e7ebf3; border-radius:10px; background:#ffffff;"><tr>'
-        . '<td style="padding:10px 12px 12px;">'
-        . '<div style="font-size:21px; font-weight:bold; color:#111827; margin-bottom:6px;">'
-        . htmlspecialchars($title) . '</div>';
+    return '<td class="dx-panel-cell">'
+        . '<table class="dx-panel"><tr><td class="dx-panel-body">'
+        . '<div class="dx-panel-title">' . htmlspecialchars($title) . '</div>';
 }
 
-function dashboard_pdf_panel_close(): string
+function dashboard_panel_close(): string
 {
     return '</td></tr></table></td>';
 }
@@ -154,53 +152,48 @@ function dashboard_group_departments(array $breakdown, int $keep = 9): array
 }
 
 // ---------------------------------------------------------------------
-// เนื้อหาของไฟล์ PDF สำหรับรายงานแดชบอร์ด — จบใน A4 แนวนอน 1 หน้า
+// เนื้อหาแดชบอร์ด ใช้ร่วมกันทั้งหน้าจอ การสั่งพิมพ์ และไฟล์ PDF
 //
-// สร้างแยกจากหน้าจอทั้งก้อน ไม่ใช่เอา HTML ของหน้าจอมาซ่อนบางส่วนด้วย CSS
-// อย่างที่รายงานอื่นทำ เหตุผลคือ mPDF ไม่รองรับ flexbox/grid/SVG และหน้าจอ
-// ของรายงานนี้สร้างจากสามอย่างนั้นเกือบทั้งหมด การไล่ซ่อนทีละคลาสเคยทำให้
-// ได้ไฟล์ที่มีหน้าว่าง 50-300 หน้า และเหลือส่วนที่หลุดมาแบบไม่มีสไตล์
+// เดิมหน้าจอกับไฟล์ PDF มีเนื้อหาคนละชุด แก้ฝั่งหนึ่งแล้วอีกฝั่งยังเป็นของเก่า
+// ตอนนี้เหลือชุดเดียว ต่างกันแค่ CSS: ฝั่ง PDF อยู่ใน $pdfStyle (layout.php)
+// ฝั่งจออยู่ใน $extraStyle ของรายงานนี้ เพราะ mPDF กับเบราว์เซอร์คิดขนาด
+// ตัวอักษรและความกว้างตารางไม่เหมือนกัน
 //
-// การจัดหน้าใช้ <table> ซ้อนกันแทน div เพราะ mPDF ไม่มี flexbox — ตารางคือ
-// วิธีเดียวที่มันจัดของสองกล่องให้อยู่ข้างกันได้อย่างแน่นอน
+// จัดหน้าด้วย <table> ซ้อนกันแทน div เพราะ mPDF ไม่มี flexbox — ตารางคือวิธี
+// เดียวที่มันจัดของสองกล่องให้อยู่ข้างกันได้อย่างแน่นอน
 //
-// สิ่งที่ "ไม่" อยู่ในหน้านี้โดยตั้งใจ: ตารางรายวันทั้งเดือน ตารางแผนกแบบ
-// เรียงอันดับยาว และกราฟแนวโน้มรายวัน — ทั้งสามอย่างทำให้เอกสารกลายเป็น
-// รายงานหลายหน้าแทนที่จะเป็นแดชบอร์ดที่มองครั้งเดียวจบ ใครต้องการรายละเอียด
-// ระดับนั้นมีรายงานรายวัน/รายเดือน/แยกตามแผนกให้เลือกอยู่แล้ว
+// กราฟทุกตัวเป็นรูป PNG ที่ GD วาด ไม่ใช่ SVG หรือ div: mPDF วาดกราฟจาก CSS
+// สมัยใหม่ไม่ได้ (เคยได้ไฟล์ที่มีหน้าว่างพ่วงมา 50-300 หน้า) และการใช้รูป
+// เดียวกันทั้งสองฝั่งเป็นสิ่งที่รับประกันว่าสิ่งที่เห็นบนจอกับในไฟล์ตรงกันจริง
 // ---------------------------------------------------------------------
-function render_dashboard_pdf_body(array $c): string
+function render_dashboard_body(array $c): string
 {
     $agg = $c['agg'];
 
-    // ---- หัวเรื่องกึ่งกลาง ----
-    $out = '<div style="text-align:center; margin-bottom:9px;">'
-        . '<div style="font-size:9.5px; color:#94a3b8;">วิทยาลัยเทคนิคนครนายก</div>'
-        . '<div style="font-size:21px; font-weight:bold; color:#111827;">ภาพรวมการใช้งานห้องสมุด</div>'
-        . '<div style="font-size:10.5px; color:#64748b;">สรุปข้อมูลการเข้าใช้ห้องสมุด — '
-        . htmlspecialchars($c['periodLabel']) . '</div>'
+    $out = '<div class="dx-head">'
+        . '<div class="dx-org">วิทยาลัยเทคนิคนครนายก</div>'
+        . '<div class="dx-title">ภาพรวมการใช้งานห้องสมุด</div>'
+        . '<div class="dx-sub">สรุปข้อมูลการเข้าใช้ห้องสมุด — ' . htmlspecialchars($c['periodLabel']) . '</div>'
         . '</div>';
 
     if ($agg['total_events'] === 0) {
-        return $out . '<div style="border:1px dashed #cbd5e1; border-radius:8px; padding:20px; '
-            . 'text-align:center; color:#475569;">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลาที่เลือก</div>';
+        return $out . '<div class="dx-empty">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลาที่เลือก</div>';
     }
 
     // ---- การ์ดตัวเลขสำคัญ 4 ใบ ----
     $avgMin = $c['avgSessionMinutes'];
     $avgHours = $avgMin !== null ? round($avgMin / 60, 2) : null;
 
-    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:5px 0;"><tr>'
-        . dashboard_pdf_kpi_card(0, 'จำนวนการเข้าใช้ทั้งหมด', number_format($agg['total_events']), 'ครั้ง', $c['totalDelta'])
-        . dashboard_pdf_kpi_card(1, 'ผู้ใช้ไม่ซ้ำ', number_format($agg['unique_students']), 'คน', $c['uniqueDelta'])
-        . dashboard_pdf_kpi_card(2, 'เฉลี่ยการเข้าใช้ต่อวัน', number_format($agg['avg_daily']), 'ครั้ง', null)
-        . dashboard_pdf_kpi_card(3, 'เวลาใช้งานเฉลี่ย', $avgHours !== null ? number_format($avgHours, 2) : '-', 'ชม.', null)
+    $out .= '<table class="dx-kpi-row"><tr>'
+        . dashboard_kpi_card(0, 'จำนวนการเข้าใช้ทั้งหมด', number_format($agg['total_events']), 'ครั้ง', $c['totalDelta'])
+        . dashboard_kpi_card(1, 'ผู้ใช้ไม่ซ้ำ', number_format($agg['unique_students']), 'คน', $c['uniqueDelta'])
+        . dashboard_kpi_card(2, 'เฉลี่ยการเข้าใช้ต่อวัน', number_format($agg['avg_daily']), 'ครั้ง', null)
+        . dashboard_kpi_card(3, 'เวลาใช้งานเฉลี่ย', $avgHours !== null ? number_format($avgHours, 2) : '-', 'ชม.', null)
         . '</tr></table>';
 
     // ---- แถวที่ 1: ระดับชั้น | แผนกวิชา ----
-    // ทั้งสามวงนับเป็น "ครั้ง" เท่ากันหมด ตัวเลขกลางวงจึงตรงกับการ์ดใบแรก
-    // และเทียบกันได้ — ถ้าวงหนึ่งนับคนอีกวงนับครั้ง ตัวเลขกลางจะไม่ตรงกัน
-    // และคนอ่านจะเข้าใจผิดว่าข้อมูลขัดกันเอง
+    // ทั้งสามวงนับเป็น "ครั้ง" เท่ากันหมด ตัวเลขกลางวงจึงตรงกับการ์ดใบแรกและ
+    // เทียบกันได้ ถ้าวงหนึ่งนับคนอีกวงนับครั้ง คนอ่านจะเข้าใจว่าข้อมูลขัดกันเอง
     $lv = $c['levelVisits'];
     $levelSlices = [];
     if ($lv['ปวช.'] > 0) {
@@ -214,20 +207,20 @@ function render_dashboard_pdf_body(array $c): string
     }
 
     $totalText = number_format($agg['total_events']);
-    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:5px 0; margin-top:7px;"><tr>'
-        . dashboard_pdf_panel_open('สัดส่วนผู้ใช้ตามประเภท')
-        . '<img src="' . render_pdf_donut_chart($levelSlices, $totalText, 'ครั้ง', 700, 288, ['unit' => 'ครั้ง', 'diameter' => 236, 'scale' => 1.2]) . '" style="width:100%;">'
-        . dashboard_pdf_panel_close()
-        . dashboard_pdf_panel_open('สัดส่วนการเข้าใช้ตามแผนก')
-        . '<img src="' . render_pdf_donut_chart(
+    $out .= '<table class="dx-row"><tr>'
+        . dashboard_panel_open('สัดส่วนผู้ใช้ตามประเภท')
+        . '<img class="dx-chart" src="' . render_pdf_donut_chart($levelSlices, $totalText, 'ครั้ง', 1400, 470, ['unit' => 'ครั้ง', 'diameter' => 380, 'scale' => 2.1]) . '">'
+        . dashboard_panel_close()
+        . dashboard_panel_open('สัดส่วนการเข้าใช้ตามแผนก')
+        . '<img class="dx-chart" src="' . render_pdf_donut_chart(
             dashboard_group_departments($c['deptBreakdown']),
             $totalText,
             'ครั้ง',
-            700,
-            288,
-            ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 218, 'scale' => 1.1]
-        ) . '" style="width:100%;">'
-        . dashboard_pdf_panel_close()
+            1400,
+            470,
+            ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 350, 'scale' => 1.95]
+        ) . '">'
+        . dashboard_panel_close()
         . '</tr></table>';
 
     // ---- แถวที่ 2: ช่วงเวลาที่ใช้มากที่สุด | เพศ ----
@@ -247,28 +240,29 @@ function render_dashboard_pdf_body(array $c): string
     $peakText = $peak ? sprintf('%02d:00 - %02d:00 น.', $peak['hour'], $peak['hour'] + 1) : '-';
     $peakCount = $peak ? number_format($peak['count']) : '-';
 
-    $out .= '<table style="width:100%; border-collapse:separate; border-spacing:5px 0; margin-top:7px;"><tr>'
-        . dashboard_pdf_panel_open('ช่วงเวลาที่มีการใช้งานมากที่สุด')
-        . '<table style="width:100%;"><tr>'
-        . '<td style="width:31%; vertical-align:middle; text-align:center; padding-right:8px;">'
-        . '<img src="' . render_pdf_icon_tile('clock', [238, 242, 255], [37, 99, 235]) . '" style="width:52px;">'
-        . '<div style="font-size:29px; font-weight:bold; color:#2563eb; margin-top:6px;">' . htmlspecialchars($peakText) . '</div>'
-        . '<div style="font-size:18px; color:#64748b;">มีการเข้าใช้สูงสุด</div>'
-        . '<div style="font-size:38px; font-weight:bold; color:#2563eb;">' . $peakCount
-        . '<span style="font-size:18px; font-weight:normal; color:#64748b;"> ครั้ง</span></div>'
+    $out .= '<table class="dx-row"><tr>'
+        . dashboard_panel_open('ช่วงเวลาที่มีการใช้งานมากที่สุด')
+        . '<table class="dx-peak"><tr>'
+        . '<td class="dx-peak-info">'
+        . '<img class="dx-peak-icon" width="44" src="' . render_pdf_icon_tile('clock', [232, 238, 253], [37, 99, 235]) . '">'
+        . '<div class="dx-peak-range">' . htmlspecialchars($peakText) . '</div>'
+        . '<div class="dx-peak-note">มีการเข้าใช้สูงสุด</div>'
+        . '<div class="dx-peak-count">' . $peakCount . '<span class="dx-peak-unit"> ครั้ง</span></div>'
         . '</td>'
-        . '<td style="width:69%; vertical-align:middle;">'
-        . '<img src="' . render_pdf_bar_chart(
+        . '<td class="dx-peak-chart">'
+        . '<img class="dx-chart" src="' . render_pdf_bar_chart(
             array_map(static fn ($h) => sprintf('%02d', $h['hour']), $c['hourly']['hours']),
             array_column($c['hourly']['hours'], 'count'),
             'vertical',
-            252
-        ) . '" style="width:100%;">'
+            420,
+            null,
+            1400
+        ) . '">'
         . '</td></tr></table>'
-        . dashboard_pdf_panel_close()
-        . dashboard_pdf_panel_open('สัดส่วนผู้ใช้ตามเพศ')
-        . '<img src="' . render_pdf_donut_chart($genderSlices, $totalText, 'ครั้ง', 700, 288, ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 236, 'scale' => 1.2]) . '" style="width:100%;">'
-        . dashboard_pdf_panel_close()
+        . dashboard_panel_close()
+        . dashboard_panel_open('สัดส่วนผู้ใช้ตามเพศ')
+        . '<img class="dx-chart" src="' . render_pdf_donut_chart($genderSlices, $totalText, 'ครั้ง', 1400, 470, ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 380, 'scale' => 2.1]) . '">'
+        . dashboard_panel_close()
         . '</tr></table>';
 
     return $out;
@@ -589,6 +583,25 @@ function handle_report_dashboard(): void
     $semesters = distinct_student_values($conn, 'semester');
     $academicYears = distinct_student_values($conn, 'academic_year');
 
+    $dashboardContext = [
+        'agg' => $agg,
+        'filters' => $filters,
+        'periodLabel' => $periodLabel,
+        'avgSessionMinutes' => $avgSessionMinutes,
+        'genderBreakdown' => $genderBreakdown,
+        'levelBreakdown' => $levelBreakdown,
+        'levelVisits' => $levelVisits,
+        'genderVisits' => $genderVisits,
+        'dailyTrend' => $dailyTrend,
+        'hourly' => $hourly,
+        'deptBreakdown' => $deptBreakdown,
+        'topDepts' => $topDepts,
+        'totalDelta' => $totalDelta,
+        'uniqueDelta' => $uniqueDelta,
+        'busiestDay' => $busiestDay,
+        'summarySentence' => $summarySentence,
+    ];
+
     ob_start();
     ?>
 <style>
@@ -639,6 +652,102 @@ function handle_report_dashboard(): void
      giant block) replaces the earlier "one huge hero + tab navigation"
      layout, which read as multiple pages stitched together instead of one
      dashboard. */
+
+  /* ---- แดชบอร์ด (dx-*) ฝั่งหน้าจอและการสั่งพิมพ์จากเบราว์เซอร์ ----
+     มาร์กอัปชุดเดียวกับไฟล์ PDF (render_dashboard_body) แต่ขนาดตัวอักษรและ
+     ระยะห่างคนละชุด เพราะ mPDF กับเบราว์เซอร์คิดขนาดในตารางซ้อนกันไม่เหมือนกัน
+     ค่าที่ตั้งไว้ในไฟล์ PDF จึงใหญ่เกินไปเมื่อเบราว์เซอร์เป็นคนวาด */
+  main.report-body { max-width: 1440px; }
+  .dash-export { max-width: 1440px; margin: 0 auto; }
+
+  .dx-head { text-align: center; margin: 4px 0 18px; }
+  .dx-org { font-size: 12px; color: #94a3b8; letter-spacing: .02em; }
+  .dx-title { font-size: 30px; font-weight: 700; color: #111827; line-height: 1.3; margin-top: 2px; }
+  .dx-sub { font-size: 14px; color: #64748b; margin-top: 2px; }
+  .dx-empty {
+    border: 1px dashed #cbd5e1; border-radius: 12px; padding: 32px;
+    text-align: center; color: #475569; background: #fff;
+  }
+
+  /* border-spacing แทน gap เพราะโครงเป็น <table> (mPDF ต้องการ) ซึ่งไม่รู้จัก gap */
+  /* layout.php ตั้ง table { min-width: 640px } ไว้เป็นกฎกลาง เพื่อให้ตาราง
+     ข้อมูลเลื่อนแนวนอนได้บนมือถือแทนที่จะถูกบีบจนอ่านไม่ออก — แต่ที่นี่
+     ตารางถูกใช้เป็นโครงจัดหน้า ไม่ใช่ตารางข้อมูล ค่านั้นจึงดันการ์ดให้กว้าง
+     640px ทุกใบจนล้นออกนอกจอ ต้องปลดเฉพาะตารางของแดชบอร์ด */
+  .dx-kpi-row, .dx-row, .dx-kpi, .dx-panel, .dx-peak { min-width: 0; }
+  /* ตารางข้อมูลของ layout.php มีเส้นคั่นใต้ทุกเซลล์ ซึ่งที่นี่กลายเป็นเส้น
+     ลอยพาดใต้การ์ดทุกใบ */
+  .dx-kpi-row > tbody > tr > td, .dx-row > tbody > tr > td,
+  .dx-kpi td, .dx-panel td, .dx-peak td { border: 0; background: none; }
+  .dx-kpi-row, .dx-row { width: 100%; border-collapse: separate; border-spacing: 9px 0; table-layout: fixed; }
+  .dx-row { margin-top: 18px; }
+  .dx-kpi-cell { width: 25%; vertical-align: top; }
+  .dx-panel-cell { width: 50%; vertical-align: top; }
+
+  .dx-kpi, .dx-panel {
+    width: 100%; border-collapse: separate; table-layout: fixed;
+    border: 1px solid #e9edf5; border-radius: 14px; background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+  }
+  .dx-kpi-icon { width: 60px; padding: 16px 0 16px 16px; vertical-align: top; }
+  .dx-kpi-icon img { width: 46px; height: 46px; display: block; }
+  .dx-kpi-text { padding: 16px 16px 16px 12px; vertical-align: top; }
+  .dx-kpi-label { font-size: 14px; color: #64748b; line-height: 1.4; }
+  .dx-kpi-value { font-size: 28px; font-weight: 700; color: #111827; line-height: 1.25; margin: 1px 0 3px; }
+  .dx-kpi-unit { font-size: 14px; font-weight: 400; color: #64748b; }
+  .dx-delta { font-size: 13px; color: #94a3b8; }
+  .dx-delta b { font-weight: 700; }
+  .dx-delta.up b { color: #16a34a; }
+  .dx-delta.down b { color: #dc2626; }
+  .dx-delta.flat b { color: #94a3b8; }
+
+  .dx-panel-body { padding: 18px 20px 20px; }
+  .dx-panel-title { font-size: 19px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+  .dx-chart { width: 100%; height: auto; display: block; }
+
+  .dx-peak { width: 100%; border-collapse: separate; table-layout: fixed; }
+  .dx-kpi-label, .dx-kpi-value, .dx-delta, .dx-panel-title { overflow-wrap: anywhere; }
+  .dx-peak-info { width: 31%; vertical-align: middle; text-align: center; padding-right: 10px; }
+  .dx-peak-info img { width: 44px; height: 44px; display: inline-block; }
+  .dx-peak-range { font-size: 18px; font-weight: 700; color: #2563eb; margin-top: 8px; white-space: nowrap; }
+  .dx-peak-note { font-size: 13px; color: #64748b; margin-top: 2px; }
+  .dx-peak-count { font-size: 26px; font-weight: 700; color: #2563eb; margin-top: 2px; }
+  .dx-peak-unit { font-size: 13px; font-weight: 400; color: #64748b; }
+  .dx-peak-chart { width: 69%; vertical-align: middle; }
+
+  /* จอแคบ: การ์ดตัวเลขเรียงสองคอลัมน์ กราฟเรียงคอลัมน์เดียว
+     ต้องประกาศ display ใหม่ทั้งชุด เพราะโครงเป็นตาราง ไม่ใช่ grid */
+  @media screen and (max-width: 900px) {
+    .dx-kpi-row, .dx-kpi-row tbody, .dx-kpi-row tr,
+    .dx-row, .dx-row tbody, .dx-row tr { display: block; }
+    .dx-kpi-cell { display: inline-block; width: 49%; vertical-align: top; margin-bottom: 9px; }
+    .dx-panel-cell { display: block; width: 100%; margin-bottom: 14px; }
+    .dx-title { font-size: 24px; }
+  }
+  @media screen and (max-width: 560px) {
+    .dx-kpi-cell { display: block; width: 100%; }
+    .dx-peak, .dx-peak tbody, .dx-peak tr { display: block; }
+    .dx-peak-info, .dx-peak-chart { display: block; width: 100%; padding-right: 0; }
+    .dx-peak-info { margin-bottom: 10px; }
+  }
+
+  /* สั่งพิมพ์จากเบราว์เซอร์: ให้จบในกระดาษแนวนอนหน้าเดียวเหมือนไฟล์ PDF */
+  @media print {
+    .dash-export { max-width: none; }
+    .dx-kpi-row, .dx-row { border-spacing: 5px 0; }
+    .dx-row { margin-top: 8px; }
+    .dx-title { font-size: 22px; }
+    .dx-kpi-value { font-size: 21px; }
+    .dx-panel-title { font-size: 15px; }
+    .dx-kpi, .dx-panel { box-shadow: none; }
+    .dx-panel-body { padding: 8px 10px 10px; }
+    .dx-kpi-icon { padding: 8px 0 8px 8px; }
+    .dx-kpi-icon img { width: 30px; height: 30px; }
+    .dx-kpi-text { padding: 8px 10px 8px 7px; }
+    .dx-peak-range { font-size: 15px; }
+    .dx-peak-count { font-size: 21px; }
+  }
+
   .delta { font-weight: 700; white-space: nowrap; }
   .delta.up { color: #059669; }
   .delta.down { color: #d97706; }
@@ -908,146 +1017,18 @@ function handle_report_dashboard(): void
 </div>
 <?php else: ?>
 
-<div class="kpi-strip" data-print-section="KPI สรุป">
-  <div class="kpi-card hero" title="จำนวนนักศึกษาที่มาเข้าห้องสมุดในช่วงเวลานี้ นับคนซ้ำแค่ครั้งเดียวแม้จะเข้ามาหลายรอบ">
-    <div class="kpi-head"><span class="kpi-label">นักศึกษาที่เข้าใช้บริการ</span></div>
-    <div class="kpi-value"><?= number_format($agg['unique_students']) ?></div>
-    <?php if ($uniqueDelta !== null): ?><span class="kpi-sub"><?= render_dashboard_delta($uniqueDelta, true) ?></span><?php endif; ?>
-  </div>
-  <div class="kpi-card" title="จำนวนครั้งการเช็คอิน+เช็คเอาต์รวมกันทั้งหมดในช่วงเวลานี้ (คนเดียวเข้า-ออกหลายครั้งนับหลายครั้ง)">
-    <div class="kpi-head">
-      <span class="kpi-label">จำนวนรายการทั้งหมด</span>
-      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb', $isPdfExport) ?>
-    </div>
-    <div class="kpi-value"><?= number_format($agg['total_events']) ?></div>
-    <?php if ($totalDelta !== null): ?><span class="kpi-sub"><?= render_dashboard_delta($totalDelta, true) ?></span><?php endif; ?>
-  </div>
-  <div class="kpi-card" title="จำนวนรายการเช็คอิน+เช็คเอาต์เฉลี่ยต่อวัน นับเฉพาะวันที่มีคนมาใช้จริง">
-    <div class="kpi-head">
-      <span class="kpi-label">เฉลี่ยต่อวัน</span>
-      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb', $isPdfExport) ?>
-    </div>
-    <div class="kpi-value"><?= $agg['avg_daily'] ?> รายการ</div>
-  </div>
-  <div class="kpi-card" title="ระยะเวลาเฉลี่ยที่นักศึกษาอยู่ในห้องสมุดต่อการเข้าใช้ 1 ครั้ง คำนวณจากเวลาเช็คอินถึงเช็คเอาต์จริง">
-    <div class="kpi-head"><span class="kpi-label">เวลาเฉลี่ยที่อยู่ในห้องสมุด</span></div>
-    <div class="kpi-value"><?= format_minutes_thai($avgSessionMinutes) ?></div>
-  </div>
-  <div class="kpi-card" title="วันที่มีจำนวนการเช็คอิน+เช็คเอาต์รวมสูงที่สุดในช่วงเวลาที่เลือก">
-    <div class="kpi-head">
-      <span class="kpi-label">วันที่มีคนใช้มากที่สุด</span>
-      <?= render_dashboard_sparkline(array_column($dailyTrend, 'count'), '#2563eb', $isPdfExport) ?>
-    </div>
-    <div class="kpi-value"><?= $busiestDay ? htmlspecialchars($busiestDay['day']) : '-' ?></div>
-  </div>
-  <div class="kpi-card" title="ชั่วโมงของวันที่มีคนเช็คอิน+เช็คเอาต์รวมกันมากที่สุด (รวมทุกวันในช่วงเวลาที่เลือก)">
-    <div class="kpi-head">
-      <span class="kpi-label">ช่วงเวลาที่มีคนใช้มากที่สุด</span>
-      <?= render_dashboard_sparkline(array_column($hourly['hours'], 'count'), '#2563eb', $isPdfExport) ?>
-    </div>
-    <div class="kpi-value"><?= $hourly['peak_hour'] ? sprintf('%02d:00 น.', $hourly['peak_hour']['hour']) : '-' ?></div>
-  </div>
-  <div class="kpi-card ring-card" title="แผนกวิชาที่มีจำนวนการเข้าใช้ห้องสมุดมากที่สุดในช่วงเวลานี้ และสัดส่วน % เทียบกับทุกแผนกรวมกัน">
-    <div class="meter-ring-wrap">
-      <?= render_dashboard_ring($topDepts ? $topDepts[0]['pct'] : 0, '#2563eb') ?>
-      <span class="meter-ring-value"><?= $topDepts ? $topDepts[0]['pct'] : 0 ?>%</span>
-    </div>
-    <div class="meter-info">
-      <div class="kpi-label">แผนกยอดนิยม</div>
-      <div class="meter-dept-name"><?= $topDepts ? htmlspecialchars($topDepts[0]['name']) : '-' ?></div>
-      <div class="meter-dept-count"><?= $topDepts ? number_format($topDepts[0]['count']) . ' รายการ' : '-' ?></div>
-    </div>
-  </div>
+<?php
+// หน้าจอกับไฟล์ที่ส่งออกใช้ตัวสร้างเนื้อหาตัวเดียวกัน เพื่อให้สิ่งที่เห็นบนจอ
+// กับสิ่งที่ได้ในไฟล์เป็นอันเดียวกันจริงๆ ไม่ใช่สองชุดที่ต้องคอยไล่แก้ให้ตรงกัน
+//
+// เดิมหน้าจอมีวิดเจ็ตของตัวเอง (การ์ด 7 ใบพร้อมเส้นกราฟจิ๋ว วงแหวนเปอร์เซ็นต์
+// แถบสัดส่วนเพศ และตารางอันดับแผนก) ส่วนไฟล์ PDF มีอีกชุดหนึ่ง ผลคือแก้ฝั่งเดียว
+// แล้วอีกฝั่งยังเป็นของเก่า
+?>
+<div class="dash-export" data-print-section="แดชบอร์ด">
+<?= render_dashboard_body($dashboardContext) ?>
 </div>
 
-<div class="mini-panel-row" data-print-section="กราฟแนวโน้ม">
-  <div class="mini-panel">
-    <h3>แนวโน้มรายวัน</h3>
-    <?php if ($agg['total_events']): ?>
-    <div class="trend-chart">
-      <?php foreach ($dailyTrend as $d): ?>
-      <div class="bar-wrap" title="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>: <?= $d['count'] ?> รายการ" data-label="<?= htmlspecialchars(date('d/m', strtotime($d['date']))) ?>" data-count="<?= $d['count'] ?>">
-        <div class="bar" style="height: <?= $d['pct'] > 0 ? $d['pct'] : 2 ?>%;"></div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <div class="trend-labels">
-      <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[0]['date']))) ?></span>
-      <span><?= htmlspecialchars(date('d/m', strtotime($dailyTrend[count($dailyTrend) - 1]['date']))) ?></span>
-    </div>
-    <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูล</p>
-    <?php endif; ?>
-  </div>
-
-  <div class="mini-panel">
-    <h3>รายชั่วโมง</h3>
-    <?php if ($agg['total_events']): ?>
-    <?php $maxHour = max(1, max(array_column($hourly['hours'], 'count'))); ?>
-    <div class="trend-chart hourly-chart">
-      <?php foreach ($hourly['hours'] as $h): ?>
-      <div class="bar-wrap" title="<?= sprintf('%02d:00', $h['hour']) ?> น.: <?= $h['count'] ?> รายการ" data-label="<?= sprintf('%02d:00', $h['hour']) ?> น." data-count="<?= $h['count'] ?>">
-        <div class="bar" style="height: <?= $h['count'] ? max(2, round($h['count'] / $maxHour * 100)) : 1 ?>%;"></div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <div class="trend-labels"><span>00:00</span><span>23:00</span></div>
-    <?php else: ?>
-    <p class="empty-note">ไม่มีข้อมูล</p>
-    <?php endif; ?>
-  </div>
-</div>
-
-<div class="panel" data-print-section="สัดส่วนเพศผู้เข้าใช้" title="สัดส่วนเพศของนักศึกษาไม่ซ้ำคนที่เข้าใช้บริการในช่วงเวลานี้ — 'ไม่ระบุ' คือบัญชีที่นำเข้าจากรายชื่อ ยังไม่เคยกรอกเพศเอง">
-  <h3>สัดส่วนเพศผู้เข้าใช้</h3>
-  <?php if ($genderBreakdown['total'] > 0): ?>
-  <div class="gender-list">
-    <div class="gender-row male">
-      <span class="g-label">ชาย</span>
-      <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['male_pct'] ?>%;"></span></span>
-      <span class="g-count"><?= $genderBreakdown['male'] ?> คน · <?= $genderBreakdown['male_pct'] ?>%</span>
-    </div>
-    <div class="gender-row female">
-      <span class="g-label">หญิง</span>
-      <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['female_pct'] ?>%;"></span></span>
-      <span class="g-count"><?= $genderBreakdown['female'] ?> คน · <?= $genderBreakdown['female_pct'] ?>%</span>
-    </div>
-    <?php if ($genderBreakdown['unknown'] > 0): ?>
-    <div class="gender-row unknown">
-      <span class="g-label">ไม่ระบุ</span>
-      <span class="g-track"><span class="g-fill" style="width: <?= $genderBreakdown['unknown_pct'] ?>%;"></span></span>
-      <span class="g-count"><?= $genderBreakdown['unknown'] ?> คน · <?= $genderBreakdown['unknown_pct'] ?>%</span>
-    </div>
-    <?php endif; ?>
-  </div>
-  <?php else: ?>
-  <p class="empty-note">ไม่มีข้อมูล</p>
-  <?php endif; ?>
-</div>
-
-<div class="panel" data-print-section="แผนกวิชาทั้งหมด" style="margin-bottom:6px;">
-  <h3 style="margin:0 0 8px;">แผนกวิชาทั้งหมด (เรียงจากใช้งานมากไปน้อย)</h3>
-  <?php if ($deptBreakdown): ?>
-  <div class="rank-list">
-    <?php foreach ($deptBreakdown as $i => $dept): ?>
-    <div class="rank-row">
-      <span class="rank-badge"><?= $i + 1 ?></span>
-      <span class="rank-name"><?= htmlspecialchars($dept['name']) ?></span>
-      <span class="rank-track"><span class="rank-fill" style="width: <?= max(8, $deptBreakdown[0]['count'] ? round($dept['count'] / $deptBreakdown[0]['count'] * 100) : 0) ?>%;"></span></span>
-      <span class="rank-count"><?= $dept['count'] ?> รายการ · <?= $dept['pct'] ?>%</span>
-    </div>
-    <?php endforeach; ?>
-  </div>
-  <?php else: ?>
-  <p class="empty-note">ไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้</p>
-  <?php endif; ?>
-</div>
-
-<?php if ($summarySentence): ?>
-<div class="story-box" data-print-section="สรุปสำหรับผู้บริหาร">
-  <p><?= $summarySentence ?></p>
-</div>
-<?php endif; ?>
 
 <?php // Self-hosted rather than loaded from cdnjs: a CDN script with no SRI hash
       // is an open door — whoever controls that host (or the DNS answer for it)
@@ -1115,34 +1096,10 @@ function handle_report_dashboard(): void
     $content = ob_get_clean();
 
     // ไฟล์ PDF ใช้เนื้อหาที่สร้างขึ้นเฉพาะของมันเอง ไม่ใช่ HTML ของหน้าจอ
-    // ที่ถูกซ่อนบางส่วนด้วย CSS — ดูเหตุผลที่ render_dashboard_pdf_body()
+    // ที่ถูกซ่อนบางส่วนด้วย CSS — ดูเหตุผลที่ render_dashboard_body()
     if ($isPdfExport) {
-        $content = render_dashboard_pdf_body([
-            'agg' => $agg,
-            'filters' => $filters,
-            'periodLabel' => $periodLabel,
-            'avgSessionMinutes' => $avgSessionMinutes,
-            'genderBreakdown' => $genderBreakdown,
-            'levelBreakdown' => $levelBreakdown,
-            'levelVisits' => $levelVisits,
-            'genderVisits' => $genderVisits,
-            'dailyTrend' => $dailyTrend,
-            'hourly' => $hourly,
-            'deptBreakdown' => $deptBreakdown,
-            'topDepts' => $topDepts,
-            'totalDelta' => $totalDelta,
-            'uniqueDelta' => $uniqueDelta,
-            'busiestDay' => $busiestDay,
-            'summarySentence' => $summarySentence,
-        ]);
+        $content = render_dashboard_body($dashboardContext);
     }
 
-    // Department breakdown is NOT duplicated as a $pdfCharts image here —
-    // the "แผนกวิชาทั้งหมด" .rank-list further down in $content already
-    // covers it (all departments, not just the top 8 a bar-chart image
-    // would show), and now has real PDF styling (see layout.php's
-    // $pdfStyle) instead of rendering as unstyled block text. Two
-    // representations of the same numbers was what pushed this report to a
-    // second, mostly-redundant page.
     render_report_layout('รายงานแบบแดชบอร์ด', "สรุปภาพรวมการเช็คชื่อ — $periodLabel", $content, $extraStyle, [], [], true);
 }

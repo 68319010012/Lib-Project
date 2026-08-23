@@ -8,9 +8,10 @@
 // such risk: GD draws it, mPDF just places it, done. Uses the same Sarabun
 // TTF as the rest of the PDF so Thai department names render correctly
 // (GD's built-in bitmap fonts are Latin-only).
-function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical', int $verticalHeight = 220, ?int $scaleMax = null): string
+function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical', int $verticalHeight = 220, ?int $scaleMax = null, int $width = 720): string
 {
     $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
+    $k = $width / 720;   // ตัวคูณสำหรับขนาดตัวอักษรและระยะขอบ
     $n = count($values);
     // $scaleMax lets a caller pin two charts to one axis (e.g. the same
     // departments in month A and month B). Still folded through max() with the
@@ -18,30 +19,28 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
     $max = max(1, $scaleMax ?? 0, ...array_merge($values, [0]));
 
     if ($orientation === 'horizontal') {
-        $width = 720;
-        $rowH = 26;
+        $rowH = (int) (26 * $k);
         $height = max(60, $n * $rowH + 16);
         $img = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($img, 255, 255, 255);
         imagefill($img, 0, 0, $white);
         $bar = imagecolorallocate($img, 30, 58, 138);
         $text = imagecolorallocate($img, 15, 23, 42);
-        $labelW = 180;
-        $trackW = $width - $labelW - 60;
+        $labelW = (int) (180 * $k);
+        $trackW = $width - $labelW - (int) (60 * $k);
         foreach ($values as $i => $v) {
             $y = 8 + $i * $rowH;
-            imagettftext($img, 11, 0, 4, $y + 16, $text, $font, (string) ($labels[$i] ?? ''));
+            imagettftext($img, 11 * $k, 0, (int) (4 * $k), (int) ($y + 16 * $k), $text, $font, (string) ($labels[$i] ?? ''));
             $barW = $v > 0 ? max(2, (int) round(($v / $max) * $trackW)) : 0;
             imagefilledrectangle($img, $labelW, $y + 4, $labelW + $barW, $y + 18, $bar);
             imagettftext($img, 10, 0, $labelW + $barW + 6, $y + 16, $text, $font, (string) $v);
         }
     } else {
-        $width = 720;
         $height = $verticalHeight;
-        $padL = 8;
-        $padB = 26;
-        $padT = 10;
-        $padR = 8;
+        $padL = (int) (8 * $k);
+        $padB = (int) (26 * $k);
+        $padT = (int) (10 * $k);
+        $padR = (int) (8 * $k);
         $chartW = $width - $padL - $padR;
         $chartH = $height - $padT - $padB;
         $img = imagecreatetruecolor($width, $height);
@@ -64,7 +63,7 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
                 imagefilledrectangle($img, (int) $x1, $y1, (int) ($x1 + $barW), $y2, $bar);
             }
             if ($i % $labelStep === 0) {
-                imagettftext($img, 9, 0, (int) $x1, $height - 8, $text, $font, (string) ($labels[$i] ?? ''));
+                imagettftext($img, 9 * $k, 0, (int) $x1, (int) ($height - 8 * $k), $text, $font, (string) ($labels[$i] ?? ''));
             }
         }
     }
@@ -428,6 +427,46 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .bar-fill { background: #1e3a8a; height: 8px; border-radius: 4px; }
     .bar-fill.b { background: #2563eb; }
     .empty { color: #475569; font-style: italic; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 14px; text-align: center; }
+    /* ---- แดชบอร์ด (dx-*) ใช้มาร์กอัปชุดเดียวกับหน้าจอ ต่างกันแค่ CSS ชุดนี้ ----
+       ค่าที่ตั้งไว้ชดเชยพฤติกรรมของ mPDF เอง: มันย่อขนาดตัวอักษรที่อยู่ในตาราง
+       ซ้อนตาราง ตัวเลขจึงดูใหญ่เกินจริงถ้าอ่านจากโค้ดอย่างเดียว แต่ขนาดที่
+       พิมพ์ออกมาจริงตรงกับที่ออกแบบไว้ */
+    .dx-head { text-align: center; margin-bottom: 9px; }
+    .dx-org { font-size: 9.5px; color: #94a3b8; }
+    .dx-title { font-size: 21px; font-weight: bold; color: #111827; }
+    .dx-sub { font-size: 10.5px; color: #64748b; }
+    .dx-empty { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #475569; }
+
+    .dx-kpi-row, .dx-row { width: 100%; border-collapse: separate; border-spacing: 5px 0; }
+    .dx-row { margin-top: 7px; }
+    .dx-kpi-cell { width: 25%; vertical-align: top; }
+    .dx-panel-cell { width: 50%; vertical-align: top; }
+    .dx-kpi, .dx-panel { width: 100%; border: 1px solid #e7ebf3; border-radius: 10px; background: #ffffff; }
+    .dx-kpi-icon { width: 44px; padding: 11px 0 11px 11px; vertical-align: top; }
+    .dx-kpi-icon img { width: 33px; }
+    .dx-kpi-text { padding: 11px 12px 11px 8px; }
+    .dx-kpi-label { font-size: 11px; color: #64748b; }
+    .dx-kpi-value { font-size: 23px; font-weight: bold; color: #111827; }
+    .dx-kpi-unit { font-size: 11px; font-weight: normal; color: #64748b; }
+    .dx-delta { font-size: 10px; color: #94a3b8; }
+    .dx-delta.up b { color: #16a34a; }
+    .dx-delta.down b { color: #dc2626; }
+    .dx-delta.flat b { color: #94a3b8; }
+    .dx-delta span { color: #94a3b8; }
+
+    .dx-panel-body { padding: 10px 12px 12px; }
+    .dx-panel-title { font-size: 21px; font-weight: bold; color: #111827; margin-bottom: 6px; }
+    .dx-chart { width: 100%; }
+
+    .dx-peak { width: 100%; }
+    .dx-peak-info { width: 31%; vertical-align: middle; text-align: center; padding-right: 8px; }
+    .dx-peak-info img { width: 52px; }
+    .dx-peak-range { font-size: 29px; font-weight: bold; color: #2563eb; margin-top: 6px; }
+    .dx-peak-note { font-size: 18px; color: #64748b; }
+    .dx-peak-count { font-size: 38px; font-weight: bold; color: #2563eb; }
+    .dx-peak-unit { font-size: 18px; font-weight: normal; color: #64748b; }
+    .dx-peak-chart { width: 69%; vertical-align: middle; }
+
     CSS;
 
     $chartsHtml = '';
