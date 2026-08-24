@@ -314,21 +314,17 @@ function handle_report_executive(): void
     <?php
     $content = ob_get_clean();
 
-    // Redrawn as PNGs by GD because mPDF cannot measure the on-screen table
-    // bars and rank rows — see layout.php's render_pdf_bar_chart().
+    // รายงานฉบับนี้ไม่ส่งกราฟรูปให้ไฟล์ PDF เลย ด้วยเหตุผลเดียวกันทั้งสองจุด:
+    // ทุกชุดตัวเลขที่นี่มีตารางหรือแถวอันดับของมันเองซึ่ง mPDF วาดได้อยู่แล้ว
+    // การเติมกราฟเข้าไปอีกคือการพิมพ์ตัวเลขชุดเดิมซ้ำเป็นครั้งที่สอง
+    //
+    // แนวโน้มรายสัปดาห์เคยส่งเป็นกราฟแท่ง ทั้งที่ด้านล่างมีตารางรายสัปดาห์
+    // ที่บอกทั้งจำนวนและสัดส่วนอยู่แล้ว กราฟกินความสูงราว 120pt ซึ่งเป็นเหตุ
+    // ที่ทำให้รายงานหน้าเดียวล้นไปหน้าที่สอง — และตารางคือสิ่งที่ผู้บริหารอ่าน
+    // เพราะให้ตัวเลขจริง ไม่ใช่ความสูงของแท่ง
+    //
+    // แผนกวิชาก็ไม่ส่งเช่นกัน เพราะ .rank-list มีสไตล์ของตัวเองใน $pdfStyle
     $pdfCharts = [];
-    if ($weekly) {
-        $pdfCharts[] = [
-            'title' => 'แนวโน้มรายสัปดาห์',
-            'orientation' => 'vertical',
-            'height' => 150,
-            'labels' => array_map(fn($w) => 'ส.' . (int) $w['week'], $weekly),
-            'values' => array_column($weekly, 'count'),
-        ];
-    }
-    // No department chart here on purpose: this report's .rank-list already
-    // renders in the PDF with real styling (layout.php's $pdfStyle), so a bar
-    // image of the same three rows would only say it twice.
 
     render_report_layout('สรุปสำหรับผู้บริหาร', "สรุปสำหรับผู้บริหาร — เดือน $month", $content, $extraStyle, [
         'csv' => "/admin/reports/print/executive?month=$month&format=csv",

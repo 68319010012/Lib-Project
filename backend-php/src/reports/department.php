@@ -366,12 +366,16 @@ function handle_report_department(): void
         // pair is which month is taller.
         $momNames = array_column($momRows, 'name');
         $momScale = (int) max(1, $momMax);
+        // half: วางสองเดือนไว้ข้างกัน ไม่ใช่ซ้อนลงมาคนละครึ่งหน้า — กราฟที่ตั้งใจ
+        // ให้เทียบกันต้องเห็นพร้อมกันในสายตาเดียว และบนกระดาษแนวนอนกราฟที่แคบลง
+        // ครึ่งหนึ่งจะเตี้ยลงตามสัดส่วนด้วย สองใบจึงกินความสูงเท่าใบเดียวเมื่อก่อน
         $pdfCharts[] = [
             'title' => 'เปรียบเทียบแต่ละแผนกวิชา — เดือนก่อนหน้า',
             'orientation' => 'horizontal',
             'labels' => $momNames,
             'values' => array_column($momRows, 'previous'),
             'scale_max' => $momScale,
+            'half' => true,
         ];
         $pdfCharts[] = [
             'title' => 'เปรียบเทียบแต่ละแผนกวิชา — เดือนนี้',
@@ -379,6 +383,7 @@ function handle_report_department(): void
             'labels' => $momNames,
             'values' => array_column($momRows, 'current'),
             'scale_max' => $momScale,
+            'half' => true,
         ];
     }
 

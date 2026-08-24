@@ -19,7 +19,10 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
     $max = max(1, $scaleMax ?? 0, ...array_merge($values, [0]));
 
     if ($orientation === 'horizontal') {
-        $rowH = (int) (26 * $k);
+        // 26 design px ต่อแถวเป็นค่าที่ตั้งไว้ตอนกระดาษยังเป็นแนวตั้ง กราฟ 14 แผนก
+        // จึงสูงราว 400pt กินกระดาษแนวนอนเกือบทั้งแผ่นด้วยตัวเองใบเดียว
+        // 19 px ยังเหลือที่ให้ตัวอักษร 11 px หายใจได้สบาย และประหยัดไปราว 100pt
+        $rowH = (int) (19 * $k);
         $height = max(60, $n * $rowH + 16);
         $img = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($img, 255, 255, 255);
@@ -28,12 +31,33 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
         $text = imagecolorallocate($img, 15, 23, 42);
         $labelW = (int) (180 * $k);
         $trackW = $width - $labelW - (int) (60 * $k);
+        // ความหนาของแท่งและตำแหน่งเส้นฐานตัวอักษร คิดจากความสูงแถวจริง ไม่ใช่
+        // ตัวเลขคงที่ — ของเดิมตรึงไว้ที่ 4/18 px ซึ่งไม่ขยับตามเมื่อแถวเปลี่ยน
+        // ความสูง แท่งจึงบางลอยอยู่กลางแถวที่สูงกว่ามัน
+        $barTop = (int) ($rowH * 0.20);
+        $barBot = (int) ($rowH * 0.76);
+        $baseline = (int) ($rowH * 0.72);
+        $labelSize = 11 * $k;
+        $labelMaxW = $labelW - (int) (12 * $k);
         foreach ($values as $i => $v) {
             $y = 8 + $i * $rowH;
-            imagettftext($img, 11 * $k, 0, (int) (4 * $k), (int) ($y + 16 * $k), $text, $font, (string) ($labels[$i] ?? ''));
+            // ตัดชื่อที่ยาวเกินช่องด้วย … แทนที่จะปล่อยให้วิ่งไปโดนแท่งทับ
+            // ซึ่งอ่านเหมือนภาพวาดพลาด ไม่ใช่ชื่อที่ยาวเกิน
+            $label = (string) ($labels[$i] ?? '');
+            $box = imagettfbbox($labelSize, 0, $font, $label);
+            if ($box[2] - $box[0] > $labelMaxW) {
+                while ($label !== '' && ($box[2] - $box[0]) > $labelMaxW) {
+                    $label = mb_substr($label, 0, mb_strlen($label) - 1);
+                    $box = imagettfbbox($labelSize, 0, $font, $label . '…');
+                }
+                $label .= '…';
+            }
+            imagettftext($img, $labelSize, 0, (int) (4 * $k), $y + $baseline, $text, $font, $label);
             $barW = $v > 0 ? max(2, (int) round(($v / $max) * $trackW)) : 0;
-            imagefilledrectangle($img, $labelW, $y + 4, $labelW + $barW, $y + 18, $bar);
-            imagettftext($img, 10, 0, $labelW + $barW + 6, $y + 16, $text, $font, (string) $v);
+            imagefilledrectangle($img, $labelW, $y + $barTop, $labelW + $barW, $y + $barBot, $bar);
+            // ตัวเลขท้ายแท่งเคยตรึงไว้ที่ 10 px โดยไม่คูณ $k ทั้งที่ทั้งภาพถูกวาด
+            // ใหญ่ขึ้น 1.5 เท่าแล้วย่อลงตอนพิมพ์ ตัวเลขจึงพิมพ์ออกมาเหลือ ~6.7pt
+            imagettftext($img, 10 * $k, 0, (int) ($labelW + $barW + 6 * $k), $y + $baseline, $text, $font, (string) $v);
         }
     } else {
         $height = $verticalHeight;

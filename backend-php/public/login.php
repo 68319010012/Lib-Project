@@ -10,7 +10,7 @@
   <main class="login-shell">
     <section class="login-glass rise-in">
       <img class="login-crest" src="/assets/img/ntc-crest.png?v=<?= ntc_asset_v('assets/img/ntc-crest.png') ?>"
-           alt="ตราวิทยาลัยเทคนิคนครนายก" width="86" height="86" decoding="async">
+           alt="ตราวิทยาลัยเทคนิคนครนายก" width="73" height="73" decoding="async">
       <h1 class="login-title">เข้าสู่ระบบ</h1>
       <p class="login-identity-org">ห้องสมุดวิทยาลัยเทคนิคนครนายก</p>
 
