@@ -10,7 +10,7 @@
 // (GD's built-in bitmap fonts are Latin-only).
 function render_pdf_bar_chart(array $labels, array $values, string $orientation = 'vertical', int $verticalHeight = 220, ?int $scaleMax = null, int $width = 720): string
 {
-    $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
+    $font = __DIR__ . '/../../fonts/IBMPlexSansThai-Regular.ttf';
     $k = $width / 720;   // ตัวคูณสำหรับขนาดตัวอักษรและระยะขอบ
     $n = count($values);
     // $scaleMax lets a caller pin two charts to one axis (e.g. the same
@@ -141,8 +141,8 @@ function render_pdf_icon_tile(string $kind, array $tint, array $accent, int $siz
 // $opt    = ['center_top' => 'รวม', 'unit' => 'ครั้ง', 'legend_width' => 300]
 function render_pdf_donut_chart(array $slices, string $centerValue = '', string $centerUnit = '', int $width = 720, int $height = 250, array $opt = []): string
 {
-    $font = __DIR__ . '/../../fonts/Sarabun-Regular.ttf';
-    $bold = __DIR__ . '/../../fonts/Sarabun-Bold.ttf';
+    $font = __DIR__ . '/../../fonts/IBMPlexSansThai-Regular.ttf';
+    $bold = __DIR__ . '/../../fonts/IBMPlexSansThai-Bold.ttf';
     if (!is_file($bold)) {
         $bold = $font;
     }

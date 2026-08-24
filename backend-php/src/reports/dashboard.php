@@ -151,6 +151,102 @@ function dashboard_group_departments(array $breakdown, int $keep = 9): array
     return $slices;
 }
 
+// กราฟวงกลมสำหรับ "หน้าจอ" — SVG กับข้อความจริง ไม่ใช่รูป PNG
+//
+// ไฟล์ PDF ใช้รูปที่ GD วาด เพราะ mPDF วาด SVG ไม่ได้ แต่บนจอการฝังตัวหนังสือ
+// ลงในรูปมีปัญหาที่แก้ไม่ได้: ตัวหนังสือย่อตามความกว้างของกล่อง พอเปิดบน
+// มือถือที่กล่องกว้าง ~360px ตัวหนังสือในคำอธิบายจะเหลือราว 7px ซึ่งอ่านไม่ออก
+//
+// หน้าตาถูกจัดให้ตรงกับฝั่ง PDF ทั้งสี ขนาดสัดส่วน และลำดับคอลัมน์
+function render_dashboard_donut_html(array $slices, string $centerValue, string $centerUnit, string $centerTop = '', string $unit = 'ครั้ง'): string
+{
+    $total = 0.0;
+    foreach ($slices as $s) {
+        $total += max(0.0, (float) $s['value']);
+    }
+
+    $size = 168;
+    $stroke = 34;
+    $r = ($size - $stroke) / 2;
+    $circumference = 2 * M_PI * $r;
+    $c = $size / 2;
+
+    $svg = '<svg class="dxd-svg" viewBox="0 0 ' . $size . ' ' . $size . '" role="img" aria-label="'
+        . htmlspecialchars($total > 0 ? 'กราฟวงกลมแสดงสัดส่วน' : 'ไม่มีข้อมูล') . '">'
+        . '<circle cx="' . $c . '" cy="' . $c . '" r="' . $r . '" fill="none" stroke="#e8ecf3" stroke-width="' . $stroke . '"/>';
+
+    $offset = 0.0;
+    foreach ($slices as $s) {
+        $value = max(0.0, (float) $s['value']);
+        if ($total <= 0 || $value <= 0) {
+            continue;
+        }
+        $len = ($value / $total) * $circumference;
+        $rgb = sprintf('rgb(%d,%d,%d)', $s['color'][0], $s['color'][1], $s['color'][2]);
+        $svg .= '<circle cx="' . $c . '" cy="' . $c . '" r="' . $r . '" fill="none"'
+            . ' stroke="' . $rgb . '" stroke-width="' . $stroke . '"'
+            . ' stroke-dasharray="' . round($len, 2) . ' ' . round($circumference - $len, 2) . '"'
+            . ' stroke-dashoffset="' . round(-$offset, 2) . '"'
+            // หมุนให้ชิ้นแรกเริ่มที่ 12 นาฬิกา ซึ่งเป็นจุดที่สายตาเริ่มอ่านวงกลม
+            . ' transform="rotate(-90 ' . $c . ' ' . $c . ')"><title>'
+            . htmlspecialchars($s['label'] . ': ' . number_format($value)) . '</title></circle>';
+        $offset += $len;
+    }
+    $svg .= '</svg>';
+
+    $center = '<div class="dxd-center">';
+    if ($centerTop !== '') {
+        $center .= '<span class="dxd-center-top">' . htmlspecialchars($centerTop) . '</span>';
+    }
+    $center .= '<span class="dxd-center-value">' . htmlspecialchars($centerValue) . '</span>'
+        . '<span class="dxd-center-unit">' . htmlspecialchars($centerUnit) . '</span></div>';
+
+    $rows = '';
+    if (!$slices || $total <= 0) {
+        $rows = '<li class="dxd-empty">ไม่มีข้อมูลในช่วงเวลาที่เลือก</li>';
+    } else {
+        foreach ($slices as $s) {
+            $pct = $total > 0 ? round((float) $s['value'] / $total * 100, 1) : 0;
+            $rgb = sprintf('rgb(%d,%d,%d)', $s['color'][0], $s['color'][1], $s['color'][2]);
+            $rows .= '<li>'
+                . '<span class="dxd-dot" style="background:' . $rgb . '"></span>'
+                . '<span class="dxd-label" title="' . htmlspecialchars($s['label']) . '">' . htmlspecialchars($s['label']) . '</span>'
+                . '<span class="dxd-pct">' . $pct . '%</span>'
+                . '<span class="dxd-count">(' . number_format((float) $s['value']) . ' ' . htmlspecialchars($unit) . ')</span>'
+                . '</li>';
+        }
+    }
+
+    return '<div class="dxd">'
+        . '<div class="dxd-chart">' . $svg . $center . '</div>'
+        . '<ul class="dxd-legend">' . $rows . '</ul>'
+        . '</div>';
+}
+
+// กราฟแท่งรายชั่วโมงสำหรับหน้าจอ — div ธรรมดา ป้ายแกนเป็นข้อความจริง
+function render_dashboard_hours_html(array $hours): string
+{
+    $max = 1;
+    foreach ($hours as $h) {
+        $max = max($max, (int) $h['count']);
+    }
+    $bars = '';
+    foreach ($hours as $h) {
+        $pct = $h['count'] > 0 ? max(2, (int) round($h['count'] / $max * 100)) : 0;
+        $label = sprintf('%02d:00 น. — %s ครั้ง', $h['hour'], number_format($h['count']));
+        $bars .= '<div class="dxb-slot" title="' . htmlspecialchars($label) . '">'
+            . '<div class="dxb-bar" style="height:' . $pct . '%"></div>'
+            . '</div>';
+    }
+    // ป้ายแกนทุก 2 ชั่วโมง เท่ากับที่กราฟฝั่ง PDF ทำ
+    $ticks = '';
+    foreach ($hours as $i => $h) {
+        $ticks .= '<span>' . ($i % 2 === 0 ? sprintf('%02d', $h['hour']) : '') . '</span>';
+    }
+    return '<div class="dxb"><div class="dxb-bars">' . $bars . '</div>'
+        . '<div class="dxb-axis">' . $ticks . '</div></div>';
+}
+
 // ---------------------------------------------------------------------
 // เนื้อหาแดชบอร์ด ใช้ร่วมกันทั้งหน้าจอ การสั่งพิมพ์ และไฟล์ PDF
 //
@@ -169,6 +265,9 @@ function dashboard_group_departments(array $breakdown, int $keep = 9): array
 function render_dashboard_body(array $c): string
 {
     $agg = $c['agg'];
+    // กราฟบนจอเป็น SVG กับข้อความจริง ส่วนในไฟล์ PDF เป็นรูปที่ GD วาด
+    // เพราะ mPDF วาด SVG ไม่ได้ — หน้าตาถูกจัดให้ตรงกันทั้งสองฝั่ง
+    $forPdf = !empty($c['for_pdf']);
 
     $out = '<div class="dx-head">'
         . '<div class="dx-org">วิทยาลัยเทคนิคนครนายก</div>'
@@ -209,17 +308,21 @@ function render_dashboard_body(array $c): string
     $totalText = number_format($agg['total_events']);
     $out .= '<table class="dx-row"><tr>'
         . dashboard_panel_open('สัดส่วนผู้ใช้ตามประเภท')
-        . '<img class="dx-chart" src="' . render_pdf_donut_chart($levelSlices, $totalText, 'ครั้ง', 1400, 470, ['unit' => 'ครั้ง', 'diameter' => 380, 'scale' => 2.1]) . '">'
+        . ($forPdf
+            ? '<img class="dx-chart" src="' . render_pdf_donut_chart($levelSlices, $totalText, 'ครั้ง', 1400, 470, ['unit' => 'ครั้ง', 'diameter' => 380, 'scale' => 2.1]) . '">'
+            : render_dashboard_donut_html($levelSlices, $totalText, 'ครั้ง', '', 'ครั้ง'))
         . dashboard_panel_close()
         . dashboard_panel_open('สัดส่วนการเข้าใช้ตามแผนก')
-        . '<img class="dx-chart" src="' . render_pdf_donut_chart(
-            dashboard_group_departments($c['deptBreakdown']),
-            $totalText,
-            'ครั้ง',
-            1400,
-            470,
-            ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 350, 'scale' => 1.95]
-        ) . '">'
+        . ($forPdf
+            ? '<img class="dx-chart" src="' . render_pdf_donut_chart(
+                dashboard_group_departments($c['deptBreakdown']),
+                $totalText,
+                'ครั้ง',
+                1400,
+                470,
+                ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 350, 'scale' => 1.95]
+            ) . '">'
+            : render_dashboard_donut_html(dashboard_group_departments($c['deptBreakdown']), $totalText, 'ครั้ง', 'รวม', 'ครั้ง'))
         . dashboard_panel_close()
         . '</tr></table>';
 
@@ -250,18 +353,22 @@ function render_dashboard_body(array $c): string
         . '<div class="dx-peak-count">' . $peakCount . '<span class="dx-peak-unit"> ครั้ง</span></div>'
         . '</td>'
         . '<td class="dx-peak-chart">'
-        . '<img class="dx-chart" src="' . render_pdf_bar_chart(
-            array_map(static fn ($h) => sprintf('%02d', $h['hour']), $c['hourly']['hours']),
-            array_column($c['hourly']['hours'], 'count'),
-            'vertical',
-            420,
-            null,
-            1400
-        ) . '">'
+        . ($forPdf
+            ? '<img class="dx-chart" src="' . render_pdf_bar_chart(
+                array_map(static fn ($h) => sprintf('%02d', $h['hour']), $c['hourly']['hours']),
+                array_column($c['hourly']['hours'], 'count'),
+                'vertical',
+                420,
+                null,
+                1400
+            ) . '">'
+            : render_dashboard_hours_html($c['hourly']['hours']))
         . '</td></tr></table>'
         . dashboard_panel_close()
         . dashboard_panel_open('สัดส่วนผู้ใช้ตามเพศ')
-        . '<img class="dx-chart" src="' . render_pdf_donut_chart($genderSlices, $totalText, 'ครั้ง', 1400, 470, ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 380, 'scale' => 2.1]) . '">'
+        . ($forPdf
+            ? '<img class="dx-chart" src="' . render_pdf_donut_chart($genderSlices, $totalText, 'ครั้ง', 1400, 470, ['unit' => 'ครั้ง', 'center_top' => 'รวม', 'diameter' => 380, 'scale' => 2.1]) . '">'
+            : render_dashboard_donut_html($genderSlices, $totalText, 'ครั้ง', 'รวม', 'ครั้ง'))
         . dashboard_panel_close()
         . '</tr></table>';
 
@@ -683,20 +790,25 @@ function handle_report_dashboard(): void
      ลอยพาดใต้การ์ดทุกใบ */
   .dx-kpi-row > tbody > tr > td, .dx-row > tbody > tr > td,
   .dx-kpi td, .dx-panel td, .dx-peak td { border: 0; background: none; }
-  .dx-kpi-row, .dx-row { width: 100%; border-collapse: separate; border-spacing: 9px 0; table-layout: fixed; }
-  .dx-row { margin-top: 18px; }
-  .dx-kpi-cell { width: 25%; vertical-align: top; }
-  .dx-panel-cell { width: 50%; vertical-align: top; }
+  .dx-kpi-row, .dx-row { display: grid; gap: 14px; width: 100%; }
+  .dx-kpi-row > tbody, .dx-row > tbody,
+  .dx-kpi-row > tbody > tr, .dx-row > tbody > tr { display: contents; }
+  .dx-kpi-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dx-row { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px; }
+  .dx-kpi-cell, .dx-panel-cell { display: block; width: auto; min-width: 0; }
 
   .dx-kpi, .dx-panel {
-    width: 100%; border-collapse: separate; table-layout: fixed;
+    width: 100%; height: 100%; border-collapse: separate; table-layout: fixed;
     border: 1px solid #e9edf5; border-radius: 14px; background: #fff;
     box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
   }
-  .dx-kpi-icon { width: 60px; padding: 16px 0 16px 16px; vertical-align: top; }
-  .dx-kpi-icon img { width: 46px; height: 46px; display: block; }
-  .dx-kpi-text { padding: 16px 16px 16px 12px; vertical-align: top; }
-  .dx-kpi-label { font-size: 14px; color: #64748b; line-height: 1.4; }
+  /* ให้เนื้อหาชิดบนเสมอ ไม่งั้นการ์ดที่ข้อความสั้นกว่าจะลอยอยู่กลางกล่อง
+     ทำให้บรรทัดแรกของแต่ละใบไม่ตรงแนวกัน */
+  .dx-kpi-text, .dx-panel-body { vertical-align: top; }
+  .dx-kpi-icon { width: 54px; padding: 14px 0 14px 14px; vertical-align: top; }
+  .dx-kpi-icon img { width: 40px; height: 40px; display: block; }
+  .dx-kpi-text { padding: 14px 14px 14px 10px; vertical-align: top; }
+  .dx-kpi-label { font-size: 13px; color: #64748b; line-height: 1.35; }
   .dx-kpi-value { font-size: 28px; font-weight: 700; color: #111827; line-height: 1.25; margin: 1px 0 3px; }
   .dx-kpi-unit { font-size: 14px; font-weight: 400; color: #64748b; }
   .dx-delta { font-size: 13px; color: #94a3b8; }
@@ -708,6 +820,56 @@ function handle_report_dashboard(): void
   .dx-panel-body { padding: 18px 20px 20px; }
   .dx-panel-title { font-size: 19px; font-weight: 700; color: #111827; margin-bottom: 10px; }
   .dx-chart { width: 100%; height: auto; display: block; }
+
+
+  /* ---- กราฟบนจอ: SVG + ข้อความจริง ----
+     ขนาดตัวอักษรอ้างอิงจากแบบที่ต้องการ: ชื่อรายการ 15px เปอร์เซ็นต์ 15px
+     จำนวนในวงเล็บ 14px ตัวเลขกลางวง 30px — ตั้งเป็น px จริงไม่ใช่สัดส่วนของรูป
+     จึงอ่านออกเท่ากันทุกความกว้างจอ ต่างจากตอนที่ฝังตัวหนังสือไว้ในรูป PNG */
+  .dxd { display: flex; align-items: center; gap: 22px; min-width: 0; }
+  .dxd-chart { position: relative; width: 168px; height: 168px; flex-shrink: 0; }
+  .dxd-svg { width: 100%; height: 100%; display: block; }
+  .dxd-center {
+    position: absolute; inset: 0; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
+  }
+  .dxd-center-top { font-size: 13px; color: #64748b; }
+  .dxd-center-value { font-size: 30px; font-weight: 700; color: #111827; }
+  .dxd-center-unit { font-size: 13px; color: #64748b; margin-top: 1px; }
+
+  .dxd-legend { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; }
+  .dxd-legend li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 0; min-width: 0; line-height: 1.45;
+  }
+  .dxd-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  /* ชื่อยาวๆ ตัดด้วย … แทนที่จะดันตัวเลขตกบรรทัด
+     (min-width: 0 จำเป็น — flex item ตั้งต้นที่ auto ซึ่งไม่ยอมหดต่ำกว่าเนื้อหา
+     และภาษาไทยไม่มีช่องว่างจึงหดเองไม่ได้) */
+  .dxd-label {
+    flex: 1; min-width: 0; font-size: 15px; color: #1f2937;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .dxd-pct { flex-shrink: 0; font-size: 15px; color: #1f2937; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; }
+  .dxd-count { flex-shrink: 0; font-size: 14px; color: #7c8798; font-variant-numeric: tabular-nums; text-align: right; min-width: 92px; }
+  .dxd-empty { color: #7c8798; font-style: italic; }
+
+  /* กราฟแท่งรายชั่วโมง */
+  .dxb { min-width: 0; }
+  .dxb-bars { display: flex; align-items: flex-end; gap: 2px; height: 150px; }
+  .dxb-slot { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
+  .dxb-bar { width: 100%; background: linear-gradient(180deg, #6f9bfb, #2563eb); border-radius: 2px 2px 0 0; }
+  .dxb-axis {
+    display: flex; gap: 2px; margin-top: 5px;
+    font-size: 11px; color: #7c8798; font-variant-numeric: tabular-nums;
+  }
+  .dxb-axis span { flex: 1; min-width: 0; text-align: center; }
+
+  @media screen and (max-width: 700px) {
+    .dxd { flex-direction: column; align-items: stretch; gap: 14px; }
+    .dxd-chart { align-self: center; }
+    .dxd-count { min-width: 84px; }
+  }
 
   .dx-peak { width: 100%; border-collapse: separate; table-layout: fixed; }
   .dx-kpi-label, .dx-kpi-value, .dx-delta, .dx-panel-title { overflow-wrap: anywhere; }
@@ -722,15 +884,13 @@ function handle_report_dashboard(): void
   /* จอแคบ: การ์ดตัวเลขเรียงสองคอลัมน์ กราฟเรียงคอลัมน์เดียว
      ต้องประกาศ display ใหม่ทั้งชุด เพราะโครงเป็นตาราง ไม่ใช่ grid */
   @media screen and (max-width: 900px) {
-    .dx-kpi-row, .dx-kpi-row tbody, .dx-kpi-row tr,
-    .dx-row, .dx-row tbody, .dx-row tr { display: block; }
-    .dx-kpi-cell { display: inline-block; width: 49%; vertical-align: top; margin-bottom: 9px; }
-    .dx-panel-cell { display: block; width: 100%; margin-bottom: 14px; }
+    .dx-kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dx-row { grid-template-columns: minmax(0, 1fr); }
     .dx-title { font-size: 24px; }
   }
   @media screen and (max-width: 560px) {
-    .dx-kpi-cell { display: block; width: 100%; }
-    .dx-peak, .dx-peak tbody, .dx-peak tr { display: block; }
+    .dx-kpi-row { grid-template-columns: minmax(0, 1fr); }
+    .dx-peak, .dx-peak > tbody, .dx-peak > tbody > tr { display: block; }
     .dx-peak-info, .dx-peak-chart { display: block; width: 100%; padding-right: 0; }
     .dx-peak-info { margin-bottom: 10px; }
   }
@@ -738,8 +898,8 @@ function handle_report_dashboard(): void
   /* สั่งพิมพ์จากเบราว์เซอร์: ให้จบในกระดาษแนวนอนหน้าเดียวเหมือนไฟล์ PDF */
   @media print {
     .dash-export { max-width: none; }
-    .dx-kpi-row, .dx-row { border-spacing: 5px 0; }
-    .dx-row { margin-top: 8px; }
+    .dx-kpi-row, .dx-row { gap: 7px; }
+    .dx-row { margin-top: 7px; }
     .dx-title { font-size: 22px; }
     .dx-kpi-value { font-size: 21px; }
     .dx-panel-title { font-size: 15px; }
@@ -1074,11 +1234,16 @@ function handle_report_dashboard(): void
       imageBtn.disabled = true;
       var originalHtml = imageBtn.innerHTML;
       imageBtn.innerHTML = 'กำลังสร้างรูปภาพ…';
-      html2canvas(document.body, {
-        backgroundColor: '#f8fafc',
+      var shotTarget = document.querySelector('.dash-export') || document.body;
+      html2canvas(shotTarget, {
+        backgroundColor: '#ffffff',
         scale: 2,
         ignoreElements: function (el) {
-          return el.classList.contains('toolbar') || el.id === 'print-settings-panel';
+          return el.classList.contains('toolbar')
+            || el.classList.contains('filter-bar')
+            || el.classList.contains('quick-filter-chips')
+            || el.classList.contains('filter-note')
+            || el.id === 'print-settings-panel';
         },
       }).then(function (canvas) {
         var link = document.createElement('a');
@@ -1102,7 +1267,7 @@ function handle_report_dashboard(): void
     // ไฟล์ PDF ใช้เนื้อหาที่สร้างขึ้นเฉพาะของมันเอง ไม่ใช่ HTML ของหน้าจอ
     // ที่ถูกซ่อนบางส่วนด้วย CSS — ดูเหตุผลที่ render_dashboard_body()
     if ($isPdfExport) {
-        $content = render_dashboard_body($dashboardContext);
+        $content = render_dashboard_body($dashboardContext + ['for_pdf' => true]);
     }
 
     render_report_layout('รายงานแบบแดชบอร์ด', "สรุปภาพรวมการเช็คชื่อ — $periodLabel", $content, $extraStyle, [], [], true);
