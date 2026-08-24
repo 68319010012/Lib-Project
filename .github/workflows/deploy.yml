@@ -115,17 +115,24 @@ jobs:
             fi
           }
 
+          # --diff-filter=d ตัด "ไฟล์ที่ถูกลบ" ออกจากรายการ ไม่งั้น curl -T จะชี้ไปที่
+          # ไฟล์ซึ่งไม่มีอยู่แล้ว แล้วนับเป็นความล้มเหลว ทำให้ deploy ขึ้นแดงทั้งรอบ
+          # ทั้งที่ไฟล์อื่นขึ้นครบ
+          #
+          # การอัปผ่าน FTP ไม่เคยลบไฟล์บนเซิร์ฟเวอร์อยู่แล้ว ไฟล์ที่ถูกลบออกจาก repo
+          # จึงยังค้างอยู่บนเว็บไม่ว่าจะทำอย่างไร ไม่เป็นอันตรายเพราะไม่มีหน้าไหน
+          # เรียกใช้แล้ว แต่ถ้าต้องลบของบนเซิร์ฟเวอร์จริง ต้องลบด้วยมือ
           # ลำดับนี้ทำให้เว็บใช้งานได้ตลอดระหว่างอัป: ของที่ถูกอ้างถึงต้องขึ้น
           # ก่อนของที่อ้างถึงมันเสมอ index.php ประกาศ route จึงต้องท้ายสุด
           upload src/constants.php
           upload public/partials/guard.php
           upload src/auth.php
 
-          for f in $(git diff --name-only "$BASE" HEAD -- backend-php/src \
+          for f in $(git diff --name-only --diff-filter=d "$BASE" HEAD -- backend-php/src \
                      | sed 's|^backend-php/||' | grep -v '^src/constants.php$' | grep -v '^src/auth.php$'); do
             upload "$f"
           done
-          for f in $(git diff --name-only "$BASE" HEAD -- backend-php/public \
+          for f in $(git diff --name-only --diff-filter=d "$BASE" HEAD -- backend-php/public \
                      | sed 's|^backend-php/||' | grep -v '^public/index.php$' \
                      | grep -v '^public/partials/guard.php$'); do
             upload "$f"
