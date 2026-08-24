@@ -4445,78 +4445,44 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   50% { background-position: 100% 50%; }
 }
 
-/* ---- ภาพห้องสมุดสามชั้นซ้อนกันเป็นฉากเดียว ----
-   ไม่ใช่สไลด์สลับทีละใบ ทั้งสามใบอยู่พร้อมกันตลอดเวลา แล้วไล่ขอบด้วย
-   mask-image จนไม่เห็นรอยต่อ สิ่งที่ทำให้มัน "เป็นภาพเดียว" มีสามอย่าง:
+/* ---- ภาพห้องสมุดสามใบ สลับกันช้าๆ ----
+   ทั้งสามใบวางทับกันเต็มจอ แล้วไล่ความทึบสลับกันเป็นวง ใบละราว 9 วินาที
+   ช่วงเปลี่ยนภาพซ้อนกันประมาณ 0.9 วินาที จึงไม่มีจังหวะไหนที่พื้นหลังโล่ง
 
-     1. mask ที่ไล่จางเป็นระยะยาวมาก (หลายสิบเปอร์เซ็นต์ของจอ) ขอบจึงจางหาย
-        ไปก่อนที่ตาจะจับได้ว่าตรงไหนคือขอบรูป
-     2. เบลอต่างกันตามชั้น ชั้นหลังเบลอมากกว่า อ่านเป็นระยะลึก ไม่ใช่รูปวาง
-        ทับกัน
-     3. ชั้นปรับสี (.login-bg-grade) ที่ดึงสีของทั้งสามใบเข้าหาโทนเดียวกัน
+   ทำด้วย CSS ล้วน ไม่มี JavaScript คอยจับเวลา: ทั้ง opacity และ transform
+   วิ่งบน compositor ของเบราว์เซอร์ เครื่องที่แรงน้อยจึงไม่กระตุก และหน้าเว็บ
+   ไม่ต้องโหลดสคริปต์เพิ่มเพื่อทำสิ่งที่ CSS ทำได้อยู่แล้ว
 
-   เคลื่อนไหวด้วย transform อย่างเดียว (ไม่ใช่ background-position) เพราะ
-   transform ทำงานบน GPU ไม่ต้องวาดใหม่ทั้งภาพทุกเฟรม ระยะขยับตั้งไว้เล็กมาก
-   เมื่อเทียบกับความกว้างของ mask ขอบ mask จึงขยับตามไปแบบที่มองไม่ออก */
+   ซูมเข้าช้าๆ ตลอดรอบ (Ken Burns) ภาพนิ่งจึงไม่ดูเป็นภาพนิ่ง ค่าที่กระโดด
+   กลับตอนจบรอบมองไม่เห็น เพราะตอนนั้นความทึบเป็นศูนย์อยู่แล้ว */
 .login-bg-layer {
   position: absolute;
-  inset: -4%;                 /* เผื่อขอบไว้ให้การเบลอและการขยับ ไม่ให้เห็นขอบขาว */
+  inset: -4%;                 /* เผื่อขอบไว้ให้การเบลอและการซูม ไม่ให้เห็นขอบขาว */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  /* ค่อยๆ ปรากฏตอนเปิดหน้า ไม่ให้ภาพกระโดดขึ้นมาทันที
-     ทำด้วย animation ไม่ใช่การเติมคลาสจาก JavaScript เพราะชั้นภาพถูกใส่
-     background-image มาจากฝั่ง PHP แล้ว (partials/login-bg.php) หน้านี้จึง
-     ไม่มีสคริปต์คอยจัดการพื้นหลังอีกต่อไป */
-  animation: login-bg-in 1.2s ease both;
-  will-change: transform;
+  opacity: 0;
+  will-change: opacity, transform;
+  animation: login-bg-cycle 27s ease-in-out infinite;
 }
-@keyframes login-bg-in { from { opacity: 0; } to { opacity: 1; } }
+.login-bg-layer.layer-1 { animation-delay: 0s; }
+.login-bg-layer.layer-2 { animation-delay: 9s; }
+.login-bg-layer.layer-3 { animation-delay: 18s; }
 
-/* ชั้นหลัก: เต็มจอ เบลอน้อยที่สุด เป็นตัวกำหนดหน้าตาของฉาก */
-.login-bg-layer.layer-1 {
-  filter: blur(5px) saturate(0.94) contrast(0.96) brightness(1.02);
-  transform: scale(1.10);
-  animation: login-bg-in 1.2s ease both, login-bg-float-a 68s ease-in-out infinite;
-}
-
-/* ชั้นขวา: จางหายไปทางซ้ายก่อนถึงกลางจอ ตรงกลางจึงเป็นของชั้นแรกล้วน */
-.login-bg-layer.layer-2 {
-  filter: blur(13px) saturate(0.88) contrast(0.93) brightness(0.98);
-  transform: scale(1.14);
-  -webkit-mask-image: linear-gradient(105deg, transparent 30%, rgba(0,0,0,.55) 62%, #000 92%);
-  mask-image: linear-gradient(105deg, transparent 30%, rgba(0,0,0,.55) 62%, #000 92%);
-  animation: login-bg-in 1.2s ease both, login-bg-float-b 86s ease-in-out infinite;
+@keyframes login-bg-cycle {
+  0%     { opacity: 0; transform: scale(1.06); }
+  3.5%   { opacity: 1; }
+  33%    { opacity: 1; }
+  36.5%  { opacity: 0; }
+  100%   { opacity: 0; transform: scale(1.16); }
 }
 
-/* ชั้นล่างซ้าย: เบลอมากที่สุด ทำหน้าที่เป็นความลึกของฉาก ไม่ใช่รูปที่ต้องดูออก */
-.login-bg-layer.layer-3 {
-  filter: blur(22px) saturate(0.82) contrast(0.9) brightness(0.94);
-  transform: scale(1.18);
-  -webkit-mask-image: radial-gradient(78% 82% at 8% 96%, #000 0%, rgba(0,0,0,.5) 42%, transparent 74%);
-  mask-image: radial-gradient(78% 82% at 8% 96%, #000 0%, rgba(0,0,0,.5) 42%, transparent 74%);
-  animation: login-bg-in 1.2s ease both, login-bg-float-c 104s ease-in-out infinite;
+/* ทั้งสามใบใช้การปรับภาพชุดเดียวกัน เพราะตอนนี้ผลัดกันเป็นภาพหลักคนละช่วง
+   ไม่ได้แบ่งหน้าที่เป็นชั้นหน้า-ชั้นหลังเหมือนตอนวางซ้อนกัน */
+.login-bg-layer {
+  filter: blur(3px) saturate(1.04) contrast(1.05) brightness(0.74);
 }
 
-/* ขยับช้ามากและระยะสั้นมาก ให้รู้สึกว่าภาพ "มีชีวิต" โดยไม่ดึงสายตา */
-@keyframes login-bg-float-a {
-  0%, 100% { transform: scale(1.10) translate3d(0, 0, 0); }
-  50%      { transform: scale(1.13) translate3d(-1.1%, -0.8%, 0); }
-}
-@keyframes login-bg-float-b {
-  0%, 100% { transform: scale(1.14) translate3d(0, 0, 0); }
-  50%      { transform: scale(1.17) translate3d(1.2%, 0.6%, 0); }
-}
-@keyframes login-bg-float-c {
-  0%, 100% { transform: scale(1.18) translate3d(0, 0, 0); }
-  50%      { transform: scale(1.21) translate3d(0.8%, -1%, 0); }
-}
-
-/* Blue grade: recolours whatever photo is showing towards the app's blue so
-   the login screen always matches the theme, no matter what the source photo's
-   own palette is. `mix-blend-mode: color` keeps the photo's light and detail
-   and swaps only the hue — the reason a warm library still reads as blue here
-   instead of just going flat under a translucent sheet of paint. */
 .login-bg-grade {
   position: absolute;
   inset: 0;
@@ -4527,8 +4493,10 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
      รูปทั้งสามใบจึงถูกดึงเข้าโทนเดียวกันโดยยังเห็นเนื้อภาพอยู่ ต่างจากการ
      เอาแผ่นสีทึบมาทาบซึ่งจะทำให้ภาพแบนไปทั้งใบ
      ค่านี้คือตัวหลักที่ทำให้ "สามรูปกลายเป็นฉากเดียว" — สูงกว่านี้จะเริ่ม
-     กลบสีไม้จนห้องสมุดกลายเป็นสีเขียวอมเทาทั้งห้อง */
-  opacity: 0.28;
+     กลบสีไม้จนห้องสมุดกลายเป็นสีเขียวอมเทาทั้งห้อง
+     ภาพจริงชุดนี้ถ่ายห้องเดียวกันด้วยแสงเดียวกัน จึงกลมกลืนกันเองอยู่แล้ว
+     ค่านี้เหลือไว้แค่พอให้ทั้งฉากมีโทนร่วม ไม่ได้ทำหน้าที่หลักเหมือนเมื่อก่อน */
+  opacity: 0.14;
 }
 
 /* หรี่แสงเฉพาะบริเวณหลังการ์ด — ตรงกลางจอเข้มและเรียบที่สุด รายละเอียดของ
@@ -4537,9 +4505,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   position: absolute;
   inset: 0;
   background: radial-gradient(58% 62% at 50% 50%,
-    rgba(5, 12, 24, 0.52) 0%,
-    rgba(5, 12, 24, 0.32) 45%,
-    rgba(5, 12, 24, 0.08) 75%,
+    rgba(5, 12, 24, 0.40) 0%,
+    rgba(5, 12, 24, 0.22) 45%,
+    rgba(5, 12, 24, 0.05) 75%,
     rgba(5, 12, 24, 0) 100%);
 }
 
@@ -4553,8 +4521,8 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
     /* แสงนวลจากด้านบน ให้ฉากมีทิศทางของแสงเดียวกันทั้งจอ */
     radial-gradient(110% 80% at 50% 0%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 58%),
     /* ขอบจอเข้มลง สายตาจึงวิ่งเข้าหากลางจอเอง */
-    radial-gradient(130% 120% at 50% 45%, rgba(6, 12, 24, 0) 0%, rgba(6, 12, 24, 0.16) 62%, rgba(4, 9, 18, 0.46) 100%),
-    linear-gradient(180deg, rgba(6, 12, 24, 0.14) 0%, rgba(4, 9, 18, 0.30) 100%);
+    radial-gradient(130% 120% at 50% 45%, rgba(6, 12, 24, 0) 0%, rgba(6, 12, 24, 0.10) 62%, rgba(4, 9, 18, 0.38) 100%),
+    linear-gradient(180deg, rgba(6, 12, 24, 0.06) 0%, rgba(4, 9, 18, 0.20) 100%);
 }
 
 /* --- glass card -------------------------------------------------------- */
@@ -4630,8 +4598,8 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 /* หัวการ์ดเรียงเป็นแนวตั้งกึ่งกลาง: ตราวิทยาลัย -> หัวเรื่อง -> ชื่อห้องสมุด */
 .login-crest {
   display: block;
-  width: 104px;
-  height: 104px;
+  width: 86px;
+  height: 86px;
   margin: 0 auto 14px;
   border-radius: 9999px;
   /* ตราเป็นเหรียญพื้นขาว วางบนการ์ดกระจกสีเข้ม เติมวงแสงจางๆ รอบนอกให้ขอบ
@@ -4817,12 +4785,16 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 @media (max-width: 480px) {
   /* จอแคบครอบภาพเป็นแถบแคบแล้วขยายขึ้นมาก ภาพจึงเบลอด้วยตัวมันเองอยู่แล้ว
      ใช้ค่าเบลอเท่าจอใหญ่จะเหลือแต่ก้อนสีจนดูเหมือนภาพเสีย */
-  .login-bg-layer.layer-1 { filter: blur(3px) saturate(0.94) contrast(0.96) brightness(1.02); }
-  .login-bg-layer.layer-2 { filter: blur(8px) saturate(0.88) contrast(0.93) brightness(0.98); }
-  .login-bg-layer.layer-3 { filter: blur(14px) saturate(0.82) contrast(0.9) brightness(0.94); }
+  /* ภาพเป็นแนวนอน 16:9 พอครอบลงจอมือถือที่สูงกว่ากว้าง background-size: cover
+     จะขยายภาพจนเต็มความสูงแล้วตัดด้านข้างทิ้ง — การเลื่อนแนวตั้งจึงไม่มีผลเลย
+     เพราะไม่มีส่วนเกินในแนวตั้งให้เลื่อน ต้องเลื่อนแนวนอนแทน
+     ค่า 26% ดึงกรอบไปทางซ้ายของภาพ ซึ่งเป็นฝั่งที่มีชั้นหนังสือ แทนที่จะได้
+     กลางห้องที่เป็นเพดานกับพื้นเป็นส่วนใหญ่ */
+  .login-bg-layer { background-position: 26% 50%; }
+  .login-bg-layer { filter: blur(2px) saturate(1.04) contrast(1.05) brightness(0.74); }
   .login-glass { padding: 26px 20px; border-radius: 18px; }
   .login-body { padding: 16px; }
-  .login-crest { width: 84px; height: 84px; margin-bottom: 11px; }
+  .login-crest { width: 70px; height: 70px; margin-bottom: 10px; }
   .login-identity-org { margin-bottom: 18px; }
   .login-field label { font-size: 10.5px; margin-bottom: 5px; }
   .login-input-wrap input { height: 46px; font-size: 14px; }
@@ -4842,7 +4814,7 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 @media (max-height: 620px) and (min-width: 481px) {
   .login-glass { padding: 24px 28px; }
   /* จอเตี้ยแนวนอน: ตราเล็กลงเพื่อให้ปุ่มเข้าสู่ระบบยังอยู่ในจอโดยไม่ต้องเลื่อน */
-  .login-crest { width: 64px; height: 64px; margin-bottom: 6px; }
+  .login-crest { width: 54px; height: 54px; margin-bottom: 6px; }
   .login-title { margin-bottom: 4px; }
   .login-identity-org { margin-bottom: 14px; }
   .login-form { gap: 12px; }
@@ -4854,7 +4826,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
    แต่หยุดนิ่ง ไม่มีอะไรไหลหรือเต้น */
 @media (prefers-reduced-motion: reduce) {
   .login-bg-base { animation: none; }
-  .login-bg-layer { animation: none !important; opacity: 1; }
+  /* ปิดการเคลื่อนไหว: ค้างไว้ที่ใบแรกใบเดียว ไม่สลับ ไม่ซูม */
+  .login-bg-layer { animation: none !important; opacity: 0; transform: none; }
+  .login-bg-layer.layer-1 { opacity: 1; }
   .login-glass::before { animation: none; }
 }
 
