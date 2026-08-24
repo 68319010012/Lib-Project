@@ -890,20 +890,61 @@ function handle_report_dashboard(): void
   }
 
   /* สั่งพิมพ์จากเบราว์เซอร์: ให้จบในกระดาษแนวนอนหน้าเดียวเหมือนไฟล์ PDF */
+  /* ---- สั่งพิมพ์จากเบราว์เซอร์: บีบให้จบใน A4 แนวนอนหน้าเดียว ----
+     คนละเส้นทางกับไฟล์ PDF ที่กดดาวน์โหลด (นั่นคือ mPDF ซึ่งมีสไตล์ของตัวเอง
+     ใน layout.php และจบหน้าเดียวอยู่แล้ว) การสั่งพิมพ์ใช้เลย์เอาต์หน้าจอ
+     ซึ่งออกแบบมาให้อ่านบนจอ ไม่ได้ออกแบบมาให้สูงไม่เกิน 210 มม.
+
+     วัดจริงที่พื้นที่พิมพ์ 1062x733px (A4 แนวนอน ขอบ 8มม. ที่ 96dpi):
+     เอกสารสูง 1011px เกินไป 278px และตัวที่กินที่สุดคือคำอธิบายกราฟวงกลม
+     แผนกวิชา 10 บรรทัด บรรทัดละ 32px = 320px ไม่ใช่ตัวกราฟ
+
+     ลดที่ขนาดจริงของแต่ละชิ้น ไม่ใช่ย่อทั้งหน้าด้วย transform: scale()
+     เพราะการย่อทั้งหน้าทำให้ตัวหนังสือเล็กลงพร้อมกันหมดจนอ่านไม่ออก */
   @media print {
     .dash-export { max-width: none; }
-    .dx-kpi-row, .dx-row { gap: 7px; }
-    .dx-row { margin-top: 7px; }
-    .dx-title { font-size: 22px; }
-    .dx-kpi-value { font-size: 21px; }
-    .dx-panel-title { font-size: 15px; }
+    .dx-kpi-row, .dx-row { gap: 6px; }
+    .dx-row { margin-top: 6px; }
     .dx-kpi, .dx-panel { box-shadow: none; }
-    .dx-panel-body { padding: 8px 10px 10px; }
-    .dx-kpi-icon { padding: 8px 0 8px 8px; }
-    .dx-kpi-icon img { width: 30px; height: 30px; }
-    .dx-kpi-text { padding: 8px 10px 8px 7px; }
-    .dx-peak-range { font-size: 15px; }
-    .dx-peak-count { font-size: 21px; }
+
+    /* หัวเรื่อง */
+    .report-head { padding: 0 0 4px; }
+    .dx-head { margin: 0 0 7px; }
+    .dx-org { font-size: 9px; }
+    .dx-title { font-size: 19px; line-height: 1.15; }
+    .dx-sub { font-size: 10px; }
+
+    /* การ์ดตัวเลข */
+    .dx-kpi-label { font-size: 10px; }
+    .dx-kpi-value { font-size: 18px; }
+    .dx-kpi-unit { font-size: 10px; }
+    .dx-delta { font-size: 9px; }
+    .dx-kpi-icon { padding: 6px 0 6px 7px; }
+    .dx-kpi-icon img { width: 26px; height: 26px; }
+    .dx-kpi-text { padding: 6px 8px 6px 6px; }
+
+    /* แผงและกราฟ */
+    .dx-panel-body { padding: 6px 9px 8px; }
+    .dx-panel-title { font-size: 13px; margin-bottom: 4px; }
+    .dxd-chart { width: 118px; height: 118px; }
+    .dxd-center-value { font-size: 20px; }
+    .dxd-center-unit, .dxd-center-top { font-size: 8px; }
+    /* บรรทัดคำอธิบาย: จาก 32px เหลือราว 15px x 10 บรรทัด ประหยัดไปราว 170px
+       ซึ่งเป็นก้อนใหญ่ที่สุดของทั้งหน้า */
+    .dxd-legend li { padding: 0; line-height: 1.35; gap: 6px; }
+    .dxd-label, .dxd-pct, .dxd-count { font-size: 10px; }
+    .dxd-dot { width: 8px; height: 8px; }
+
+    /* กราฟรายชั่วโมง */
+    .dxb-bars { height: 96px; }
+    .dxb-axis { font-size: 8px; }
+    .dx-peak-icon { width: 34px; height: 34px; }
+    .dx-peak-range { font-size: 13px; }
+    .dx-peak-note { font-size: 9px; }
+    .dx-peak-count { font-size: 18px; }
+    .dx-peak-unit { font-size: 9px; }
+
+    .report-foot { padding: 4px 0 0; font-size: 8px; }
   }
 
   .delta { font-weight: 700; white-space: nowrap; }
@@ -1167,7 +1208,7 @@ function handle_report_dashboard(): void
 <?php endif; ?>
 
 <?php if ($agg['total_events'] === 0): ?>
-<div class="empty" data-print-section="สถานะไม่มีข้อมูล">
+<div class="empty">
   ยังไม่มีข้อมูลการเช็คชื่อในช่วงเวลานี้
   <br>
   <a class="empty-cta" href="/admin/reports/print/dashboard"><span class="material-symbols-outlined" style="font-size:16px;">event_repeat</span> เปลี่ยนช่วงเวลา</a>
@@ -1182,7 +1223,7 @@ function handle_report_dashboard(): void
 // แถบสัดส่วนเพศ และตารางอันดับแผนก) ส่วนไฟล์ PDF มีอีกชุดหนึ่ง ผลคือแก้ฝั่งเดียว
 // แล้วอีกฝั่งยังเป็นของเก่า
 ?>
-<div class="dash-export" data-print-section="แดชบอร์ด">
+<div class="dash-export">
 <?= render_dashboard_body($dashboardContext) ?>
 </div>
 
@@ -1195,24 +1236,6 @@ function handle_report_dashboard(): void
 <script src="/assets/js/vendor/html2canvas.min.js"></script>
 <script>
 (function () {
-  // This report's settings drawer doubles as "customize dashboard widgets"
-  // (its checkboxes — from layout.php's shared buildPrintSectionToggles(),
-  // unmodified — already choose which widgets appear in print output) —
-  // relabel just here via JS rather than editing layout.php's shared button/
-  // heading text, which every other (non-widget) report also uses.
-  var settingsBtn = document.querySelector('.settings-toggle-btn');
-  if (settingsBtn) {
-    for (var i = settingsBtn.childNodes.length - 1; i >= 0; i--) {
-      var node = settingsBtn.childNodes[i];
-      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-        node.textContent = ' ปรับแต่งวิดเจ็ต / ตั้งค่าการพิมพ์';
-        break;
-      }
-    }
-  }
-  var settingsHeading = document.querySelector('.settings-panel h4');
-  if (settingsHeading) settingsHeading.textContent = 'ปรับแต่งวิดเจ็ตแดชบอร์ด';
-
   // Separate "save as image" from "print" — the shared toolbar only ever had
   // one button that opens the browser print dialog (useful for PDF, but not
   // what someone reaching for "save image" expects). Injected here rather
@@ -1235,8 +1258,7 @@ function handle_report_dashboard(): void
           return el.classList.contains('toolbar')
             || el.classList.contains('filter-bar')
             || el.classList.contains('quick-filter-chips')
-            || el.classList.contains('filter-note')
-            || el.id === 'print-settings-panel';
+            || el.classList.contains('filter-note');
         },
       }).then(function (canvas) {
         var link = document.createElement('a');

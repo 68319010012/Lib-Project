@@ -180,14 +180,14 @@ function handle_report_monthly(): void
 <?php endif; ?>
 
 <?php if ($agg['total_events'] === 0): ?>
-<div class="empty" data-print-section="สถานะไม่มีข้อมูล">
+<div class="empty">
   ยังไม่มีข้อมูลการเช็คชื่อในเดือนที่เลือก
   <br>
   <a class="empty-cta" href="/admin/reports/print/monthly"><span class="material-symbols-outlined" style="font-size:16px;">event_repeat</span> เปลี่ยนช่วงเวลา</a>
 </div>
 <?php endif; ?>
 
-<div class="compare-grid" data-print-section="เปรียบเทียบเดือนก่อนหน้า">
+<div class="compare-grid">
   <div class="compare-card">
     <div class="label">จำนวนรายการทั้งหมด — <?= htmlspecialchars($month) ?></div>
     <div class="value"><?= $agg['total_events'] ?></div>
@@ -212,12 +212,12 @@ function handle_report_monthly(): void
 </div>
 
 <?php if ($summarySentence): ?>
-<div class="story-box" data-print-section="สรุปสำหรับผู้บริหาร">
+<div class="story-box">
   <p><?= $summarySentence ?></p>
 </div>
 <?php endif; ?>
 
-<div class="panel-grid" data-print-section="กราฟรายสัปดาห์และแผนกวิชา" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">
+<div class="panel-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">
   <div class="panel" style="border:1px solid var(--outline-variant); border-radius:10px; padding:16px 18px; background:var(--surface-white);">
     <h3 style="font-size:14px; margin:0 0 12px; color:#333;">แนวโน้มรายสัปดาห์</h3>
     <?php if ($weekly): ?>
@@ -248,7 +248,7 @@ function handle_report_monthly(): void
   </div>
 </div>
 
-<div class="panel" style="border:1px solid var(--outline-variant); border-radius:10px; padding:16px 18px; background:var(--surface-white); margin:16px 0;" data-print-section="ตารางสรุปแผนกวิชา">
+<div class="panel" style="border:1px solid var(--outline-variant); border-radius:10px; padding:16px 18px; background:var(--surface-white); margin:16px 0;">
   <h3 style="font-size:14px; margin:0 0 12px; color:#333;">ตารางสรุปตามแผนกวิชา</h3>
   <?php if ($deptBreakdown): ?>
   <div class="table-wrap"><div class="table-scroll">
@@ -271,7 +271,7 @@ function handle_report_monthly(): void
 
 <div class="meta">จำนวนนักศึกษาที่มีการเช็คชื่อ: <?= count($rows) ?> คน</div>
 <?php if ($rows): ?>
-<div class="table-wrap" data-print-section="ตารางรายบุคคลประจำเดือน"><div class="table-scroll">
+<div class="table-wrap"><div class="table-scroll">
 <table>
   <thead>
     <tr>

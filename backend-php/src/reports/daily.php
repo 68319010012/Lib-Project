@@ -227,14 +227,14 @@ function handle_report_daily(): void
 </form>
 
 <?php if ($totalEvents === 0): ?>
-<div class="empty" data-print-section="สถานะไม่มีข้อมูล">
+<div class="empty">
   ยังไม่มีข้อมูลการเช็คชื่อในวันที่เลือก
   <br>
   <a class="empty-cta" href="/admin/reports/print/daily"><span class="material-symbols-outlined" style="font-size:16px;">event_repeat</span> เปลี่ยนช่วงเวลา</a>
 </div>
 <?php else: ?>
 
-<div class="summary-strip" data-print-section="สรุปย่อประจำวัน">
+<div class="summary-strip">
   <div class="item"><div class="label">จำนวนรายการทั้งหมด</div><div class="value"><?= $totalEvents ?></div></div>
   <div class="item"><div class="label">นักศึกษาไม่ซ้ำคน</div><div class="value"><?= count($byStudent) ?></div></div>
   <div class="item"><div class="label">เช็คอินครั้งแรก</div><div class="value"><?= $firstCheckin ? htmlspecialchars(substr($firstCheckin, 0, 5)) : '-' ?></div></div>
@@ -244,7 +244,7 @@ function handle_report_daily(): void
 
 <div class="meta">แสดง <?= count($rows) ?> คน (จากทั้งหมด <?= count($byStudent) ?> คนที่เช็คชื่อในวันนี้ตามตัวกรองที่เลือก)</div>
 <?php if ($rows): ?>
-<div class="table-wrap" data-print-section="ตารางรายชื่อประจำวัน"><div class="table-scroll">
+<div class="table-wrap"><div class="table-scroll">
 <table id="daily-table">
   <thead>
     <tr>

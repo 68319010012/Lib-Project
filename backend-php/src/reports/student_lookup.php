@@ -164,7 +164,7 @@ function handle_report_student_lookup(): void
 <div class="empty">ไม่พบนักศึกษารหัส <?= htmlspecialchars($selectedStudentId) ?></div>
 
 <?php elseif ($student): ?>
-<div class="student-header" data-print-section="ข้อมูลนักศึกษา">
+<div class="student-header">
   <div>
     <h2><?= htmlspecialchars($student['prefix'] . $student['first_name'] . ' ' . $student['last_name']) ?></h2>
     <div class="sub">
@@ -176,7 +176,7 @@ function handle_report_student_lookup(): void
   </div>
 </div>
 
-<div class="kpi-grid" data-print-section="สถิติการใช้งาน">
+<div class="kpi-grid">
   <div class="kpi-card">
     <div class="label">จำนวนครั้งที่เข้าใช้</div>
     <div class="value"><?= $stats['total_visits'] ?></div>
@@ -191,7 +191,7 @@ function handle_report_student_lookup(): void
   </div>
 </div>
 
-<div class="panel" style="border:1px solid var(--outline-variant); border-radius:10px; padding:16px 18px; background:var(--surface-white);" data-print-section="ประวัติการเข้าใช้">
+<div class="panel" style="border:1px solid var(--outline-variant); border-radius:10px; padding:16px 18px; background:var(--surface-white);">
   <h3 style="font-size:14px; margin:0 0 12px; color:#333;">ประวัติการเข้าใช้ (ล่าสุด <?= count($history) ?> รายการ)</h3>
   <?php if ($history): ?>
   <div class="table-wrap"><div class="table-scroll">

@@ -136,14 +136,14 @@ function handle_report_semester(): void
 <p class="filter-note">* ภาคเรียน/ปีการศึกษาอ้างอิงจากข้อมูลการลงทะเบียนปัจจุบันของนักศึกษาแต่ละคน ไม่ใช่ช่วงวันที่ปฏิทินของภาคเรียนนั้น ๆ (ระบบยังไม่มีการตั้งค่าวันเปิด-ปิดภาคเรียน)</p>
 
 <?php if ($overall['total_events'] === 0): ?>
-<div class="empty" data-print-section="สถานะไม่มีข้อมูล">
+<div class="empty">
   ยังไม่มีข้อมูลการเช็คชื่อตามเงื่อนไขที่เลือก
   <br>
   <a class="empty-cta" href="/admin/reports/print/semester"><span class="material-symbols-outlined" style="font-size:16px;">event_repeat</span> เปลี่ยนตัวกรอง</a>
 </div>
 <?php else: ?>
 
-<div class="kpi-grid" data-print-section="KPI สรุป">
+<div class="kpi-grid">
   <div class="kpi-card">
     <div class="label">จำนวนการเข้าใช้ทั้งหมด</div>
     <div class="value"><?= $overall['total_events'] ?></div>
@@ -172,12 +172,12 @@ function handle_report_semester(): void
 </div>
 
 <?php if ($summarySentence): ?>
-<div class="story-box" data-print-section="สรุปสำหรับผู้บริหาร">
+<div class="story-box">
   <p><?= $summarySentence ?></p>
 </div>
 <?php endif; ?>
 
-<div class="panel-grid" data-print-section="กราฟแนวโน้มรายเดือนและแผนกวิชา" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">
+<div class="panel-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">
   <div class="panel">
     <h3>แนวโน้มรายเดือน</h3>
     <?php if ($monthly): ?>
@@ -208,7 +208,7 @@ function handle_report_semester(): void
   </div>
 </div>
 
-<div class="panel" data-print-section="ตารางสรุปแผนกวิชา">
+<div class="panel">
   <h3>ตารางสรุปตามแผนกวิชา</h3>
   <div class="table-wrap"><div class="table-scroll">
   <table>

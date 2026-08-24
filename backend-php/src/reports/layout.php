@@ -353,7 +353,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     h1 { font-size: 18px; color: #1a2947; margin: 0 0 4px; }
     h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 12px; }
     .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
-    .filter-bar, .compare-filter, .month-filter, .toolbar, .settings-panel, .empty .empty-cta,
+    .filter-bar, .compare-filter, .month-filter, .toolbar, .empty .empty-cta,
     .quick-filter-chips, .filter-note, .rank-bars .links { display: none; }
     /* mPDF doesn't reliably honor display:none on an inline <svg> itself
        (only on the block-level divs wrapping one, like .meter-ring-wrap
@@ -829,39 +829,10 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px;
   }
 
-  .settings-toggle-btn { background: var(--surface); color: var(--primary); border: 1px solid var(--outline-variant); }
-  .settings-panel {
-    position: fixed; top: 0; right: 0; height: 100vh; width: min(300px, 90vw);
-    background: var(--surface-white); border-left: 1px solid var(--outline-variant);
-    box-shadow: -4px 0 20px rgba(0,0,0,.1); z-index: 70; overflow-y: auto;
-  }
-  .settings-panel[hidden] { display: none; }
-  .settings-panel-inner { padding: 20px; }
-  .settings-panel h4 { margin: 0 0 16px; font-size: 15px; color: var(--primary); }
-  .settings-group { margin-bottom: 20px; }
-  .settings-label {
-    display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
-    color: var(--on-surface-variant); margin-bottom: 8px; font-weight: 700;
-  }
-  .settings-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .settings-panel .chip {
-    font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
-    border: 1px solid var(--outline-variant); color: var(--on-surface-variant); text-decoration: none;
-  }
-  .settings-panel .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .settings-panel select {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--outline-variant);
-    border-radius: 8px; font-size: 13px; background: var(--surface);
-  }
-  .settings-check { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 0; }
-  .settings-panel-close {
-    position: absolute; top: 16px; right: 16px; border: none; background: none;
-    cursor: pointer; color: var(--on-surface-variant);
-  }
-
   @media print {
     .toolbar { display: none; }
-    .settings-panel { display: none; }
+    /* แถบเลขหน้าเป็นตัวควบคุมของหน้าจอ ไม่ใช่เนื้อหาของเอกสาร
+       (assets/js/pagination.js ติดคลาสนี้ให้เอง) */
     .print-hidden { display: none !important; }
     .filter-bar, .empty .empty-cta { display: none; }
     body { margin: 0; background: #fff; }
@@ -933,27 +904,8 @@ function render_report_layout(string $title, string $subtitle, string $content, 
         <?php if (isset($exportUrls['excel'])): ?>
         <a href="<?= htmlspecialchars($exportUrls['excel']) ?>"><span class="material-symbols-outlined" style="font-size:16px;">download</span> ดาวน์โหลด Excel</a>
         <?php endif; ?>
-        <button type="button" onclick="document.getElementById('print-settings-panel').hidden = false; this.closest('details').open = false;"><span class="material-symbols-outlined" style="font-size:16px;">tune</span> ตั้งค่าการพิมพ์</button>
       </div>
     </details>
-  </div>
-</div>
-
-<div id="print-settings-panel" class="settings-panel" hidden>
-  <div class="settings-panel-inner">
-    <button class="settings-panel-close" type="button" onclick="document.getElementById('print-settings-panel').hidden = true;">
-      <span class="material-symbols-outlined">close</span>
-    </button>
-    <h4>ตั้งค่าก่อนพิมพ์</h4>
-
-    <!-- เดิมตรงนี้มีตัวเลือก "ขนาดกระดาษ" กับ "ธีมสี" ทั้งสองอย่างถูกตัดออก:
-         กระดาษล็อกเป็น A4 แนวนอนอย่างเดียวแล้ว (เหตุผลอยู่ที่ render_report_pdf())
-         ส่วนธีมสีเปลี่ยนได้เฉพาะบนหน้าจอ ไฟล์ PDF ที่ดาวน์โหลดยังเป็นสีเดิมเสมอ
-         เพราะ mPDF ไม่ได้รันสคริปต์ที่เปลี่ยนสี — ตัวเลือกที่ไม่มีผลกับสิ่งที่
-         ผู้ใช้กำลังจะเอาไปส่ง คือตัวเลือกที่หลอกให้เข้าใจผิด -->
-    <div class="settings-group" id="print-section-toggles">
-      <span class="settings-label">สิ่งที่ต้องการพิมพ์</span>
-    </div>
   </div>
 </div>
 
@@ -970,32 +922,6 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 </footer>
 
 <script>
-  // Every report tags its optional print sections with
-  // data-print-section="<label>" — this builds the checklist from whatever
-  // sections the current report actually has, instead of a hardcoded list
-  // that would show unchecked boxes for sections a given report lacks.
-  (function buildPrintSectionToggles() {
-    var host = document.getElementById('print-section-toggles');
-    var sections = document.querySelectorAll('[data-print-section]');
-    if (!sections.length) {
-      host.style.display = 'none';
-      return;
-    }
-    sections.forEach(function (el, i) {
-      var label = el.getAttribute('data-print-section');
-      var wrap = document.createElement('label');
-      wrap.className = 'settings-check';
-      var input = document.createElement('input');
-      input.type = 'checkbox';
-      input.checked = true;
-      input.addEventListener('change', function () {
-        el.classList.toggle('print-hidden', !input.checked);
-      });
-      wrap.appendChild(input);
-      wrap.appendChild(document.createTextNode(' ' + label));
-      host.appendChild(wrap);
-    });
-  })();
 
   // Date/month/number/select filters re-submit as soon as they change — the
   // submit button is gone (see the CSS above), so this is the only way

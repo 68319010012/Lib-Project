@@ -207,14 +207,14 @@ function handle_report_department(): void
 <?php endif; ?>
 
 <?php if ($overall['total_events'] === 0): ?>
-<div class="empty" data-print-section="สถานะไม่มีข้อมูล">
+<div class="empty">
   ไม่มีข้อมูลการเช็คชื่อตามเงื่อนไขที่เลือก
   <br>
   <a class="empty-cta" href="/admin/reports/print/department"><span class="material-symbols-outlined" style="font-size:16px;">event_repeat</span> เปลี่ยนช่วงเวลา</a>
 </div>
 <?php else: ?>
 
-<div class="kpi-grid" data-print-section="KPI สรุป">
+<div class="kpi-grid">
   <div class="kpi-card">
     <div class="label">จำนวนการเข้าใช้ทั้งหมด</div>
     <div class="value"><?= $overall['total_events'] ?></div>
@@ -239,7 +239,7 @@ function handle_report_department(): void
   <?php endif; ?>
 </div>
 
-<div class="panel" data-print-section="กราฟ Ranking แผนกวิชา">
+<div class="panel">
   <h3>Ranking แผนกวิชา</h3>
   <div class="rank-bars">
     <?php $maxCount = $deptBreakdown[0]['count'] ?: 1; ?>
@@ -257,7 +257,7 @@ function handle_report_department(): void
   </div>
 </div>
 
-<div class="panel" data-print-section="เปรียบเทียบเดือนนี้กับเดือนก่อน">
+<div class="panel">
   <h3>เปรียบเทียบแต่ละแผนกวิชา — เดือนนี้เทียบกับเดือนก่อนหน้า</h3>
   <?php if ($momRows): ?>
   <div class="mom-legend">
@@ -277,7 +277,7 @@ function handle_report_department(): void
 </div>
 
 <?php if ($deptTrend !== null): ?>
-<div class="panel" data-print-section="แนวโน้มของแผนกที่เลือก">
+<div class="panel">
   <h3>แนวโน้มการเข้าใช้ของ <?= htmlspecialchars($selectedDept) ?></h3>
   <?php $trendTotal = array_sum(array_column($deptTrend, 'count')); ?>
   <?php if ($trendTotal): ?>
@@ -295,7 +295,7 @@ function handle_report_department(): void
 <?php endif; ?>
 
 <?php if (count($levelBreakdown) > 1): ?>
-<div class="panel" data-print-section="แยกตามระดับชั้น">
+<div class="panel">
   <h3>แยกตามระดับชั้น<?= $selectedDept !== '' ? ' — ' . htmlspecialchars($selectedDept) : '' ?></h3>
   <div class="table-wrap"><div class="table-scroll">
   <table>
@@ -310,7 +310,7 @@ function handle_report_department(): void
 </div>
 <?php endif; ?>
 
-<div class="panel" data-print-section="ตารางสรุปแผนกวิชา">
+<div class="panel">
   <h3>ตารางสรุปตามแผนกวิชา</h3>
   <div class="table-wrap"><div class="table-scroll">
   <table>
