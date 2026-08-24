@@ -101,24 +101,30 @@ require __DIR__ . '/partials/guard.php';
         <button type="button" data-modal-tab="hours" class="flex-1 h-10 rounded-md text-xs font-bold transition-all text-on-surface-variant dark:text-dm-text-secondary">เลือกจำนวนชั่วโมง</button>
       </div>
 
-      <div id="modal-panel-time" class="mb-4">
-        <p class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</p>
-        <p id="modal-time-closed" class="hidden text-warning text-sm">ห้องสมุดปิดแล้ว</p>
-        <div id="modal-time-open">
-          <div class="time-wheel" id="modal-time-wheel">
-            <div class="time-wheel-band" aria-hidden="true"></div>
-            <div class="time-wheel-col" id="modal-wheel-hour" tabindex="0" role="spinbutton" aria-label="ชั่วโมงที่จะออก"></div>
-            <span class="time-wheel-sep" aria-hidden="true">:</span>
-            <div class="time-wheel-col" id="modal-wheel-minute" tabindex="0" role="spinbutton" aria-label="นาทีที่จะออก"></div>
+      <!-- Both panels stay in the DOM and animate their own height, so switching
+           tabs glides instead of snapping the dialog taller/shorter. -->
+      <div id="modal-panel-time" class="modal-panel is-active">
+        <div class="modal-panel-inner">
+          <p class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</p>
+          <p id="modal-time-closed" class="hidden text-warning text-sm">ห้องสมุดปิดแล้ว</p>
+          <div id="modal-time-open">
+            <div class="time-wheel" id="modal-time-wheel">
+              <div class="time-wheel-band" aria-hidden="true"></div>
+              <div class="time-wheel-col" id="modal-wheel-hour" tabindex="0" role="spinbutton" aria-label="ชั่วโมงที่จะออก"></div>
+              <span class="time-wheel-sep" aria-hidden="true">:</span>
+              <div class="time-wheel-col" id="modal-wheel-minute" tabindex="0" role="spinbutton" aria-label="นาทีที่จะออก"></div>
+            </div>
+            <p id="modal-time-hint" class="text-xs text-text-secondary dark:text-dm-text-secondary mt-2"></p>
           </div>
-          <p id="modal-time-hint" class="text-xs text-text-secondary dark:text-dm-text-secondary mt-2"></p>
         </div>
       </div>
 
-      <div id="modal-panel-hours" class="hidden mb-4">
-        <p id="modal-hours-label" class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">จำนวนชั่วโมง</p>
-        <div id="modal-hour-buttons" class="grid grid-cols-3 gap-2" role="group" aria-labelledby="modal-hours-label"></div>
-        <p id="modal-hours-warning" class="hidden text-warning text-xs mt-2">เวลาที่เลือกเกินเวลาปิดห้องสมุด ระบบจะปรับให้ออกตอนปิดแทน</p>
+      <div id="modal-panel-hours" class="modal-panel">
+        <div class="modal-panel-inner">
+          <p id="modal-hours-label" class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">จำนวนชั่วโมง</p>
+          <div id="modal-hour-buttons" class="grid grid-cols-3 gap-2" role="group" aria-labelledby="modal-hours-label"></div>
+          <p id="modal-hours-warning" class="hidden text-warning text-xs mt-2">เวลาที่เลือกเกินเวลาปิดห้องสมุด ระบบจะปรับให้ออกตอนปิดแทน</p>
+        </div>
       </div>
 
       <p id="modal-error" role="alert" aria-live="assertive" class="hidden text-error text-sm mb-3"></p>

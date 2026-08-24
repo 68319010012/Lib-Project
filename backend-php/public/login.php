@@ -14,20 +14,14 @@
     <div class="login-bg-overlay"></div>
   </div>
 
-  <div class="login-theme-menu">
-    <button
-      type="button"
-      id="theme-toggle-btn"
-      aria-label="สลับธีมสว่าง/มืด"
-      title="สลับธีมสว่าง/มืด"
-      class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
-    >
-      <span class="material-symbols-outlined text-xl tm-current-icon">light_mode</span>
-    </button>
-  </div>
-
   <main class="login-shell">
     <section class="login-glass rise-in">
+      <div class="login-identity">
+        <span class="material-symbols-outlined login-identity-icon" aria-hidden="true">local_library</span>
+        <p class="login-identity-org">ห้องสมุดวิทยาลัยเทคนิคนครนายก</p>
+        <p class="login-identity-sub">ระบบเช็คชื่อเข้า–ออกห้องสมุด</p>
+      </div>
+
       <h1 class="login-title">เข้าสู่ระบบ</h1>
 
       <p id="login-error" role="alert" aria-live="assertive" class="login-error hidden"></p>
@@ -80,8 +74,9 @@
     </section>
   </main>
 
+  <!-- No theme.js: this page has no theme toggle — it is always the light-on-
+       photo treatment, so the light/dark switch has nothing to act on here. -->
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
-  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/login-bg.js?v=<?= ntc_asset_v('assets/js/login-bg.js') ?>"></script>
   <script src="/assets/js/login.js?v=<?= ntc_asset_v('assets/js/login.js') ?>"></script>
 </body>

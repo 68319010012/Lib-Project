@@ -488,8 +488,10 @@ function setModalTab(tab) {
     btn.classList.toggle('text-on-surface-variant', !active);
     btn.classList.toggle('dark:text-dm-text-secondary', !active);
   });
-  document.getElementById('modal-panel-time').classList.toggle('hidden', tab !== 'time');
-  document.getElementById('modal-panel-hours').classList.toggle('hidden', tab !== 'hours');
+  // is-active, not hidden: the panels animate their own height (see
+  // .modal-panel in styles.css) so the dialog eases between the two sizes.
+  document.getElementById('modal-panel-time').classList.toggle('is-active', tab === 'time');
+  document.getElementById('modal-panel-hours').classList.toggle('is-active', tab === 'hours');
   setModalError('');
 }
 
@@ -527,8 +529,15 @@ function renderHourButtonsSelection() {
 }
 
 function openCheckinModal() {
-  document.getElementById('checkin-modal').classList.remove('hidden');
+  const modal = document.getElementById('checkin-modal');
+  modal.classList.remove('hidden');
   selectedHours = null;
+  // Opening is not a "switch" — there is no previous panel to glide from, and
+  // an animating panel has no height yet, which would leave buildTimeWheels()
+  // below setting scrollTop on a zero-height column (wheels land on the wrong
+  // value). Suppress the panel animation for this frame only; tab switches
+  // after this still animate.
+  modal.classList.add('no-panel-anim');
   setModalTab('time');
   setModalError('');
   document.getElementById('modal-hours-warning').classList.add('hidden');
@@ -542,6 +551,11 @@ function openCheckinModal() {
   if (bounds.isOpen) buildTimeWheels(bounds);
 
   renderHourButtons();
+
+  // Re-enable panel animation once this frame's layout is settled.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => modal.classList.remove('no-panel-anim'));
+  });
 }
 
 function closeCheckinModal() {
@@ -549,7 +563,7 @@ function closeCheckinModal() {
 }
 
 function confirmModal() {
-  const activeTab = document.getElementById('modal-panel-time').classList.contains('hidden') ? 'hours' : 'time';
+  const activeTab = document.getElementById('modal-panel-time').classList.contains('is-active') ? 'time' : 'hours';
   if (activeTab === 'time') {
     const bounds = timeInputBounds(closingTime);
     if (!bounds.isOpen) {

@@ -12,18 +12,6 @@
     <div class="login-bg-overlay"></div>
   </div>
 
-  <div class="login-theme-menu">
-    <button
-      type="button"
-      id="theme-toggle-btn"
-      aria-label="สลับธีมสว่าง/มืด"
-      title="สลับธีมสว่าง/มืด"
-      class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
-    >
-      <span class="material-symbols-outlined text-xl tm-current-icon">light_mode</span>
-    </button>
-  </div>
-
   <main class="login-shell">
     <section class="login-glass signup-card rise-in">
       <a class="signup-back" href="/login"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> ย้อนกลับ</a>
@@ -122,8 +110,8 @@
     </div>
   </div>
 
+  <!-- No theme.js — same reason as login.php. -->
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
-  <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
   <script src="/assets/js/login-bg.js?v=<?= ntc_asset_v('assets/js/login-bg.js') ?>"></script>
   <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>
   <script src="/assets/js/signup.js?v=<?= ntc_asset_v('assets/js/signup.js') ?>"></script>

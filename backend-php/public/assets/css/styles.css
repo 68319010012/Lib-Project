@@ -3701,6 +3701,69 @@ html.dark .lib-banner { filter: brightness(.88); }
    Item height is mirrored by WHEEL_ITEM_H in assets/js/dashboard.js; the
    two must agree or the snapped row and the read-back value drift apart.
    --------------------------------------------------------------------- */
+/* --- check-in dialog: smooth tab switching -----------------------------
+   The two panels ("เลือกเวลาที่จะออก" / "เลือกจำนวนชั่วโมง") are very
+   different heights, and toggling `hidden` made the dialog jump between the
+   two sizes on every switch. Animating grid-template-rows 0fr -> 1fr is the
+   one way to transition to a content-derived height in plain CSS, so the box
+   glides to its new size while the panels cross-fade. */
+.modal-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  overflow: hidden;
+  /* visibility flips only after the collapse finishes, so a hidden panel
+     can't be tabbed into mid-animation. */
+  visibility: hidden;
+  transition:
+    grid-template-rows .36s cubic-bezier(.4, 0, .2, 1),
+    opacity .26s ease,
+    margin-bottom .36s cubic-bezier(.4, 0, .2, 1),
+    visibility 0s linear .36s;
+  margin-bottom: 0;
+}
+.modal-panel > .modal-panel-inner { min-height: 0; overflow: hidden; }
+.modal-panel.is-active {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  margin-bottom: 1rem;
+  transition:
+    grid-template-rows .36s cubic-bezier(.4, 0, .2, 1),
+    opacity .3s ease .06s,
+    margin-bottom .36s cubic-bezier(.4, 0, .2, 1),
+    visibility 0s linear 0s;
+}
+/* Older engines without animatable grid-template-rows: fall back to a plain
+   show/hide rather than leaving a collapsed panel permanently invisible. */
+@supports not (grid-template-rows: 1fr) {
+  .modal-panel { display: none; }
+  .modal-panel.is-active { display: block; visibility: visible; opacity: 1; margin-bottom: 1rem; }
+}
+
+/* Dialog itself fades and lifts in instead of appearing instantly. */
+#checkin-modal { transition: opacity .24s ease; }
+#checkin-modal > div {
+  transition: transform .3s cubic-bezier(.4, 0, .2, 1), opacity .24s ease;
+}
+#checkin-modal.hidden > div { transform: translateY(10px) scale(.985); opacity: 0; }
+
+/* The segmented tab control: the active pill slides/eases rather than
+   snapping between the two halves. */
+[data-modal-tab] {
+  transition: background-color .28s ease, color .28s ease, box-shadow .28s ease;
+}
+
+/* Set by openCheckinModal() for the opening frame — see the comment there. */
+#checkin-modal.no-panel-anim .modal-panel { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-panel,
+  .modal-panel.is-active,
+  #checkin-modal > div,
+  [data-modal-tab] { transition-duration: .01ms !important; }
+}
+
 .time-wheel {
   position: relative; display: flex; align-items: stretch; justify-content: center;
   gap: 4px; height: 176px; -webkit-user-select: none; user-select: none;
@@ -4453,6 +4516,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 .login-glass {
   width: 100%;
   max-width: 400px;
+  /* Belt and braces against a long unbreakable string widening the card past
+     the viewport on small screens. */
+  min-width: 0;
   padding: 40px 36px;
   border-radius: 22px;
   /* A darker frosted panel (not a near-transparent white one) so the card
@@ -4466,13 +4532,35 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   color: #fff;
 }
 
-/* หัวการ์ด: มีแค่ "เข้าสู่ระบบ" จัดกึ่งกลาง ให้สะอาดตา ไม่มีคำอธิบายรุงรัง */
+/* Says which system this is before anything else — someone landing on the URL
+   should not have to guess whose library they are signing in to. */
+.login-identity { text-align: center; margin-bottom: 18px; }
+.login-identity-icon {
+  font-size: 30px; color: #fff; opacity: .92;
+  display: block; margin: 0 auto 8px;
+}
+/* Thai has no spaces, so "ห้องสมุดวิทยาลัยเทคนิคนครนายก" is one unbreakable
+   word — without overflow-wrap it forces the card wider than a phone screen
+   and the page scrolls sideways. */
+.login-identity-org {
+  margin: 0; font-size: clamp(14px, 3.4vw, 17px); font-weight: 700;
+  line-height: 1.35; letter-spacing: .01em;
+  overflow-wrap: anywhere; word-break: break-word;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.login-identity-sub {
+  margin: 3px 0 0; font-size: clamp(11.5px, 2.8vw, 12.5px);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Card heading. clamp() so it scales with the viewport instead of staying at
+   one desktop size that overwhelms a small phone. */
 .login-title {
-  font-size: 32px;
+  font-size: clamp(22px, 5.2vw, 28px);
   font-weight: 700;
   line-height: 1.15;
   text-align: center;
-  margin: 0 0 26px;
+  margin: 0 0 22px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
 }
 
@@ -4627,9 +4715,35 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 /* The theme toggle floats over the backdrop, above the slides. */
 .login-theme-menu { z-index: 60; }
 
+/* Phones: tighter card, smaller controls. 44px is still at/above the minimum
+   comfortable touch target, so this trims bulk without hurting tappability. */
 @media (max-width: 480px) {
-  .login-glass { padding: 32px 24px; border-radius: 18px; }
-  .login-title { font-size: 26px; }
+  .login-glass { padding: 26px 20px; border-radius: 18px; }
+  .login-body { padding: 16px; }
+  .login-identity { margin-bottom: 14px; }
+  .login-identity-icon { font-size: 26px; margin-bottom: 6px; }
+  .login-field label { font-size: 10.5px; margin-bottom: 5px; }
+  .login-input-wrap input { height: 46px; font-size: 14px; }
+  .login-input-icon { font-size: 18px; left: 12px; }
+  .login-input-wrap input { padding-left: 42px; }
+  .login-submit { height: 46px; font-size: 15px; }
+  .login-row { font-size: 12.5px; }
+  .login-signup { font-size: 13px; }
+
+  /* NOTE: the signup phone overrides live at the end of the signup section
+     below, not here — the signup base rules are declared after this media
+     query, so rules written here would lose to them on equal specificity. */
+}
+
+/* Short-but-wide screens (landscape phones): the card must not need scrolling
+   just to reach the submit button. */
+@media (max-height: 620px) and (min-width: 481px) {
+  .login-glass { padding: 24px 28px; }
+  .login-identity { margin-bottom: 12px; }
+  .login-title { margin-bottom: 16px; }
+  .login-form { gap: 12px; }
+  .login-input-wrap input { height: 46px; }
+  .login-submit { height: 46px; }
 }
 
 /* Honour reduced-motion: hold on the first scene, no zoom, no drift. */
@@ -4722,3 +4836,20 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 .signup-submit:disabled { opacity: .6; cursor: not-allowed; }
 .signup-submit .material-symbols-outlined { font-size: 20px; transition: transform .2s; }
 .signup-submit:hover .material-symbols-outlined { transform: translateX(3px); }
+
+/* Phone sizing for the signup card. Declared here, after the base rules
+   above, so it actually wins — see the note in the shared 480px block. */
+@media (max-width: 480px) {
+  .login-body.is-signup { padding-top: 24px; padding-bottom: 24px; }
+  .login-glass.signup-card { padding: 24px 18px; }
+  .signup-form { gap: 14px; }
+  .signup-row { gap: 12px; }
+  .signup-field label { font-size: 10.5px; margin-bottom: 5px; }
+  .signup-field input,
+  .signup-field select { height: 44px; font-size: 14px; }
+  .signup-field .pw-wrap input { padding-left: 40px; }
+  .signup-field .pw-wrap .pw-icon { font-size: 18px; left: 12px; }
+  .signup-submit { height: 46px; font-size: 15px; }
+  .signup-hint { font-size: 11.5px; }
+  .signup-back { font-size: 12px; padding: 5px 11px 5px 8px; margin-bottom: 12px; }
+}
