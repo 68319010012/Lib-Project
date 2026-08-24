@@ -59,6 +59,15 @@ function handle_report_select(): void
   header .inner { max-width: 1040px; margin: 0 auto; }
   header h1 { font-size: clamp(20px, 5vw, 26px); font-weight: 800; margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
   header p { margin: 0; opacity: .8; font-size: 14px; }
+  header .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #fff; text-decoration: none; font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+    padding: 7px 14px; border-radius: 999px; margin-bottom: 18px;
+    transition: background .15s ease;
+  }
+  header .back-link:hover { background: rgba(255,255,255,.22); }
+  header .back-link .material-symbols-outlined { font-size: 18px; }
 
   main { max-width: 1040px; margin: -32px auto 40px; padding: 0 24px; }
 
@@ -115,18 +124,28 @@ function handle_report_select(): void
   /* min-height reserves space for 2 lines so cards whose description wraps
      (e.g. the dashboard card) don't end up taller than the rest, which
      pushed their date field/button further down than their neighbors'. */
-  .card p.desc { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; min-height: 3em; }
+  /* Reserve 3 lines so the longest descriptions (dashboard, semester) don't
+     stand taller than 2-line ones, which used to shove their month field and
+     button down out of line with the neighbouring cards. */
+  .card p.desc { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; min-height: 4.5em; }
   .card label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--on-surface-variant); margin-bottom: 4px; font-weight: 600; }
-  .card input {
+  /* select styled identically to input: the month dropdowns are <select>s and
+     without this they rendered at the browser's default height with no bottom
+     margin, so they never lined up with the date inputs in the other cards. */
+  .card input,
+  .card select {
     width: 100%;
     font-size: 14px;
+    height: 40px;
     padding: 9px 10px;
     border: 1px solid var(--outline-variant);
     border-radius: 8px;
     background: var(--surface);
     margin-bottom: 14px;
+    color: #0f172a;
   }
-  .card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(30,58,138,.15); }
+  .card input:focus,
+  .card select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(30,58,138,.15); }
   .card button {
     width: 100%;
     font-size: 14px;
@@ -169,6 +188,7 @@ function handle_report_select(): void
 <body>
 <header>
   <div class="inner">
+    <a class="back-link" href="/admin-dashboard"><span class="material-symbols-outlined">arrow_back</span> กลับหน้าหลัก</a>
     <h1><span class="material-symbols-outlined">receipt_long</span> ศูนย์รายงานเช็คชื่อห้องสมุด</h1>
     <p>เลือกรูปแบบรายงานที่ต้องการ กรอกเงื่อนไข แล้วพิมพ์หรือบันทึกเป็น PDF ได้ทันที</p>
   </div>

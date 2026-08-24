@@ -11,8 +11,8 @@ require __DIR__ . '/partials/guard.php';
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
   <?php $active = 'admin-dashboard'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
-  <main class="flex-1 md:ml-64 pt-28 md:pt-16 flex flex-col min-h-screen">
-    <header class="admin-hero-pattern pt-8 pb-32 px-gutter">
+  <main class="admin-main flex-1 md:ml-64 pt-28 md:pt-16 flex flex-col min-h-screen">
+    <header class="admin-hero-pattern pt-8 pb-12 px-gutter">
       <div class="rise-in max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 class="text-white font-headline-xl text-headline-xl mb-2">ภาพรวมการใช้งานห้องสมุด</h1>
@@ -28,14 +28,19 @@ require __DIR__ . '/partials/guard.php';
             </select>
           </div>
           <div class="h-10 w-[1px] bg-white/20"></div>
-          <a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" target="_blank" rel="noopener noreferrer" aria-label="พิมพ์รายงาน (เปิดแท็บใหม่)">
+          <a class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-all active:scale-95" href="/admin/reports/print" aria-label="ศูนย์รายงาน">
             <span class="material-symbols-outlined">print</span>
             <span class="font-label-caps">พิมพ์รายงาน</span>
           </a>
         </div>
       </div>
+    </header>
 
-      <div class="admin-kpi-grid rise-in-group max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10 translate-y-16">
+    <!-- KPI cards live just below the hero and overlap it only slightly, so
+         they read as elevated cards on the white page instead of blending
+         into the dark-blue band. -->
+    <div class="max-w-7xl mx-auto w-full px-gutter -mt-6 relative z-10">
+      <div class="admin-kpi-grid rise-in-group grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
             <span class="material-symbols-outlined">group</span>
@@ -84,9 +89,9 @@ require __DIR__ . '/partials/guard.php';
           <p id="kpi-inside-note" class="kpi-note on-blue hidden">จำนวนผู้ที่เช็กอินแล้วและยังไม่ได้เช็กเอาต์ออก</p>
         </div>
       </div>
-    </header>
+    </div>
 
-    <div class="admin-kpi-clear max-w-7xl mx-auto w-full px-gutter pt-24 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="admin-kpi-clear max-w-7xl mx-auto w-full px-gutter pt-12 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- วางไว้บนสุดของส่วนเนื้อหา เพราะเดิมไม่มีช่องนี้อยู่เลย ข้อความประกาศ
            ถูกเขียนตายไว้ในหน้านักศึกษา เจ้าหน้าที่จึงหาที่แก้ไม่เจอ -->
       <section class="lg:col-span-3 bg-white dark:bg-dm-surface rounded-2xl shadow-sm border border-outline-variant/30 dark:border-dm-border p-8">
@@ -181,7 +186,6 @@ require __DIR__ . '/partials/guard.php';
     <footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
       <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
         <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</span>
-        <p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary opacity-80">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
       </div>
     </footer>
   </main>

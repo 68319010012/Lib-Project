@@ -1,12 +1,10 @@
-// Theme system — port of frontend-react/src/components/ThemeMenu.jsx (3-way
-// auto/light/dark, localStorage key 'nntc-theme-mode'), now used on every
-// page including login/signup. Keep this key and precedence in sync with
-// the anti-flash <head> script in partials/head.php (which still falls back
-// to the legacy 'nntc-theme' key for browsers that stored it before login/
-// signup switched over to this menu).
+// Theme system — a single toggle button that flips light <-> dark on one
+// click (no dropdown). localStorage key 'nntc-theme-mode' stays 'light' or
+// 'dark'; the legacy 'auto' value is still understood on read so older tabs
+// and the anti-flash <head> script in partials/head.php keep working.
 
-// "auto" follows time of day (dark 18:00–06:00), matching the anti-flash
-// script, not just system prefers-color-scheme.
+// Kept for backward compatibility with any stored 'auto' value: auto follows
+// time of day (dark 18:00–06:00), matching the anti-flash script.
 function computeDark(mode) {
   if (mode === 'dark') return true;
   if (mode === 'light') return false;
@@ -21,59 +19,29 @@ function applyMode(mode) {
   localStorage.setItem('nntc-theme-mode', mode);
 }
 
-const THEME_OPTIONS = [
-  { key: 'auto', label: 'อัตโนมัติ (ตามเวลา)', icon: 'routine' },
-  { key: 'light', label: 'สว่าง', icon: 'light_mode' },
-  { key: 'dark', label: 'มืด', icon: 'dark_mode' },
-];
+function initThemeToggle() {
+  const btn = document.getElementById('theme-toggle-btn');
+  if (!btn) return;
 
-function initThemeMenu() {
-  const btn = document.getElementById('theme-menu-btn');
-  const dropdown = document.getElementById('theme-menu-dropdown');
-  const wrapper = document.getElementById('theme-menu');
-  if (!btn || !dropdown || !wrapper) return;
+  const icon = btn.querySelector('.tm-current-icon');
 
-  let mode = localStorage.getItem('nntc-theme-mode') || 'auto';
-  applyMode(mode);
-
-  function render() {
-    const current = THEME_OPTIONS.find((o) => o.key === mode) || THEME_OPTIONS[0];
-    btn.querySelector('.tm-current-icon').textContent = current.icon;
-    dropdown.querySelectorAll('[data-mode]').forEach((el) => {
-      const isActive = el.dataset.mode === mode;
-      el.classList.toggle('bg-primary/10', isActive);
-      el.classList.toggle('text-primary', isActive);
-      el.classList.toggle('dark:text-primary-fixed-dim', isActive);
-      el.classList.toggle('font-bold', isActive);
-      el.querySelector('.tm-check').classList.toggle('hidden', !isActive);
-    });
+  function syncIcon() {
+    const dark = document.documentElement.classList.contains('dark');
+    // Show the current state: sun in light mode, moon in dark mode.
+    if (icon) icon.textContent = dark ? 'dark_mode' : 'light_mode';
+    btn.title = dark ? 'ธีมมืด — คลิกเพื่อสลับเป็นสว่าง' : 'ธีมสว่าง — คลิกเพื่อสลับเป็นมืด';
   }
 
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dropdown.classList.toggle('hidden');
-  });
-  dropdown.querySelectorAll('[data-mode]').forEach((el) => {
-    el.addEventListener('click', () => {
-      mode = el.dataset.mode;
-      applyMode(mode);
-      render();
-      dropdown.classList.add('hidden');
-    });
-  });
-  document.addEventListener('mousedown', (e) => {
-    if (!wrapper.contains(e.target)) dropdown.classList.add('hidden');
-  });
+  // Resolve whatever is stored (light/dark/legacy-auto) into an explicit state.
+  const stored = localStorage.getItem('nntc-theme-mode') || 'auto';
+  applyMode(computeDark(stored) ? 'dark' : 'light');
+  syncIcon();
 
-  // Re-evaluate periodically while in auto mode so a tab left open across
-  // the 06:00/18:00 boundary flips without needing a refresh.
-  setInterval(() => {
-    if (mode === 'auto') applyMode('auto');
-  }, 30 * 60 * 1000);
-
-  render();
+  btn.addEventListener('click', () => {
+    const nextDark = !document.documentElement.classList.contains('dark');
+    applyMode(nextDark ? 'dark' : 'light');
+    syncIcon();
+  });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  initThemeMenu();
-});
+document.addEventListener('DOMContentLoaded', initThemeToggle);

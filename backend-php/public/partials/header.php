@@ -8,41 +8,34 @@ $profileHref = $variant === 'admin' ? '/admin-members' : '/profile';
 ?>
 <header class="bg-primary shadow-md fixed top-0 z-50 w-full">
   <div class="flex justify-between items-center w-full <?= $variant === 'admin' ? 'px-4 sm:px-5' : 'px-gutter' ?> h-16 text-on-primary gap-2">
-    <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
-      <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
-      <span class="text-headline-md font-headline-md font-bold whitespace-nowrap">NTC Library</span>
-    </a>
+    <div class="flex items-center gap-2 min-w-0">
+      <?php if ($variant === 'admin'): ?>
+      <button
+        type="button"
+        id="sidebar-toggle-btn"
+        aria-label="ย่อ/ขยายเมนูด้านซ้าย"
+        title="ย่อ/ขยายเมนูด้านซ้าย"
+        class="hidden md:flex w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center text-on-primary transition-colors flex-shrink-0"
+      >
+        <span class="material-symbols-outlined text-xl">menu_open</span>
+      </button>
+      <?php endif; ?>
+      <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
+        <span class="text-headline-md font-headline-md font-bold whitespace-nowrap">NTC Library</span>
+      </a>
+    </div>
 
     <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-      <div class="relative" id="theme-menu">
-        <button
-          type="button"
-          id="theme-menu-btn"
-          aria-label="ตั้งค่าธีมสี"
-          title="ตั้งค่าธีมสี"
-          aria-haspopup="true"
-          class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
-        >
-          <span class="material-symbols-outlined text-xl tm-current-icon">routine</span>
-        </button>
-        <div id="theme-menu-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl border border-outline-variant dark:border-dm-border overflow-hidden text-text-primary dark:text-inverse-on-surface z-50">
-          <button type="button" data-mode="auto" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
-            <span class="material-symbols-outlined text-lg">routine</span>
-            อัตโนมัติ (ตามเวลา)
-            <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
-          </button>
-          <button type="button" data-mode="light" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
-            <span class="material-symbols-outlined text-lg">light_mode</span>
-            สว่าง
-            <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
-          </button>
-          <button type="button" data-mode="dark" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
-            <span class="material-symbols-outlined text-lg">dark_mode</span>
-            มืด
-            <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
-          </button>
-        </div>
-      </div>
+      <button
+        type="button"
+        id="theme-toggle-btn"
+        aria-label="สลับธีมสว่าง/มืด"
+        title="สลับธีมสว่าง/มืด"
+        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
+      >
+        <span class="material-symbols-outlined text-xl tm-current-icon">light_mode</span>
+      </button>
 
       <div class="relative" id="account-menu">
         <button

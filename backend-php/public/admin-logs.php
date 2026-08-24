@@ -11,7 +11,7 @@ require __DIR__ . '/partials/guard.php';
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
   <?php $active = 'admin-logs'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
-  <main class="md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
+  <main class="admin-main md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
     <section class="admin-hero-pattern pt-12 pb-24 px-gutter relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -19,7 +19,7 @@ require __DIR__ . '/partials/guard.php';
           <p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายการเช็คอินและเช็คเอาต์ทุกครั้งของห้องสมุด กรองตามวันที่และแผนกวิชาได้</p>
         </div>
         <div class="flex gap-4">
-          <a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" target="_blank" rel="noopener noreferrer" aria-label="พิมพ์รายงาน (เปิดแท็บใหม่)">
+          <a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" aria-label="ศูนย์รายงาน">
             <span class="material-symbols-outlined">print</span>
             <span>พิมพ์รายงาน</span>
           </a>
@@ -92,7 +92,6 @@ require __DIR__ . '/partials/guard.php';
     <footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
       <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
         <p class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</p>
-        <p class="text-body-md font-body-md text-on-surface-variant dark:text-dm-text-secondary">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
       </div>
     </footer>
   </main>

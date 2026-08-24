@@ -2965,6 +2965,17 @@ html.dark body {
   mask-image: linear-gradient(to bottom, black, transparent);
 }
 
+/* Collapsible desktop admin sidebar. The toggle button (partials/header.php,
+   admin variant) flips `.sidebar-collapsed` on <html>; the state is persisted
+   and pre-applied before paint in partials/admin-sidebar.php so nothing
+   animates on load. Only affects md+ where the fixed sidebar exists. */
+.admin-sidebar-desktop { transition: transform 0.25s ease; }
+@media (min-width: 768px) {
+  .admin-main { transition: margin-left 0.25s ease; }
+  html.sidebar-collapsed .admin-sidebar-desktop { transform: translateX(-100%); }
+  html.sidebar-collapsed .admin-main { margin-left: 0 !important; }
+}
+
 .admin-hero-pattern {
   background-image: linear-gradient(180deg, rgba(30, 58, 138, 1) 0%, rgba(15, 23, 42, 1) 100%);
   position: relative;
@@ -3757,7 +3768,8 @@ html.dark .lib-banner { filter: brightness(.88); }
    Two-up, icon shrunk and the reserved gap cut to match.
    --------------------------------------------------------------------- */
 @media (max-width: 767px) {
-  .admin-hero-pattern { padding-top: 14px; padding-bottom: 64px; }
+  .admin-hero-pattern { padding-top: 14px; padding-bottom: 28px; }
+  .admin-hero-pattern h1,
   .admin-hero-pattern h2 { font-size: 23px; line-height: 1.25; margin-bottom: 4px; }
   .admin-hero-pattern #ad-subtitle { font-size: 13px; line-height: 1.4; }
 
@@ -3768,8 +3780,7 @@ html.dark .lib-banner { filter: brightness(.88); }
        (grid-cols-1 ของ Tailwind ที่ถูกทับไปใช้ minmax(0,1fr) อยู่แล้ว) */
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-    margin-top: 18px;
-    transform: translateY(32px);
+    margin-top: 0;
   }
   /* Grid children default to min-width:auto, so a label that cannot wrap
      pushes its column wider than the track. Thai has no spaces, so
@@ -3786,8 +3797,9 @@ html.dark .lib-banner { filter: brightness(.88); }
   .admin-kpi-grid .kpi-value { font-size: 22px; line-height: 1.1; }
   .admin-kpi-grid .kpi-skeleton { height: 22px; width: 54px; }
   .admin-kpi-grid > div > p.kpi-note { font-size: 10.5px; line-height: 1.4; margin-bottom: 0; }
-  /* pt-24 existed to clear cards translated 64px up; they now move 32px. */
-  .admin-kpi-clear { padding-top: 52px; }
+  /* KPI cards now sit in their own wrapper above this section, so it only
+     needs a normal gap from them instead of clearance for translated cards. */
+  .admin-kpi-clear { padding-top: 20px; }
 }
 
 /* ---------------------------------------------------------------------
@@ -4342,3 +4354,351 @@ html.dark { --donut-track: #26334a; }
 .donut-legend li.donut-clickable:hover .donut-label { text-decoration: underline; }
 .donut-legend li.donut-clickable:focus-visible { outline: 2px solid var(--primary, #1e3a8a); outline-offset: 1px; }
 html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 253, .12); }
+
+/* ===================================================================== */
+/* Login page — glassmorphism card over an auto-sliding library backdrop  */
+/* ===================================================================== */
+
+.login-body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  /* Let a tall card scroll on short screens instead of being clipped; the
+     backdrop is position:fixed so it stays put while the card scrolls. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* White text sits over photos regardless of the app's light/dark theme. */
+  color: #fff;
+}
+
+/* --- backdrop ---------------------------------------------------------- */
+.login-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+
+/* Premium gradient that gently drifts — visible before photos load, and the
+   floor beneath the photo slides. */
+.login-bg-base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0f2027 0%, #1f3a44 35%, #2c5364 70%, #17262e 100%);
+  background-size: 300% 300%;
+  animation: login-bg-drift 26s ease-in-out infinite;
+}
+@keyframes login-bg-drift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* One slide per photo (or fallback scene). Cross-fade on opacity, slow zoom on
+   transform — both long-duration for an "ultra smooth" feel. */
+.login-bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.0);
+  will-change: opacity, transform;
+  transition: opacity 2.4s ease-in-out, transform 9s ease-out;
+  /* Lift and cool every photo before the blue grade lands on top, so warm
+     wood/amber shots and grey concrete ones all end up bright rather than
+     muddy. */
+  filter: brightness(1.16) contrast(0.94) saturate(0.72);
+}
+.login-bg-slide.is-active {
+  opacity: 1;
+  transform: scale(1.12);
+}
+
+/* Blue grade: recolours whatever photo is showing towards the app's blue so
+   the login screen always matches the theme, no matter what the source photo's
+   own palette is. `mix-blend-mode: color` keeps the photo's light and detail
+   and swaps only the hue — the reason a warm library still reads as blue here
+   instead of just going flat under a translucent sheet of paint. */
+.login-bg-grade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #1e40af 0%, #1e6fd9 45%, #0ea5e9 100%);
+  mix-blend-mode: color;
+  opacity: 0.62;
+}
+
+/* A soft light bloom keeps it feeling airy and premium rather than heavy. */
+.login-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 100% at 50% 8%, rgba(186, 230, 253, 0.20) 0%, rgba(186, 230, 253, 0) 55%),
+    radial-gradient(135% 125% at 50% 45%, rgba(3, 22, 54, 0) 0%, rgba(3, 20, 50, 0.30) 68%, rgba(2, 14, 38, 0.60) 100%),
+    linear-gradient(180deg, rgba(4, 20, 48, 0.16) 0%, rgba(3, 16, 40, 0.30) 100%);
+}
+
+/* --- glass card -------------------------------------------------------- */
+.login-shell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.login-glass {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 36px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+
+/* หัวการ์ด: มีแค่ "เข้าสู่ระบบ" จัดกึ่งกลาง ให้สะอาดตา ไม่มีคำอธิบายรุงรัง */
+.login-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  margin: 0 0 26px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+}
+
+.login-error {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(220, 38, 38, 0.35);
+  border: 1px solid rgba(248, 113, 113, 0.55);
+}
+.login-error.hidden { display: none; }
+
+.login-form { display: flex; flex-direction: column; gap: 16px; }
+
+.login-field label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 7px;
+}
+
+.login-input-wrap { position: relative; }
+.login-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  pointer-events: none;
+}
+.login-input-wrap input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px 0 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.login-input-wrap input.has-toggle { padding-right: 46px; }
+.login-input-wrap input::placeholder { color: rgba(255, 255, 255, 0.6); }
+.login-input-wrap input:focus {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+/* Browser autofill repaints the field white by default, which would hide the
+   white text — force it back to the frosted look. */
+.login-input-wrap input:-webkit-autofill,
+.login-input-wrap input:-webkit-autofill:hover,
+.login-input-wrap input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.login-pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.login-pw-toggle:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+.login-pw-toggle .material-symbols-outlined { font-size: 20px; }
+
+.login-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  margin-top: 2px;
+}
+.login-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  user-select: none;
+}
+.login-remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: #fff;
+  cursor: pointer;
+}
+.login-forgot { color: rgba(255, 255, 255, 0.6); }
+
+.login-submit {
+  width: 100%;
+  height: 52px;
+  margin-top: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  transition: background .2s, transform .08s, box-shadow .2s;
+}
+.login-submit:hover { background: rgba(255, 255, 255, 0.34); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
+.login-submit:active { transform: scale(0.985); }
+.login-submit:disabled { opacity: .6; cursor: not-allowed; }
+.login-submit .material-symbols-outlined { font-size: 20px; transition: transform .2s; }
+.login-submit:hover .material-symbols-outlined { transform: translateX(3px); }
+
+.login-signup {
+  text-align: center;
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+/* ลิงก์สมัครสมาชิกเป็นสีฟ้าสว่าง ให้เด่นออกจากข้อความขาวรอบๆ และเข้าธีมเว็บ */
+.login-signup a {
+  color: #7dd3fc;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color .2s, text-shadow .2s;
+}
+.login-signup a:hover {
+  color: #bae6fd;
+  text-shadow: 0 0 16px rgba(125, 211, 252, 0.55);
+}
+
+/* The theme toggle floats over the backdrop, above the slides. */
+.login-theme-menu { z-index: 60; }
+
+@media (max-width: 480px) {
+  .login-glass { padding: 32px 24px; border-radius: 18px; }
+  .login-title { font-size: 26px; }
+}
+
+/* Honour reduced-motion: hold on the first scene, no zoom, no drift. */
+@media (prefers-reduced-motion: reduce) {
+  .login-bg-base { animation: none; }
+  .login-bg-slide {
+    transition: opacity .2s ease;
+    transform: none !important;
+  }
+  .login-bg-slide.is-active { transform: none !important; }
+}
+
+/* ===================================================================== */
+/* Signup — same glass-over-library-photo look as login, wider for the form */
+/* ===================================================================== */
+/* Tall form, so anchor to the top and let it scroll rather than centre and
+   clip on short screens. */
+.login-body.is-signup { align-items: flex-start; padding-top: 40px; padding-bottom: 40px; }
+.login-glass.signup-card { max-width: 640px; padding: 34px 34px 30px; }
+
+.signup-form { display: flex; flex-direction: column; gap: 18px; }
+.signup-row { display: grid; gap: 16px; }
+.signup-row.cols-3 { grid-template-columns: 140px 1fr 1fr; }
+.signup-row.cols-2 { grid-template-columns: 1fr 1fr; }
+@media (max-width: 560px) {
+  .signup-row.cols-3, .signup-row.cols-2 { grid-template-columns: 1fr; }
+}
+
+.signup-field label {
+  display: block; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .07em; color: rgba(255, 255, 255, 0.72); margin-bottom: 6px;
+}
+.signup-field input,
+.signup-field select {
+  width: 100%; height: 48px; padding: 0 14px; border-radius: 11px;
+  background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.30);
+  color: #fff; font-size: 14.5px; outline: none;
+  appearance: none; -webkit-appearance: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+/* Custom chevron so the native (dark) arrow isn't lost on the frosted field. */
+.signup-field select {
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
+}
+.signup-field input::placeholder { color: rgba(255, 255, 255, 0.6); }
+.signup-field input:focus,
+.signup-field select:focus {
+  border-color: rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+/* The open dropdown list renders on a white popup, so its text must be dark. */
+.signup-field select option { color: #0f172a; }
+.signup-field input:-webkit-autofill,
+.signup-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff; caret-color: #fff;
+  transition: background-color 9999s ease-in-out 0s;
+}
+.signup-field .pw-wrap { position: relative; }
+.signup-field .pw-wrap .pw-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7); font-size: 20px; pointer-events: none;
+}
+.signup-field .pw-wrap input { padding-left: 42px; }
+.signup-hint { font-size: 12px; color: rgba(255, 255, 255, 0.66); margin: 2px 0 0; }
+
+.signup-submit {
+  width: 100%; height: 52px; margin-top: 6px; border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.22);
+  color: #fff; font-weight: 700; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  transition: background .2s, transform .08s, box-shadow .2s;
+}
+.signup-submit:hover { background: rgba(255, 255, 255, 0.34); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
+.signup-submit:active { transform: scale(0.985); }
+.signup-submit:disabled { opacity: .6; cursor: not-allowed; }
+.signup-submit .material-symbols-outlined { font-size: 20px; transition: transform .2s; }
+.signup-submit:hover .material-symbols-outlined { transform: translateX(3px); }

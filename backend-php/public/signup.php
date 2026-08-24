@@ -1,167 +1,114 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="th">
 <head>
 <?php $pageTitle = 'สมัครสมาชิก'; include __DIR__ . '/partials/head.php'; ?>
 </head>
-<body class="bg-surface dark:bg-dm-bg font-body-md text-on-surface dark:text-inverse-on-surface min-h-screen flex flex-col transition-colors duration-200">
+<body class="login-body is-signup">
 
-  <nav class="bg-primary shadow-md z-50">
-    <div class="flex justify-between items-center w-full px-gutter h-16 max-w-7xl mx-auto">
-      <a href="/login" class="flex items-center gap-4 hover:opacity-90 transition-opacity">
-        <div class="w-10 h-10 bg-surface-white rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-primary text-2xl">menu_book</span>
+  <!-- Same auto-sliding, blue-graded library backdrop as the login page. -->
+  <div class="login-bg" id="login-bg" aria-hidden="true">
+    <div class="login-bg-base"></div>
+    <div class="login-bg-grade" id="login-bg-grade"></div>
+    <div class="login-bg-overlay"></div>
+  </div>
+
+  <div class="login-theme-menu">
+    <button
+      type="button"
+      id="theme-toggle-btn"
+      aria-label="สลับธีมสว่าง/มืด"
+      title="สลับธีมสว่าง/มืด"
+      class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
+    >
+      <span class="material-symbols-outlined text-xl tm-current-icon">light_mode</span>
+    </button>
+  </div>
+
+  <main class="login-shell">
+    <section class="login-glass signup-card rise-in">
+      <h1 class="login-title">สร้างบัญชี</h1>
+
+      <form class="signup-form" id="signup-form">
+        <div class="signup-field">
+          <label for="signup-student-id">รหัสนักศึกษา</label>
+          <input id="signup-student-id" autocomplete="username" placeholder="6XXXXXXX" required type="text" />
         </div>
-        <h1 class="text-headline-md font-headline-md font-bold text-on-primary">ห้องสมุด NTC</h1>
-      </a>
-      <div class="flex items-center gap-3">
-        <div class="relative" id="theme-menu">
-          <button
-            type="button"
-            id="theme-menu-btn"
-            aria-label="ตั้งค่าธีมสี"
-            title="ตั้งค่าธีมสี"
-            aria-haspopup="true"
-            class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-on-primary transition-colors flex-shrink-0"
-          >
-            <span class="material-symbols-outlined text-xl tm-current-icon">routine</span>
-          </button>
-          <div id="theme-menu-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl border border-outline-variant dark:border-dm-border overflow-hidden text-text-primary dark:text-inverse-on-surface z-50">
-            <button type="button" data-mode="auto" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
-              <span class="material-symbols-outlined text-lg">routine</span>
-              อัตโนมัติ (ตามเวลา)
-              <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
-            </button>
-            <button type="button" data-mode="light" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
-              <span class="material-symbols-outlined text-lg">light_mode</span>
-              สว่าง
-              <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
-            </button>
-            <button type="button" data-mode="dark" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-surface-container-low dark:hover:bg-dm-bg">
-              <span class="material-symbols-outlined text-lg">dark_mode</span>
-              มืด
-              <span class="material-symbols-outlined text-base ml-auto tm-check hidden">check</span>
-            </button>
+
+        <div class="signup-row cols-3">
+          <div class="signup-field">
+            <label for="signup-prefix">คำนำหน้า</label>
+            <select id="signup-prefix" required>
+              <option value="นาย">นาย</option>
+              <option value="นาง">นาง</option>
+              <option value="นางสาว">นางสาว</option>
+            </select>
+          </div>
+          <div class="signup-field">
+            <label for="signup-first-name">ชื่อ</label>
+            <input id="signup-first-name" autocomplete="given-name" placeholder="ชื่อ" required type="text" />
+          </div>
+          <div class="signup-field">
+            <label for="signup-last-name">นามสกุล</label>
+            <input id="signup-last-name" autocomplete="family-name" placeholder="นามสกุล" required type="text" />
           </div>
         </div>
-        <a class="signup-page-back text-on-primary/80 hover:text-on-primary transition-colors font-body-md" href="/login">เข้าสู่ระบบ</a>
-      </div>
-    </div>
-  </nav>
 
-  <main class="flex-grow relative">
-    <section class="bg-gradient-to-br from-primary to-primary-container h-80 relative overflow-hidden flex items-center signup-hero-section">
-      <div class="absolute inset-0 signup-hero-pattern opacity-20"></div>
-      <div class="max-w-7xl mx-auto w-full px-gutter z-10">
-        <div class="max-w-2xl">
-          <h2 class="text-headline-xl font-headline-xl text-on-primary mb-2 signup-hero-title">สร้างบัญชีของคุณ</h2>
-          <p class="text-on-primary/70 text-body-lg">สมัครสมาชิกระบบห้องสมุดวิทยาลัยเทคนิคนครนายก เพื่อใช้งานเช็คชื่อเข้า-ออกห้องสมุด</p>
+        <div class="signup-row cols-2">
+          <div class="signup-field">
+            <label for="signup-gender">เพศ</label>
+            <select id="signup-gender" required>
+              <option value="male">ชาย</option>
+              <option value="female">หญิง</option>
+            </select>
+          </div>
+          <div class="signup-field">
+            <label for="signup-department">แผนกวิชา</label>
+            <select id="signup-department" required></select>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section class="max-w-7xl mx-auto px-gutter -mt-24 mb-16 relative z-20">
-      <div class="bg-surface-white dark:bg-dm-surface shadow-card rounded-xl overflow-hidden border border-outline-variant/30 dark:border-dm-border max-w-3xl mx-auto">
-        <div class="p-8 md:p-12">
-
-          <form class="space-y-8" id="signup-form">
-            <div>
-              <label for="signup-student-id" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสนักศึกษา</label>
-              <input
-                id="signup-student-id" autocomplete="username"
-                class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-label-code text-primary dark:text-primary-fixed-dim"
-                placeholder="6XXXXXXX"
-                required
-                type="text"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-[140px_1fr_1fr] gap-6">
-              <div>
-                <label for="signup-prefix" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">คำนำหน้า</label>
-                <select id="signup-prefix" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
-                  <option value="นาย">นาย</option>
-                  <option value="นาง">นาง</option>
-                  <option value="นางสาว">นางสาว</option>
-                </select>
-              </div>
-              <div>
-                <label for="signup-first-name" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชื่อ</label>
-                <input id="signup-first-name" autocomplete="given-name" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" placeholder="ชื่อ" required type="text" />
-              </div>
-              <div>
-                <label for="signup-last-name" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">นามสกุล</label>
-                <input id="signup-last-name" autocomplete="family-name" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" placeholder="นามสกุล" required type="text" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="signup-gender" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">เพศ</label>
-                <select id="signup-gender" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
-                  <option value="male">ชาย</option>
-                  <option value="female">หญิง</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label for="signup-department" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">แผนกวิชา</label>
-              <select id="signup-department" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required></select>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="signup-level" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ระดับชั้น</label>
-                <select id="signup-level" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required>
-                  <option value="ปวช.">ปวช.</option>
-                  <option value="ปวส.">ปวส.</option>
-                </select>
-              </div>
-              <div>
-                <label for="signup-year-level" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ชั้นปีที่</label>
-                <select id="signup-year-level" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 font-body-md" required></select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label for="signup-password" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">รหัสผ่าน</label>
-                <div class="relative">
-                  <input id="signup-password" autocomplete="new-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
-                  <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">lock</span>
-                </div>
-              </div>
-              <div>
-                <label for="signup-confirm-password" class="block text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">ยืนยันรหัสผ่าน</label>
-                <div class="relative">
-                  <input id="signup-confirm-password" autocomplete="new-password" class="w-full h-12 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-4 pl-10" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
-                  <span class="material-symbols-outlined absolute left-3 top-3 text-outline text-xl">verified_user</span>
-                </div>
-              </div>
-            </div>
-
-            <p class="text-xs text-on-surface-variant dark:text-dm-text-secondary -mt-2">ใช้รหัสนักศึกษาเป็นชื่อผู้ใช้สำหรับเข้าสู่ระบบ ไม่ต้องตั้งชื่อผู้ใช้เอง</p>
-
-            <div class="pt-6">
-              <button id="signup-submit" class="w-full h-14 bg-secondary text-on-secondary font-headline-md rounded-full stamp-shadow flex items-center justify-center gap-3 transition-all duration-200 disabled:opacity-60" type="submit">
-                สมัครสมาชิก
-                <span class="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </div>
-          </form>
+        <div class="signup-row cols-2">
+          <div class="signup-field">
+            <label for="signup-level">ระดับชั้น</label>
+            <select id="signup-level" required>
+              <option value="ปวช.">ปวช.</option>
+              <option value="ปวส.">ปวส.</option>
+            </select>
+          </div>
+          <div class="signup-field">
+            <label for="signup-year-level">ชั้นปีที่</label>
+            <select id="signup-year-level" required></select>
+          </div>
         </div>
-      </div>
+
+        <div class="signup-row cols-2">
+          <div class="signup-field pw">
+            <label for="signup-password">รหัสผ่าน</label>
+            <div class="pw-wrap">
+              <span class="material-symbols-outlined pw-icon" aria-hidden="true">lock</span>
+              <input id="signup-password" autocomplete="new-password" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
+            </div>
+          </div>
+          <div class="signup-field pw">
+            <label for="signup-confirm-password">ยืนยันรหัสผ่าน</label>
+            <div class="pw-wrap">
+              <span class="material-symbols-outlined pw-icon" aria-hidden="true">verified_user</span>
+              <input id="signup-confirm-password" autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
+            </div>
+          </div>
+        </div>
+
+        <p class="signup-hint">ใช้รหัสนักศึกษาเป็นชื่อผู้ใช้สำหรับเข้าสู่ระบบ ไม่ต้องตั้งชื่อผู้ใช้เอง</p>
+
+        <button id="signup-submit" class="signup-submit" type="submit">
+          <span>สมัครสมาชิก</span>
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+
+        <p class="login-signup">มีบัญชีอยู่แล้ว? <a href="/login">เข้าสู่ระบบ</a></p>
+      </form>
     </section>
   </main>
-
-  <footer class="bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border py-8 mt-auto">
-    <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-      <div class="flex flex-col items-center md:items-start">
-        <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim mb-1">ห้องสมุด NTC</span>
-        <p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-center md:text-left">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
-      </div>
-    </div>
-  </footer>
 
   <div id="signup-result-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-center justify-center px-gutter py-8">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-8 text-center">
@@ -176,6 +123,7 @@
 
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
   <script src="/assets/js/theme.js?v=<?= ntc_asset_v('assets/js/theme.js') ?>"></script>
+  <script src="/assets/js/login-bg.js?v=<?= ntc_asset_v('assets/js/login-bg.js') ?>"></script>
   <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>
   <script src="/assets/js/signup.js?v=<?= ntc_asset_v('assets/js/signup.js') ?>"></script>
 </body>

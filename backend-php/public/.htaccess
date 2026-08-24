@@ -54,7 +54,13 @@ RewriteRule ^ index.php [QSA,L]
   #
   # style-src needs 'unsafe-inline' for the style="width:NN%" attributes the
   # chart bars are drawn with.
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+  #
+  # img-src also allows images.unsplash.com: the login page's background
+  # slideshow (assets/js/login-bg.js) pulls premium library photos from
+  # Unsplash's CDN. It is the only off-origin resource in the app, it only
+  # affects the login screen, and if it can't be reached the slideshow falls
+  # back to the self-hosted scene-*.svg files — so this stays cosmetic-only.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 </IfModule>
 
 # Never serve dotfiles (.env, .git leftovers) even if one is ever misplaced

@@ -16,8 +16,20 @@ function admin_nav_class(string $href, string $active): string
         : 'flex items-center gap-3 text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 transition-colors';
 }
 ?>
+<!-- Collapsed state is applied before paint so the sidebar/main don't animate
+     on load — kept on <html> in sync with the toggle button (admin-sidebar.js). -->
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem('ntc-admin-sidebar-collapsed') === '1') {
+        document.documentElement.classList.add('sidebar-collapsed');
+      }
+    } catch (e) {}
+  })();
+</script>
+
 <!-- Desktop sidebar — sits below the fixed AppHeader (top-16). -->
-<aside class="hidden md:flex flex-col h-[calc(100vh-4rem)] w-64 fixed left-0 top-16 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border shadow-sm py-6 px-4 z-40">
+<aside class="admin-sidebar-desktop hidden md:flex flex-col h-[calc(100vh-4rem)] w-64 fixed left-0 top-16 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border shadow-sm py-6 px-4 z-40">
   <p class="px-2 mb-4 text-[10px] uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลเจ้าหน้าที่</p>
   <nav class="flex-1 space-y-2">
     <?php foreach ($navItems as $item): ?>

@@ -87,7 +87,6 @@ require __DIR__ . '/partials/guard.php';
     <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
       <div class="flex flex-col md:flex-row items-center gap-6">
         <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</span>
-        <p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-sm">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
       </div>
     </div>
   </footer>

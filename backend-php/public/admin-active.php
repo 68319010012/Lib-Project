@@ -11,15 +11,15 @@ require __DIR__ . '/partials/guard.php';
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
   <?php $active = 'admin-active'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
-  <main class="md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
-    <section class="admin-hero-pattern pt-12 pb-24 px-gutter relative overflow-hidden">
+  <main class="admin-main md:ml-64 pt-28 md:pt-16 flex-1 flex flex-col min-h-screen">
+    <section class="admin-hero-pattern pt-8 pb-16 px-gutter relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10">
         <h1 class="text-on-primary font-headline-xl text-headline-xl mb-2">ผู้ใช้งานที่กำลังใช้งานอยู่</h1>
         <p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายชื่อนักศึกษาที่เช็คอินแล้วยังไม่เช็คเอาต์ ณ ขณะนี้ พร้อมระยะเวลาที่อยู่ในห้องสมุด — อัปเดตอัตโนมัติทุก 20 วินาที</p>
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto w-full px-gutter relative z-20 pb-20">
+    <div class="max-w-7xl mx-auto w-full px-gutter relative z-20 -mt-8 pb-20">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline dark:border-dm-border flex flex-col justify-between">
           <span class="p-2 bg-primary/10 dark:bg-primary-fixed-dim/15 text-primary dark:text-primary-fixed-dim rounded-lg w-fit mb-4">
@@ -65,7 +65,6 @@ require __DIR__ . '/partials/guard.php';
     <footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline dark:border-dm-border">
       <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
         <p class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</p>
-        <p class="text-body-md font-body-md text-on-surface-variant dark:text-dm-text-secondary">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
       </div>
     </footer>
   </main>

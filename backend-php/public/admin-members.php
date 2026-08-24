@@ -11,7 +11,7 @@ require __DIR__ . '/partials/guard.php';
   <?php $variant = 'admin'; include __DIR__ . '/partials/header.php'; ?>
   <?php $active = 'admin-members'; include __DIR__ . '/partials/admin-sidebar.php'; ?>
 
-  <main class="md:ml-64 pt-28 md:pt-16 flex-grow flex flex-col min-h-screen">
+  <main class="admin-main md:ml-64 pt-28 md:pt-16 flex-grow flex flex-col min-h-screen">
     <!-- py-10 (auto height) on mobile so the wrapping subtitle never gets
          pushed into the search-card's -mt overlap zone below; fixed
          h-[240px] only once it's guaranteed to fit (md:+). -->
@@ -94,7 +94,6 @@ require __DIR__ . '/partials/guard.php';
     <footer class="w-full py-8 bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border mt-auto">
       <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
         <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">พอร์ทัลเจ้าหน้าที่ห้องสมุด NTC</span>
-        <p class="text-body-md text-on-surface-variant dark:text-dm-text-secondary text-sm">© 2026 ห้องสมุดวิทยาลัยเทคนิคนครนายก สงวนลิขสิทธิ์</p>
       </div>
     </footer>
   </main>

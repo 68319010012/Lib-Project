@@ -25,15 +25,41 @@ function landingPathForRole(role) {
   return role === 'admin' ? '/admin-dashboard' : '/dashboard';
 }
 
+// "จำรหัสนักศึกษาไว้" stores only the username (never the password) so the
+// field is prefilled next time. It is a convenience for the login box, not a
+// persistent session — that stays server-side in the PHP session cookie.
+const REMEMBER_KEY = 'ntc-remember-username';
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('login-form');
   const submitBtn = document.getElementById('login-submit');
+  const usernameInput = document.getElementById('login-username');
+  const rememberBox = document.getElementById('login-remember');
+
+  // Prefill from a remembered username.
+  try {
+    const saved = localStorage.getItem(REMEMBER_KEY);
+    if (saved && usernameInput) {
+      usernameInput.value = saved;
+      if (rememberBox) rememberBox.checked = true;
+    }
+  } catch (_) { /* localStorage blocked — just skip prefill */ }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     showLoginError('');
     submitBtn.disabled = true;
-    const username = document.getElementById('login-username').value.trim();
+    const username = usernameInput.value.trim();
     const password = document.getElementById('login-password').value;
+
+    try {
+      if (rememberBox && rememberBox.checked) {
+        localStorage.setItem(REMEMBER_KEY, username);
+      } else {
+        localStorage.removeItem(REMEMBER_KEY);
+      }
+    } catch (_) { /* ignore storage errors */ }
+
     try {
       const data = await apiPostJson('/login', { username, password });
       window.location.href = landingPathForRole(data.role);
