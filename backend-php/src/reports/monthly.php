@@ -105,7 +105,7 @@ function handle_report_monthly(): void
     padding: 20px; text-align: center;
   }
   .compare-card .label { font-size: 12px; color: #666; font-weight: 700; margin-bottom: 8px; }
-  .compare-card .value { font-size: 32px; font-weight: 800; color: var(--primary, #1e3a8a); line-height: 1; }
+  .compare-card .value { font-size: 32px; font-weight: 800; color: var(--primary, #1a2947); line-height: 1; }
   .compare-card .prev { font-size: 12px; color: #888; margin-top: 6px; }
   .compare-card .delta { font-size: 13px; font-weight: 700; margin-top: 8px; }
   .compare-card .delta.up { color: #059669; }
@@ -115,7 +115,7 @@ function handle_report_monthly(): void
   .dept-row .dept-meta { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
   .dept-row .dept-meta .count { font-weight: bold; }
   .dept-bar-track { background: #eee; border-radius: 4px; height: 10px; overflow: hidden; }
-  .dept-bar-fill { background: var(--primary, #1e3a8a); height: 100%; }
+  .dept-bar-fill { background: var(--primary, #1a2947); height: 100%; }
   .empty-note { color: #888; font-size: 12px; font-style: italic; }
   @media print {
     .compare-grid { gap: 10px; margin-bottom: 12px; }

@@ -109,7 +109,7 @@ function handle_report_executive(): void
   }
   .month-filter label { font-size: 12px; color: var(--on-surface-variant, #555); font-weight: 600; }
   .month-filter input { border: 1px solid var(--outline-variant, #ccc); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
-  .month-filter button { border: none; background: #1e3a8a; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .month-filter button { border: none; background: #1a2947; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
   .month-filter button:hover { filter: brightness(1.1); }
 
   .headline-grid {
@@ -120,7 +120,7 @@ function handle_report_executive(): void
     padding: 28px 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,.05);
   }
   .headline-card .label { font-size: 13px; color: #666; font-weight: 700; margin-bottom: 10px; }
-  .headline-card .value { font-family: 'IBM Plex Mono', monospace; font-size: 42px; font-weight: 800; color: #1e3a8a; line-height: 1; }
+  .headline-card .value { font-family: 'IBM Plex Mono', monospace; font-size: 42px; font-weight: 800; color: #1a2947; line-height: 1; }
   .headline-card .delta { font-size: 13px; font-weight: 700; margin-top: 10px; }
   .headline-card .delta.up { color: #059669; }
   .headline-card .delta.down { color: #d97706; }
@@ -128,10 +128,10 @@ function handle_report_executive(): void
 
   .story-box {
     background: linear-gradient(135deg, #eaf1fb, #f1f5f9);
-    border: 1px solid #cbd5e1; border-radius: 16px; padding: 24px 28px; margin-bottom: 28px;
+    border: 1px solid #d5d0c6; border-radius: 16px; padding: 24px 28px; margin-bottom: 28px;
   }
   .story-box p { font-size: 16px; line-height: 1.8; color: #1e293b; margin: 0; }
-  .story-box b { color: #1e3a8a; }
+  .story-box b { color: #1a2947; }
 
   .rank-list { display: flex; flex-direction: column; gap: 10px; }
   .rank-row {
@@ -140,11 +140,11 @@ function handle_report_executive(): void
     border-radius: 12px; padding: 14px 18px;
   }
   .rank-num {
-    width: 30px; height: 30px; border-radius: 9999px; background: #1e3a8a; color: #fff;
+    width: 30px; height: 30px; border-radius: 9999px; background: #1a2947; color: #fff;
     display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0;
   }
   .rank-row .name { flex: 1; font-weight: 700; font-size: 14px; }
-  .rank-row .count { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #1e3a8a; font-size: 15px; }
+  .rank-row .count { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #1a2947; font-size: 15px; }
 
   .empty-note { color: #888; font-size: 13px; font-style: italic; }
 
@@ -157,7 +157,7 @@ function handle_report_executive(): void
   .mini-table th, .mini-table td { overflow-wrap: anywhere; }
   .mini-table th {
     text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
-    color: #64748b; border-bottom: 1px solid #cbd5e1; padding: 4px 6px; font-weight: 700;
+    color: #5c6470; border-bottom: 1px solid #d5d0c6; padding: 4px 6px; font-weight: 700;
   }
   .mini-table td { font-size: 12.5px; padding: 4px 6px; border-bottom: 1px solid #eef2f7; }
   .mini-table .num { text-align: right; font-family: 'IBM Plex Mono', monospace; }

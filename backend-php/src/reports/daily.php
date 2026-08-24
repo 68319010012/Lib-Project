@@ -171,12 +171,12 @@ function handle_report_daily(): void
     background: var(--surface-white, #fff);
   }
   .summary-strip .item .label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
-  .summary-strip .item .value { font-size: 18px; font-weight: 700; color: var(--primary, #1e3a8a); }
+  .summary-strip .item .value { font-size: 18px; font-weight: 700; color: var(--primary, #1a2947); }
   th[data-sort] { cursor: pointer; user-select: none; }
   th[data-sort]:after { content: ' ⇅'; opacity: .5; font-size: 10px; }
   .status-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
   .status-pill.in { background: #dcfce7; color: #166534; }
-  .status-pill.out { background: #f1f5f9; color: #475569; }
+  .status-pill.out { background: #f1f5f9; color: #6b6153; }
   @media print {
     .summary-strip .item { box-shadow: none; }
   }

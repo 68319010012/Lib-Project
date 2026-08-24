@@ -24,21 +24,21 @@ function handle_report_select(): void
 <link rel="stylesheet" href="/assets/css/report-fonts.css">
 <style>
   :root {
-    --primary: #1e3a8a;
-    --primary-container: #1e40af;
-    --secondary: #2563eb;
+    --primary: #1a2947;
+    --primary-container: #24365c;
+    --secondary: #0a6fb8;
     --secondary-container: #60a5fa;
-    --surface: #f8fafc;
+    --surface: #faf9f6;
     --surface-white: #ffffff;
-    --outline-variant: #cbd5e1;
-    --on-surface-variant: #475569;
-    --text-secondary: #475569;
+    --outline-variant: #d5d0c6;
+    --on-surface-variant: #6b6153;
+    --text-secondary: #6b6153;
   }
   * { box-sizing: border-box; }
   body {
     font-family: 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Tahoma', sans-serif;
     margin: 0;
-    color: #0f172a;
+    color: #212430;
     background: var(--surface);
     min-height: 100vh;
   }
@@ -52,7 +52,7 @@ function handle_report_select(): void
   header {
     background-image:
       repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0px, rgba(255,255,255,.05) 1px, transparent 1px, transparent 24px),
-      linear-gradient(135deg, var(--primary-container) 0%, #0f172a 100%);
+      linear-gradient(135deg, var(--primary-container) 0%, #212430 100%);
     color: #fff;
     padding: 40px 24px 56px;
   }
@@ -117,7 +117,7 @@ function handle_report_select(): void
   .card.accent-teal .icon-badge { background: #2f7d6b; }
   .card.accent-purple .icon-badge { background: #8B5FA3; }
   .card.accent-amber .icon-badge { background: #d97706; }
-  .card.accent-slate .icon-badge { background: #475569; }
+  .card.accent-slate .icon-badge { background: #6b6153; }
   .card.accent-indigo .icon-badge { background: #4338ca; }
   .card.accent-rose .icon-badge { background: #be185d; }
   .card h2 { font-size: 16px; margin: 0 0 6px; color: var(--primary); }
@@ -142,7 +142,7 @@ function handle_report_select(): void
     border-radius: 8px;
     background: var(--surface);
     margin-bottom: 14px;
-    color: #0f172a;
+    color: #212430;
   }
   .card input:focus,
   .card select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(30,58,138,.15); }
@@ -165,7 +165,7 @@ function handle_report_select(): void
   .card.accent-teal button { background: #2f7d6b; }
   .card.accent-purple button { background: #8B5FA3; }
   .card.accent-amber button { background: #d97706; }
-  .card.accent-slate button { background: #475569; }
+  .card.accent-slate button { background: #6b6153; }
   .card.accent-indigo button { background: #4338ca; }
   .card.accent-rose button { background: #be185d; }
 

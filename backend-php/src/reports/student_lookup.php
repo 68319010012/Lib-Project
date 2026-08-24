@@ -99,7 +99,7 @@ function handle_report_student_lookup(): void
     padding: 12px 16px; border: 1px solid var(--outline-variant, #ccc); border-radius: 10px;
     background: var(--surface-white, #fff); text-decoration: none; color: inherit;
   }
-  .search-results a.result-row:hover { border-color: var(--primary, #1e3a8a); }
+  .search-results a.result-row:hover { border-color: var(--primary, #1a2947); }
 
   /* Type-ahead suggestions. The form still submits and still renders the
      server-side result list, so this only saves a round trip — with JS off,
@@ -117,17 +117,17 @@ function handle_report_student_lookup(): void
     background: transparent; border-radius: 7px; cursor: pointer; font: inherit; color: inherit;
   }
   .ac-item:hover, .ac-item.is-active { background: rgba(30,58,138,.08); }
-  .ac-item .n { font-weight: 700; font-size: 13px; color: var(--primary, #1e3a8a); }
+  .ac-item .n { font-weight: 700; font-size: 13px; color: var(--primary, #1a2947); }
   .ac-item .m { font-size: 11.5px; color: #666; }
   .ac-empty { padding: 10px; font-size: 12.5px; color: #666; }
-  .search-results .name { font-weight: 700; font-size: 14px; color: var(--primary, #1e3a8a); }
+  .search-results .name { font-weight: 700; font-size: 14px; color: var(--primary, #1a2947); }
   .search-results .meta { font-size: 12px; color: #666; }
   .student-header {
     display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;
     background: var(--surface-white, #fff); border: 1px solid var(--outline-variant, #ccc); border-radius: 14px;
     padding: 20px 24px; margin-bottom: 18px;
   }
-  .student-header h2 { margin: 0 0 4px; font-size: 18px; color: var(--primary, #1e3a8a); }
+  .student-header h2 { margin: 0 0 4px; font-size: 18px; color: var(--primary, #1a2947); }
   .student-header .sub { font-size: 13px; color: #666; }
   .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 0 0 20px; }
   .kpi-card {
@@ -135,10 +135,10 @@ function handle_report_student_lookup(): void
     background: var(--surface-white, #fff); box-shadow: 0 2px 10px rgba(0,0,0,.03);
   }
   .kpi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #666; margin-bottom: 6px; }
-  .kpi-card .value { font-size: 20px; font-weight: bold; color: var(--primary, #1e3a8a); }
+  .kpi-card .value { font-size: 20px; font-weight: bold; color: var(--primary, #1a2947); }
   .type-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
   .type-pill.in { background: #dcfce7; color: #166534; }
-  .type-pill.out { background: #f1f5f9; color: #475569; }
+  .type-pill.out { background: #f1f5f9; color: #6b6153; }
 </style>
     <?php
     $extraStyle = ob_get_clean();
@@ -221,7 +221,7 @@ function handle_report_student_lookup(): void
       <div class="name"><?= htmlspecialchars($r['prefix'] . $r['first_name'] . ' ' . $r['last_name']) ?></div>
       <div class="meta">รหัส <?= htmlspecialchars($r['student_id']) ?> · <?= htmlspecialchars($r['department'] ?? '-') ?> · <?= htmlspecialchars($r['level'] ?? '-') ?> ปีที่ <?= htmlspecialchars($r['year_level'] ?? '-') ?></div>
     </div>
-    <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary, #1e3a8a);">chevron_right</span>
+    <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary, #1a2947);">chevron_right</span>
   </a>
   <?php endforeach; ?>
   <?php else: ?>

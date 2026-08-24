@@ -82,7 +82,7 @@ const DASH_KPI_TINTS = [
 
 // จานสีของกราฟวงกลมแผนกวิชา เรียงตามภาพต้นแบบ
 const DASH_DEPT_PALETTE = [
-    [37, 99, 235], [16, 163, 127], [34, 197, 94], [234, 179, 8], [245, 158, 11],
+    [10, 111, 184], [16, 163, 127], [34, 197, 94], [234, 179, 8], [245, 158, 11],
     [249, 115, 22], [168, 85, 247], [147, 51, 234], [126, 34, 206],
 ];
 
@@ -296,13 +296,13 @@ function render_dashboard_body(array $c): string
     $lv = $c['levelVisits'];
     $levelSlices = [];
     if ($lv['ปวช.'] > 0) {
-        $levelSlices[] = ['label' => 'ปวช.', 'value' => $lv['ปวช.'], 'color' => [37, 99, 235]];
+        $levelSlices[] = ['label' => 'ปวช.', 'value' => $lv['ปวช.'], 'color' => [10, 111, 184]];
     }
     if ($lv['ปวส.'] > 0) {
         $levelSlices[] = ['label' => 'ปวส.', 'value' => $lv['ปวส.'], 'color' => [16, 163, 127]];
     }
     if ($lv['other'] > 0) {
-        $levelSlices[] = ['label' => 'ไม่ระบุระดับชั้น', 'value' => $lv['other'], 'color' => [148, 163, 184]];
+        $levelSlices[] = ['label' => 'ไม่ระบุระดับชั้น', 'value' => $lv['other'], 'color' => [102, 110, 124]];
     }
 
     $totalText = number_format($agg['total_events']);
@@ -330,13 +330,13 @@ function render_dashboard_body(array $c): string
     $gv = $c['genderVisits'];
     $genderSlices = [];
     if ($gv['male'] > 0) {
-        $genderSlices[] = ['label' => 'ชาย', 'value' => $gv['male'], 'color' => [37, 99, 235]];
+        $genderSlices[] = ['label' => 'ชาย', 'value' => $gv['male'], 'color' => [10, 111, 184]];
     }
     if ($gv['female'] > 0) {
         $genderSlices[] = ['label' => 'หญิง', 'value' => $gv['female'], 'color' => [219, 39, 119]];
     }
     if ($gv['unknown'] > 0) {
-        $genderSlices[] = ['label' => 'ไม่ระบุ', 'value' => $gv['unknown'], 'color' => [148, 163, 184]];
+        $genderSlices[] = ['label' => 'ไม่ระบุ', 'value' => $gv['unknown'], 'color' => [102, 110, 124]];
     }
 
     $peak = $c['hourly']['peak_hour'];
@@ -347,7 +347,7 @@ function render_dashboard_body(array $c): string
         . dashboard_panel_open('ช่วงเวลาที่มีการใช้งานมากที่สุด')
         . '<table class="dx-peak"><tr>'
         . '<td class="dx-peak-info">'
-        . '<img class="dx-peak-icon" width="44" src="' . render_pdf_icon_tile('clock', [232, 238, 253], [37, 99, 235]) . '">'
+        . '<img class="dx-peak-icon" width="44" src="' . render_pdf_icon_tile('clock', [232, 238, 253], [10, 111, 184]) . '">'
         . '<div class="dx-peak-range">' . htmlspecialchars($peakText) . '</div>'
         . '<div class="dx-peak-note">มีการเข้าใช้สูงสุด</div>'
         . '<div class="dx-peak-count">' . $peakCount . '<span class="dx-peak-unit"> ครั้ง</span></div>'
@@ -720,7 +720,7 @@ function handle_report_dashboard(): void
      still uses as-is) via cascade, since $extraStyle loads after the base
      <style> block. */
   header.report-head {
-    background: var(--primary, #1e3a8a) !important;
+    background: var(--primary, #1a2947) !important;
     padding: 11px 20px !important;
     display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   }
@@ -730,7 +730,7 @@ function handle_report_dashboard(): void
   /* A visibly separate control strip, not another content card — so the
      filters read as "controls" and everything below as "the report". */
   .filter-bar {
-    background: var(--surface, #f8fafc) !important;
+    background: var(--surface, #faf9f6) !important;
     border: none !important; border-bottom: 2px solid var(--outline-variant, #e2e8f0) !important;
     border-radius: 0 !important; padding: 10px 2px 16px !important; margin: 0 0 24px !important;
   }
@@ -741,11 +741,11 @@ function handle_report_dashboard(): void
   .quick-filter-chips { display: flex; align-items: center; gap: 8px; margin: 4px 2px 14px; flex-wrap: wrap; }
   .quick-filter-chips .chip {
     font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px;
-    border: 1px solid var(--outline-variant, #e2e8f0); color: var(--on-surface-variant, #475569);
+    border: 1px solid var(--outline-variant, #e2e8f0); color: var(--on-surface-variant, #6b6153);
     text-decoration: none;
   }
-  .quick-filter-chips .chip.active { background: var(--primary, #1e3a8a); color: #fff; border-color: var(--primary, #1e3a8a); }
-  .quick-filter-chips .chip-hint { font-size: 11px; color: #898781; }
+  .quick-filter-chips .chip.active { background: var(--primary, #1a2947); color: #fff; border-color: var(--primary, #1a2947); }
+  .quick-filter-chips .chip-hint { font-size: 11px; color: #666e7c; }
   @media print {
     .quick-filter-chips { display: none !important; }
   }
@@ -766,12 +766,12 @@ function handle_report_dashboard(): void
   .dash-export { max-width: 1440px; margin: 0 auto; }
 
   .dx-head { text-align: center; margin: 4px 0 18px; }
-  .dx-org { font-size: 12px; color: #94a3b8; letter-spacing: .02em; }
+  .dx-org { font-size: 12px; color: #666e7c; letter-spacing: .02em; }
   .dx-title { font-size: 30px; font-weight: 700; color: #111827; line-height: 1.3; margin-top: 2px; }
-  .dx-sub { font-size: 14px; color: #64748b; margin-top: 2px; }
+  .dx-sub { font-size: 14px; color: #5c6470; margin-top: 2px; }
   .dx-empty {
-    border: 1px dashed #cbd5e1; border-radius: 12px; padding: 32px;
-    text-align: center; color: #475569; background: #fff;
+    border: 1px dashed #d5d0c6; border-radius: 12px; padding: 32px;
+    text-align: center; color: #6b6153; background: #fff;
   }
 
   /* border-spacing แทน gap เพราะโครงเป็น <table> (mPDF ต้องการ) ซึ่งไม่รู้จัก gap */
@@ -802,14 +802,14 @@ function handle_report_dashboard(): void
   .dx-kpi-icon { width: 54px; padding: 14px 0 14px 14px; vertical-align: top; }
   .dx-kpi-icon img { width: 40px; height: 40px; display: block; }
   .dx-kpi-text { padding: 14px 14px 14px 10px; vertical-align: top; }
-  .dx-kpi-label { font-size: 13px; color: #64748b; line-height: 1.35; }
+  .dx-kpi-label { font-size: 13px; color: #5c6470; line-height: 1.35; }
   .dx-kpi-value { font-size: 28px; font-weight: 700; color: #111827; line-height: 1.25; margin: 1px 0 3px; }
-  .dx-kpi-unit { font-size: 14px; font-weight: 400; color: #64748b; }
-  .dx-delta { font-size: 13px; color: #94a3b8; }
+  .dx-kpi-unit { font-size: 14px; font-weight: 400; color: #5c6470; }
+  .dx-delta { font-size: 13px; color: #666e7c; }
   .dx-delta b { font-weight: 700; }
   .dx-delta.up b { color: #16a34a; }
   .dx-delta.down b { color: #dc2626; }
-  .dx-delta.flat b { color: #94a3b8; }
+  .dx-delta.flat b { color: #666e7c; }
 
   .dx-panel-body { padding: 18px 20px 20px; }
   .dx-panel-title { font-size: 19px; font-weight: 700; color: #111827; margin-bottom: 10px; }
@@ -827,9 +827,9 @@ function handle_report_dashboard(): void
     position: absolute; inset: 0; pointer-events: none;
     display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
   }
-  .dxd-center-top { font-size: 13px; color: #64748b; }
+  .dxd-center-top { font-size: 13px; color: #5c6470; }
   .dxd-center-value { font-size: 30px; font-weight: 700; color: #111827; }
-  .dxd-center-unit { font-size: 13px; color: #64748b; margin-top: 1px; }
+  .dxd-center-unit { font-size: 13px; color: #5c6470; margin-top: 1px; }
 
   .dxd-legend { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; }
   .dxd-legend li {
@@ -845,17 +845,17 @@ function handle_report_dashboard(): void
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .dxd-pct { flex-shrink: 0; font-size: 15px; color: #1f2937; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; }
-  .dxd-count { flex-shrink: 0; font-size: 14px; color: #7c8798; font-variant-numeric: tabular-nums; text-align: right; min-width: 92px; }
-  .dxd-empty { color: #7c8798; font-style: italic; }
+  .dxd-count { flex-shrink: 0; font-size: 14px; color: #666e7c; font-variant-numeric: tabular-nums; text-align: right; min-width: 92px; }
+  .dxd-empty { color: #666e7c; font-style: italic; }
 
   /* กราฟแท่งรายชั่วโมง */
   .dxb { min-width: 0; }
   .dxb-bars { display: flex; align-items: flex-end; gap: 2px; height: 150px; }
   .dxb-slot { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; }
-  .dxb-bar { width: 100%; background: linear-gradient(180deg, #6f9bfb, #2563eb); border-radius: 2px 2px 0 0; }
+  .dxb-bar { width: 100%; background: linear-gradient(180deg, #6f9bfb, #0a6fb8); border-radius: 2px 2px 0 0; }
   .dxb-axis {
     display: flex; gap: 2px; margin-top: 5px;
-    font-size: 11px; color: #7c8798; font-variant-numeric: tabular-nums;
+    font-size: 11px; color: #666e7c; font-variant-numeric: tabular-nums;
   }
   .dxb-axis span { flex: 1; min-width: 0; text-align: center; }
 
@@ -869,10 +869,10 @@ function handle_report_dashboard(): void
   .dx-kpi-label, .dx-kpi-value, .dx-delta, .dx-panel-title { overflow-wrap: anywhere; }
   .dx-peak-info { width: 31%; vertical-align: middle; text-align: center; padding-right: 10px; }
   .dx-peak-info img { width: 44px; height: 44px; display: inline-block; }
-  .dx-peak-range { font-size: 18px; font-weight: 700; color: #2563eb; margin-top: 8px; white-space: nowrap; }
-  .dx-peak-note { font-size: 13px; color: #64748b; margin-top: 2px; }
-  .dx-peak-count { font-size: 26px; font-weight: 700; color: #2563eb; margin-top: 2px; }
-  .dx-peak-unit { font-size: 13px; font-weight: 400; color: #64748b; }
+  .dx-peak-range { font-size: 18px; font-weight: 700; color: #0a6fb8; margin-top: 8px; white-space: nowrap; }
+  .dx-peak-note { font-size: 13px; color: #5c6470; margin-top: 2px; }
+  .dx-peak-count { font-size: 26px; font-weight: 700; color: #0a6fb8; margin-top: 2px; }
+  .dx-peak-unit { font-size: 13px; font-weight: 400; color: #5c6470; }
   .dx-peak-chart { width: 69%; vertical-align: middle; }
 
   /* จอแคบ: การ์ดตัวเลขเรียงสองคอลัมน์ กราฟเรียงคอลัมน์เดียว
@@ -919,7 +919,7 @@ function handle_report_dashboard(): void
     border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 8px rgba(0,0,0,.03);
     min-height: 78px;
   }
-  .kpi-card.hero { border-left: 4px solid var(--primary, #1e3a8a); }
+  .kpi-card.hero { border-left: 4px solid var(--primary, #1a2947); }
   /* Label and sparkline share a flex row (not an absolutely-positioned
      overlay) so the label can wrap to a second line instead of being cut
      off with an ellipsis — this went to executives truncated as
@@ -927,7 +927,7 @@ function handle_report_dashboard(): void
   .kpi-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 5px; }
   .kpi-card .sparkline { flex-shrink: 0; width: 40px; height: 16px; margin-top: 1px; }
   .kpi-label { font-size: 10.5px; color: #666; font-weight: 600; line-height: 1.3; }
-  .kpi-value { font-size: 19px; font-weight: 700; color: #0f172a; line-height: 1.15; }
+  .kpi-value { font-size: 19px; font-weight: 700; color: #212430; line-height: 1.15; }
   .kpi-card.hero .kpi-value { font-size: 26px; }
   .kpi-sub { display: block; margin-top: 4px; font-size: 10.5px; color: #666; }
 
@@ -937,9 +937,9 @@ function handle_report_dashboard(): void
   .kpi-card.ring-card { display: flex; align-items: center; gap: 10px; }
   .meter-ring-wrap { position: relative; flex-shrink: 0; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
   .meter-ring-wrap svg { width: 52px; height: 52px; }
-  .meter-ring-value { position: absolute; font-size: 11px; font-weight: 700; color: #0f172a; }
+  .meter-ring-value { position: absolute; font-size: 11px; font-weight: 700; color: #212430; }
   .meter-info { min-width: 0; }
-  .meter-info .meter-dept-name { font-size: 13px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meter-info .meter-dept-name { font-size: 13px; font-weight: 700; color: #212430; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .meter-info .meter-dept-count { font-size: 10.5px; color: #666; margin-top: 1px; }
 
   /* Department ranking (Sales-ranking-style reference): a circled position
@@ -952,17 +952,17 @@ function handle_report_dashboard(): void
   .rank-row { display: flex; align-items: center; gap: 10px; }
   .rank-badge {
     flex-shrink: 0; width: 20px; height: 20px; border-radius: 999px;
-    background: #dbeafe; color: var(--primary, #1e3a8a);
+    background: #dbeafe; color: var(--primary, #1a2947);
     font-size: 10px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
   }
-  .rank-row:first-child .rank-badge { background: var(--primary, #1e3a8a); color: #fff; }
+  .rank-row:first-child .rank-badge { background: var(--primary, #1a2947); color: #fff; }
   .rank-name {
-    flex: 0 0 140px; width: 140px; font-size: 12px; font-weight: 700; color: #0f172a;
+    flex: 0 0 140px; width: 140px; font-size: 12px; font-weight: 700; color: #212430;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .rank-track { flex: 1; height: 8px; background: #e1e0d9; border-radius: 999px; overflow: hidden; }
-  .rank-fill { display: block; height: 100%; background: var(--secondary, #2563eb); border-radius: 999px; }
+  .rank-fill { display: block; height: 100%; background: var(--secondary, #0a6fb8); border-radius: 999px; }
   .rank-count { flex-shrink: 0; width: 120px; text-align: right; font-size: 11px; color: #666; }
   @media (max-width: 640px) {
     .rank-row {
@@ -1028,7 +1028,7 @@ function handle_report_dashboard(): void
   }
   .trend-chart .bar {
     width: 100%;
-    background: var(--secondary, #2563eb);
+    background: var(--secondary, #0a6fb8);
     border-radius: 4px 4px 0 0;
     min-height: 1px;
   }
@@ -1036,7 +1036,7 @@ function handle_report_dashboard(): void
     display: flex;
     justify-content: space-between;
     font-size: 9px;
-    color: #898781;
+    color: #666e7c;
     margin-top: 4px;
   }
 
@@ -1046,16 +1046,16 @@ function handle_report_dashboard(): void
      to the "one hue" bar rule used everywhere else in this file. */
   .gender-list { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
   .gender-row { display: flex; align-items: center; gap: 8px; }
-  .gender-row .g-label { flex: 0 0 52px; font-size: 11px; font-weight: 700; color: #0f172a; }
+  .gender-row .g-label { flex: 0 0 52px; font-size: 11px; font-weight: 700; color: #212430; }
   .gender-row .g-track { flex: 1; height: 13px; background: #e1e0d9; border-radius: 999px; overflow: hidden; }
   .gender-row .g-fill { height: 100%; border-radius: 999px; }
-  .gender-row.male .g-fill { background: #2563eb; }
+  .gender-row.male .g-fill { background: #0a6fb8; }
   .gender-row.female .g-fill { background: #db2777; }
-  .gender-row.unknown .g-fill { background: #94a3b8; }
+  .gender-row.unknown .g-fill { background: #666e7c; }
   .gender-row .g-count { flex: 0 0 92px; text-align: right; font-size: 10.5px; color: #666; }
 
   .empty-note {
-    color: #898781;
+    color: #666e7c;
     font-size: 12px;
     font-style: italic;
   }

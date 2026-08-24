@@ -79,7 +79,7 @@ function handle_report_semester(): void
     background: var(--surface-white, #fff); box-shadow: 0 2px 10px rgba(0,0,0,.03);
   }
   .kpi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #666; margin-bottom: 6px; }
-  .kpi-card .value { font-size: 21px; font-weight: bold; color: var(--primary, #1e3a8a); }
+  .kpi-card .value { font-size: 21px; font-weight: bold; color: var(--primary, #1a2947); }
   .kpi-card .sub { font-size: 11px; color: #888; margin-top: 4px; }
   .panel { border: 1px solid var(--outline-variant, #ccc); border-radius: 10px; padding: 16px 18px; background: var(--surface-white, #fff); margin-bottom: 16px; }
   .panel h3 { font-size: 14px; margin: 0 0 12px; color: #333; }
@@ -87,12 +87,12 @@ function handle_report_semester(): void
   .month-row .meta { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
   .month-row .meta .count { font-weight: bold; }
   .month-track { background: #eee; border-radius: 4px; height: 12px; overflow: hidden; }
-  .month-fill { background: var(--primary, #1e3a8a); height: 100%; }
+  .month-fill { background: var(--primary, #1a2947); height: 100%; }
   .dept-row { margin-bottom: 10px; }
   .dept-row .dept-meta { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
   .dept-row .dept-meta .count { font-weight: bold; }
   .dept-bar-track { background: #eee; border-radius: 4px; height: 10px; overflow: hidden; }
-  .dept-bar-fill { background: var(--secondary, #2563eb); height: 100%; }
+  .dept-bar-fill { background: var(--secondary, #0a6fb8); height: 100%; }
   .empty-note { color: #888; font-size: 12px; font-style: italic; }
   @media print { .panel, .kpi-grid, .story-box { break-inside: avoid; } }
 </style>

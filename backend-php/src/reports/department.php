@@ -119,14 +119,14 @@ function handle_report_department(): void
     background: var(--surface-white, #fff); box-shadow: 0 2px 10px rgba(0,0,0,.03);
   }
   .kpi-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #666; margin-bottom: 6px; }
-  .kpi-card .value { font-size: 22px; font-weight: bold; color: var(--primary, #1e3a8a); }
+  .kpi-card .value { font-size: 22px; font-weight: bold; color: var(--primary, #1a2947); }
   .kpi-card .sub { font-size: 11px; color: #888; margin-top: 4px; }
 
   .rank-bars { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
   .rank-bars .row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
   .rank-bars .name { width: 160px; flex-shrink: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rank-bars .track { flex: 1; background: #eee; border-radius: 4px; height: 14px; overflow: hidden; }
-  .rank-bars .fill { background: var(--primary, #1e3a8a); height: 100%; }
+  .rank-bars .fill { background: var(--primary, #1a2947); height: 100%; }
   .rank-bars .count { width: 40px; font-weight: 700; }
   .rank-bars .links { display: flex; gap: 4px; flex-shrink: 0; }
   .rank-bars .links a { color: var(--on-surface-variant, #666); text-decoration: none; }
@@ -136,17 +136,17 @@ function handle_report_department(): void
   .mom-row .bar-line { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
   .mom-row .bar-track { flex: 1; background: #eee; border-radius: 4px; height: 10px; overflow: hidden; }
   .mom-row .bar-fill { height: 100%; }
-  .mom-row .bar-fill.prev { background: #94a3b8; }
-  .mom-row .bar-fill.cur { background: var(--primary, #1e3a8a); }
+  .mom-row .bar-fill.prev { background: #666e7c; }
+  .mom-row .bar-fill.cur { background: var(--primary, #1a2947); }
   .mom-row .bar-count { font-size: 11px; width: 26px; text-align: right; flex-shrink: 0; }
   .mom-legend { display: flex; gap: 14px; font-size: 11px; color: #666; margin-bottom: 12px; }
   .mom-legend span { display: flex; align-items: center; gap: 5px; }
   .mom-legend .swatch { width: 10px; height: 10px; border-radius: 3px; }
-  .swatch.prev { background: #94a3b8; } .swatch.cur { background: var(--primary, #1e3a8a); }
+  .swatch.prev { background: #666e7c; } .swatch.cur { background: var(--primary, #1a2947); }
 
   .trend-chart { display: flex; align-items: flex-end; gap: 2px; height: 100px; border-bottom: 1px solid #ddd; padding-top: 8px; }
   .trend-chart .bar-wrap { flex: 1; display: flex; align-items: flex-end; height: 100%; }
-  .trend-chart .bar { width: 100%; background: var(--secondary, #2563eb); border-radius: 2px 2px 0 0; min-height: 1px; }
+  .trend-chart .bar { width: 100%; background: var(--secondary, #0a6fb8); border-radius: 2px 2px 0 0; min-height: 1px; }
   .empty-note { color: #888; font-size: 12px; font-style: italic; }
   .panel { border: 1px solid var(--outline-variant, #ccc); border-radius: 10px; padding: 16px 18px; background: var(--surface-white, #fff); margin-bottom: 16px; }
   .panel h3 { font-size: 14px; margin: 0 0 12px; color: #333; }

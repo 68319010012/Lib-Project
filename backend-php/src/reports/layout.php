@@ -27,7 +27,7 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
         $img = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($img, 255, 255, 255);
         imagefill($img, 0, 0, $white);
-        $bar = imagecolorallocate($img, 30, 58, 138);
+        $bar = imagecolorallocate($img, 26, 41, 71);
         $text = imagecolorallocate($img, 15, 23, 42);
         $labelW = (int) (180 * $k);
         $trackW = $width - $labelW - (int) (60 * $k);
@@ -70,7 +70,7 @@ function render_pdf_bar_chart(array $labels, array $values, string $orientation 
         $img = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($img, 255, 255, 255);
         imagefill($img, 0, 0, $white);
-        $bar = imagecolorallocate($img, 30, 58, 138);
+        $bar = imagecolorallocate($img, 26, 41, 71);
         $axis = imagecolorallocate($img, 203, 213, 225);
         $text = imagecolorallocate($img, 71, 85, 105);
         imageline($img, $padL, $height - $padB, $width - $padR, $height - $padB, $axis);
@@ -161,7 +161,7 @@ function render_pdf_icon_tile(string $kind, array $tint, array $accent, int $siz
 // เหตุผลเดียวกับ render_pdf_bar_chart(): mPDF วาด SVG/CSS ที่ซับซ้อนไม่ได้
 // ให้ GD วาดเป็นภาพแบนๆ แล้ว mPDF แค่วางลงไป
 //
-// $slices = [['label' => 'ปวช.', 'value' => 1084, 'color' => [37, 99, 235]], ...]
+// $slices = [['label' => 'ปวช.', 'value' => 1084, 'color' => [10, 111, 184]], ...]
 // $opt    = ['center_top' => 'รวม', 'unit' => 'ครั้ง', 'legend_width' => 300]
 function render_pdf_donut_chart(array $slices, string $centerValue = '', string $centerUnit = '', int $width = 720, int $height = 250, array $opt = []): string
 {
@@ -182,7 +182,7 @@ function render_pdf_donut_chart(array $slices, string $centerValue = '', string 
     $img = imagecreatetruecolor($width, $height);
     imagefill($img, 0, 0, imagecolorallocate($img, 255, 255, 255));
     $ink = imagecolorallocate($img, 30, 41, 59);
-    $muted = imagecolorallocate($img, 100, 116, 139);
+    $muted = imagecolorallocate($img, 105, 93, 78);
 
     $d = (int) min($height - 16, (int) ($opt['diameter'] ?? 210));
     $cx = 12 + $d / 2;
@@ -349,8 +349,8 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     // the whole class of bug rather than escaping two sigils.
     $pdfStyle = <<<'CSS'
     * { box-sizing: border-box; page-break-inside: auto; }
-    body { font-family: ibmplexsansthai; font-size: 12px; color: #0f172a; }
-    h1 { font-size: 18px; color: #1e3a8a; margin: 0 0 4px; }
+    body { font-family: ibmplexsansthai; font-size: 12px; color: #212430; }
+    h1 { font-size: 18px; color: #1a2947; margin: 0 0 4px; }
     h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 12px; }
     .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
     .filter-bar, .compare-filter, .month-filter, .toolbar, .settings-panel, .empty .empty-cta,
@@ -373,15 +373,15 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .kpi-sub { font-size: 9px; }
     .delta.up { color: #059669; } .delta.down { color: #d97706; } .delta.flat { color: #888; }
     .rank-row, .gender-row { display: block; margin-bottom: 1px; }
-    .rank-badge { display: inline-block; width: 16px; font-size: 9px; font-weight: bold; color: #1e3a8a; }
+    .rank-badge { display: inline-block; width: 16px; font-size: 9px; font-weight: bold; color: #1a2947; }
     .rank-name, .g-label { display: inline-block; width: 130px; font-size: 9px; font-weight: bold; }
     .rank-track, .g-track {
       display: inline-block; width: 240px; height: 7px; background: #eef2f6;
       border-radius: 4px; vertical-align: middle; overflow: hidden;
     }
-    .rank-fill, .g-fill { display: block; height: 7px; background: #2563eb; }
+    .rank-fill, .g-fill { display: block; height: 7px; background: #0a6fb8; }
     .gender-row.female .g-fill { background: #db2777; }
-    .gender-row.unknown .g-fill { background: #94a3b8; }
+    .gender-row.unknown .g-fill { background: #666e7c; }
     .rank-count, .g-count { display: inline-block; width: 110px; text-align: right; font-size: 9px; color: #666; }
     /* mini-panel-row is the on-screen div/%-height trend+hourly chart —
        exactly the shape that mis-measured into blank pages (see the block
@@ -400,7 +400,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .rank-bars, .mom-row, .mom-legend,
     .dept-row, .month-row,
     .dept-compare-row, .compare-legend { display: none; }
-    .meta { display: inline-block; margin-bottom: 10px; font-size: 11px; color: #475569; border: 1px solid #cbd5e1; border-radius: 10px; padding: 4px 10px; }
+    .meta { display: inline-block; margin-bottom: 10px; font-size: 11px; color: #6b6153; border: 1px solid #d5d0c6; border-radius: 10px; padding: 4px 10px; }
     /* float, not inline-block. mPDF promotes an inline-block box back to a
        block once it contains block children — which every KPI card does
        (.kpi-head / .kpi-value are divs) — so the cards stacked one per row and
@@ -414,7 +414,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
        ~571 การ์ดสามใบต่อแถวจึงกินความสูงที่เหลือน้อยอยู่แล้วไปเปล่าๆ */
     .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card,
     .headline-grid .headline-card {
-      float: left; width: 23.5%; border: 1px solid #cbd5e1;
+      float: left; width: 23.5%; border: 1px solid #d5d0c6;
       border-radius: 8px; padding: 5px 7px; margin: 0 1.5% 5px 0;
     }
     /* รายงานสรุปผู้บริหารมีการ์ดหกใบพอดี เรียงแถวเดียวจบบนกระดาษแนวนอน
@@ -425,16 +425,16 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
       content: ''; display: block; clear: both;
     }
     .headline-card .label { font-size: 9px; color: #666; }
-    .headline-card .value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
+    .headline-card .value { font-size: 14px; font-weight: bold; color: #1a2947; }
     .headline-card .delta { font-size: 8.5px; }
     /* executive.php's ranked department rows are three divs that mPDF puts on
        a line each. Its CSS engine is unreliable with long descendant chains,
        so these stay single-class and lay the parts out with widths instead of
        display:inline — floats it does honour. */
     .rank-list .rank-row { border-bottom: 1px solid #eef2f7; padding: 1px 0; }
-    .rank-num { float: left; width: 6%; font-weight: bold; color: #1e3a8a; font-size: 10px; }
+    .rank-num { float: left; width: 6%; font-weight: bold; color: #1a2947; font-size: 10px; }
     .rank-row .name { float: left; width: 64%; font-size: 10px; font-weight: bold; }
-    .rank-row .count { float: left; width: 28%; font-size: 10px; color: #475569; text-align: right; }
+    .rank-row .count { float: left; width: 28%; font-size: 10px; color: #6b6153; text-align: right; }
     .rank-row::after { content: ''; display: block; clear: both; }
     /* executive.php's three breakdown tables. Same reason as the cards above:
        mPDF has no flexbox, so .split-row would stack them full-width and cost
@@ -448,29 +448,29 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .mini-table th { font-size: 8px; padding: 2px 3px; }
     .mini-table td { font-size: 9px; padding: 2px 3px; }
     .summary-strip .label, .kpi-card .label, .kpi-label { font-size: 9px; color: #666; text-transform: uppercase; }
-    .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
+    .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1a2947; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 3px 6px; font-size: 10px; text-align: left; border-bottom: 1px solid #cbd5e1; }
-    th { background: #1e3a8a; color: #fff; }
-    tbody tr:nth-child(even) { background: #f8fafc; }
-    .story-box { background: #eaf1fb; border: 1px solid #cbd5e1; border-radius: 10px; padding: 5px 10px; margin-bottom: 4px; }
+    th, td { padding: 3px 6px; font-size: 10px; text-align: left; border-bottom: 1px solid #d5d0c6; }
+    th { background: #1a2947; color: #fff; }
+    tbody tr:nth-child(even) { background: #faf9f6; }
+    .story-box { background: #eaf1fb; border: 1px solid #d5d0c6; border-radius: 10px; padding: 5px 10px; margin-bottom: 4px; }
     .story-box p { font-size: 10px !important; line-height: 1.5 !important; margin: 0; }
     .status-pill, .type-pill { padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; }
     .status-pill.in { background: #dcfce7; color: #166534; }
-    .status-pill.out { background: #f1f5f9; color: #475569; }
+    .status-pill.out { background: #f1f5f9; color: #6b6153; }
     .bar-track { background: #eef2f6; border-radius: 4px; height: 8px; }
-    .bar-fill { background: #1e3a8a; height: 8px; border-radius: 4px; }
-    .bar-fill.b { background: #2563eb; }
-    .empty { color: #475569; font-style: italic; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 14px; text-align: center; }
+    .bar-fill { background: #1a2947; height: 8px; border-radius: 4px; }
+    .bar-fill.b { background: #0a6fb8; }
+    .empty { color: #6b6153; font-style: italic; border: 1px dashed #d5d0c6; border-radius: 10px; padding: 14px; text-align: center; }
     /* ---- แดชบอร์ด (dx-*) ใช้มาร์กอัปชุดเดียวกับหน้าจอ ต่างกันแค่ CSS ชุดนี้ ----
        ค่าที่ตั้งไว้ชดเชยพฤติกรรมของ mPDF เอง: มันย่อขนาดตัวอักษรที่อยู่ในตาราง
        ซ้อนตาราง ตัวเลขจึงดูใหญ่เกินจริงถ้าอ่านจากโค้ดอย่างเดียว แต่ขนาดที่
        พิมพ์ออกมาจริงตรงกับที่ออกแบบไว้ */
     .dx-head { text-align: center; margin-bottom: 9px; }
-    .dx-org { font-size: 9.5px; color: #94a3b8; }
+    .dx-org { font-size: 9.5px; color: #666e7c; }
     .dx-title { font-size: 21px; font-weight: bold; color: #111827; }
-    .dx-sub { font-size: 10.5px; color: #64748b; }
-    .dx-empty { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #475569; }
+    .dx-sub { font-size: 10.5px; color: #5c6470; }
+    .dx-empty { border: 1px dashed #d5d0c6; border-radius: 8px; padding: 20px; text-align: center; color: #6b6153; }
 
     .dx-kpi-row, .dx-row { width: 100%; border-collapse: separate; border-spacing: 5px 0; }
     .dx-row { margin-top: 7px; }
@@ -480,14 +480,14 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .dx-kpi-icon { width: 44px; padding: 11px 0 11px 11px; vertical-align: top; }
     .dx-kpi-icon img { width: 33px; }
     .dx-kpi-text { padding: 11px 12px 11px 8px; }
-    .dx-kpi-label { font-size: 11px; color: #64748b; }
+    .dx-kpi-label { font-size: 11px; color: #5c6470; }
     .dx-kpi-value { font-size: 23px; font-weight: bold; color: #111827; }
-    .dx-kpi-unit { font-size: 11px; font-weight: normal; color: #64748b; }
-    .dx-delta { font-size: 10px; color: #94a3b8; }
+    .dx-kpi-unit { font-size: 11px; font-weight: normal; color: #5c6470; }
+    .dx-delta { font-size: 10px; color: #666e7c; }
     .dx-delta.up b { color: #16a34a; }
     .dx-delta.down b { color: #dc2626; }
-    .dx-delta.flat b { color: #94a3b8; }
-    .dx-delta span { color: #94a3b8; }
+    .dx-delta.flat b { color: #666e7c; }
+    .dx-delta span { color: #666e7c; }
 
     .dx-panel-body { padding: 10px 12px 12px; }
     .dx-panel-title { font-size: 21px; font-weight: bold; color: #111827; margin-bottom: 6px; }
@@ -496,10 +496,10 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .dx-peak { width: 100%; }
     .dx-peak-info { width: 31%; vertical-align: middle; text-align: center; padding-right: 8px; }
     .dx-peak-info img { width: 52px; }
-    .dx-peak-range { font-size: 29px; font-weight: bold; color: #2563eb; margin-top: 6px; }
-    .dx-peak-note { font-size: 18px; color: #64748b; }
-    .dx-peak-count { font-size: 38px; font-weight: bold; color: #2563eb; }
-    .dx-peak-unit { font-size: 18px; font-weight: normal; color: #64748b; }
+    .dx-peak-range { font-size: 29px; font-weight: bold; color: #0a6fb8; margin-top: 6px; }
+    .dx-peak-note { font-size: 18px; color: #5c6470; }
+    .dx-peak-count { font-size: 38px; font-weight: bold; color: #0a6fb8; }
+    .dx-peak-unit { font-size: 18px; font-weight: normal; color: #5c6470; }
     .dx-peak-chart { width: 69%; vertical-align: middle; }
 
     CSS;
@@ -532,7 +532,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
         $hasHalf = $hasHalf || $half;
         $box = $half ? 'float:left; width:49%; margin:0 1% 6px 0;' : 'margin-bottom:6px;';
         $chartsHtml .= '<div style="' . $box . '">'
-            . '<div style="font-size:11px; font-weight:bold; color:#1e3a8a; margin-bottom:3px;">' . htmlspecialchars($chart['title']) . '</div>'
+            . '<div style="font-size:11px; font-weight:bold; color:#1a2947; margin-bottom:3px;">' . htmlspecialchars($chart['title']) . '</div>'
             . '<img src="' . $img . '" style="width:100%;">'
             . '</div>';
     }
@@ -547,7 +547,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
         . $heading
         . $chartsHtml
         . $content
-        . '<p style="margin-top:16px; font-size:9px; color:#475569;">สร้างรายงานเมื่อ ' . htmlspecialchars(date('d/m/Y H:i'))
+        . '<p style="margin-top:16px; font-size:9px; color:#6b6153;">สร้างรายงานเมื่อ ' . htmlspecialchars(date('d/m/Y H:i'))
         . ' น. — จัดทำโดย ' . htmlspecialchars($_SESSION['username'] ?? '-') . '</p>';
 
     // mPDF's border-color parser chokes on CSS custom properties (var(...))
@@ -598,20 +598,20 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 <link rel="stylesheet" href="/assets/css/report-fonts.css">
 <style>
   :root {
-    --primary: #1e3a8a;
-    --primary-container: #1e40af;
-    --secondary: #2563eb;
-    --surface: #f8fafc;
+    --primary: #1a2947;
+    --primary-container: #24365c;
+    --secondary: #0a6fb8;
+    --surface: #faf9f6;
     --surface-white: #ffffff;
-    --outline-variant: #cbd5e1;
-    --on-surface-variant: #475569;
-    --text-secondary: #475569;
+    --outline-variant: #d5d0c6;
+    --on-surface-variant: #6b6153;
+    --text-secondary: #6b6153;
   }
   * { box-sizing: border-box; }
   body {
     font-family: 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Tahoma', 'Leelawadee UI', sans-serif;
     margin: 0;
-    color: #0f172a;
+    color: #212430;
     background: var(--surface);
   }
   /* Form controls do not inherit font-family — the browser gives them its own
@@ -695,7 +695,7 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   .toolbar-more-menu button:hover { background: #e8f0fe; filter: none; }
 
   header.report-head {
-    background: linear-gradient(135deg, var(--primary-container) 0%, #0f172a 100%);
+    background: linear-gradient(135deg, var(--primary-container) 0%, #212430 100%);
     color: #fff;
     padding: 28px 24px 22px;
   }
@@ -800,7 +800,7 @@ function render_report_layout(string $title, string $subtitle, string $content, 
      before. */
   .story-box {
     background: linear-gradient(135deg, #eaf1fb, #f1f5f9);
-    border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px 24px; margin-bottom: 20px;
+    border: 1px solid #d5d0c6; border-radius: 16px; padding: 20px 24px; margin-bottom: 20px;
   }
   .story-box p { font-size: 15px; line-height: 1.8; color: #1e293b; margin: 0; }
   .story-box b { color: var(--primary); }

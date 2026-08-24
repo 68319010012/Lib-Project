@@ -92,8 +92,8 @@ function handle_report_compare(): void
   .compare-filter .field { display: flex; align-items: center; gap: 8px; }
   .compare-filter label { font-size: 12px; color: var(--on-surface-variant, #555); font-weight: 600; }
   .compare-filter input { border: 1px solid var(--outline-variant, #ccc); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
-  .compare-filter .vs { font-size: 13px; font-weight: 800; color: #1e3a8a; }
-  .compare-filter button { border: none; background: #1e3a8a; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .compare-filter .vs { font-size: 13px; font-weight: 800; color: #1a2947; }
+  .compare-filter button { border: none; background: #1a2947; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
   .compare-filter button:hover { filter: brightness(1.1); }
 
   .metric-table {
@@ -102,9 +102,9 @@ function handle_report_compare(): void
     box-shadow: 0 2px 10px rgba(0,0,0,.03); margin-bottom: 28px;
   }
   .metric-table th, .metric-table td { padding: 14px 18px; text-align: left; font-size: 14px; }
-  .metric-table th { background: #1e3a8a; color: #fff; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+  .metric-table th { background: #1a2947; color: #fff; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
   .metric-table th.num, .metric-table td.num { text-align: right; font-family: 'IBM Plex Mono', monospace; }
-  .metric-table tbody tr:nth-child(even) { background: var(--surface, #f8fafc); }
+  .metric-table tbody tr:nth-child(even) { background: var(--surface, #faf9f6); }
   .metric-table .delta { font-weight: 700; }
   .metric-table .delta.up { color: #059669; }
   .metric-table .delta.down { color: #d97706; }
@@ -118,16 +118,16 @@ function handle_report_compare(): void
   .compare-legend { display: flex; gap: 18px; font-size: 12px; color: #666; margin-bottom: 14px; }
   .compare-legend span { display: flex; align-items: center; gap: 6px; }
   .compare-legend .swatch { width: 12px; height: 12px; border-radius: 3px; }
-  .swatch.a { background: #94a3b8; }
-  .swatch.b { background: #1e3a8a; }
+  .swatch.a { background: #666e7c; }
+  .swatch.b { background: #1a2947; }
 
   .dept-compare-row { margin-bottom: 14px; }
   .dept-compare-row .dept-name { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
   .dept-compare-row .bar-line { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
   .dept-compare-row .bar-track { flex: 1; background: #eee; border-radius: 4px; height: 12px; overflow: hidden; }
   .dept-compare-row .bar-fill { height: 100%; }
-  .dept-compare-row .bar-fill.a { background: #94a3b8; }
-  .dept-compare-row .bar-fill.b { background: #1e3a8a; }
+  .dept-compare-row .bar-fill.a { background: #666e7c; }
+  .dept-compare-row .bar-fill.b { background: #1a2947; }
   .dept-compare-row .bar-count { font-family: 'IBM Plex Mono', monospace; font-size: 12px; width: 32px; text-align: right; flex-shrink: 0; }
 
   .empty-note { color: #888; font-size: 12px; font-style: italic; }
