@@ -185,7 +185,7 @@ require __DIR__ . '/partials/guard.php';
 
 </main>
 
-  <div id="day-detail-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-start sm:items-center justify-center px-gutter py-8">
+  <div id="day-detail-modal" class="ntc-modal hidden fixed inset-0 z-[95] bg-black/50 flex items-start sm:items-center justify-center px-gutter py-8">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
       <div class="flex items-center justify-between p-6 border-b border-outline-variant dark:border-dm-border flex-shrink-0">
         <div class="min-w-0">

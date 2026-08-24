@@ -11,7 +11,7 @@
 // label on screen, so a screen reader gets the same three facts per visit
 // that the column heads used to supply.
 ?>
-<div id="history-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-start sm:items-center justify-center px-gutter py-6 sm:py-8">
+<div id="history-modal" class="ntc-modal hidden fixed inset-0 z-[95] bg-black/50 flex items-start sm:items-center justify-center px-gutter py-6 sm:py-8">
   <div
     role="dialog"
     aria-modal="true"

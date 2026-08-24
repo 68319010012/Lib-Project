@@ -100,7 +100,7 @@
     </section>
   </main>
 
-  <div id="signup-result-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-center justify-center px-gutter py-8">
+  <div id="signup-result-modal" class="ntc-modal hidden fixed inset-0 z-[95] bg-black/50 flex items-center justify-center px-gutter py-8">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-8 text-center">
       <div id="signup-result-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
         <span class="material-symbols-outlined text-4xl" id="signup-result-icon-glyph"></span>

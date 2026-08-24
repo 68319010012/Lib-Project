@@ -31,12 +31,12 @@ require __DIR__ . '/partials/guard.php';
     </header>
 
     <section class="max-w-7xl w-full mx-auto px-gutter -mt-6 md:-mt-10 relative z-20 py-8 flex-grow">
-      <div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-stretch lg:items-end mb-8">
+      <div class="admin-filter-bar bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-stretch lg:items-end mb-8">
         <div class="w-full lg:flex-1 relative">
           <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
           <input id="members-search" aria-label="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้" class="w-full pl-12 pr-4 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text" />
         </div>
-        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+        <div class="admin-filter-fields flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
             <label for="members-department" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
             <select id="members-department" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
@@ -97,7 +97,7 @@ require __DIR__ . '/partials/guard.php';
        is the primary key of `students`, the foreign key from `users`, and the
        login name, so changing it is a three-table rename, not a field edit.
        A mistyped ID is fixed by deleting the account and signing up again. -->
-  <div id="member-edit-modal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+  <div id="member-edit-modal" class="ntc-modal hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-lg w-full member-edit-panel">
       <div class="flex items-center justify-between p-6 border-b border-outline-variant dark:border-dm-border">
         <div>
@@ -206,7 +206,7 @@ require __DIR__ . '/partials/guard.php';
        corner toast: the admin has to read this temp password aloud to the
        student, so it gets big monospace type, click-to-select, and a copy
        button instead of being buried in a one-line toast sentence. -->
-  <div id="reset-result-modal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+  <div id="reset-result-modal" class="ntc-modal hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-md w-full p-8">
       <div class="flex flex-col items-center text-center">
         <div class="w-12 h-12 rounded-full bg-status-success/10 flex items-center justify-center text-status-success mb-4">

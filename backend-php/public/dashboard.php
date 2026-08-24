@@ -83,7 +83,7 @@ require __DIR__ . '/partials/guard.php';
     </div>
   </main>
 
-<div id="checkin-modal" class="hidden fixed inset-0 z-[80] bg-black/50 flex items-center justify-center px-gutter">
+<div id="checkin-modal" class="ntc-modal hidden fixed inset-0 z-[80] bg-black/50 flex items-center justify-center px-gutter">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-6">
       <h3 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim mb-1">จะอยู่นานแค่ไหน?</h3>
       <p class="text-body-md text-text-secondary dark:text-dm-text-secondary mb-4">เลือกเวลาที่ตั้งใจจะออกจากห้องสมุด</p>

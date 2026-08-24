@@ -5,7 +5,7 @@
      Centered icon + title + optional subject + message, matching the
      reset-result modal's layout so confirmations read as one consistent
      dialog rather than a wall of left-aligned text. -->
-<div id="confirm-modal" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+<div id="confirm-modal" class="ntc-modal hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
   <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-6">
     <div class="flex flex-col items-center text-center">
       <div id="confirm-modal-icon-wrap" class="w-12 h-12 rounded-full flex items-center justify-center mb-4">

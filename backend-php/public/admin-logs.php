@@ -54,7 +54,7 @@ require __DIR__ . '/partials/guard.php';
 
       <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border overflow-hidden">
         <div class="p-6 border-b border-outline-variant/30 dark:border-dm-border bg-surface-container-low dark:bg-dm-bg flex flex-wrap gap-4 items-center">
-          <div class="flex-1 min-w-[260px] relative">
+          <div class="admin-search-field flex-1 min-w-[260px] relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
             <input id="logs-search" aria-label="ค้นหาด้วยชื่อ รหัสนักศึกษา หรือแผนกวิชา" class="w-full pl-12 pr-4 py-3 bg-surface-white dark:bg-dm-surface dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="ค้นหาด้วยชื่อ รหัสนักศึกษา หรือแผนกวิชา..." type="text" />
           </div>
