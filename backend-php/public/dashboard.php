@@ -83,15 +83,7 @@ require __DIR__ . '/partials/guard.php';
     </div>
   </main>
 
-  <footer class="bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border w-full py-8 mt-auto">
-    <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-      <div class="flex flex-col md:flex-row items-center gap-6">
-        <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</span>
-      </div>
-    </div>
-  </footer>
-
-  <div id="checkin-modal" class="hidden fixed inset-0 z-[80] bg-black/50 flex items-center justify-center px-gutter">
+<div id="checkin-modal" class="hidden fixed inset-0 z-[80] bg-black/50 flex items-center justify-center px-gutter">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-6">
       <h3 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim mb-1">จะอยู่นานแค่ไหน?</h3>
       <p class="text-body-md text-text-secondary dark:text-dm-text-secondary mb-4">เลือกเวลาที่ตั้งใจจะออกจากห้องสมุด</p>

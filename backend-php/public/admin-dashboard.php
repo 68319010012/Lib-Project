@@ -183,12 +183,7 @@ require __DIR__ . '/partials/guard.php';
       </section>
     </div>
 
-    <footer class="w-full py-8 mt-auto bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border">
-      <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-        <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">ห้องสมุด NTC</span>
-      </div>
-    </footer>
-  </main>
+</main>
 
   <div id="day-detail-modal" class="hidden fixed inset-0 z-[95] bg-black/50 flex items-start sm:items-center justify-center px-gutter py-8">
     <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">

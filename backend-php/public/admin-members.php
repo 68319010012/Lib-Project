@@ -91,12 +91,7 @@ require __DIR__ . '/partials/guard.php';
       </div>
     </section>
 
-    <footer class="w-full py-8 bg-surface-container-highest dark:bg-dm-surface border-t border-outline-variant dark:border-dm-border mt-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full max-w-7xl mx-auto gap-4">
-        <span class="text-label-caps font-label-caps font-bold text-primary dark:text-primary-fixed-dim">พอร์ทัลเจ้าหน้าที่ห้องสมุด NTC</span>
-      </div>
-    </footer>
-  </main>
+</main>
 
   <!-- Edit member. Student ID and username are shown but not editable: the ID
        is the primary key of `students`, the foreign key from `users`, and the

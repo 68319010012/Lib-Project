@@ -4122,12 +4122,10 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
    วัดที่จอ 1440 ได้สามกล่องที่ใช้คนละมาตรวัดบนหน้าเดียวกัน:
      เนื้อในแบนเนอร์  640px   (ในแถบกว้าง 1424 เหลือว่างข้างละ 392)
      การ์ดล็อกอิน     576px
-     เนื้อใน footer  1280px  เริ่มที่ x=72
-   ตัวหนังสือ footer จึงไปเกาะขอบซ้ายสุด ไม่ตรงกับอะไรที่อยู่เหนือมันเลย
-   และ footer สูง 111px เกือบเท่าแบนเนอร์ 102px ทั้งที่มีแค่บรรทัดลิขสิทธิ์
+   แก้ให้ทุกกล่องใช้มาตรเดียวกับการ์ด
 
-   แก้สองอย่าง: ให้ทุกกล่องใช้มาตรเดียวกับการ์ด และลดน้ำหนักของ footer
-   ลงให้สมกับเนื้อหาที่มันมี
+   (footer ของหน้าล็อกอินถูกถอดออกไปแล้วพร้อมการออกแบบหน้าใหม่ กฎที่เคยจัด
+   ระยะให้มันจึงถูกลบตามไปด้วย)
    --------------------------------------------------------------------- */
 
 /* แถบน้ำเงินยังเต็มความกว้างเหมือนเดิม แต่เนื้อในใช้มาตรเดียวกับการ์ด */
@@ -4142,18 +4140,6 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
 .lib-banner h1 { font-size: 25px; }
 .lib-banner h2 { font-size: 16.5px; margin-left: 11px; }
 .lib-banner .content { padding-top: 16px; padding-bottom: 18px; }
-
-/* footer: ใช้มาตรเดียวกับการ์ด และจัดกลางให้ตรงแนวกับทุกอย่างเหนือมัน
-   py-8 (32px บนล่าง) มากเกินไปสำหรับสองบรรทัด ลดเหลือ 20px */
-.login-page-footer { padding-top: 20px; padding-bottom: 20px; }
-.login-page-footer > div {
-  max-width: 576px;
-  justify-content: center;
-  gap: 4px;
-}
-.login-page-footer .footer-brand { align-items: center; }
-.login-page-footer .footer-brand > span { margin-bottom: 2px; }
-.login-page-footer .footer-brand > p { text-align: center; }
 
 @media (max-width: 760px) {
   .lib-banner h1 { font-size: 20px; }
@@ -4641,10 +4627,17 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 
 /* Says which system this is before anything else — someone landing on the URL
    should not have to guess whose library they are signing in to. */
-.login-identity { text-align: center; margin-bottom: 18px; }
-.login-identity-icon {
-  font-size: 30px; color: #fff; opacity: .92;
-  display: block; margin: 0 auto 8px;
+/* ตราวิทยาลัยและชื่อวิทยาลัย อยู่ใต้หัวเรื่องของการ์ด จัดกึ่งกลางทั้งชุด */
+.login-identity { text-align: center; margin-bottom: 20px; }
+.login-crest {
+  display: block;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto 10px;
+  border-radius: 9999px;
+  /* ตราเป็นเหรียญพื้นขาว วางบนการ์ดกระจกสีเข้ม เติมวงแสงจางๆ รอบนอกให้ขอบ
+     ไม่ตัดกับพื้นหลังจนดูเหมือนสติกเกอร์แปะ */
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .16), 0 10px 26px -10px rgba(3, 8, 18, .75);
 }
 /* Thai has no spaces, so "ห้องสมุดวิทยาลัยเทคนิคนครนายก" is one unbreakable
    word — without overflow-wrap it forces the card wider than a phone screen
@@ -4667,7 +4660,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   font-weight: 700;
   line-height: 1.15;
   text-align: center;
-  margin: 0 0 22px;
+  /* หัวเรื่องอยู่บนสุดของการ์ดแล้ว ระยะห่างด้านล่างจึงเป็นช่องไฟก่อนถึงตรา
+     ไม่ใช่ก่อนถึงช่องกรอกเหมือนตอนที่ยังอยู่ล่างสุดของหัวการ์ด */
+  margin: 0 0 16px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
 }
 
@@ -4830,7 +4825,7 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   .login-glass { padding: 26px 20px; border-radius: 18px; }
   .login-body { padding: 16px; }
   .login-identity { margin-bottom: 14px; }
-  .login-identity-icon { font-size: 26px; margin-bottom: 6px; }
+  .login-crest { width: 84px; height: 84px; margin-bottom: 8px; }
   .login-field label { font-size: 10.5px; margin-bottom: 5px; }
   .login-input-wrap input { height: 46px; font-size: 14px; }
   .login-input-icon { font-size: 18px; left: 12px; }
@@ -4849,7 +4844,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 @media (max-height: 620px) and (min-width: 481px) {
   .login-glass { padding: 24px 28px; }
   .login-identity { margin-bottom: 12px; }
-  .login-title { margin-bottom: 16px; }
+  /* จอเตี้ยแนวนอน: ตราเล็กลงเพื่อให้ปุ่มเข้าสู่ระบบยังอยู่ในจอโดยไม่ต้องเลื่อน */
+  .login-crest { width: 64px; height: 64px; margin-bottom: 6px; }
+  .login-title { margin-bottom: 12px; }
   .login-form { gap: 12px; }
   .login-input-wrap input { height: 46px; }
   .login-submit { height: 46px; }
