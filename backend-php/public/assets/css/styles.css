@@ -4402,7 +4402,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   opacity: 0;
   transform: scale(1.0);
   will-change: opacity, transform;
-  transition: opacity 2.4s ease-in-out, transform 9s ease-out;
+  /* Slow, gentle switch: a long cross-fade over an even slower Ken Burns zoom
+     that spans the whole time a slide is shown. */
+  transition: opacity 3s ease-in-out, transform 12s ease-out;
   /* Keep the photo's own natural colours, just brighter — a normal, well-lit
      library rather than a heavily tinted one. */
   filter: brightness(1.18) contrast(0.97) saturate(0.94);
@@ -4453,11 +4455,14 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   max-width: 400px;
   padding: 40px 36px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.30);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  /* A darker frosted panel (not a near-transparent white one) so the card
+     stays a clear, readable focal point on ANY slide — the pale British
+     Museum shots used to wash it out until it blended into the background. */
+  background: rgba(17, 24, 39, 0.44);
+  backdrop-filter: blur(18px) saturate(115%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
   color: #fff;
 }
 

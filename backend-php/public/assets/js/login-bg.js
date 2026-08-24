@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '/assets/img/login/scene-3.svg',
   ];
 
-  const INTERVAL_MS = 6500;
+  const INTERVAL_MS = 10000;
   const slides = [];
   let index = 0;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
