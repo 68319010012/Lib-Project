@@ -9,14 +9,10 @@
 
   <main class="login-shell">
     <section class="login-glass rise-in">
+      <img class="login-crest" src="/assets/img/ntc-crest.png?v=<?= ntc_asset_v('assets/img/ntc-crest.png') ?>"
+           alt="ตราวิทยาลัยเทคนิคนครนายก" width="104" height="104" decoding="async">
       <h1 class="login-title">เข้าสู่ระบบ</h1>
-
-      <div class="login-identity">
-        <img class="login-crest" src="/assets/img/ntc-crest.png?v=<?= ntc_asset_v('assets/img/ntc-crest.png') ?>"
-             alt="ตราวิทยาลัยเทคนิคนครนายก" width="104" height="104" decoding="async">
-        <p class="login-identity-org">วิทยาลัยเทคนิคนครนายก</p>
-        <p class="login-identity-sub">ระบบเช็คชื่อเข้า–ออกห้องสมุด</p>
-      </div>
+      <p class="login-identity-org">ห้องสมุดวิทยาลัยเทคนิคนครนายก</p>
 
       <p id="login-error" role="alert" aria-live="assertive" class="login-error hidden"></p>
 

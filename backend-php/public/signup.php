@@ -12,13 +12,6 @@
       <a class="signup-back" href="/login"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> ย้อนกลับ</a>
       <h1 class="login-title">สร้างบัญชี</h1>
 
-      <div class="login-identity">
-        <img class="login-crest" src="/assets/img/ntc-crest.png?v=<?= ntc_asset_v('assets/img/ntc-crest.png') ?>"
-             alt="ตราวิทยาลัยเทคนิคนครนายก" width="104" height="104" decoding="async">
-        <p class="login-identity-org">วิทยาลัยเทคนิคนครนายก</p>
-        <p class="login-identity-sub">ระบบเช็คชื่อเข้า–ออกห้องสมุด</p>
-      </div>
-
       <form class="signup-form" id="signup-form">
         <div class="signup-field">
           <label for="signup-student-id">รหัสนักศึกษา</label>
