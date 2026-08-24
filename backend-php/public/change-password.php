@@ -29,7 +29,7 @@ $backLabel = $isAdmin ? 'กลับไปหน้าภาพรวม' : '�
     <?php $studentActive = 'change-password'; include __DIR__ . '/partials/student-sidebar.php'; ?>
   <?php endif; ?>
 
-  <main class="<?= $isAdmin ? 'admin-main md:ml-64 pt-28 md:pt-16' : 'flex-1 lg:ml-64 pt-28 lg:pt-16' ?>">
+  <main class="<?= $isAdmin ? 'admin-main md:ml-64 pt-28 md:pt-16' : 'student-main flex-1 lg:ml-64 pt-28 lg:pt-16' ?>">
     <!-- px-gutter อยู่ที่กล่องชั้นในทั้งหัวเรื่องและการ์ด ทั้งคู่จึงเป็นกล่อง
          cp-measure + px-gutter เหมือนกันเป๊ะ ขอบซ้ายจึงตรงแนวกันจริง
          (ถ้า px-gutter อยู่ที่ <section> หัวเรื่องจะเยื้องซ้ายกว่าการ์ด 24px) -->

@@ -5,21 +5,27 @@
 $variant = $variant ?? 'student';
 $homeHref = $variant === 'admin' ? '/admin-dashboard' : '/dashboard';
 $profileHref = $variant === 'admin' ? '/admin-members' : '/profile';
+
+// ปุ่มพับแถบเมนูซ้ายบนจอคอม สองฝั่งใช้เบรกพอยต์คนละค่าเพราะแถบเมนูของแต่ละฝั่ง
+// โผล่คนละความกว้าง: ของเจ้าหน้าที่ที่ 768px ของนักศึกษาที่ 1024px ปุ่มต้อง
+// ปรากฏพร้อมแถบที่มันสั่ง ไม่งั้นจะมีปุ่มที่กดแล้วไม่มีอะไรเกิดขึ้น
+$sidebarBreakpoint = $variant === 'admin' ? 'md' : 'lg';
+$sidebarStateKey = $variant === 'admin' ? 'ntc-admin-sidebar-collapsed' : 'ntc-student-sidebar-collapsed';
 ?>
 <header class="bg-primary shadow-md fixed top-0 z-50 w-full">
   <div class="flex justify-between items-center w-full <?= $variant === 'admin' ? 'px-4 sm:px-5' : 'px-gutter' ?> h-16 text-on-primary gap-2">
     <div class="flex items-center gap-2 min-w-0">
-      <?php if ($variant === 'admin'): ?>
       <button
         type="button"
         id="sidebar-toggle-btn"
+        data-collapse-key="<?= htmlspecialchars($sidebarStateKey) ?>"
         aria-label="ย่อ/ขยายเมนูด้านซ้าย"
         title="ย่อ/ขยายเมนูด้านซ้าย"
-        class="hidden md:flex w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center text-on-primary transition-colors flex-shrink-0"
+        aria-expanded="true"
+        class="hidden <?= $sidebarBreakpoint ?>:flex w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center text-on-primary transition-colors flex-shrink-0"
       >
         <span class="material-symbols-outlined text-xl">menu_open</span>
       </button>
-      <?php endif; ?>
       <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
         <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
         <span class="text-headline-md font-headline-md font-bold whitespace-nowrap">NTC Library</span>

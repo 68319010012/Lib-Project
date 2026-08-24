@@ -12,7 +12,7 @@ require __DIR__ . '/partials/guard.php';
 
   <?php $studentActive = 'profile'; include __DIR__ . '/partials/student-sidebar.php'; ?>
 
-  <main class="flex-1 lg:ml-64 pt-28 lg:pt-16">
+  <main class="student-main flex-1 lg:ml-64 pt-28 lg:pt-16">
     <!-- py-12 (auto height) on mobile so a 2-line heading never gets pushed
          into the white card's -mt overlap zone below; fixed h-[240px] only
          once the heading is guaranteed to fit on one line (md:+). -->

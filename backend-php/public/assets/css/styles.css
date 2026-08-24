@@ -2976,6 +2976,21 @@ html.dark body {
   html.sidebar-collapsed .admin-main { margin-left: 0 !important; }
 }
 
+/* แถบเมนูฝั่งนักศึกษาใช้กลไกเดียวกัน ต่างที่เบรกพอยต์: ของนักศึกษาโผล่ที่
+   1024px ไม่ใช่ 768px ถ้าใช้ 768px ร่วมกัน ช่วง 768-1023px จะไปดึง margin
+   ของเนื้อหาออกทั้งที่แถบเมนูยังซ่อนอยู่และไม่มี margin ให้ดึงอยู่แล้ว */
+.student-sidebar-desktop { transition: transform 0.25s ease; }
+@media (min-width: 1024px) {
+  .student-main { transition: margin-left 0.25s ease; }
+  html.sidebar-collapsed .student-sidebar-desktop { transform: translateX(-100%); }
+  html.sidebar-collapsed .student-main { margin-left: 0 !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-sidebar-desktop, .admin-main,
+  .student-sidebar-desktop, .student-main { transition: none; }
+}
+
 .admin-hero-pattern {
   background-image: linear-gradient(180deg, rgba(30, 58, 138, 1) 0%, rgba(15, 23, 42, 1) 100%);
   position: relative;

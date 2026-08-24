@@ -19,8 +19,20 @@ function student_nav_class(string $href, string $active): string
         : 'text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-bg rounded-lg px-4 py-2 flex items-center gap-3 transition-colors';
 }
 ?>
+<!-- ใส่สถานะ "พับอยู่" ก่อนหน้าจะถูกวาด แถบเมนูจึงไม่วูบเข้าออกให้เห็นตอนโหลด
+     (วิธีเดียวกับ partials/admin-sidebar.php) -->
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem('ntc-student-sidebar-collapsed') === '1') {
+        document.documentElement.classList.add('sidebar-collapsed');
+      }
+    } catch (e) {}
+  })();
+</script>
+
 <!-- Desktop sidebar -->
-<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border pt-20 pb-6 px-4 z-40">
+<aside class="student-sidebar-desktop hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-white dark:bg-dm-surface border-r border-outline-variant dark:border-dm-border pt-20 pb-6 px-4 z-40">
   <div class="mb-8 px-4">
     <div class="flex items-center gap-3 mb-2">
       <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
