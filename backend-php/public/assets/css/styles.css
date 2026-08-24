@@ -5067,10 +5067,11 @@ html.dark .cp-back:focus-visible { outline-color: rgb(147 197 253); }
 html.dark .cp-alert { background: rgba(127, 29, 29, .28); border-color: rgba(248, 113, 113, .45); color: #fca5a5; }
 html.dark .cp-success { background: rgba(6, 78, 59, .35); border-color: rgba(52, 211, 153, .45); color: #6ee7b7; }
 
-/* หัวเรื่องกับการ์ดใช้ความกว้างเดียวกัน ขอบซ้ายจึงตรงแนวกัน
-   แคบกว่าหน้าโปรไฟล์เพราะหน้านี้มีช่องกรอกเรียงลงมาแถวเดียว ไม่ใช่ตาราง
-   สองสามคอลัมน์ — การ์ดกว้าง 896px จะเหลือที่ว่างครึ่งขวาทั้งใบ */
-.cp-measure { max-width: 640px; }
+/* หน้านี้ทำงานอย่างเดียวคือเปลี่ยนรหัสผ่าน จึงจัดทุกอย่างไว้กึ่งกลางเป็นแนวตั้ง
+   แถวเดียว ไม่ใช่วางชิดซ้ายแบบหน้าที่มีข้อมูลหลายคอลัมน์ให้กวาดสายตา
+   แคบกว่าหน้าโปรไฟล์ด้วย เพราะการ์ดกว้าง 896px จะเหลือที่ว่างครึ่งขวาทั้งใบ */
+.cp-measure { max-width: 560px; }
+.cp-hero { text-align: center; }
 
 .cp-form { display: grid; gap: 20px; }
 .cp-field { display: grid; gap: 7px; }
@@ -5194,7 +5195,10 @@ html.dark .cp-rules li { color: rgb(148 163 184); }
 html.dark .cp-rules li.ok { color: rgb(110 231 183); }
 html.dark .cp-rules li.ok .material-symbols-outlined { color: rgb(52 211 153); }
 
-.cp-actions { display: flex; justify-content: flex-end; }
+/* ปุ่มอยู่กึ่งกลางให้ตรงแนวกับทุกอย่างเหนือมัน ปุ่มชิดขวาเป็นแบบของฟอร์มที่
+   อยู่ในหน้ารวมหลายส่วน แต่หน้านี้มีปุ่มเดียวและเป็นปลายทางของทั้งหน้า */
+.cp-actions { display: flex; justify-content: center; margin-top: 4px; }
+.cp-submit { min-width: 240px; }
 .cp-submit {
   display: inline-flex;
   align-items: center;
@@ -5228,7 +5232,7 @@ html.dark .cp-rules li.ok .material-symbols-outlined { color: rgb(52 211 153); }
 @media (max-width: 560px) {
   .cp-form { gap: 18px; }
   .cp-actions { justify-content: stretch; }
-  .cp-submit { width: 100%; }
+  .cp-submit { width: 100%; min-width: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -221,6 +221,8 @@ function handle_report_compare(): void
             'labels' => $deptNames,
             'values' => array_column($deptCompare, 'a'),
             'scale_max' => $sharedMax,
+            // สองเดือนที่เอามาเทียบกันควรอยู่ข้างกันบนกระดาษ ไม่ใช่คนละครึ่งหน้า
+            'half' => true,
         ];
         $pdfCharts[] = [
             'title' => "เปรียบเทียบตามแผนกวิชา — $monthB",
@@ -228,6 +230,7 @@ function handle_report_compare(): void
             'labels' => $deptNames,
             'values' => array_column($deptCompare, 'b'),
             'scale_max' => $sharedMax,
+            'half' => true,
         ];
     }
 

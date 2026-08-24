@@ -572,12 +572,8 @@ function handle_report_dashboard(): void
     // sparklines in the exported PDF, so skip generating them there instead.
     $isPdfExport = ($_GET['format'] ?? '') === 'pdf';
 
-    // รายงานแดชบอร์ดออกแบบมาให้จบในกระดาษ A4 แนวนอน 1 หน้า ค่าเริ่มต้นของ
-    // ไฟล์ PDF จึงเป็นแนวนอน ผู้ใช้ยังเลือกแนวตั้งเองได้จากแถบเครื่องมือ
-    // (render_report_pdf() อ่านค่านี้จาก $_GET เช่นกัน จึงต้องตั้งก่อนถึงมัน)
-    if ($isPdfExport && !isset($_GET['orientation'])) {
-        $_GET['orientation'] = 'landscape';
-    }
+    // แดชบอร์ดออกแบบมาให้จบในกระดาษ A4 แนวนอนหน้าเดียว ตอนนี้ทั้งระบบล็อก
+    // แนวนอนแล้ว (render_report_pdf() ใน layout.php) จึงไม่ต้องตั้งค่าอะไรที่นี่
 
     $conn = get_db_connection();
 
@@ -648,8 +644,6 @@ function handle_report_dashboard(): void
         'month' => date('Y-m'),
     ]));
 
-    $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'landscape' : 'portrait';
-
     // นับเฉพาะแถวที่เป็นการเข้า หนึ่งแถว = มาใช้บริการหนึ่งครั้ง
     $visitFilters = $filters + ['log_type' => 'in'];
 
@@ -719,7 +713,7 @@ function handle_report_dashboard(): void
   /* Tighter than layout.php's default 12mm — this report is meant to read as
      one dense, single-page dashboard (Power BI style), not a multi-page
      document, so print margin is trimmed to reclaim usable width/height. */
-  @page { size: A4 <?= $orientation ?>; margin: 8mm; }
+  @page { size: A4 landscape; margin: 8mm; }
 
   /* Slim single-line title bar instead of the shared layout's tall gradient
      hero — overridden here (not in layout.php, which every other report
@@ -741,9 +735,9 @@ function handle_report_dashboard(): void
     border-radius: 0 !important; padding: 10px 2px 16px !important; margin: 0 0 24px !important;
   }
 
-  /* Quick timeframe presets — same chip visual language as the print-settings
-     drawer's orientation chips, just above the detailed filter form instead
-     of inside a drawer. */
+  /* Quick timeframe presets — same chip visual language as the chips in the
+     print-settings drawer, just above the detailed filter form instead of
+     inside a drawer. */
   .quick-filter-chips { display: flex; align-items: center; gap: 8px; margin: 4px 2px 14px; flex-wrap: wrap; }
   .quick-filter-chips .chip {
     font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px;
@@ -1117,7 +1111,6 @@ function handle_report_dashboard(): void
 </div>
 
 <form class="filter-bar" method="get">
-  <input type="hidden" name="orientation" value="<?= htmlspecialchars($orientation) ?>">
   <div class="field">
     <label for="month">เดือน</label>
     <?= render_month_select($useCustomRange ? '' : $month, 'month', 'month', 18, '— ใช้ช่วงวันที่ด้านล่าง —') ?>

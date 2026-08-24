@@ -167,7 +167,8 @@ function handle_report_executive(): void
   .split-row { display: flex; flex-wrap: wrap; gap: 18px; }
   .split-col { flex: 1 1 210px; min-width: 200px; }
 
-  @page { size: A4 portrait; margin: 14mm; }
+  /* แนวนอนเหมือนรายงานฉบับอื่นทั้งหมด — กระดาษของทั้งระบบเป็นแผ่นเดียวกัน */
+  @page { size: A4 landscape; margin: 14mm; }
   @media print { .month-filter { display: none; } }
 </style>
     <?php

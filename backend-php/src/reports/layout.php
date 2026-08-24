@@ -274,8 +274,10 @@ function render_pdf_donut_chart(array $slices, string $centerValue = '', string 
 // fonts have no Thai glyphs).
 function render_report_pdf(string $title, string $subtitle, string $content, string $extraStyle, string $filenameBase, array $pdfCharts = [], bool $ownHeading = false): void
 {
-    $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'L' : 'P';
-
+    // รายงานทุกฉบับเป็น A4 แนวนอนอย่างเดียว ไม่มีตัวเลือกให้เลือกอีกต่อไป:
+    // ตารางและกราฟของรายงานเหล่านี้กว้างกว่าที่กระดาษแนวตั้งรับไหว พอเลือก
+    // แนวตั้งจะได้เอกสารที่คอลัมน์ถูกบีบจนอ่านไม่ออกหรือหลุดไปหน้าที่สอง
+    // การมีตัวเลือกที่มีคำตอบเดียวที่ใช้ได้จริง คือการให้ผู้ใช้เลือกผิดได้เปล่าๆ
     $fontDir = __DIR__ . '/../../fonts';
     $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
     $fontDirs = $defaultConfig['fontDir'];
@@ -284,7 +286,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
 
     $mpdf = new \Mpdf\Mpdf([
         'mode' => 'utf-8',
-        'format' => 'A4-' . ($orientation === 'L' ? 'L' : 'P'),
+        'format' => 'A4-L',
         'margin_top' => 14, 'margin_bottom' => 14, 'margin_left' => 12, 'margin_right' => 12,
         'fontDir' => array_merge($fontDirs, [$fontDir]),
         'fontdata' => $fontData + [
@@ -383,11 +385,17 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
        wider, but the layout was never actually working; Sarabun was just small
        enough that the rest of the page still fit. Floats mPDF does honour.
        Verified: 3 cards per row, one page. */
+    /* 30% (3 ใบต่อแถว) เป็นค่าที่ตั้งไว้ตอนกระดาษยังเป็นแนวตั้ง พอเปลี่ยนเป็น
+       แนวนอน กระดาษกว้างขึ้นจาก ~571pt เป็น ~818pt แต่เตี้ยลงจาก ~818 เหลือ
+       ~571 การ์ดสามใบต่อแถวจึงกินความสูงที่เหลือน้อยอยู่แล้วไปเปล่าๆ */
     .summary-strip .item, .kpi-strip .kpi-card, .kpi-grid .kpi-card, .card,
     .headline-grid .headline-card {
-      float: left; width: 30%; border: 1px solid #cbd5e1;
+      float: left; width: 23.5%; border: 1px solid #cbd5e1;
       border-radius: 8px; padding: 5px 7px; margin: 0 1.5% 5px 0;
     }
+    /* รายงานสรุปผู้บริหารมีการ์ดหกใบพอดี เรียงแถวเดียวจบบนกระดาษแนวนอน
+       ประหยัดความสูงไปราวหนึ่งแถวเต็ม ซึ่งคือส่วนที่ทำให้เกินไปหน้าที่สอง */
+    .headline-grid .headline-card { width: 15.4%; }
     /* Without this the section after a strip wraps around the floats. */
     .summary-strip::after, .kpi-strip::after, .kpi-grid::after, .headline-grid::after {
       content: ''; display: block; clear: both;
@@ -410,15 +418,18 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     .split-col { float: left; width: 31.5%; margin-right: 2%; }
     .split-row::after { content: ''; display: block; clear: both; }
     .split-col .section-head { font-size: 11px; margin: 4px 0 3px; }
+    /* หัวข้อย่อยบนหน้าจอเว้น 18px บนล่าง ซึ่งเป็นระยะสำหรับการอ่านบนจอ
+       ไม่ใช่สำหรับกระดาษที่ต้องจบในหน้าเดียว */
+    .section-head { font-size: 11px; margin: 6px 0 3px; }
     .mini-table th { font-size: 8px; padding: 2px 3px; }
     .mini-table td { font-size: 9px; padding: 2px 3px; }
     .summary-strip .label, .kpi-card .label, .kpi-label { font-size: 9px; color: #666; text-transform: uppercase; }
     .summary-strip .value, .kpi-card .value, .kpi-value { font-size: 14px; font-weight: bold; color: #1e3a8a; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 6px 8px; font-size: 10px; text-align: left; border-bottom: 1px solid #cbd5e1; }
+    th, td { padding: 3px 6px; font-size: 10px; text-align: left; border-bottom: 1px solid #cbd5e1; }
     th { background: #1e3a8a; color: #fff; }
     tbody tr:nth-child(even) { background: #f8fafc; }
-    .story-box { background: #eaf1fb; border: 1px solid #cbd5e1; border-radius: 10px; padding: 6px 12px; margin-bottom: 4px; }
+    .story-box { background: #eaf1fb; border: 1px solid #cbd5e1; border-radius: 10px; padding: 5px 10px; margin-bottom: 4px; }
     .story-box p { font-size: 10px !important; line-height: 1.5 !important; margin: 0; }
     .status-pill, .type-pill { padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: bold; }
     .status-pill.in { background: #dcfce7; color: #166534; }
@@ -469,13 +480,40 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
 
     CSS;
 
+    // ภาพกราฟถูกยืดเต็มความกว้างเนื้อหาด้วย width:100% ความสูงที่พิมพ์ออกมาจึง
+    // มาจากสัดส่วนของภาพ ไม่ใช่จากค่า height ที่รายงานส่งมาโดยตรง
+    //
+    // วาดที่ความกว้าง 1080px แทนค่าเริ่มต้น 720px ด้วยเหตุผลสองข้อพร้อมกัน:
+    // กระดาษแนวนอนกว้าง ~774pt ภาพ 720px ที่ถูกยืดขึ้นไปเท่านั้นจะเห็นขอบหยัก
+    // และเมื่อความสูงคงเดิม การเพิ่มความกว้างทำให้ภาพแบนลง ความสูงที่พิมพ์จริง
+    // ลดจากราว 161pt เหลือราว 107pt ซึ่งคือพื้นที่ที่ทำให้รายงานจบในหน้าเดียว
+    //
+    // นี่คือการแก้ที่สัดส่วนของภาพจริง ไม่ใช่การย่อทั้งหน้าด้วย transform
+    // 'half' => true วางกราฟสองใบข้างกันแทนที่จะซ้อนลงมา ใช้กับกราฟที่ตั้งใจ
+    // ให้เทียบกัน (compare.php) — บนกระดาษแนวนอน กราฟที่แคบลงครึ่งหนึ่งจะเตี้ยลง
+    // ครึ่งหนึ่งตามสัดส่วนด้วย สองใบจึงกินความสูงเท่าใบเดียวเมื่อก่อน
+    // ใช้ float เพราะ mPDF ไม่มี flexbox
     $chartsHtml = '';
+    $hasHalf = false;
     foreach ($pdfCharts as $chart) {
-        $img = render_pdf_bar_chart($chart['labels'], $chart['values'], $chart['orientation'] ?? 'vertical', $chart['height'] ?? 220, $chart['scale_max'] ?? null);
-        $chartsHtml .= '<div style="margin-bottom:8px;">'
-            . '<div style="font-size:12px; font-weight:bold; color:#1e3a8a; margin-bottom:4px;">' . htmlspecialchars($chart['title']) . '</div>'
+        $img = render_pdf_bar_chart(
+            $chart['labels'],
+            $chart['values'],
+            $chart['orientation'] ?? 'vertical',
+            $chart['height'] ?? 220,
+            $chart['scale_max'] ?? null,
+            1080
+        );
+        $half = !empty($chart['half']);
+        $hasHalf = $hasHalf || $half;
+        $box = $half ? 'float:left; width:49%; margin:0 1% 6px 0;' : 'margin-bottom:6px;';
+        $chartsHtml .= '<div style="' . $box . '">'
+            . '<div style="font-size:11px; font-weight:bold; color:#1e3a8a; margin-bottom:3px;">' . htmlspecialchars($chart['title']) . '</div>'
             . '<img src="' . $img . '" style="width:100%;">'
             . '</div>';
+    }
+    if ($hasHalf) {
+        $chartsHtml .= '<div style="clear:both;"></div>';
     }
 
     $heading = $ownHeading
@@ -526,12 +564,6 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     // @page rule, if it sets one via $extraStyle, is injected after this
     // block and wins, same override rule the file header comment already
     // documents for other @page usages.
-    $orientation = ($_GET['orientation'] ?? 'portrait') === 'landscape' ? 'landscape' : 'portrait';
-    $orientationUrl = function (string $value): string {
-        $params = $_GET;
-        $params['orientation'] = $value;
-        return '?' . http_build_query($params);
-    };
     ?>
 <!doctype html>
 <html lang="th">
@@ -762,12 +794,10 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     .toolbar-more-menu { left: 0; right: 0; min-width: 0; }
   }
 
-  /* Reports that don't declare their own @page via $extraStyle get this
-     orientation-aware default. (executive.php/compare.php set their own
-     fixed orientation via $extraStyle, injected after this block, which
-     wins — same override rule as before, just now driven by $_GET here
-     too instead of only inside dashboard.php.) */
-  @page { size: A4 <?= $orientation ?>; margin: 12mm; }
+  /* A4 แนวนอนสำหรับทุกฉบับ ตรงกับที่ไฟล์ PDF ใช้ (render_report_pdf())
+     สองทางนี้ต้องเป็นกระดาษแผ่นเดียวกัน ไม่งั้นสิ่งที่เห็นตอนสั่งพิมพ์จาก
+     เบราว์เซอร์กับไฟล์ที่ดาวน์โหลดจะไม่ตรงกัน */
+  @page { size: A4 landscape; margin: 12mm; }
 
   .report-foot {
     max-width: 1100px; margin: 0 auto; padding: 0 20px 32px;
@@ -892,33 +922,11 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     </button>
     <h4>ตั้งค่าก่อนพิมพ์</h4>
 
-    <div class="settings-group">
-      <span class="settings-label">ขนาดกระดาษ</span>
-      <div class="settings-row">
-        <a class="chip <?= $orientation === 'portrait' ? 'active' : '' ?>" href="<?= htmlspecialchars($orientationUrl('portrait')) ?>">แนวตั้ง</a>
-        <a class="chip <?= $orientation === 'landscape' ? 'active' : '' ?>" href="<?= htmlspecialchars($orientationUrl('landscape')) ?>">แนวนอน</a>
-      </div>
-    </div>
-
-    <div class="settings-group">
-      <span class="settings-label">ธีมสี</span>
-      <select id="theme-select" onchange="applyReportTheme(this.value)">
-        <option value="navy">มาตรฐานวิทยาลัย (น้ำเงิน)</option>
-        <option value="purple">ม่วง</option>
-        <option value="green">เขียว</option>
-        <option value="mono">ขาวดำ / ประหยัดหมึก</option>
-        <option value="custom">กำหนดเอง...</option>
-      </select>
-      <div id="custom-theme-row" class="settings-row" style="display:none; margin-top:8px;">
-        <label style="font-size:12px; display:flex; align-items:center; gap:4px;">หลัก
-          <input type="color" id="custom-primary" value="#1e3a8a" oninput="applyCustomReportTheme()">
-        </label>
-        <label style="font-size:12px; display:flex; align-items:center; gap:4px;">รอง
-          <input type="color" id="custom-secondary" value="#2563eb" oninput="applyCustomReportTheme()">
-        </label>
-      </div>
-    </div>
-
+    <!-- เดิมตรงนี้มีตัวเลือก "ขนาดกระดาษ" กับ "ธีมสี" ทั้งสองอย่างถูกตัดออก:
+         กระดาษล็อกเป็น A4 แนวนอนอย่างเดียวแล้ว (เหตุผลอยู่ที่ render_report_pdf())
+         ส่วนธีมสีเปลี่ยนได้เฉพาะบนหน้าจอ ไฟล์ PDF ที่ดาวน์โหลดยังเป็นสีเดิมเสมอ
+         เพราะ mPDF ไม่ได้รันสคริปต์ที่เปลี่ยนสี — ตัวเลือกที่ไม่มีผลกับสิ่งที่
+         ผู้ใช้กำลังจะเอาไปส่ง คือตัวเลือกที่หลอกให้เข้าใจผิด -->
     <div class="settings-group" id="print-section-toggles">
       <span class="settings-label">สิ่งที่ต้องการพิมพ์</span>
     </div>
@@ -938,33 +946,6 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 </footer>
 
 <script>
-  var REPORT_THEMES = {
-    navy: { primary: '#1e3a8a', secondary: '#2563eb', primaryContainer: '#1e40af' },
-    purple: { primary: '#6d28d9', secondary: '#8b5cf6', primaryContainer: '#5b21b6' },
-    green: { primary: '#047857', secondary: '#10b981', primaryContainer: '#065f46' },
-    mono: { primary: '#374151', secondary: '#6b7280', primaryContainer: '#1f2937' },
-  };
-
-  function applyReportTheme(key) {
-    document.getElementById('custom-theme-row').style.display = key === 'custom' ? 'flex' : 'none';
-    if (key === 'custom') {
-      applyCustomReportTheme();
-      return;
-    }
-    var theme = REPORT_THEMES[key];
-    if (!theme) return;
-    var root = document.documentElement.style;
-    root.setProperty('--primary', theme.primary);
-    root.setProperty('--secondary', theme.secondary);
-    root.setProperty('--primary-container', theme.primaryContainer);
-  }
-
-  function applyCustomReportTheme() {
-    var root = document.documentElement.style;
-    root.setProperty('--primary', document.getElementById('custom-primary').value);
-    root.setProperty('--secondary', document.getElementById('custom-secondary').value);
-  }
-
   // Every report tags its optional print sections with
   // data-print-section="<label>" — this builds the checklist from whatever
   // sections the current report actually has, instead of a hardcoded list

@@ -34,7 +34,7 @@ $backLabel = $isAdmin ? 'กลับไปหน้าภาพรวม' : '�
          cp-measure + px-gutter เหมือนกันเป๊ะ ขอบซ้ายจึงตรงแนวกันจริง
          (ถ้า px-gutter อยู่ที่ <section> หัวเรื่องจะเยื้องซ้ายกว่าการ์ด 24px) -->
     <section class="hero-pattern py-12 md:h-[240px] md:py-0 flex items-center">
-      <div class="rise-in cp-measure mx-auto w-full px-gutter text-white">
+      <div class="rise-in cp-measure cp-hero mx-auto w-full px-gutter text-white">
         <h1 class="font-headline-xl text-headline-xl mb-2">เปลี่ยนรหัสผ่าน</h1>
         <p class="text-body-lg font-body-lg opacity-80">เปลี่ยนรหัสผ่านสำหรับเข้าสู่ระบบของคุณ</p>
       </div>
