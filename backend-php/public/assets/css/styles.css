@@ -3246,13 +3246,6 @@ html.dark .lib-banner { filter: brightness(.88); }
 
 .lib-banner .divider { position: absolute; left: 52%; top: 70px; bottom: 70px; width: 1px; background: rgba(255,255,255,.08); }
 
-/* Positions the login-page theme toggle (login.php) outside .lib-banner's
-   overflow:hidden box. Plain CSS, not a Tailwind utility class: this project
-   serves a prebuilt styles.css with no live Tailwind build step, so classes
-   like `right-3`/`z-[60]` that weren't already used elsewhere in the
-   codebase are silently missing from the compiled output. */
-.login-theme-menu { position: absolute; top: 12px; right: 12px; z-index: 60; }
-
 .lib-banner .content { position: relative; z-index: 2; padding: 14px 24px 16px; max-width: 640px; margin: 0 auto; text-align: center; }
 @media (min-width: 900px) { .lib-banner .content { padding: 16px 40px 18px; } }
 /* Clears the theme-toggle button (absolute, top-3 right-3 in the banner box)
@@ -4191,23 +4184,15 @@ html.dark .kpi-icon.text-accent-stats { color: rgb(198 156 220); }
 
 /* ---------------------------------------------------------------------
    ปุ่มเปิด/ปิดการมองเห็นรหัสผ่าน
-   เขียนเป็น CSS ธรรมดา ไม่ใช่คลาส Tailwind: โปรเจคนี้เสิร์ฟ styles.css ที่
-   build ไว้แล้ว ไม่มีขั้นตอน build ตอนรัน คลาสอย่าง pr-12 ที่ยังไม่เคยถูกใช้
-   ที่อื่นจึงไม่มีอยู่ในไฟล์ผลลัพธ์ (เหมือนกรณี .login-theme-menu ด้านบน)
+
+   .pw-toggle เป็น "จุดเกาะของสคริปต์" อย่างเดียว ไม่มีรูปร่างของตัวเอง —
+   assets/js/password-toggle.js หาปุ่มจากคลาสนี้ ส่วนหน้าตาเป็นของคลาสคู่กัน
+   ที่แต่ละหน้าใส่มาเอง (.login-pw-toggle บนการ์ดกระจก, .cp-toggle บนการ์ดขาว)
+   เพราะปุ่มบนพื้นสองแบบนี้ต้องใช้สีคนละชุด
+
+   เดิมคลาสนี้มีรูปร่างของตัวเองด้วย ซึ่งไปทับกับคลาสคู่ทุกตัวและตัดสินกันด้วย
+   ลำดับบรรทัดในไฟล์เท่านั้น — เลื่อนบล็อกไปมาทีเดียวปุ่มก็เปลี่ยนขนาดเอง
    --------------------------------------------------------------------- */
-.pw-field .pw-input { padding-right: 52px; }
-.pw-toggle {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-  border: 0; background: transparent; border-radius: 9999px; cursor: pointer;
-  color: var(--outline, #79747e); transition: background-color .15s, color .15s;
-}
-.pw-toggle:hover { background: rgba(120, 120, 130, .12); color: var(--primary, #1e3a8a); }
-.pw-toggle:focus-visible { outline: 2px solid var(--primary, #1e3a8a); outline-offset: 2px; }
-.pw-toggle[aria-pressed="true"] { color: var(--primary, #1e3a8a); }
-.pw-toggle .material-symbols-outlined { font-size: 22px; }
-html.dark .pw-toggle { color: #9aa4b2; }
-html.dark .pw-toggle:hover { background: rgba(255, 255, 255, .08); color: #cbd5e1; }
 
 /* ---------------------------------------------------------------------
    ช่องพิมพ์ประกาศของเจ้าหน้าที่ (หน้าภาพรวมแอดมิน)
@@ -4426,7 +4411,11 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
-  align-items: center;
+  /* align-items: center บนกล่องที่เลื่อนได้ จะ "ตัดยอด" การ์ดที่สูงกว่าจอ:
+     ส่วนที่ล้นขึ้นไปด้านบนเลื่อนขึ้นไปดูไม่ได้เลย ใช้ flex-start คู่กับ
+     margin: auto ที่ลูก (.login-shell) แทน — เมื่อมีที่เหลือจะจัดกึ่งกลางให้
+     เหมือนเดิม แต่เมื่อการ์ดสูงกว่าจอจะไปเกาะขอบบนแล้วเลื่อนดูได้ครบ */
+  align-items: flex-start;
   justify-content: center;
   padding: 24px;
   position: relative;
@@ -4455,26 +4444,71 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   50% { background-position: 100% 50%; }
 }
 
-/* One slide per photo (or fallback scene). Cross-fade on opacity, slow zoom on
-   transform — both long-duration for an "ultra smooth" feel. */
-.login-bg-slide {
+/* ---- ภาพห้องสมุดสามชั้นซ้อนกันเป็นฉากเดียว ----
+   ไม่ใช่สไลด์สลับทีละใบ ทั้งสามใบอยู่พร้อมกันตลอดเวลา แล้วไล่ขอบด้วย
+   mask-image จนไม่เห็นรอยต่อ สิ่งที่ทำให้มัน "เป็นภาพเดียว" มีสามอย่าง:
+
+     1. mask ที่ไล่จางเป็นระยะยาวมาก (หลายสิบเปอร์เซ็นต์ของจอ) ขอบจึงจางหาย
+        ไปก่อนที่ตาจะจับได้ว่าตรงไหนคือขอบรูป
+     2. เบลอต่างกันตามชั้น ชั้นหลังเบลอมากกว่า อ่านเป็นระยะลึก ไม่ใช่รูปวาง
+        ทับกัน
+     3. ชั้นปรับสี (.login-bg-grade) ที่ดึงสีของทั้งสามใบเข้าหาโทนเดียวกัน
+
+   เคลื่อนไหวด้วย transform อย่างเดียว (ไม่ใช่ background-position) เพราะ
+   transform ทำงานบน GPU ไม่ต้องวาดใหม่ทั้งภาพทุกเฟรม ระยะขยับตั้งไว้เล็กมาก
+   เมื่อเทียบกับความกว้างของ mask ขอบ mask จึงขยับตามไปแบบที่มองไม่ออก */
+.login-bg-layer {
   position: absolute;
-  inset: 0;
+  inset: -4%;                 /* เผื่อขอบไว้ให้การเบลอและการขยับ ไม่ให้เห็นขอบขาว */
   background-size: cover;
   background-position: center;
-  opacity: 0;
-  transform: scale(1.0);
-  will-change: opacity, transform;
-  /* Slow, gentle switch: a long cross-fade over an even slower Ken Burns zoom
-     that spans the whole time a slide is shown. */
-  transition: opacity 3s ease-in-out, transform 12s ease-out;
-  /* Keep the photo's own natural colours, just brighter — a normal, well-lit
-     library rather than a heavily tinted one. */
-  filter: brightness(1.18) contrast(0.97) saturate(0.94);
+  background-repeat: no-repeat;
+  /* ค่อยๆ ปรากฏตอนเปิดหน้า ไม่ให้ภาพกระโดดขึ้นมาทันที
+     ทำด้วย animation ไม่ใช่การเติมคลาสจาก JavaScript เพราะชั้นภาพถูกใส่
+     background-image มาจากฝั่ง PHP แล้ว (partials/login-bg.php) หน้านี้จึง
+     ไม่มีสคริปต์คอยจัดการพื้นหลังอีกต่อไป */
+  animation: login-bg-in 1.2s ease both;
+  will-change: transform;
 }
-.login-bg-slide.is-active {
-  opacity: 1;
-  transform: scale(1.12);
+@keyframes login-bg-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ชั้นหลัก: เต็มจอ เบลอน้อยที่สุด เป็นตัวกำหนดหน้าตาของฉาก */
+.login-bg-layer.layer-1 {
+  filter: blur(5px) saturate(0.94) contrast(0.96) brightness(1.02);
+  transform: scale(1.10);
+  animation: login-bg-in 1.2s ease both, login-bg-float-a 68s ease-in-out infinite;
+}
+
+/* ชั้นขวา: จางหายไปทางซ้ายก่อนถึงกลางจอ ตรงกลางจึงเป็นของชั้นแรกล้วน */
+.login-bg-layer.layer-2 {
+  filter: blur(13px) saturate(0.88) contrast(0.93) brightness(0.98);
+  transform: scale(1.14);
+  -webkit-mask-image: linear-gradient(105deg, transparent 30%, rgba(0,0,0,.55) 62%, #000 92%);
+  mask-image: linear-gradient(105deg, transparent 30%, rgba(0,0,0,.55) 62%, #000 92%);
+  animation: login-bg-in 1.2s ease both, login-bg-float-b 86s ease-in-out infinite;
+}
+
+/* ชั้นล่างซ้าย: เบลอมากที่สุด ทำหน้าที่เป็นความลึกของฉาก ไม่ใช่รูปที่ต้องดูออก */
+.login-bg-layer.layer-3 {
+  filter: blur(22px) saturate(0.82) contrast(0.9) brightness(0.94);
+  transform: scale(1.18);
+  -webkit-mask-image: radial-gradient(78% 82% at 8% 96%, #000 0%, rgba(0,0,0,.5) 42%, transparent 74%);
+  mask-image: radial-gradient(78% 82% at 8% 96%, #000 0%, rgba(0,0,0,.5) 42%, transparent 74%);
+  animation: login-bg-in 1.2s ease both, login-bg-float-c 104s ease-in-out infinite;
+}
+
+/* ขยับช้ามากและระยะสั้นมาก ให้รู้สึกว่าภาพ "มีชีวิต" โดยไม่ดึงสายตา */
+@keyframes login-bg-float-a {
+  0%, 100% { transform: scale(1.10) translate3d(0, 0, 0); }
+  50%      { transform: scale(1.13) translate3d(-1.1%, -0.8%, 0); }
+}
+@keyframes login-bg-float-b {
+  0%, 100% { transform: scale(1.14) translate3d(0, 0, 0); }
+  50%      { transform: scale(1.17) translate3d(1.2%, 0.6%, 0); }
+}
+@keyframes login-bg-float-c {
+  0%, 100% { transform: scale(1.18) translate3d(0, 0, 0); }
+  50%      { transform: scale(1.21) translate3d(0.8%, -1%, 0); }
 }
 
 /* Blue grade: recolours whatever photo is showing towards the app's blue so
@@ -4485,11 +4519,27 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
 .login-bg-grade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #1e40af 0%, #1e6fd9 45%, #0ea5e9 100%);
-  mix-blend-mode: color;
-  /* Just a whisper of the theme blue for cohesion — the photo stays its own
-     natural library colour rather than being painted blue. */
-  opacity: 0.12;
+  /* โทนสีดึงมาจากตัวรูปเอง: ไม้สักอุ่น เพดานครีม ป้ายหมวดหมู่สีกรม
+     จึงไล่จากกรมเข้มไปหาน้ำเงินอมเขียว ไม่ใช่ฟ้าสดที่ตีกับสีไม้ */
+  background: linear-gradient(155deg, #0d2138 0%, #143a52 48%, #1b4f63 100%);
+  /* mix-blend-mode: color เปลี่ยนเฉพาะ "สี" ไม่แตะแสงเงาและรายละเอียด
+     รูปทั้งสามใบจึงถูกดึงเข้าโทนเดียวกันโดยยังเห็นเนื้อภาพอยู่ ต่างจากการ
+     เอาแผ่นสีทึบมาทาบซึ่งจะทำให้ภาพแบนไปทั้งใบ
+     ค่านี้คือตัวหลักที่ทำให้ "สามรูปกลายเป็นฉากเดียว" — สูงกว่านี้จะเริ่ม
+     กลบสีไม้จนห้องสมุดกลายเป็นสีเขียวอมเทาทั้งห้อง */
+  opacity: 0.28;
+}
+
+/* หรี่แสงเฉพาะบริเวณหลังการ์ด — ตรงกลางจอเข้มและเรียบที่สุด รายละเอียดของ
+   รูปจึงเบาลงพอดีตรงที่ตัวหนังสือไปวางอยู่ ส่วนขอบจอยังเห็นห้องสมุดชัด */
+.login-bg-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(58% 62% at 50% 50%,
+    rgba(5, 12, 24, 0.52) 0%,
+    rgba(5, 12, 24, 0.32) 45%,
+    rgba(5, 12, 24, 0.08) 75%,
+    rgba(5, 12, 24, 0) 100%);
 }
 
 /* Soft, mostly-neutral wash: bright in the middle, a gentle darker frame at
@@ -4499,9 +4549,11 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 100% at 50% 6%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 55%),
-    radial-gradient(140% 130% at 50% 42%, rgba(15, 18, 24, 0) 0%, rgba(15, 18, 24, 0.16) 65%, rgba(12, 15, 20, 0.42) 100%),
-    linear-gradient(180deg, rgba(15, 18, 24, 0.10) 0%, rgba(12, 15, 20, 0.22) 100%);
+    /* แสงนวลจากด้านบน ให้ฉากมีทิศทางของแสงเดียวกันทั้งจอ */
+    radial-gradient(110% 80% at 50% 0%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 58%),
+    /* ขอบจอเข้มลง สายตาจึงวิ่งเข้าหากลางจอเอง */
+    radial-gradient(130% 120% at 50% 45%, rgba(6, 12, 24, 0) 0%, rgba(6, 12, 24, 0.16) 62%, rgba(4, 9, 18, 0.46) 100%),
+    linear-gradient(180deg, rgba(6, 12, 24, 0.14) 0%, rgba(4, 9, 18, 0.30) 100%);
 }
 
 /* --- glass card -------------------------------------------------------- */
@@ -4509,28 +4561,68 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   position: relative;
   z-index: 2;
   width: 100%;
+  margin: auto 0;          /* คู่กับ align-items: flex-start ด้านบน */
   display: flex;
   justify-content: center;
 }
 
+/* ---- การ์ดกระจก ----
+   สิ่งที่ทำให้อ่านเป็น "แผ่นแก้ว" ไม่ใช่ "กล่องขาวจางๆ" คือสี่อย่างรวมกัน:
+     1. backdrop-filter เบลอ + เพิ่มความอิ่มสีของสิ่งที่อยู่ข้างหลัง แก้วจริง
+        ไม่ได้แค่ทำให้มัว แต่รวมแสงให้สีข้างหลังเข้มขึ้นด้วย
+     2. พื้นเป็นไล่เฉดเฉียง ไม่ใช่สีเดียวเรียบ แผ่นแก้วรับแสงไม่เท่ากันทั้งแผ่น
+     3. เส้นขอบด้านในสว่าง (inset box-shadow ด้านบน) คือความหนาของขอบแก้ว
+        ที่รับแสงจากด้านบน — รายละเอียดนี้ตัวเดียวที่ทำให้ดูเป็นวัสดุ
+     4. เงาทอดยาวและนุ่ม บอกว่าแผ่นแก้วลอยอยู่เหนือฉาก ไม่ได้แปะติดกับฉาก */
 .login-glass {
+  position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 408px;
   /* Belt and braces against a long unbreakable string widening the card past
      the viewport on small screens. */
   min-width: 0;
-  padding: 40px 36px;
-  border-radius: 22px;
-  /* A darker frosted panel (not a near-transparent white one) so the card
-     stays a clear, readable focal point on ANY slide — the pale British
-     Museum shots used to wash it out until it blended into the background. */
-  background: rgba(17, 24, 39, 0.44);
-  backdrop-filter: blur(18px) saturate(115%);
-  -webkit-backdrop-filter: blur(18px) saturate(115%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+  padding: 38px 34px;
+  border-radius: 26px;
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.06) 38%,
+      rgba(255, 255, 255, 0.03) 62%,
+      rgba(255, 255, 255, 0.08) 100%),
+    rgba(9, 17, 31, 0.46);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 2px 10px rgba(3, 8, 18, 0.30),
+    0 28px 64px -18px rgba(3, 8, 18, 0.72);
   color: #fff;
 }
+
+/* ประกายแสงบนผิวแก้ว วางทับมุมบนซ้ายจางๆ แล้วไหลช้ามาก
+   pointer-events: none เพื่อไม่ให้ไปบังการกดช่องกรอกที่อยู่ข้างใต้ */
+.login-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.05) 24%,
+    rgba(255, 255, 255, 0) 46%);
+  opacity: .9;
+  animation: login-glass-sheen 22s ease-in-out infinite;
+}
+@keyframes login-glass-sheen {
+  0%, 100% { opacity: .72; }
+  50%      { opacity: 1; }
+}
+/* เนื้อหาต้องอยู่เหนือประกายแสง ไม่งั้นตัวหนังสือจะถูกฝ้าขาวคลุม */
+.login-glass > * { position: relative; z-index: 1; }
 
 /* Says which system this is before anything else — someone landing on the URL
    should not have to guess whose library they are signing in to. */
@@ -4712,12 +4804,14 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   text-shadow: 0 0 16px rgba(125, 211, 252, 0.55);
 }
 
-/* The theme toggle floats over the backdrop, above the slides. */
-.login-theme-menu { z-index: 60; }
-
 /* Phones: tighter card, smaller controls. 44px is still at/above the minimum
    comfortable touch target, so this trims bulk without hurting tappability. */
 @media (max-width: 480px) {
+  /* จอแคบครอบภาพเป็นแถบแคบแล้วขยายขึ้นมาก ภาพจึงเบลอด้วยตัวมันเองอยู่แล้ว
+     ใช้ค่าเบลอเท่าจอใหญ่จะเหลือแต่ก้อนสีจนดูเหมือนภาพเสีย */
+  .login-bg-layer.layer-1 { filter: blur(3px) saturate(0.94) contrast(0.96) brightness(1.02); }
+  .login-bg-layer.layer-2 { filter: blur(8px) saturate(0.88) contrast(0.93) brightness(0.98); }
+  .login-bg-layer.layer-3 { filter: blur(14px) saturate(0.82) contrast(0.9) brightness(0.94); }
   .login-glass { padding: 26px 20px; border-radius: 18px; }
   .login-body { padding: 16px; }
   .login-identity { margin-bottom: 14px; }
@@ -4746,23 +4840,22 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   .login-submit { height: 46px; }
 }
 
-/* Honour reduced-motion: hold on the first scene, no zoom, no drift. */
+/* เคารพการตั้งค่า "ลดการเคลื่อนไหว" ของเครื่องผู้ใช้: ฉากยังครบทุกชั้น
+   แต่หยุดนิ่ง ไม่มีอะไรไหลหรือเต้น */
 @media (prefers-reduced-motion: reduce) {
   .login-bg-base { animation: none; }
-  .login-bg-slide {
-    transition: opacity .2s ease;
-    transform: none !important;
-  }
-  .login-bg-slide.is-active { transform: none !important; }
+  .login-bg-layer { animation: none !important; opacity: 1; }
+  .login-glass::before { animation: none; }
 }
 
 /* ===================================================================== */
 /* Signup — same glass-over-library-photo look as login, wider for the form */
 /* ===================================================================== */
-/* Tall form, so anchor to the top and let it scroll rather than centre and
-   clip on short screens. */
-.login-body.is-signup { align-items: flex-start; padding-top: 40px; padding-bottom: 40px; }
-.login-glass.signup-card { max-width: 640px; padding: 34px 34px 30px; }
+/* ฟอร์มสมัครสมาชิกยาวกว่า จึงเผื่อระยะบนล่างมากกว่าหน้าเข้าสู่ระบบ
+   ส่วนการไม่ตัดยอดการ์ดจัดการที่ .login-body / .login-shell ด้านบนแล้ว
+   (align-items: flex-start + margin: auto) ทั้งสองหน้าจึงใช้กติกาเดียวกัน */
+.login-body.is-signup { padding-top: 40px; padding-bottom: 40px; }
+.login-glass.signup-card { max-width: 660px; padding: 34px 34px 30px; }
 
 /* Back-to-login button, pinned inside the card so it never overlaps the form
    on narrow screens. */
@@ -4852,4 +4945,294 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   .signup-submit { height: 46px; font-size: 15px; }
   .signup-hint { font-size: 11.5px; }
   .signup-back { font-size: 12px; padding: 5px 11px 5px 8px; margin-bottom: 12px; }
+}
+
+/* =====================================================================
+   ระบบจัดการรหัสผ่าน (24 ส.ค. 2569)
+   — ปุ่มดูรหัสผ่านในหน้าสมัครสมาชิก
+   — ข้อความผิดพลาดรายช่องในหน้าเข้าสู่ระบบ
+   — ปุ่มหลักของหน้าเข้าสู่ระบบ/สมัครสมาชิก
+   — หน้าเปลี่ยนรหัสผ่าน
+
+   เขียนเป็น CSS ธรรมดา ไม่ใช่คลาสยูทิลิตี้ ด้วยเหตุผลเดิมของไฟล์นี้: โปรเจค
+   เสิร์ฟ styles.css ที่ build ไว้ล่วงหน้า คลาสที่ยังไม่เคยถูกใช้ที่อื่นจะไม่มี
+   อยู่ในผลลัพธ์และหายไปเงียบๆ โดยไม่มีข้อผิดพลาดให้เห็น
+   ===================================================================== */
+
+/* ---- ช่องรหัสผ่านในหน้าสมัครสมาชิก ต้องเว้นที่ให้ปุ่มดวงตาเหมือนหน้าล็อกอิน ---- */
+.signup-field .pw-wrap input.has-toggle { padding-right: 46px; }
+.signup-field .pw-wrap .login-pw-toggle { right: 6px; }
+
+/* ---- ข้อความผิดพลาดรายช่อง (หน้าเข้าสู่ระบบ) ----
+   การ์ดล็อกอินเป็นตัวหนังสือสีขาวบนภาพถ่าย สีแดงเข้มแบบที่ใช้บนพื้นขาวจะ
+   อ่านไม่ออกที่นี่ ใช้เฉดอ่อนที่ยังตัดกับพื้นหลังเข้มได้ */
+.login-field-error {
+  display: block;
+  margin: 6px 2px 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #ffc9c9;
+}
+.login-field-error[hidden] { display: none; }
+.login-field.is-invalid .login-input-wrap input {
+  border-color: rgba(255, 138, 138, .95);
+  background: rgba(180, 40, 40, .22);
+}
+.login-field.is-invalid .login-input-wrap input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 138, 138, .28);
+}
+.login-field.is-invalid .login-input-icon { color: #ffc9c9; }
+
+/* ---- ปุ่มหลัก ----
+   เดิมปุ่มเป็นกระจกขาวโปร่ง (rgba(255,255,255,.22)) เท่ากับช่องกรอกข้อมูล
+   ที่อยู่เหนือมัน จึงอ่านเป็นปุ่มรองหรือปุ่มที่ถูกปิดใช้งาน ทั้งที่เป็นการ
+   กระทำหลักของทั้งหน้า เปลี่ยนเป็นสีน้ำเงินทึบของระบบ ซึ่งเป็นสิ่งเดียวใน
+   การ์ดที่มีสีเต็ม สายตาจึงไปหยุดที่มันโดยไม่ต้องอ่านก่อน */
+.login-submit,
+.signup-submit {
+  border-color: transparent;
+  background: linear-gradient(180deg, #2f6fe4 0%, #1d4ed8 100%);
+  box-shadow: 0 10px 22px -10px rgba(8, 24, 66, .85);
+}
+.login-submit:hover,
+.signup-submit:hover {
+  background: linear-gradient(180deg, #3b7bf0 0%, #2456de 100%);
+  box-shadow: 0 14px 28px -12px rgba(8, 24, 66, .95);
+}
+.login-submit:focus-visible,
+.signup-submit:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, .85);
+  outline-offset: 2px;
+}
+.login-submit:disabled,
+.signup-submit:disabled { box-shadow: none; }
+
+/* วงหมุนระหว่างรอเซิร์ฟเวอร์ตอบ ปุ่มถูกปิดไว้ด้วยจึงกดซ้ำไม่ได้ */
+.login-spinner,
+.cp-spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, .42);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pw-spin .7s linear infinite;
+}
+@keyframes pw-spin { to { transform: rotate(360deg); } }
+.login-submit.is-loading .login-submit-arrow { display: none; }
+.login-submit.is-loading .login-spinner { display: block; }
+.login-submit.is-loading { opacity: 1; }
+
+/* =====================================================================
+   หน้าเปลี่ยนรหัสผ่าน (/change-password)
+   ใช้มาตรเดียวกับการ์ดหน้าโปรไฟล์: มุมโค้ง 12px ช่องสูง 48px เส้นขอบ
+   outline-variant และสีหลักของระบบ
+   ===================================================================== */
+.cp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  margin-bottom: 18px;
+  padding: 2px 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(30 58 138);
+  text-decoration: none;
+  border-radius: 8px;
+}
+.cp-back:hover { text-decoration: underline; }
+.cp-back:focus-visible { outline: 2px solid rgb(30 58 138); outline-offset: 2px; }
+.cp-back .material-symbols-outlined { font-size: 18px; }
+html.dark .cp-back { color: rgb(147 197 253); }
+html.dark .cp-back:focus-visible { outline-color: rgb(147 197 253); }
+
+.cp-alert,
+.cp-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.cp-alert[hidden],
+.cp-success[hidden] { display: none; }
+.cp-alert .material-symbols-outlined,
+.cp-success .material-symbols-outlined { font-size: 20px; flex: none; margin-top: 1px; }
+.cp-alert { background: #fef2f2; border: 1px solid #f0a9a9; color: #991b1b; }
+.cp-success { background: #ecfdf5; border: 1px solid #86e0b8; color: #065f46; }
+html.dark .cp-alert { background: rgba(127, 29, 29, .28); border-color: rgba(248, 113, 113, .45); color: #fca5a5; }
+html.dark .cp-success { background: rgba(6, 78, 59, .35); border-color: rgba(52, 211, 153, .45); color: #6ee7b7; }
+
+/* หัวเรื่องกับการ์ดใช้ความกว้างเดียวกัน ขอบซ้ายจึงตรงแนวกัน
+   แคบกว่าหน้าโปรไฟล์เพราะหน้านี้มีช่องกรอกเรียงลงมาแถวเดียว ไม่ใช่ตาราง
+   สองสามคอลัมน์ — การ์ดกว้าง 896px จะเหลือที่ว่างครึ่งขวาทั้งใบ */
+.cp-measure { max-width: 640px; }
+
+.cp-form { display: grid; gap: 20px; }
+.cp-field { display: grid; gap: 7px; }
+.cp-field > label {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(69 85 108);
+}
+html.dark .cp-field > label { color: rgb(184 196 212); }
+
+.cp-wrap { position: relative; display: block; }
+.cp-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: rgb(148 163 184);
+  /* กดตรงไอคอนต้องโฟกัสช่องพิมพ์ ไม่ใช่โดนไอคอนรับไปเอง */
+  pointer-events: none;
+  transition: color .15s;
+}
+.cp-wrap input {
+  width: 100%;
+  height: 48px;
+  padding: 0 46px;
+  font-family: inherit;
+  /* 16px: Safari บน iOS ซูมหน้าเข้าเองเมื่อโฟกัสช่องที่ตัวอักษรเล็กกว่านี้ */
+  font-size: 16px;
+  color: rgb(15 23 42);
+  background: #fff;
+  border: 1px solid rgb(203 213 225);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.cp-wrap input::placeholder { color: rgb(148 163 184); }
+.cp-wrap input:hover { border-color: rgb(148 163 184); }
+.cp-wrap input:focus {
+  border-color: rgb(37 99 235);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+.cp-wrap:focus-within .cp-icon { color: rgb(37 99 235); }
+html.dark .cp-wrap input {
+  color: rgb(233 238 247);
+  background: rgb(15 23 42);
+  border-color: rgba(148, 163, 184, .3);
+}
+html.dark .cp-wrap input:focus {
+  border-color: rgb(124 176 251);
+  box-shadow: 0 0 0 3px rgba(124, 176, 251, .22);
+}
+html.dark .cp-wrap:focus-within .cp-icon { color: rgb(124 176 251); }
+
+.cp-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: rgb(100 116 139);
+  transition: background-color .15s, color .15s;
+}
+.cp-toggle:hover { background: rgba(100, 116, 139, .12); color: rgb(30 58 138); }
+.cp-toggle:focus-visible { outline: 2px solid rgb(37 99 235); outline-offset: 2px; }
+.cp-toggle[aria-pressed="true"] { color: rgb(37 99 235); }
+.cp-toggle .material-symbols-outlined { font-size: 20px; }
+html.dark .cp-toggle { color: rgb(148 163 184); }
+html.dark .cp-toggle:hover { background: rgba(255, 255, 255, .08); color: rgb(203 213 225); }
+
+.cp-error {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #b91c1c;
+}
+.cp-error[hidden] { display: none; }
+.cp-field.is-invalid .cp-wrap input { border-color: #dc2626; }
+.cp-field.is-invalid .cp-wrap input:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, .18); }
+.cp-field.is-invalid .cp-icon { color: #dc2626; }
+html.dark .cp-error { color: #fca5a5; }
+html.dark .cp-field.is-invalid .cp-wrap input { border-color: rgba(248, 113, 113, .7); }
+
+/* ---- รายการข้อกำหนด ติ๊กถูกตามที่พิมพ์ ---- */
+.cp-rules {
+  padding: 14px 16px;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 12px;
+  background: rgb(248 250 252);
+}
+html.dark .cp-rules { border-color: rgba(148, 163, 184, .22); background: rgba(15, 23, 42, .5); }
+.cp-rules-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgb(69 85 108);
+  margin-bottom: 8px;
+}
+html.dark .cp-rules-title { color: rgb(184 196 212); }
+.cp-rules ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cp-rules li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: rgb(100 116 139);
+}
+.cp-rules li .material-symbols-outlined { font-size: 18px; flex: none; }
+/* ผ่านแล้วเปลี่ยนทั้งสีและรูปไอคอน ไม่ใช่สีอย่างเดียว คนที่แยกสีเขียว/เทา
+   ไม่ออกก็ยังเห็นความต่างจากวงกลมทึบกับวงกลมโปร่ง */
+.cp-rules li.ok { color: rgb(21 128 61); }
+.cp-rules li.ok .material-symbols-outlined { color: rgb(22 163 74); }
+html.dark .cp-rules li { color: rgb(148 163 184); }
+html.dark .cp-rules li.ok { color: rgb(110 231 183); }
+html.dark .cp-rules li.ok .material-symbols-outlined { color: rgb(52 211 153); }
+
+.cp-actions { display: flex; justify-content: flex-end; }
+.cp-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 28px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, #2f6fe4 0%, #1d4ed8 100%);
+  border: 0;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -10px rgba(29, 78, 216, .8);
+  transition: filter .15s, transform .15s, box-shadow .15s, opacity .15s;
+}
+.cp-submit:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); }
+.cp-submit:active:not(:disabled) { transform: translateY(0); }
+.cp-submit:focus-visible { outline: 3px solid rgba(37, 99, 235, .5); outline-offset: 2px; }
+.cp-submit:disabled { opacity: .7; cursor: default; transform: none; filter: none; box-shadow: none; }
+.cp-submit .material-symbols-outlined { font-size: 20px; }
+.cp-submit.is-loading .material-symbols-outlined { display: none; }
+.cp-submit.is-loading .cp-spinner { display: block; }
+.cp-submit.is-loading { opacity: 1; }
+
+/* ---- ทางเข้าหน้าเปลี่ยนรหัสผ่านจากหน้าโปรไฟล์ ---- */
+.profile-security-link { text-decoration: none; }
+
+@media (max-width: 560px) {
+  .cp-form { gap: 18px; }
+  .cp-actions { justify-content: stretch; }
+  .cp-submit { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-submit, .cp-wrap input, .cp-icon, .login-submit, .signup-submit { transition: none; }
+  .cp-submit:hover:not(:disabled) { transform: none; }
+  .login-spinner, .cp-spinner { animation-duration: 1.6s; }
 }

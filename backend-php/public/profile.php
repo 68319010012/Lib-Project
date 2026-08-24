@@ -18,8 +18,8 @@ require __DIR__ . '/partials/guard.php';
          once the heading is guaranteed to fit on one line (md:+). -->
     <section class="hero-pattern py-12 md:h-[240px] md:py-0 flex items-center px-gutter">
       <div class="rise-in max-w-4xl mx-auto w-full text-white">
-        <h1 class="font-headline-xl text-headline-xl mb-2">แก้ไขโปรไฟล์นักศึกษา</h1>
-        <p class="text-body-lg font-body-lg opacity-80">ตรวจสอบข้อมูลการศึกษาและเปลี่ยนรหัสผ่านของคุณ</p>
+        <h1 class="font-headline-xl text-headline-xl mb-2">ข้อมูลผู้ใช้</h1>
+        <p class="text-body-lg font-body-lg opacity-80">ตรวจสอบข้อมูลนักศึกษาและข้อมูลการศึกษาของคุณ</p>
       </div>
     </section>
 
@@ -50,7 +50,7 @@ require __DIR__ . '/partials/guard.php';
               <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
                 <span class="material-symbols-outlined">school</span>
                 ข้อมูลการศึกษา
-              </h3>
+              </h2>
               <div class="grid md:grid-cols-3 gap-6">
                 <div class="space-y-2">
                   <label for="profile-department" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">แผนกวิชา</label>
@@ -69,28 +69,16 @@ require __DIR__ . '/partials/guard.php';
 
             <hr class="border-outline-variant/30 dark:border-dm-border" />
 
-            <form class="space-y-6" id="profile-password-form">
-              <h2 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed-dim flex items-center gap-2">
-                <span class="material-symbols-outlined">security</span>
-                ตั้งค่าความปลอดภัย
-              </h3>
-              <div class="grid md:grid-cols-2 gap-8">
-                <div class="space-y-2">
-                  <label for="profile-current-password" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านปัจจุบัน</label>
-                  <input id="profile-current-password" autocomplete="current-password" class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" placeholder="ยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน" required type="password" />
-                </div>
-                <div class="space-y-2">
-                  <label for="profile-new-password" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary">รหัสผ่านใหม่</label>
-                  <input id="profile-new-password" autocomplete="new-password" class="w-full px-4 py-3 rounded-lg border border-outline dark:border-dm-border focus:border-primary focus:ring-1 focus:ring-primary bg-surface-white dark:bg-dm-bg dark:text-inverse-on-surface font-body-md transition-all" minlength="8" placeholder="อย่างน้อย 8 ตัวอักษร" required type="password" />
-                </div>
-              </div>
-              <div class="flex justify-end pt-4">
-                <button id="profile-password-submit" class="bg-secondary text-white font-headline-md text-headline-md px-10 py-4 rounded-full profile-submit-shadow hover:brightness-110 flex items-center gap-3 disabled:opacity-60" type="submit">
-                  <span class="material-symbols-outlined">save</span>
-                  เปลี่ยนรหัสผ่าน
-                </button>
-              </div>
-            </form>
+            <!-- การเปลี่ยนรหัสผ่านย้ายไปหน้า /change-password แล้ว หน้านี้เหลือ
+                 เฉพาะข้อมูลผู้ใช้ ที่นี่จึงเหลือแค่ทางเข้าไปหน้านั้น -->
+            <a href="/change-password" class="profile-security-link flex items-center gap-4 rounded-xl border border-outline-variant dark:border-dm-border px-5 py-4 hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+              <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-3xl flex-shrink-0">key</span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-bold text-on-surface dark:text-inverse-on-surface">เปลี่ยนรหัสผ่าน</span>
+                <span class="block text-body-md text-on-surface-variant dark:text-dm-text-secondary">ตั้งรหัสผ่านใหม่สำหรับเข้าสู่ระบบของคุณ</span>
+              </span>
+              <span class="material-symbols-outlined text-on-surface-variant dark:text-dm-text-secondary flex-shrink-0">chevron_right</span>
+            </a>
           </div>
         </div>
       </div>

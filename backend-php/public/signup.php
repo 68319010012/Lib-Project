@@ -5,12 +5,7 @@
 </head>
 <body class="login-body is-signup">
 
-  <!-- Same auto-sliding, blue-graded library backdrop as the login page. -->
-  <div class="login-bg" id="login-bg" aria-hidden="true">
-    <div class="login-bg-base"></div>
-    <div class="login-bg-grade" id="login-bg-grade"></div>
-    <div class="login-bg-overlay"></div>
-  </div>
+  <?php include __DIR__ . '/partials/login-bg.php'; ?>
 
   <main class="login-shell">
     <section class="login-glass signup-card rise-in">
@@ -75,14 +70,20 @@
             <label for="signup-password">รหัสผ่าน</label>
             <div class="pw-wrap">
               <span class="material-symbols-outlined pw-icon" aria-hidden="true">lock</span>
-              <input id="signup-password" autocomplete="new-password" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
+              <input id="signup-password" class="has-toggle" autocomplete="new-password" placeholder="อย่างน้อย 8 ตัวอักษร" minlength="8" required type="password" />
+              <button type="button" class="login-pw-toggle pw-toggle" aria-controls="signup-password" aria-pressed="false" aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              </button>
             </div>
           </div>
           <div class="signup-field pw">
             <label for="signup-confirm-password">ยืนยันรหัสผ่าน</label>
             <div class="pw-wrap">
               <span class="material-symbols-outlined pw-icon" aria-hidden="true">verified_user</span>
-              <input id="signup-confirm-password" autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
+              <input id="signup-confirm-password" class="has-toggle" autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="8" required type="password" />
+              <button type="button" class="login-pw-toggle pw-toggle" aria-controls="signup-confirm-password" aria-pressed="false" aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              </button>
             </div>
           </div>
         </div>
@@ -112,8 +113,8 @@
 
   <!-- No theme.js — same reason as login.php. -->
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
-  <script src="/assets/js/login-bg.js?v=<?= ntc_asset_v('assets/js/login-bg.js') ?>"></script>
   <script src="/assets/js/constants.js?v=<?= ntc_asset_v('assets/js/constants.js') ?>"></script>
+  <script src="/assets/js/password-toggle.js?v=<?= ntc_asset_v('assets/js/password-toggle.js') ?>"></script>
   <script src="/assets/js/signup.js?v=<?= ntc_asset_v('assets/js/signup.js') ?>"></script>
 </body>
 </html>

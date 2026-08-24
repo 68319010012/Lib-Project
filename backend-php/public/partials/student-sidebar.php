@@ -8,6 +8,9 @@ $studentActive = $studentActive ?? '';
 $studentNavItems = [
     ['href' => '/dashboard', 'icon' => 'dashboard', 'label' => 'หน้าหลัก'],
     ['href' => '/profile', 'icon' => 'settings', 'label' => 'โปรไฟล์'],
+    // หน้าเปลี่ยนรหัสผ่านใช้แถบนี้ด้วย ถ้าไม่มีรายการของตัวเองจะไม่มีอะไร
+    // ถูกไฮไลต์เลยตอนอยู่หน้านั้น ซึ่งอ่านเหมือนแถบเมนูเสีย
+    ['href' => '/change-password', 'icon' => 'key', 'label' => 'เปลี่ยนรหัสผ่าน'],
 ];
 function student_nav_class(string $href, string $active): string
 {

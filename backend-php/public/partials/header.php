@@ -63,6 +63,14 @@ $profileHref = $variant === 'admin' ? '/admin-members' : '/profile';
             <?= $variant === 'admin' ? 'ข้อมูลสมาชิก' : 'ข้อมูลผู้ใช้' ?>
           </a>
 
+          <!-- การเปลี่ยนรหัสผ่านเป็นหน้าของตัวเอง ไม่ได้อยู่ในหน้าโปรไฟล์แล้ว
+               จึงต้องมีทางเข้าที่นี่ ไม่งั้นผู้ใช้จะหาไม่เจอ และแอดมินก็ต้องเห็น
+               ด้วยเพราะ /profile เป็นหน้าของนักศึกษาเท่านั้น -->
+          <a href="/change-password" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+            <span class="material-symbols-outlined text-lg">key</span>
+            เปลี่ยนรหัสผ่าน
+          </a>
+
           <?php if ($variant === 'student'): ?>
           <button type="button" id="account-menu-history" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
             <span class="material-symbols-outlined text-lg">history</span>

@@ -5,14 +5,7 @@
 </head>
 <body class="login-body">
 
-  <!-- พื้นหลังห้องสมุดเลื่อนอัตโนมัติ (crossfade + ซูมช้าแบบ Ken Burns).
-       สไลด์ถูกสร้างโดย assets/js/login-bg.js จากรูปใน assets/img/login/.
-       ถ้ายังไม่มีรูป จะใช้เฉดไล่สีพรีเมียมที่ค่อยๆ เลื่อนแทน. -->
-  <div class="login-bg" id="login-bg" aria-hidden="true">
-    <div class="login-bg-base"></div>
-    <div class="login-bg-grade" id="login-bg-grade"></div>
-    <div class="login-bg-overlay"></div>
-  </div>
+  <?php include __DIR__ . '/partials/login-bg.php'; ?>
 
   <main class="login-shell">
     <section class="login-glass rise-in">
@@ -26,7 +19,9 @@
 
       <p id="login-error" role="alert" aria-live="assertive" class="login-error hidden"></p>
 
-      <form class="login-form" id="login-form">
+      <!-- novalidate: ฟองเตือนของเบราว์เซอร์หายไปเองและใช้ภาษาตามเครื่องผู้ใช้
+           ซึ่งไม่ใช่ภาษาไทยเสมอ ตรวจเองแล้ววางข้อความไว้ใต้ช่องที่ผิดแทน -->
+      <form class="login-form" id="login-form" novalidate>
         <div class="login-field">
           <label for="login-username">รหัสนักศึกษา</label>
           <div class="login-input-wrap">
@@ -35,8 +30,10 @@
               id="login-username" autocomplete="username"
               placeholder="รหัสนักศึกษา หรือชื่อผู้ใช้แอดมิน"
               required type="text"
+              aria-describedby="login-username-error"
             />
           </div>
+          <p class="login-field-error" id="login-username-error" hidden></p>
         </div>
 
         <div class="login-field">
@@ -46,13 +43,15 @@
             <input
               id="login-password" autocomplete="current-password"
               class="has-toggle"
-              placeholder="••••••••"
+              placeholder="กรอกรหัสผ่าน"
               required type="password"
+              aria-describedby="login-password-error"
             />
-            <button type="button" id="login-password-toggle" class="login-pw-toggle" aria-controls="login-password" aria-pressed="false" aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน">
+            <button type="button" id="login-password-toggle" class="login-pw-toggle pw-toggle" aria-controls="login-password" aria-pressed="false" aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน">
               <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
             </button>
           </div>
+          <p class="login-field-error" id="login-password-error" hidden></p>
         </div>
 
         <div class="login-row">
@@ -64,7 +63,8 @@
 
         <button id="login-submit" class="login-submit" type="submit">
           <span>เข้าสู่ระบบ</span>
-          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          <span class="material-symbols-outlined login-submit-arrow" aria-hidden="true">arrow_forward</span>
+          <span class="login-spinner" aria-hidden="true"></span>
         </button>
 
         <p class="login-signup">
@@ -77,7 +77,7 @@
   <!-- No theme.js: this page has no theme toggle — it is always the light-on-
        photo treatment, so the light/dark switch has nothing to act on here. -->
   <script src="/assets/js/api.js?v=<?= ntc_asset_v('assets/js/api.js') ?>"></script>
-  <script src="/assets/js/login-bg.js?v=<?= ntc_asset_v('assets/js/login-bg.js') ?>"></script>
+  <script src="/assets/js/password-toggle.js?v=<?= ntc_asset_v('assets/js/password-toggle.js') ?>"></script>
   <script src="/assets/js/login.js?v=<?= ntc_asset_v('assets/js/login.js') ?>"></script>
 </body>
 </html>

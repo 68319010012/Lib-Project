@@ -1,4 +1,7 @@
 // Port of frontend-react/src/pages/ProfilePage.jsx.
+//
+// หน้านี้แสดงข้อมูลผู้ใช้อย่างเดียว การเปลี่ยนรหัสผ่านย้ายไปเป็นหน้าของตัวเอง
+// ที่ /change-password (assets/js/change-password.js) แล้ว
 
 document.addEventListener('DOMContentLoaded', () => {
   apiGet('/me')
@@ -12,25 +15,4 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('profile-year-level').value = user.year_level || '-';
     })
     .catch(() => {});
-
-  const form = document.getElementById('profile-password-form');
-  const submitBtn = document.getElementById('profile-password-submit');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    submitBtn.disabled = true;
-    const currentPassword = document.getElementById('profile-current-password').value;
-    const newPassword = document.getElementById('profile-new-password').value;
-    try {
-      await apiPostJson('/profile/change-password', {
-        current_password: currentPassword,
-        new_password: newPassword,
-      });
-      showToast('เปลี่ยนรหัสผ่านสำเร็จ', { type: 'success' });
-      form.reset();
-    } catch (err) {
-      showToast(err.message, { type: 'error' });
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
 });
