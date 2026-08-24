@@ -4403,10 +4403,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   transform: scale(1.0);
   will-change: opacity, transform;
   transition: opacity 2.4s ease-in-out, transform 9s ease-out;
-  /* Lift and cool every photo before the blue grade lands on top, so warm
-     wood/amber shots and grey concrete ones all end up bright rather than
-     muddy. */
-  filter: brightness(1.16) contrast(0.94) saturate(0.72);
+  /* Keep the photo's own natural colours, just brighter — a normal, well-lit
+     library rather than a heavily tinted one. */
+  filter: brightness(1.18) contrast(0.97) saturate(0.94);
 }
 .login-bg-slide.is-active {
   opacity: 1;
@@ -4423,17 +4422,21 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   inset: 0;
   background: linear-gradient(160deg, #1e40af 0%, #1e6fd9 45%, #0ea5e9 100%);
   mix-blend-mode: color;
-  opacity: 0.62;
+  /* Just a whisper of the theme blue for cohesion — the photo stays its own
+     natural library colour rather than being painted blue. */
+  opacity: 0.12;
 }
 
-/* A soft light bloom keeps it feeling airy and premium rather than heavy. */
+/* Soft, mostly-neutral wash: bright in the middle, a gentle darker frame at
+   the edges so the card and its white text stay readable without making the
+   whole scene heavy. */
 .login-bg-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 100% at 50% 8%, rgba(186, 230, 253, 0.20) 0%, rgba(186, 230, 253, 0) 55%),
-    radial-gradient(135% 125% at 50% 45%, rgba(3, 22, 54, 0) 0%, rgba(3, 20, 50, 0.30) 68%, rgba(2, 14, 38, 0.60) 100%),
-    linear-gradient(180deg, rgba(4, 20, 48, 0.16) 0%, rgba(3, 16, 40, 0.30) 100%);
+    radial-gradient(120% 100% at 50% 6%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 55%),
+    radial-gradient(140% 130% at 50% 42%, rgba(15, 18, 24, 0) 0%, rgba(15, 18, 24, 0.16) 65%, rgba(12, 15, 20, 0.42) 100%),
+    linear-gradient(180deg, rgba(15, 18, 24, 0.10) 0%, rgba(12, 15, 20, 0.22) 100%);
 }
 
 /* --- glass card -------------------------------------------------------- */
@@ -4641,6 +4644,18 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
    clip on short screens. */
 .login-body.is-signup { align-items: flex-start; padding-top: 40px; padding-bottom: 40px; }
 .login-glass.signup-card { max-width: 640px; padding: 34px 34px 30px; }
+
+/* Back-to-login button, pinned inside the card so it never overlaps the form
+   on narrow screens. */
+.signup-back {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: #fff; text-decoration: none; font-size: 13px; font-weight: 600;
+  background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.24);
+  padding: 6px 13px 6px 9px; border-radius: 999px; margin-bottom: 16px;
+  transition: background .2s;
+}
+.signup-back:hover { background: rgba(255, 255, 255, 0.24); }
+.signup-back .material-symbols-outlined { font-size: 17px; }
 
 .signup-form { display: flex; flex-direction: column; gap: 18px; }
 .signup-row { display: grid; gap: 16px; }

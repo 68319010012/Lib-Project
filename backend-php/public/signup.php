@@ -26,6 +26,7 @@
 
   <main class="login-shell">
     <section class="login-glass signup-card rise-in">
+      <a class="signup-back" href="/login"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> ย้อนกลับ</a>
       <h1 class="login-title">สร้างบัญชี</h1>
 
       <form class="signup-form" id="signup-form">
