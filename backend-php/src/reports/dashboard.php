@@ -840,12 +840,17 @@ function handle_report_dashboard(): void
   /* ชื่อยาวๆ ตัดด้วย … แทนที่จะดันตัวเลขตกบรรทัด
      (min-width: 0 จำเป็น — flex item ตั้งต้นที่ auto ซึ่งไม่ยอมหดต่ำกว่าเนื้อหา
      และภาษาไทยไม่มีช่องว่างจึงหดเองไม่ได้) */
+  /* flex:0 1 auto (ไม่ใช่ flex:1) — ชื่อกว้างเท่าเนื้อหาจริง แล้วหดพร้อมตัด …
+     เมื่อยาวเกิน ถ้าใช้ flex:1 ชื่อสั้นๆ อย่าง "ปวช." จะยืดกินพื้นที่จนดัน
+     ตัวเลขไปไกลสุดขอบ เกิดช่องว่างโบ๋กลางแถว */
   .dxd-label {
-    flex: 1; min-width: 0; font-size: 15px; color: #1f2937;
+    flex: 0 1 auto; min-width: 0; font-size: 15px; color: #1f2937;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .dxd-pct { flex-shrink: 0; font-size: 15px; color: #1f2937; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; }
-  .dxd-count { flex-shrink: 0; font-size: 14px; color: #666e7c; font-variant-numeric: tabular-nums; text-align: right; min-width: 92px; }
+  /* ตัวเลข % และจำนวนมาชิดชื่อทันที (ไม่ push ไปขอบขวา) จะได้ไม่เกิดช่องว่าง
+     โบ๋กลางแถวเวลาชื่อสั้น อ่านเป็นก้อนเดียว "ชื่อ % (จำนวน)" */
+  .dxd-pct { flex-shrink: 0; font-size: 15px; color: #1f2937; font-variant-numeric: tabular-nums; }
+  .dxd-count { flex-shrink: 0; font-size: 14px; color: #666e7c; font-variant-numeric: tabular-nums; }
   .dxd-empty { color: #666e7c; font-style: italic; }
 
   /* กราฟแท่งรายชั่วโมง */
