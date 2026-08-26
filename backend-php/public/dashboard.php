@@ -8,7 +8,7 @@ require __DIR__ . '/partials/guard.php';
 <?php $pageTitle = 'หน้าหลัก'; include __DIR__ . '/partials/head.php'; ?>
 </head>
 <body class="bg-surface dark:bg-dm-bg font-body-md text-text-primary dark:text-inverse-on-surface min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
-  <?php $variant = 'student'; include __DIR__ . '/partials/header.php'; ?>
+  <?php $variant = 'student'; $hasSidebar = false; include __DIR__ . '/partials/header.php'; ?>
 
   <main class="flex-grow pt-16">
     <h1 class="visually-hidden">หน้าหลักนักศึกษา — เช็คอินและประวัติการเข้าใช้ห้องสมุด</h1>
@@ -36,8 +36,9 @@ require __DIR__ . '/partials/guard.php';
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto px-gutter pt-8 pb-12">
-      <div class="rise-in-group flex flex-col gap-8 max-w-3xl mx-auto">
+    <div class="max-w-6xl mx-auto px-gutter pt-8 pb-12">
+      <div class="rise-in-group grid gap-6 lg:grid-cols-3 items-start">
+        <div class="lg:col-span-2">
         <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md border border-outline-variant dark:border-dm-border p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
           <div id="elapsed-wrap" class="hidden mb-6 flex flex-col items-center">
             <p id="checkin-clock-text" class="text-body-md font-bold text-text-secondary dark:text-dm-text-secondary mb-3"></p>
@@ -67,6 +68,9 @@ require __DIR__ . '/partials/guard.php';
           </div>
         </div>
 
+        </div><!-- /left column -->
+
+        <div class="flex flex-col gap-6">
         <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md p-6 flex items-center justify-between gap-4">
           <div class="flex items-center gap-4 min-w-0">
             <div class="w-10 h-10 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center flex-shrink-0">
@@ -79,6 +83,26 @@ require __DIR__ . '/partials/guard.php';
           </div>
           <button type="button" id="dashboard-view-history" class="flex-shrink-0 text-xs font-bold text-primary dark:text-primary-fixed-dim hover:underline whitespace-nowrap">ดูทั้งหมด</button>
         </div>
+
+        <!-- ทางลัด — เติมพื้นที่ว่างและให้นักศึกษาไปหน้าที่ใช้บ่อยจากหน้าหลักได้ -->
+        <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-md border border-outline-variant dark:border-dm-border p-4">
+          <p class="text-label-caps font-label-caps text-text-secondary dark:text-dm-text-secondary mb-3 ml-1">ทางลัด</p>
+          <div class="grid grid-cols-3 gap-2">
+            <a href="/profile" class="flex flex-col items-center gap-2 rounded-lg py-4 px-2 bg-surface-container-low dark:bg-dm-bg hover:brightness-95 transition-all text-center">
+              <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">person</span>
+              <span class="text-xs font-bold text-text-primary dark:text-inverse-on-surface">โปรไฟล์</span>
+            </a>
+            <button type="button" id="dashboard-quick-history" class="flex flex-col items-center gap-2 rounded-lg py-4 px-2 bg-surface-container-low dark:bg-dm-bg hover:brightness-95 transition-all text-center">
+              <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">history</span>
+              <span class="text-xs font-bold text-text-primary dark:text-inverse-on-surface">ประวัติ</span>
+            </button>
+            <a href="/change-password" class="flex flex-col items-center gap-2 rounded-lg py-4 px-2 bg-surface-container-low dark:bg-dm-bg hover:brightness-95 transition-all text-center">
+              <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">key</span>
+              <span class="text-xs font-bold text-text-primary dark:text-inverse-on-surface">เปลี่ยนรหัส</span>
+            </a>
+          </div>
+        </div>
+        </div><!-- /right column -->
       </div>
     </div>
   </main>

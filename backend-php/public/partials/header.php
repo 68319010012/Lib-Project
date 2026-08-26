@@ -6,6 +6,11 @@ $variant = $variant ?? 'student';
 $homeHref = $variant === 'admin' ? '/admin-dashboard' : '/dashboard';
 $profileHref = $variant === 'admin' ? '/admin-members' : '/profile';
 
+// ปุ่มพับเมนูซ้ายมีความหมายเฉพาะหน้าที่มีแถบเมนูจริง หน้าอย่างแดชบอร์ด
+// นักศึกษาไม่มีแถบเมนู จึงตั้ง $hasSidebar = false ไว้ก่อน include ปุ่มจะได้
+// ไม่โผล่มาแบบกดแล้วไม่มีอะไรเกิดขึ้น
+$hasSidebar = $hasSidebar ?? true;
+
 // ปุ่มพับแถบเมนูซ้ายบนจอคอม สองฝั่งใช้เบรกพอยต์คนละค่าเพราะแถบเมนูของแต่ละฝั่ง
 // โผล่คนละความกว้าง: ของเจ้าหน้าที่ที่ 768px ของนักศึกษาที่ 1024px ปุ่มต้อง
 // ปรากฏพร้อมแถบที่มันสั่ง ไม่งั้นจะมีปุ่มที่กดแล้วไม่มีอะไรเกิดขึ้น
@@ -15,6 +20,7 @@ $sidebarStateKey = $variant === 'admin' ? 'ntc-admin-sidebar-collapsed' : 'ntc-s
 <header class="bg-primary shadow-md fixed top-0 z-50 w-full">
   <div class="flex justify-between items-center w-full <?= $variant === 'admin' ? 'px-4 sm:px-5' : 'px-gutter' ?> h-16 text-on-primary gap-2">
     <div class="flex items-center gap-2 min-w-0">
+      <?php if ($hasSidebar): ?>
       <button
         type="button"
         id="sidebar-toggle-btn"
@@ -26,6 +32,7 @@ $sidebarStateKey = $variant === 'admin' ? 'ntc-admin-sidebar-collapsed' : 'ntc-s
       >
         <span class="material-symbols-outlined text-xl">menu_open</span>
       </button>
+      <?php endif; ?>
       <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
         <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
         <span class="text-headline-md font-headline-md font-bold whitespace-nowrap">NTC Library</span>

@@ -615,6 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('stamp-btn').addEventListener('click', handleStamp);
   document.getElementById('dashboard-view-history').addEventListener('click', openHistoryModal);
+  document.getElementById('dashboard-quick-history').addEventListener('click', openHistoryModal);
   document.querySelectorAll('[data-modal-tab]').forEach((btn) => {
     btn.addEventListener('click', () => setModalTab(btn.dataset.modalTab));
   });
