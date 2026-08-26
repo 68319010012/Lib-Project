@@ -27,8 +27,8 @@ require __DIR__ . '/partials/guard.php';
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto w-full px-gutter -mt-12 relative z-20 pb-20">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="admin-stat-wrap max-w-7xl mx-auto w-full px-gutter -mt-12 relative z-20 pb-20">
+      <div class="admin-stat-cards grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline-variant/30 dark:border-dm-border flex flex-col justify-between">
           <span class="p-2 bg-primary/10 dark:bg-primary-fixed-dim/15 text-primary dark:text-primary-fixed-dim rounded-lg w-fit mb-4">
             <span class="material-symbols-outlined">person_add</span>

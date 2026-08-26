@@ -19,8 +19,8 @@ require __DIR__ . '/partials/guard.php';
       </div>
     </section>
 
-    <div class="max-w-7xl mx-auto w-full px-gutter relative z-20 -mt-8 pb-20">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="admin-stat-wrap max-w-7xl mx-auto w-full px-gutter relative z-20 -mt-8 pb-20">
+      <div class="admin-stat-cards grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div class="bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-sm border border-outline dark:border-dm-border flex flex-col justify-between">
           <span class="p-2 bg-primary/10 dark:bg-primary-fixed-dim/15 text-primary dark:text-primary-fixed-dim rounded-lg w-fit mb-4">
             <span class="material-symbols-outlined">sensors</span>

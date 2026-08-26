@@ -39,7 +39,7 @@ require __DIR__ . '/partials/guard.php';
     <!-- KPI cards live just below the hero and overlap it only slightly, so
          they read as elevated cards on the white page instead of blending
          into the dark-blue band. -->
-    <div class="max-w-7xl mx-auto w-full px-gutter -mt-6 relative z-10">
+    <div class="admin-kpi-wrap max-w-7xl mx-auto w-full px-gutter -mt-6 relative z-10">
       <div class="admin-kpi-grid rise-in-group grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="lift-on-hover bg-white dark:bg-dm-surface rounded-xl p-6 shadow-card border border-outline-variant/30 dark:border-dm-border">
           <div class="kpi-icon w-12 h-12 rounded-full bg-primary/10 dark:bg-primary-fixed-dim/15 flex items-center justify-center text-primary dark:text-primary-fixed-dim mb-4">
