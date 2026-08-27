@@ -16,6 +16,19 @@ function ntc_asset_v(string $relPath): string
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?>ห้องสมุด NTC</title>
 <link rel="icon" type="image/svg+xml" href="/assets/img/logo-badge.svg?v=<?= ntc_asset_v('assets/img/logo-badge.svg') ?>" />
+
+<!-- Installable app (PWA). With these three the browser offers "เพิ่มไปยังหน้าจอ
+     โฮม" / "ติดตั้งแอป", and the installed copy opens without the browser's
+     address bar — the same site, but it looks and launches like an app.
+     theme-color paints the phone's status bar to match the header navy. -->
+<link rel="manifest" href="/manifest.webmanifest?v=<?= ntc_asset_v('manifest.webmanifest') ?>" />
+<meta name="theme-color" content="#1a2947" />
+<!-- iOS reads none of the manifest's icon list; it uses this one. -->
+<link rel="apple-touch-icon" href="/assets/img/pwa/apple-touch-icon.png?v=<?= ntc_asset_v('assets/img/pwa/apple-touch-icon.png') ?>" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="ห้องสมุด NTC" />
+<meta name="mobile-web-app-capable" content="yes" />
 <!-- Fonts (Noto Sans Thai, IBM Plex Mono, Material Symbols Outlined) are
      self-hosted via @font-face rules at the top of styles.css — no external
      Google Fonts request, so the site works offline / behind restrictive
@@ -44,4 +57,15 @@ function ntc_asset_v(string $relPath): string
       document.documentElement.classList.toggle('light', !dark);
     } catch (e) {}
   })();
+</script>
+<script>
+  // Registered on 'load' so fetching and starting the worker never competes
+  // with the first render. Registration is best-effort: it needs a secure
+  // context, so it simply does nothing over plain http on a phone (localhost
+  // counts as secure, which is why it still works on the dev server).
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
 </script>

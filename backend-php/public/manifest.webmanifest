@@ -1,0 +1,29 @@
+{
+  "name": "ห้องสมุด NTC — วิทยาลัยเทคนิคนครนายก",
+  "short_name": "ห้องสมุด NTC",
+  "description": "เช็คอิน-เช็คเอาต์ห้องสมุด และดูประวัติการเข้าใช้ของตัวเอง",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf9f6",
+  "theme_color": "#1a2947",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/assets/img/pwa/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/img/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/img/pwa/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/assets/img/pwa/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "เช็คอิน",
+      "short_name": "เช็คอิน",
+      "description": "ไปที่หน้าเช็คอินทันที",
+      "url": "/dashboard",
+      "icons": [{ "src": "/assets/img/pwa/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

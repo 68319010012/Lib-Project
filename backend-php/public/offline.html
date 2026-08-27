@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ออฟไลน์ - ห้องสมุด NTC</title>
+<link rel="icon" type="image/svg+xml" href="/assets/img/logo-badge.svg" />
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #faf9f6;
+    color: #212430;
+    font-family: 'Noto Sans Thai', 'IBM Plex Sans Thai', system-ui, sans-serif;
+    text-align: center;
+  }
+  .card { max-width: 420px; }
+  img { width: 72px; height: 72px; margin-bottom: 20px; }
+  h1 { font-size: 22px; margin: 0 0 10px; }
+  p { font-size: 15px; line-height: 1.7; color: #5c6470; margin: 0 0 24px; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 12px 26px;
+    border: 0;
+    border-radius: 10px;
+    background: #1a2947;
+    color: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #0f1626; color: #fff; }
+    p { color: #c3cbd9; }
+    button { background: #9db8e8; color: #0f1626; }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="/assets/img/logo-badge.svg" alt="" />
+    <h1>ยังไม่ได้เชื่อมต่ออินเทอร์เน็ต</h1>
+    <p>
+      การเช็คอินต้องบันทึกเวลาไว้ที่เซิร์ฟเวอร์ จึงต้องต่อเน็ตก่อน<br />
+      ลองเชื่อมต่อ Wi-Fi ของวิทยาลัยแล้วกดลองใหม่
+    </p>
+    <button type="button" onclick="location.reload()">ลองใหม่</button>
+  </div>
+</body>
+</html>

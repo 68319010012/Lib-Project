@@ -21,12 +21,24 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 
+# Apache has no built-in type for .webmanifest, so without this the manifest
+# is served as text/plain and the browser will not offer to install the app.
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
 # Security response headers. Wrapped in IfModule so a server without
 # mod_headers serves the site rather than returning 500.
 <IfModule mod_headers.c>
   # Stop the browser from second-guessing Content-Type. Without it, a file
   # the app serves as text can be re-interpreted as script.
   Header always set X-Content-Type-Options "nosniff"
+
+  # sw.js decides what every other request does, so a stale copy is the one
+  # cache entry that can't be fixed by shipping a new version of anything else.
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
 
   # Clickjacking: no other site may frame these pages, so an invisible
   # overlay can't trick a logged-in admin into clicking "บังคับเช็คเอาต์"
