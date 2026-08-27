@@ -19,24 +19,56 @@ require __DIR__ . '/partials/guard.php';
       <div class="max-w-7xl w-full mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
           <h1 class="font-headline-xl text-headline-xl mb-2">ทำเนียบสมาชิก</h1>
-          <p class="font-body-lg text-body-lg text-on-primary/80">รายชื่อนักศึกษาที่ได้รับการอนุมัติ บัญชีจะถูกสร้างขึ้นอัตโนมัติเมื่อนักศึกษาสมัครสมาชิก</p>
+          <p class="admin-hero-desc font-body-lg text-body-lg text-on-primary/80">รายชื่อนักศึกษาที่ได้รับการอนุมัติ บัญชีจะถูกสร้างขึ้นอัตโนมัติเมื่อนักศึกษาสมัครสมาชิก</p>
         </div>
-        <div class="hidden md:flex gap-4 mb-2">
-          <div class="bg-primary-container/40 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
-            <p class="text-label-caps font-label-caps opacity-70">สมาชิกทั้งหมด</p>
-            <p class="text-headline-md font-label-code" id="members-total-badge">–</p>
+        <!-- Was hidden below md, so the one number an admin opens this page
+             asking for ("มีสมาชิกกี่คน") was invisible on the phone they
+             actually use. It also showed the FILTERED row count under the
+             label "สมาชิกทั้งหมด", which moved on every keystroke. Three
+             separate questions now get three separate, filter-independent
+             numbers, at every width. -->
+        <div class="members-stat-row">
+          <div class="members-stat">
+            <p class="members-stat-label">สมาชิก</p>
+            <p class="members-stat-value font-label-code" id="members-total-badge">–</p>
+          </div>
+          <div class="members-stat">
+            <p class="members-stat-label">ใช้งานได้</p>
+            <p class="members-stat-value font-label-code" id="members-active-badge">–</p>
+          </div>
+          <div class="members-stat hidden" id="members-roster-stat">
+            <p class="members-stat-label">จากรายชื่อ</p>
+            <p class="members-stat-value font-label-code" id="members-roster-badge">–</p>
           </div>
         </div>
       </div>
     </header>
 
     <section class="max-w-7xl w-full mx-auto px-gutter -mt-6 md:-mt-10 relative z-20 py-8 flex-grow">
-      <div class="admin-filter-bar bg-surface-white dark:bg-dm-surface p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-6 items-stretch lg:items-end mb-8">
-        <div class="w-full lg:flex-1 relative">
-          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-          <input id="members-search" aria-label="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้" class="w-full pl-12 pr-4 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้..." type="text" />
+      <!-- Four stacked dropdowns above the list pushed the results themselves
+           off a phone screen, so finding a member meant scrolling past the
+           controls every time. The search box — the fast path, and the one
+           control that is used on nearly every visit — now stays visible and
+           sticks to the top while the list scrolls; the four narrowing
+           dropdowns fold behind a toggle that says how many are active. From
+           lg: up there is room for everything at once, so the toggle hides
+           and the fields show unconditionally. -->
+      <div class="admin-filter-bar members-filter-bar bg-surface-white dark:bg-dm-surface p-4 sm:p-6 rounded-xl shadow-md border border-outline-variant/30 dark:border-dm-border flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch lg:items-end mb-8">
+        <div class="members-search-row">
+          <div class="w-full lg:flex-1 relative members-search-field">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input id="members-search" aria-label="ค้นหาด้วยรหัสนักศึกษา ชื่อ หรือชื่อผู้ใช้" class="w-full pl-12 pr-10 py-3 bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="ค้นหารหัส หรือชื่อ" type="search" enterkeyhint="search" autocomplete="off" />
+            <button type="button" id="members-search-clear" class="members-search-clear hidden" aria-label="ล้างคำค้นหา">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <button type="button" id="members-filter-toggle" class="members-filter-toggle" aria-expanded="false" aria-controls="members-filter-fields">
+            <span class="material-symbols-outlined">tune</span>
+            <span>ตัวกรอง</span>
+            <span class="members-filter-badge hidden" id="members-filter-badge">0</span>
+          </button>
         </div>
-        <div class="admin-filter-fields flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+        <div id="members-filter-fields" class="admin-filter-fields members-filter-fields is-collapsed flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
             <label for="members-department" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">แผนกวิชา</label>
             <select id="members-department" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
@@ -67,7 +99,7 @@ require __DIR__ . '/partials/guard.php';
 
       <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-sm border border-outline-variant dark:border-dm-border overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="admin-table w-full text-left border-collapse">
+          <table class="admin-table members-table w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-container-low dark:bg-dm-bg border-b border-outline-variant dark:border-dm-border">
                 <th class="px-6 py-4 text-label-caps font-label-caps text-primary dark:text-primary-fixed-dim">รหัสนักศึกษา</th>

@@ -22,8 +22,16 @@ function populateMembersSelect(select, options, placeholder) {
   });
 }
 
+// membersAllRows holds what the server returned for the CURRENT dropdown
+// filters, before the search box is applied; membersRows is that list narrowed
+// by the search text. Keeping both is what lets typing filter instantly.
+let membersAllRows = null;
 let membersRows = null;
 let membersPage = 1;
+// Membership totals from /admin/members, kept separate from membersRows:
+// these describe the whole membership and must NOT move when a filter narrows
+// the list. null until the first response lands.
+let membersTotals = null;
 // The signed-in admin's own user_id, so their row can say why it can't be
 // demoted or deleted rather than only failing on submit.
 let currentUserId = null;
@@ -33,10 +41,56 @@ const STATUS_LABEL = { approved: 'ใช้งานได้', pending: 'รอ
 
 // Every filter change re-queries, so the page always restarts at 1 there;
 // only the pager itself moves it.
-function setMembersRows(rows) {
+function setMembersRows(rows, totals) {
   membersRows = rows;
+  // A loading pass (rows === null) leaves the last known totals on screen
+  // rather than blanking them to "–" and back on every keystroke.
+  if (totals) membersTotals = totals;
   membersPage = 1;
   renderMembersRows();
+}
+
+// "1,269" — Thai admins read these as ordinary grouped numbers.
+function memberNum(n) {
+  return Number(n || 0).toLocaleString('th-TH');
+}
+
+// The three summary numbers above the list. Unlike "พบ N รายการ" under the
+// table, these stay put while filters change — that is the whole point of
+// them, and the reason the old badge (which showed the filtered count under
+// the label "สมาชิกทั้งหมด") was misleading.
+function renderMembersTotals() {
+  const totalEl = document.getElementById('members-total-badge');
+  const activeEl = document.getElementById('members-active-badge');
+  const rosterEl = document.getElementById('members-roster-badge');
+  const rosterWrap = document.getElementById('members-roster-stat');
+  if (!totalEl) return;
+  if (membersTotals === null) {
+    totalEl.textContent = '–';
+    if (activeEl) activeEl.textContent = '–';
+    if (rosterEl) rosterEl.textContent = '–';
+    return;
+  }
+  totalEl.textContent = memberNum(membersTotals.total);
+  if (activeEl) activeEl.textContent = memberNum(membersTotals.active);
+  if (rosterEl && rosterWrap) {
+    // The roster is the ceiling the membership is working towards. With no
+    // roster imported it is 0, and a "0 คน / 0%" tile teaches the admin
+    // nothing — hide the whole stat instead of showing a broken ratio.
+    const roster = Number(membersTotals.roster || 0);
+    if (roster > 0) {
+      const pct = Math.round((Number(membersTotals.total || 0) / roster) * 100);
+      // Percentage as the headline number, roster size demoted to the label:
+      // "1,504 (84%)" wrapped onto two lines at 390px and made this tile
+      // taller than the two beside it.
+      rosterEl.textContent = `${pct}%`;
+      const label = rosterWrap.querySelector('.members-stat-label');
+      if (label) label.textContent = `จาก ${memberNum(roster)}`;
+      rosterWrap.classList.remove('hidden');
+    } else {
+      rosterWrap.classList.add('hidden');
+    }
+  }
 }
 
 function memberBadges(row) {
@@ -55,17 +109,15 @@ function memberBadges(row) {
 function renderMembersRows() {
   const tbody = document.getElementById('members-tbody');
   const countEl = document.getElementById('members-count');
-  const totalEl = document.getElementById('members-total-badge');
   const pagerEl = document.getElementById('members-pager');
+  renderMembersTotals();
   if (membersRows === null) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="7">กำลังโหลด…</td></tr>';
-    countEl.textContent = 'พบ 0 รายการ';
-    totalEl.textContent = '–';
+    countEl.textContent = 'กำลังค้นหา…';
     pagerEl.innerHTML = '';
     return;
   }
-  totalEl.textContent = membersRows.length;
-  countEl.textContent = `พบ ${membersRows.length} รายการ`;
+  countEl.textContent = `พบ ${memberNum(membersRows.length)} รายการ`;
   if (membersRows.length === 0) {
     tbody.innerHTML = '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="7">ไม่พบสมาชิกตามเงื่อนไขนี้</td></tr>';
     pagerEl.innerHTML = '';
@@ -85,7 +137,7 @@ function renderMembersRows() {
         <tr class="hover:bg-surface-container-low/50 dark:hover:bg-dm-bg transition-colors">
           <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${escapeHtml(r.student_id)}</td>
           <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${escapeHtml(fullName)}${memberBadges(r)}</td>
-          <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary">${escapeHtml(r.department || '-')}</td>
+          <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary" title="${escapeHtml(r.department || '-')}">${escapeHtml(r.department || '-')}</td>
           <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${escapeHtml(r.level || '-')}</td>
           <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${escapeHtml(r.year_level || '-')}</td>
           <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${escapeHtml(lastVisit)}</td>
@@ -310,22 +362,75 @@ async function deleteMember() {
   }
 }
 
+// Searching used to re-query the server on every keystroke (debounced 300ms),
+// and the endpoint returns every matching row — roughly 470KB unfiltered at
+// 1,268 members. On a phone that is a fresh half-megabyte download between
+// each letter, which is what made looking someone up feel slow.
+//
+// The dropdowns still query the server, because they change WHICH members are
+// in play. The search box does not: it narrows the list already in memory, so
+// results appear as fast as the keypress and no request is made at all. A few
+// thousand rows is nothing for the browser to filter, and the endpoint is
+// still the one that decides who an admin may see.
+function searchMembersLocally() {
+  if (membersAllRows === null) return;
+  const term = document.getElementById('members-search').value.trim().toLowerCase();
+  if (term === '') {
+    setMembersRows(membersAllRows);
+    return;
+  }
+  // Same four fields the SQL LIKE matched, plus the full name, so typing
+  // "สมชาย ใจดี" with the space finds the row that first/last alone would not.
+  setMembersRows(membersAllRows.filter((r) => {
+    const first = (r.first_name || '').toLowerCase();
+    const last = (r.last_name || '').toLowerCase();
+    return first.includes(term)
+      || last.includes(term)
+      || `${first} ${last}`.includes(term)
+      || String(r.student_id || '').toLowerCase().includes(term)
+      || String(r.username || '').toLowerCase().includes(term);
+  }));
+}
+
+// Two dropdown changes in quick succession are two requests in flight, and
+// the slower one can land last and overwrite the newer result. Each load
+// claims a number and only the newest one is allowed to render.
+let membersLoadSeq = 0;
+
 async function loadMembers() {
+  const mine = ++membersLoadSeq;
   const params = new URLSearchParams();
-  const search = document.getElementById('members-search').value.trim();
   const department = document.getElementById('members-department').value.trim();
   const level = document.getElementById('members-level').value;
   const yearLevel = document.getElementById('members-year-level').value;
   const status = document.getElementById('members-status').value;
-  if (search) params.set('search', search);
   if (department) params.set('department', department);
   if (level) params.set('level', level);
   if (yearLevel) params.set('year_level', yearLevel);
   if (status) params.set('status', status);
 
+  membersAllRows = null;
   setMembersRows(null);
-  const data = await apiFetch(`/admin/members?${params.toString()}`);
-  setMembersRows(data);
+  try {
+    const data = await apiFetch(`/admin/members?${params.toString()}`);
+    if (mine !== membersLoadSeq) return;
+    membersAllRows = data.rows || [];
+    membersTotals = { total: data.total, active: data.active, roster: data.roster };
+    // Renders once, through the search filter, so a term typed before the
+    // dropdown changed stays applied to the new result set.
+    searchMembersLocally();
+  } catch (err) {
+    if (mine !== membersLoadSeq) return;
+    // Without this the table sits on "กำลังค้นหา…" forever and the admin has
+    // no way to tell a failed request from an empty one.
+    membersAllRows = null;
+    document.getElementById('members-tbody').innerHTML =
+      '<tr><td class="px-6 py-6 text-on-surface-variant dark:text-dm-text-secondary" colspan="7">'
+      + 'โหลดรายชื่อไม่สำเร็จ กรุณาลองใหม่</td></tr>';
+    document.getElementById('members-count').textContent = 'โหลดไม่สำเร็จ';
+    document.getElementById('members-pager').innerHTML = '';
+    showToast(err.message || 'โหลดรายชื่อสมาชิกไม่สำเร็จ', { type: 'error' });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -351,23 +456,62 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   refreshYearOptions();
 
-  // No filter button — every field re-queries as soon as it changes.
-  // Search is debounced (300ms) so it doesn't fire a request per keystroke;
-  // Enter still fires immediately for anyone used to pressing it.
-  let searchDebounce;
-  document.getElementById('members-search').addEventListener('input', () => {
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(loadMembers, 300);
-  });
+  // No filter button — every dropdown re-queries as soon as it changes.
+  // The search box filters in memory (searchMembersLocally), so it runs on
+  // every keystroke with no debounce and no request. Enter just closes the
+  // phone keyboard; the list is already filtered by then.
+  document.getElementById('members-search').addEventListener('input', searchMembersLocally);
   document.getElementById('members-search').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      clearTimeout(searchDebounce);
-      loadMembers();
+      e.preventDefault();
+      document.getElementById('members-search').blur();
     }
   });
   document.getElementById('members-department').addEventListener('change', loadMembers);
   yearSelect.addEventListener('change', loadMembers);
   document.getElementById('members-status').addEventListener('change', loadMembers);
+
+  // --- Search box: a clear button, so correcting a mistyped ID on a phone is
+  // one tap instead of holding backspace through eleven digits.
+  const searchInput = document.getElementById('members-search');
+  const clearBtn = document.getElementById('members-search-clear');
+  function syncClearButton() {
+    clearBtn.classList.toggle('hidden', searchInput.value === '');
+  }
+  searchInput.addEventListener('input', syncClearButton);
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    syncClearButton();
+    searchInput.focus();
+    searchMembersLocally();
+  });
+  syncClearButton();
+
+  // --- Collapsible filters (below lg only; CSS keeps them open above it).
+  // The badge counts the dropdowns that are actually narrowing the list, so a
+  // filter left set from an earlier search can't silently hide the member the
+  // admin is now looking for. 'status' counts only when it is not the default
+  // 'approved' — that one is always set.
+  const filterToggle = document.getElementById('members-filter-toggle');
+  const filterFields = document.getElementById('members-filter-fields');
+  const filterBadge = document.getElementById('members-filter-badge');
+  const statusSelect = document.getElementById('members-status');
+  function refreshFilterBadge() {
+    let active = 0;
+    if (document.getElementById('members-department').value) active += 1;
+    if (levelSelect.value) active += 1;
+    if (yearSelect.value) active += 1;
+    if (statusSelect.value !== 'approved') active += 1;
+    filterBadge.textContent = String(active);
+    filterBadge.classList.toggle('hidden', active === 0);
+  }
+  filterToggle.addEventListener('click', () => {
+    const collapsed = filterFields.classList.toggle('is-collapsed');
+    filterToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  });
+  [document.getElementById('members-department'), levelSelect, yearSelect, statusSelect]
+    .forEach((el) => el.addEventListener('change', refreshFilterBadge));
+  refreshFilterBadge();
 
   // Reset-result modal controls.
   const resetModal = document.getElementById('reset-result-modal');

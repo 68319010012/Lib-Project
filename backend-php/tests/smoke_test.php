@@ -177,7 +177,9 @@ try {
     check('admin login -> 200', $status === 200, "got $status");
 
     [$status, $data] = http('GET', "$BASE/admin/members?search=$STUDENT_USERNAME", null, $adminJar);
-    check('/admin/members search finds the student', $status === 200 && count($data) === 1 && $data[0]['username'] === $STUDENT_USERNAME);
+    $memberRows = $data['rows'] ?? [];
+    check('/admin/members search finds the student', $status === 200 && count($memberRows) === 1 && $memberRows[0]['username'] === $STUDENT_USERNAME);
+    check('/admin/members reports a membership total', $status === 200 && isset($data['total']) && $data['total'] >= 1, 'total=' . var_export($data['total'] ?? null, true));
 
     [$status, $data] = http('GET', "$BASE/admin/reports", null, $adminJar);
     $studentEntries = array_values(array_filter($data ?? [], fn($row) => $row['student_id'] === $STUDENT_USERNAME));

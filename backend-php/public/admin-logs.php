@@ -16,7 +16,7 @@ require __DIR__ . '/partials/guard.php';
       <div class="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 class="text-on-primary font-headline-xl text-headline-xl mb-2">ประวัติการเช็คชื่อทั้งหมด</h1>
-          <p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายการเช็คอินและเช็คเอาต์ทุกครั้งของห้องสมุด กรองตามวันที่และแผนกวิชาได้</p>
+          <p class="admin-hero-desc text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายการเช็คอินและเช็คเอาต์ทุกครั้งของห้องสมุด กรองตามวันที่และแผนกวิชาได้</p>
         </div>
         <div class="flex gap-4">
           <a class="bg-secondary-container text-on-secondary-container font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:scale-105 transition-all shadow-lg stamp-shadow" href="/admin/reports/print" aria-label="ศูนย์รายงาน">

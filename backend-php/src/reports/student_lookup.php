@@ -297,9 +297,13 @@ function handle_report_student_lookup(): void
     var mine = ++seq;
     fetch('/admin/members?search=' + encodeURIComponent(term), { credentials: 'include' })
       .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (rows) {
+      .then(function (data) {
         // Drop a slow response that a newer keystroke has already superseded.
         if (mine !== seq) return;
+        // /admin/members answers {rows, total, active, roster}; it used to
+        // answer a bare array. Accept both so this box keeps working if the
+        // two ever get deployed out of step.
+        var rows = data && Array.isArray(data.rows) ? data.rows : data;
         render(Array.isArray(rows) ? rows : []);
       })
       .catch(function () { if (mine === seq) close(); });

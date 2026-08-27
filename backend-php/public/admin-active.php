@@ -15,7 +15,7 @@ require __DIR__ . '/partials/guard.php';
     <section class="admin-hero-pattern pt-8 pb-16 px-gutter relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10">
         <h1 class="text-on-primary font-headline-xl text-headline-xl mb-2">ผู้ใช้งานที่กำลังใช้งานอยู่</h1>
-        <p class="text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายชื่อนักศึกษาที่เช็คอินแล้วยังไม่เช็คเอาต์ ณ ขณะนี้ พร้อมระยะเวลาที่อยู่ในห้องสมุด — อัปเดตอัตโนมัติทุก 20 วินาที</p>
+        <p class="admin-hero-desc text-on-primary/80 font-body-lg text-body-lg max-w-2xl">รายชื่อนักศึกษาที่เช็คอินแล้วยังไม่เช็คเอาต์ ณ ขณะนี้ พร้อมระยะเวลาที่อยู่ในห้องสมุด — อัปเดตอัตโนมัติทุก 20 วินาที</p>
       </div>
     </section>
 

@@ -50,12 +50,23 @@ function handle_admin_members(): void
     // เรียงตามรหัสนักศึกษา ไม่ใช่ชื่อ ก-ฮ: เจ้าหน้าที่ค้นจากรหัสที่อยู่ในเอกสาร
     // LENGTH() มาก่อนเพราะ student_id เป็น VARCHAR — ถ้ารหัสยาวไม่เท่ากัน
     // การเรียงแบบข้อความล้วนจะวางรหัสสั้นกว่าไว้ผิดที่ (9 ตกไปอยู่หลัง 10)
+    // last_visit was a correlated subquery: one MAX() over checkin_logs per
+    // row returned, so its cost grew with the membership. At today's size both
+    // forms are far below the request's own overhead, so this is not what made
+    // the page feel slow (that was the response size — see admin-members.js);
+    // it is a scaling fix, aggregating once into a derived table that
+    // idx_checkin_logs_user_time already covers instead of scanning per row.
     $sql = "SELECT u.user_id, u.username, u.role, u.account_status,
                    s.student_id, s.prefix, s.gender, s.first_name, s.last_name,
                    s.department, s.level, s.year_level, s.room,
-                   (SELECT MAX(c.timestamp) FROM checkin_logs c WHERE c.user_id = u.user_id) AS last_visit
+                   lv.last_visit
             FROM users u
             JOIN students s ON s.student_id = u.student_id
+            LEFT JOIN (
+                SELECT user_id, MAX(timestamp) AS last_visit
+                FROM checkin_logs
+                GROUP BY user_id
+            ) lv ON lv.user_id = u.user_id
             WHERE $whereClause
             ORDER BY LENGTH(s.student_id), s.student_id";
 
@@ -66,7 +77,38 @@ function handle_admin_members(): void
     foreach ($rows as &$row) {
         $row['last_visit'] = to_isoformat($row['last_visit']);
     }
-    json_response($rows);
+    unset($row);
+
+    // The page used to label the count of the CURRENT result set "สมาชิกทั้งหมด",
+    // so the number moved every time a filter changed and the real membership
+    // total was nowhere on the page. These three are each a different question
+    // and the page now shows them as three different numbers:
+    //   total   — every student account, whatever the filters say
+    //   active  — accounts that can actually log in right now
+    //   roster  — students imported from the college roster, i.e. the ceiling
+    //             `total` is working towards (0 until a roster is imported)
+    // Counted over the same population the list draws from — users JOIN
+    // students — not over `users` alone. handle_admin_member_role() can set
+    // role='student' on an account created by scripts/create_admin.php, whose
+    // student_id is NULL; such a row has no `students` match, so it can never
+    // appear in the list. Counting it in `total` would put a headline number
+    // on the page that the list is structurally unable to reach.
+    $totals = $conn->query(
+        "SELECT
+            COUNT(*) AS total,
+            SUM(u.account_status = 'approved') AS active,
+            (SELECT COUNT(*) FROM students) AS roster
+         FROM users u
+         JOIN students s ON s.student_id = u.student_id
+         WHERE u.role = 'student'"
+    )->fetch();
+
+    json_response([
+        'rows' => $rows,
+        'total' => (int) $totals['total'],
+        'active' => (int) $totals['active'],
+        'roster' => (int) $totals['roster'],
+    ]);
 }
 
 // Whoever's most recent checkin_logs row is 'in' is still inside — same

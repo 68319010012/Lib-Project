@@ -4016,11 +4016,15 @@ html.dark .lib-banner { filter: brightness(.88); }
   /* ทำเนียบสมาชิก: รหัส ชื่อ แผนก ระดับ ปี ล่าสุด จัดการ */
   #members-tbody td:nth-child(2) { flex: 1 0 100%; order: 1; font-size: 14px; }
   #members-tbody td:nth-child(1) { flex: 1 0 100%; order: 2; font-size: 12px; }
-  #members-tbody td:nth-child(3) { order: 3; font-size: 12px; }
-  #members-tbody td:nth-child(4) { order: 4; font-size: 12px; }
-  #members-tbody td:nth-child(5) { order: 5; font-size: 12px; }
-  #members-tbody td:nth-child(4)::before,
-  #members-tbody td:nth-child(5)::before { content: '· '; }
+  /* แผนก / ระดับชั้น / ชั้นปี เคยเป็นข้อความสามชิ้นคั่นด้วย "·" ซึ่งอ่านแล้ว
+     แยกไม่ออกว่าอันไหนคือค่าอะไร และดูเหมือนข้อความที่พิมพ์ต่อกันมากกว่าข้อมูล
+     ที่มีโครงสร้าง — เปลี่ยนเป็นชิปสามอัน (.chip ประกาศไว้ท้ายไฟล์) */
+  #members-tbody td:nth-child(3) { order: 3; }
+  #members-tbody td:nth-child(4) { order: 4; }
+  #members-tbody td:nth-child(5) { order: 5; }
+  #members-tbody td:nth-child(3),
+  #members-tbody td:nth-child(4),
+  #members-tbody td:nth-child(5) { margin-top: 4px; }
   #members-tbody td:nth-child(6) { flex: 1 0 100%; order: 6; font-size: 11.5px; }
   #members-tbody td:nth-child(7) { flex: 1 0 100%; order: 7; text-align: right !important; margin-top: 6px; }
 
@@ -4034,8 +4038,7 @@ html.dark .lib-banner { filter: brightness(.88); }
   /* กำลังใช้งานอยู่: ชื่อ รหัส แผนก เช็คอินเมื่อ อยู่มาแล้ว จัดการ */
   #active-tbody td:nth-child(1) { flex: 1 0 100%; order: 1; font-size: 14px; }
   #active-tbody td:nth-child(2) { order: 2; font-size: 12px; }
-  #active-tbody td:nth-child(3) { order: 3; font-size: 12px; }
-  #active-tbody td:nth-child(3)::before { content: '· '; }
+  #active-tbody td:nth-child(3) { order: 3; margin-top: 4px; }
   #active-tbody td:nth-child(4) { flex: 1 0 100%; order: 4; font-size: 11.5px; }
   #active-tbody td:nth-child(5) { flex: 1 0 100%; order: 5; font-size: 12px; }
   #active-tbody td:nth-child(6) { flex: 1 0 100%; order: 6; text-align: right !important; margin-top: 6px; }
@@ -5361,3 +5364,325 @@ main { animation: ntc-main-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
   padding-bottom: 16px;
 }
 .ntc-modal > * { margin-top: auto; margin-bottom: auto; }
+
+/* ---------------------------------------------------------------------
+   ทำเนียบสมาชิก — ตัวเลขสรุป แถบค้นหา และการ์ดสมาชิกบนมือถือ
+   แก้สามเรื่องที่แอดมินติมาจากการใช้งานจริงบนโทรศัพท์:
+   1) ไม่รู้ว่ามีสมาชิกกี่คน — ตัวเลขเดิมซ่อนไว้ที่ md: ขึ้นไป
+   2) หาสมาชิกยาก/ช้า — ช่องค้นหาถูกดันตกจอเพราะตัวกรองสี่ช่องวางซ้อนอยู่บน
+   3) การ์ดดู "ไม่เป็นกึ่งกลาง" — ปุ่มจัดการลอยชิดขวาห่างจากเนื้อหาในการ์ด
+   --------------------------------------------------------------------- */
+
+/* ตัวเลขสรุป: อยู่ในแถบหัวเรื่องสีกรม จึงใช้สีขาวโปร่งบนพื้นนั้น */
+.members-stat-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+/* บนมือถือไม่มีกล่อง: สามกล่องที่มีพื้นหลัง ขอบ และ padding กินความสูงไป
+   ~76px เพื่อแสดงตัวเลขสามตัว. เหลือเป็นตัวเลขกับป้ายกำกับบนบรรทัดเดียวกัน
+   (row-reverse ให้ตัวเลขมาก่อน: "1,268 สมาชิกทั้งหมด", "84% จาก 1,504 คน")
+   วางบนพื้นกรมของแถบหัวเรื่องตรงๆ กล่องจะกลับมาเมื่อจอกว้างพอที่ md: */
+.members-stat {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+}
+.members-stat-label {
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+.members-stat-value {
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .members-stat-row { gap: 6px 16px; margin-top: 8px; }
+}
+
+@media (min-width: 768px) {
+  /* nowrap is load-bearing: the header is a fixed 240px with items-end, so a
+     third tile wrapping to a second row pushes the first two up out of it and
+     they get clipped. Three tiles fit side by side at every width from md up. */
+  .members-stat-row { width: auto; margin-bottom: 8px; gap: 12px; flex-wrap: nowrap; }
+  .members-stat {
+    flex: 0 0 auto;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgb(255 255 255 / 0.10);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    backdrop-filter: blur(4px);
+  }
+  .members-stat-label { font-size: 11px; letter-spacing: 0.04em; }
+  .members-stat-value { font-size: 26px; line-height: 1.15; margin-top: 2px; }
+}
+
+/* แถวค้นหา: ช่องค้นหา + ปุ่มตัวกรอง อยู่บรรทัดเดียวกัน */
+.members-search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .members-search-row { flex: 1; }
+}
+
+/* type="search" makes Chrome draw its OWN clear button, which sat on top of
+   ours and appeared even when the field was empty. Ours is the one wired to
+   the in-memory filter, so suppress the native one. */
+#members-search::-webkit-search-cancel-button,
+#members-search::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.members-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: rgb(var(--c-ink-3));
+}
+/* .members-search-clear and Tailwind's .hidden are both single classes, and
+   this block is appended after the utilities — so without an explicit rule the
+   display:flex above wins and the clear button shows on an empty field. */
+.members-search-clear.hidden { display: none; }
+.members-search-clear:hover { background: rgb(var(--c-bg-2)); }
+.members-search-clear .material-symbols-outlined { font-size: 18px; }
+.dark .members-search-clear:hover { background: rgb(var(--c-dm-surface-alt)); }
+
+/* ปุ่มพับ/กางตัวกรอง — เห็นเฉพาะจอที่แคบกว่า lg */
+.members-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid rgb(var(--c-line-strong));
+  background: rgb(var(--c-bg-2));
+  color: rgb(var(--c-ink-2));
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.members-filter-toggle .material-symbols-outlined { font-size: 20px; }
+.dark .members-filter-toggle {
+  border-color: rgb(var(--c-dm-border));
+  background: rgb(var(--c-dm-surface-alt));
+  color: rgb(var(--c-dm-text-2));
+}
+.members-filter-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgb(var(--c-accent));
+  color: #fff;
+  font-size: 11px;
+  line-height: 20px;
+  text-align: center;
+}
+/* ปุ่มนี้ซ่อนคำว่า "ตัวกรอง" เมื่อจอแคบมาก เหลือแต่ไอคอน + ตัวเลข */
+@media (max-width: 400px) {
+  .members-filter-toggle span:not(.material-symbols-outlined):not(.members-filter-badge) {
+    display: none;
+  }
+}
+
+.members-filter-fields.is-collapsed { display: none; }
+@media (min-width: 1024px) {
+  /* จอกว้างพอวางทุกอย่างพร้อมกัน ปุ่มพับจึงไม่ต้องมี */
+  .members-filter-toggle { display: none; }
+  .members-filter-fields.is-collapsed { display: flex; }
+}
+
+/* แถบค้นหาเกาะบนสุดขณะเลื่อนรายชื่อ — แอดมินพิมพ์ค้นหาได้โดยไม่ต้องเลื่อนกลับ
+   ขึ้นไป. ใช้เฉพาะจอแคบ เพราะจอกว้างเห็นตัวกรองครบอยู่แล้ว
+   top เท่ากับความสูงแถบหัวเว็บ + แถบพอร์ทัลเจ้าหน้าที่ (pt-28 = 112px) */
+@media (max-width: 1023px) {
+  .members-filter-bar {
+    position: sticky;
+    top: 104px;
+    z-index: 30;
+  }
+}
+
+/* การ์ดสมาชิกบนมือถือ: ปุ่มจัดการเคยเป็นข้อความลอยชิดขวาสุดของการ์ด ห่างจาก
+   ชื่อที่มันหมายถึงจนดูไม่เข้าพวก. เปลี่ยนเป็นปุ่มจริงสองปุ่มกว้างเท่ากัน
+   เรียงเต็มความกว้างการ์ด และคั่นด้วยเส้นบางจากข้อมูลด้านบน */
+@media (max-width: 700px) {
+  #members-tbody td:nth-child(7) {
+    text-align: left !important;
+    margin-top: 10px;
+    padding-top: 10px !important;
+    border-top: 1px solid rgb(var(--c-line));
+    display: flex;
+    gap: 8px;
+  }
+  .dark #members-tbody td:nth-child(7) { border-top-color: rgb(var(--c-dm-border)); }
+  #members-tbody td:nth-child(7) .edit-member-btn,
+  #members-tbody td:nth-child(7) .reset-password-btn {
+    flex: 1 1 0;
+    padding: 9px 8px;
+    border-radius: 8px;
+    border: 1px solid rgb(var(--c-line-strong));
+    background: rgb(var(--c-bg-2));
+    font-size: 13px;
+    text-align: center;
+  }
+  .dark #members-tbody td:nth-child(7) .edit-member-btn,
+  .dark #members-tbody td:nth-child(7) .reset-password-btn {
+    border-color: rgb(var(--c-dm-border));
+    background: rgb(var(--c-dm-surface-alt));
+  }
+  /* margin-left ที่เคยใช้คั่นสองปุ่มตอนเป็นข้อความ ตอนนี้ gap ทำแทนแล้ว */
+  #members-tbody .reset-password-btn { margin-left: 0; }
+}
+
+/* ---------------------------------------------------------------------
+   ชิปข้อมูล และการไม่ตัดคำในตารางแอดมิน
+   สองเรื่องที่แอดมินติมาจากภาพหน้าจอจริง:
+   - "การเอา . ขั้นมันดูแย่มากไม่โปรเลย" — จุดคั่นระหว่างแผนก/ระดับ/ชั้นปี
+   - "ชื่อนามสกุลผมไม่อยากให้มันตกลงมาคนละบรรทัด" — คอลัมน์ชื่อบนจอคอม
+   --------------------------------------------------------------------- */
+
+/* ชิป: ใช้แทนจุดคั่นในการ์ดบนมือถือ. แต่ละค่ามีกรอบของตัวเอง จึงอ่านออกว่า
+   เป็นข้อมูลคนละชิ้นโดยไม่ต้องมีอะไรมาคั่น */
+@media (max-width: 700px) {
+  #members-tbody td:nth-child(3),
+  #members-tbody td:nth-child(4),
+  #members-tbody td:nth-child(5),
+  #active-tbody td:nth-child(3) {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgb(var(--c-bg-2));
+    border: 1px solid rgb(var(--c-line));
+    color: rgb(var(--c-ink-2));
+    font-size: 11.5px;
+    line-height: 1.7;
+    white-space: nowrap;
+  }
+  .dark #members-tbody td:nth-child(3),
+  .dark #members-tbody td:nth-child(4),
+  .dark #members-tbody td:nth-child(5),
+  .dark #active-tbody td:nth-child(3) {
+    background: rgb(var(--c-dm-surface-alt));
+    border-color: rgb(var(--c-dm-border));
+    color: rgb(var(--c-dm-text-2));
+  }
+  /* ชั้นปีมีค่าเป็นเลขตัวเดียว ชิปที่มีแต่ "1" อยู่ข้างในอ่านไม่ออกว่าคืออะไร
+     — เติมคำว่า "ปี" ให้เฉพาะมุมมองการ์ด ส่วนตารางบนจอคอมมีหัวคอลัมน์บอกอยู่แล้ว */
+  /* margin, not a trailing space in content: the value renders in the mono
+     face and the plain space read as "ปี1" */
+  #members-tbody td:nth-child(5)::before { content: 'ปี'; margin-right: 4px; }
+
+  /* ชิปแผนกยาวกว่าเพื่อน ให้ตัดท้ายด้วย … แทนที่จะดันชิปอื่นตกบรรทัด
+     ต้องใส่ให้ทั้งสองตาราง ไม่ใช่แค่หน้าสมาชิก — ชื่อแผนกที่ยาวที่สุด
+     ("การจัดการโลจีสติกส์และซับพลายเซน") ล้นออกนอกขอบการ์ดที่ 390px */
+  #members-tbody td:nth-child(3),
+  #active-tbody td:nth-child(3) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+  /* ชื่อในการ์ดก็ห้ามตกบรรทัดเช่นกัน */
+  #members-tbody td:nth-child(2),
+  #active-tbody td:nth-child(1) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* จอคอม/แท็บเล็ต: ตารางอยู่ใน .overflow-x-auto อยู่แล้ว การสั่ง nowrap จึงทำให้
+   ตารางเลื่อนแนวนอนได้เมื่อจำเป็น แทนที่จะยัดคำจนชื่อคนแตกเป็นสองบรรทัด */
+@media (min-width: 701px) {
+  .admin-table th,
+  .admin-table td { white-space: nowrap; }
+
+  /* nowrap on seven columns overflowed the container by ~250px at 1280,
+     pushing the จัดการ buttons off-screen. px-6 on every cell was 336px of
+     padding alone; 14px a side buys most of that back without crowding. */
+  .admin-table th,
+  .admin-table td { padding-left: 14px !important; padding-right: 14px !important; }
+  .admin-table th:first-child,
+  .admin-table td:first-child { padding-left: 20px !important; }
+  .admin-table th:last-child,
+  .admin-table td:last-child { padding-right: 20px !important; }
+
+  /* แผนกวิชา is the one genuinely long value ("การจัดการโลจีสติกส์และ
+     ซับพลายเซน"). It is the column that can afford to be cut — the row is
+     already identified by name and ID — so it ellipsises while the name,
+     which must never wrap or be cut, keeps its full width. 15ch is the widest
+     setting measured to leave the whole table inside 1280 with no horizontal
+     scrollbar (the narrowest laptop this is used on); 17ch overflowed by 12px.
+     The full name is on the cell's title attribute either way. */
+  .members-table tbody td:nth-child(3) {
+    max-width: 15ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ชื่อ-สกุลได้พื้นที่ที่เหลือทั้งหมด คอลัมน์อื่นกินเท่าเนื้อหาจริง.
+     ผูกกับ .members-table เท่านั้น เพราะคอลัมน์ที่ 2 ของตารางประวัติและ
+     ตารางกำลังใช้งานอยู่ไม่ใช่ชื่อ */
+  .members-table thead th:nth-child(2),
+  .members-table tbody td:nth-child(2) { width: 100%; }
+
+  /* ปุ่มจัดการสองปุ่มเคยซ้อนกันสองบรรทัดเพราะคอลัมน์แคบ — เรียงข้างกัน */
+  #members-tbody td:nth-child(7) { text-align: right; }
+  #members-tbody td:nth-child(7) .reset-password-btn { margin-left: 14px; }
+}
+
+/* ---------------------------------------------------------------------
+   แถบหัวเรื่องหน้าแอดมินบนมือถือ
+   แอดมินติดว่า "มันใหญ่กินพื้นที่ไป" — วัดที่ 390px แล้วคำอธิบายใต้หัวเรื่อง
+   กินไป 58px (2 บรรทัด) ในหน้าสมาชิกและหน้าประวัติ และ 86px (3 บรรทัด)
+   ในหน้ากำลังใช้งานอยู่ รวมกับ padding แล้วเนื้อหาจริงเริ่มที่ ~334px จาก
+   จอสูง 844px
+
+   คำอธิบายพวกนี้เป็นข้อความแนะนำที่อ่านครั้งเดียวก็รู้แล้ว บนมือถือจึงซ่อน
+   และเหลือไว้เฉพาะจอกว้างที่มีที่พอ — ไม่ได้ลบทิ้ง
+
+   ข้อยกเว้น: #ad-subtitle ในหน้าภาพรวมไม่ได้ติดคลาสนี้ เพราะมันไม่ใช่ข้อความ
+   แนะนำ แต่เป็นตัวเลขการเข้าใช้ที่โหลดมาจริง
+   --------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .admin-hero-desc { display: none; }
+
+  /* หัวเรื่องไม่ต้องมีที่ว่างเหนือมันมากขนาดนั้นเมื่อไม่มีคำอธิบายแล้ว
+     แตะเฉพาะ padding บน — padding ล่างของหลายหน้าเป็นตัวกำหนดระยะที่การ์ด
+     ด้านล่างเกยขึ้นมา ถ้าไปลดด้วยการ์ดจะเลื่อนหลุดตำแหน่ง */
+  .admin-hero-pattern { padding-top: 16px !important; }
+
+  /* หัวเรื่องกับคำอธิบายเคยมีระยะห่างเผื่อไว้ ตอนนี้ไม่มีอะไรอยู่ใต้มัน */
+  .admin-hero-pattern h1 { margin-bottom: 0 !important; }
+
+  /* หน้าทำเนียบสมาชิกวาง h1 กับตัวเลขสรุปไว้ใน flex ที่เป็น items-end ซึ่งบน
+     มือถือแกนขวางคือแนวนอน = ชิดขวา. เดิมมองไม่ออกเพราะคำอธิบายยาวจนกล่อง
+     กว้างเต็มแถวอยู่แล้ว พอซ่อนคำอธิบาย กล่องหดเหลือเท่าหัวเรื่องแล้วไหลไป
+     ชิดขวาทันที — บังคับให้ยืดเต็มแถวเหมือนเดิม */
+  .admin-hero-pattern > div { align-items: stretch; }
+}
