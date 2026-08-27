@@ -132,12 +132,26 @@ require __DIR__ . '/partials/guard.php';
     </div>
   </div>
 
-  <div id="reminder-banner" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-32px)] max-w-md bg-gradient-to-br from-warning to-warning/80 text-white rounded-2xl shadow-2xl p-4">
-    <p id="reminder-text" class="font-bold text-sm mb-3"></p>
-    <div class="flex gap-2">
-      <button type="button" data-extend="30" class="flex-1 h-9 rounded-full bg-white/90 text-warning font-bold text-xs">ขอเวลาเพิ่ม 30 นาที</button>
-      <button type="button" data-extend="60" class="flex-1 h-9 rounded-full bg-white/90 text-warning font-bold text-xs">ขอเวลาเพิ่ม 60 นาที</button>
-      <button type="button" id="reminder-dismiss" class="h-9 px-3 rounded-full bg-white/20 text-white font-bold text-xs">ไม่ต้อง</button>
+  <!-- bg-black/50 ไม่ใช่ /60: styles.css เป็นไฟล์ที่ build ไว้ล่วงหน้า มีเฉพาะ
+       คลาสที่หน้าอื่นใช้อยู่แล้ว bg-black/60 จึงไม่มีอยู่จริงและพื้นหลังจะใส
+       สนิทโดยไม่มีอะไรฟ้อง (เช็คทุกครั้งก่อนใช้คลาสค่าเฉพาะแบบนี้)
+
+       คำเตือนเรื่องเวลาออกเคยเป็นแถบเล็กๆ ชิดขอบล่าง ซึ่งมองข้ามได้ง่ายมาก
+       สำหรับสิ่งที่มีผลคือถูกเช็คเอาต์อัตโนมัติ — ยกมาเป็นกล่องกลางจอที่ต้อง
+       ตอบก่อนถึงจะทำอย่างอื่นต่อได้ ปุ่มเรียงลงมาเต็มความกว้างให้กดด้วยนิ้วโป้ง
+       ได้ทั้งสามปุ่ม (id และ data-extend เดิมทั้งหมด ตัวจับเหตุการณ์ไม่ต้องแก้) -->
+  <div id="reminder-banner" class="ntc-modal hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter" role="alertdialog" aria-labelledby="reminder-text" aria-modal="true">
+    <div class="reminder-card bg-surface-white dark:bg-dm-surface rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+      <div class="reminder-head">
+        <span class="material-symbols-outlined reminder-icon" aria-hidden="true">alarm</span>
+        <p class="reminder-title">ใกล้ถึงเวลาที่ตั้งไว้</p>
+        <p id="reminder-text" class="reminder-detail"></p>
+      </div>
+      <div class="reminder-actions">
+        <button type="button" data-extend="30" class="reminder-btn reminder-btn-primary">ขอเวลาเพิ่ม 30 นาที</button>
+        <button type="button" data-extend="60" class="reminder-btn reminder-btn-primary">ขอเวลาเพิ่ม 60 นาที</button>
+        <button type="button" id="reminder-dismiss" class="reminder-btn reminder-btn-quiet">ไม่ต้อง ขอบคุณ</button>
+      </div>
     </div>
   </div>
 

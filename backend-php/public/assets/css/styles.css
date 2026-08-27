@@ -5308,6 +5308,14 @@ html.dark .cp-rules li.ok .material-symbols-outlined { color: rgb(52 211 153); }
   .admin-filter-fields > div { flex-shrink: 1; width: auto; }
 }
 
+/* flex-basis วัดตามแกนหลัก ไม่ใช่แนวนอนเสมอไป: ต่ำกว่า 640px ตัวครอบเป็น
+   flex-col แกนหลักจึงเป็นแนวตั้ง "148px" ด้านบนเลยกลายเป็น "ช่องละสูง 148px"
+   ทำให้มีที่ว่างใต้ทุก dropdown เกือบร้อยพิกเซล (เห็นชัดตอนกางตัวกรองบนมือถือ)
+   ในแนวตั้งให้สูงเท่าเนื้อหาจริง แล้วปล่อยให้ gap เป็นตัวจัดระยะห่างแทน */
+@media (max-width: 639px) {
+  .admin-filter-fields > div { flex: 0 0 auto; }
+}
+
 /* ---- ช่องค้นหาหน้าประวัติ ----
    min-w-[260px] กว้างกว่าพื้นที่ที่เหลือบนจอ 320px (320 ลบขอบและ padding
    เหลือราว 224px) ปล่อยให้หดได้บนจอที่แคบกว่านั้น */
@@ -5685,4 +5693,69 @@ main { animation: ntc-main-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
      กว้างเต็มแถวอยู่แล้ว พอซ่อนคำอธิบาย กล่องหดเหลือเท่าหัวเรื่องแล้วไหลไป
      ชิดขวาทันที — บังคับให้ยืดเต็มแถวเหมือนเดิม */
   .admin-hero-pattern > div { align-items: stretch; }
+}
+
+/* ---------------------------------------------------------------------
+   กล่องเตือนใกล้ถึงเวลาออก (หน้าเช็คอิน)
+   เดิมเป็นแถบเล็กชิดขอบล่างจอ ซึ่งเล็กเกินไปสำหรับเรื่องที่ถ้าไม่ทำอะไรแล้ว
+   ระบบจะเช็คเอาต์ให้เอง — ตอนนี้เป็นกล่องกลางจอพร้อมสั่นและเสียงเตือน
+   --------------------------------------------------------------------- */
+.reminder-head {
+  padding: 26px 22px 20px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(160deg, rgb(var(--c-warning)), rgb(var(--c-warning) / 0.82));
+}
+.reminder-icon {
+  font-size: 42px;
+  line-height: 1;
+  display: block;
+  margin: 0 auto 10px;
+}
+.reminder-title {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.reminder-detail {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 6px;
+  opacity: 0.92;
+}
+.reminder-actions {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.reminder-btn {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+}
+.reminder-btn-primary {
+  background: rgb(var(--c-warning));
+  color: #fff;
+}
+.reminder-btn-quiet {
+  background: rgb(var(--c-bg-2));
+  color: rgb(var(--c-ink-2));
+  border: 1px solid rgb(var(--c-line-strong));
+}
+.dark .reminder-btn-quiet {
+  background: rgb(var(--c-dm-surface-alt));
+  color: rgb(var(--c-dm-text-2));
+  border-color: rgb(var(--c-dm-border));
+}
+
+/* จอเตี้ยมากๆ (เช่นแนวนอนบนมือถือ) ยังต้องเห็นปุ่มครบ — .ntc-modal เลื่อนได้อยู่แล้ว
+   ตรงนี้แค่ลดขนาดหัวกล่องลงไม่ให้ดันปุ่มตกจอตั้งแต่แรก */
+@media (max-height: 520px) {
+  .reminder-head { padding: 16px 18px 14px; }
+  .reminder-icon { font-size: 30px; margin-bottom: 6px; }
+  .reminder-title { font-size: 16px; }
 }

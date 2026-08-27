@@ -366,15 +366,61 @@ function restartReminderWatcher(checkedInSince, plannedCheckoutAt) {
     if (minutesLeft <= 20 && minutesLeft > 0 && reminderNotifiedKey !== key) {
       reminderNotifiedKey = key;
       showReminder(minutesLeft);
-      if (navigator.vibrate) navigator.vibrate(200);
+      // จังหวะสั่นสั้น-สั้น-ยาว แยกออกจากการสั่นแจ้งเตือนทั่วไปของเครื่อง
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+      playReminderChime();
     }
   }
   tick();
   reminderWatcherId = setInterval(tick, 30000);
 }
 
+// เสียงเตือนสร้างจาก oscillator ไม่ได้โหลดไฟล์เสียง: ไม่ต้องมีไฟล์ให้ deploy
+// ไม่ต้องแคช และยังดังตอนออฟไลน์
+//
+// เบราว์เซอร์เปิด AudioContext มาในสถานะ suspended จนกว่าจะมีการแตะหน้าจอ
+// สักครั้ง ถ้ารอไปสร้างตอนจะเตือนจริงก็จะเงียบ จึงปลุกไว้ตั้งแต่การแตะครั้งแรก
+let reminderAudioCtx = null;
+
+function unlockReminderAudio() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    if (!reminderAudioCtx) reminderAudioCtx = new Ctx();
+    if (reminderAudioCtx.state === 'suspended') reminderAudioCtx.resume();
+  } catch (e) {
+    // เครื่องไม่รองรับเสียง — การสั่นและกล่องเตือนยังทำงานตามปกติ
+  }
+}
+
+function playReminderChime() {
+  try {
+    const ctx = reminderAudioCtx;
+    if (!ctx || ctx.state !== 'running') return;
+    const now = ctx.currentTime;
+    // สองโน้ตไล่ขึ้น อ่านออกว่าเป็นเสียงแจ้งเตือน ไม่ใช่เสียงผิดพลาด
+    [880, 1174.66].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t0 = now + i * 0.18;
+      // ไต่ขึ้นแล้วค่อยๆ เบาลง เสียงตัดห้วนๆ จะมีเสียงแตกท้ายโน้ต
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.3, t0 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.38);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.42);
+    });
+  } catch (e) {
+    // เสียงเล่นไม่ได้ไม่ใช่เหตุให้คำเตือนหายไป
+  }
+}
+
 function showReminder(minutesLeft) {
-  document.getElementById('reminder-text').textContent = `อีก ${minutesLeft} นาทีจะถึงเวลาที่ตั้งไว้ ต้องการขอเวลาเพิ่มไหม?`;
+  document.getElementById('reminder-text').textContent = `เหลืออีก ${minutesLeft} นาทีจะถึงเวลาที่ตั้งไว้ ถ้าไม่ขอเวลาเพิ่ม ระบบจะเช็คเอาต์ให้อัตโนมัติ`;
   document.getElementById('reminder-banner').classList.remove('hidden');
 }
 
@@ -625,6 +671,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.id === 'checkin-modal') closeCheckinModal();
   });
   document.getElementById('reminder-dismiss').addEventListener('click', hideReminder);
+  // แตะพื้นหลังนอกกล่อง = เท่ากับกด "ไม่ต้อง" (กดโดนกล่องเองไม่ปิด)
+  document.getElementById('reminder-banner').addEventListener('click', (e) => {
+    if (e.target.id === 'reminder-banner') hideReminder();
+  });
+  // ครั้งเดียวพอ หลังจากนั้น AudioContext ก็พร้อมใช้ไปตลอดอายุหน้า
+  ['pointerdown', 'keydown'].forEach((evt) => {
+    document.addEventListener(evt, unlockReminderAudio, { once: true, passive: true });
+  });
   document.querySelectorAll('[data-extend]').forEach((btn) => {
     btn.addEventListener('click', () => extendCheckout(Number(btn.dataset.extend)));
   });
