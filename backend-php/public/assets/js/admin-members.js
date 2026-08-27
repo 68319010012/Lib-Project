@@ -138,7 +138,7 @@ function renderMembersRows() {
           <td class="px-6 py-4 font-label-code text-primary dark:text-primary-fixed-dim">${escapeHtml(r.student_id)}</td>
           <td class="px-6 py-4 font-bold text-on-surface dark:text-inverse-on-surface">${escapeHtml(fullName)}${memberBadges(r)}</td>
           <td class="px-6 py-4 text-on-surface-variant dark:text-dm-text-secondary" title="${escapeHtml(r.department || '-')}">${escapeHtml(r.department || '-')}</td>
-          <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${escapeHtml(r.level || '-')}</td>
+          <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface${r.level && r.year_level ? ' has-year' : ''}"${r.level && r.year_level ? ` data-year="${escapeHtml(r.year_level)}"` : ''}>${escapeHtml(r.level || '-')}</td>
           <td class="px-6 py-4 text-center font-label-code dark:text-inverse-on-surface">${escapeHtml(r.year_level || '-')}</td>
           <td class="px-6 py-4 text-right text-on-surface-variant dark:text-dm-text-secondary text-sm">${escapeHtml(lastVisit)}</td>
           <td class="px-6 py-4 text-right">
