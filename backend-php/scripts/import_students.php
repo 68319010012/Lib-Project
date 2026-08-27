@@ -18,10 +18,19 @@
  * semester), since the check-in system needs each student's current
  * department/year/room.
  *
- * Usage: php import_students.php [path/to/Student.xlsx]  (defaults to ./Student.xlsx)
+ * Usage: php import_students.php [file.xlsx ...] [--dry-run] [--allow-unknown]
+ *        (defaults to ./Student.xlsx; several workbooks may be given at once,
+ *         e.g. the ปวช. and ปวส. halves of one term)
+ *
+ * The import REFUSES to run when a department or ระดับชั้น in the workbook is
+ * not one the rest of the app knows about — see find_unknown_values() for why,
+ * and --allow-unknown to override. --dry-run validates and reports only.
  */
 
 require __DIR__ . '/../vendor/autoload.php';
+// valid_departments() lives here; require_once because tests/import_normalize_test.php
+// loads constants.php and this script together.
+require_once __DIR__ . '/../src/constants.php';
 require __DIR__ . '/../src/env.php';
 load_env(__DIR__ . '/../.env');
 require __DIR__ . '/../src/db.php';
@@ -30,6 +39,47 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 const DEPT_RE = '/แผนกวิชา(?P<department>.*?)ระดับชั้น(?P<level>.*?)ชั้นปีที่(?P<year_level>.*?)ห้องที่(?P<room>.*)/su';
 const TERM_RE = '/ภาคเรียนที่(?P<semester>.*?)ปีการศึกษา(?P<academic_year>.*?)ครูที่ปรึกษา(?P<advisor>.*)/su';
+
+// The department cell on the paper form is free text, and across the 2569
+// roster it arrives in 51 spellings for 14 real departments: programme
+// suffixes the check-in system does not model ("(ม.6)", "(ทวิ)", "(SCG)",
+// "(ผลิตชิ้นส่วนยานยนต์)"), the old name for one department, and outright
+// typos ("เทคโนโลยีธรกิจดิจิทัล" missing its ุ, "(ทิว)" for "(ทวิ)").
+// Imported raw, every department report groups by those 51 strings and the
+// per-department charts become unreadable. Fold them onto the same 14 names
+// valid_departments() in src/constants.php accepts, so the roster, the signup
+// form and the admin edit form all speak about departments identically.
+const DEPT_ALIASES = [
+    'คอมพิวเตอร์' => 'เทคโนโลยีธุรกิจดิจิทัล',
+    'เทคโนโลยีธรกิจดิจิทัล' => 'เทคโนโลยีธุรกิจดิจิทัล',
+    'การจัดการโลจิสติกส์และซับพลายเซน' => 'การจัดการโลจีสติกส์และซับพลายเซน',
+];
+
+// "ช่างไฟฟ้ากำลัง (ม.6)" -> "ช่างไฟฟ้ากำลัง". Drops the programme suffix, the
+// stray leading "แผนกวิชา" some sheets repeat, and the fill-in dots, then
+// applies DEPT_ALIASES. A name that survives all of that unrecognised is
+// returned as-is rather than dropped — a genuinely new department should show
+// up in the reports needing a mapping, not vanish from the roster.
+function normalize_department(string $raw): string
+{
+    $name = preg_replace('/[(（].*$/su', '', $raw);
+    $name = preg_replace('/^\s*แผนกวิชา/u', '', (string) $name);
+    $name = trim(preg_replace('/\s+/u', ' ', (string) $name), " .…");
+    return DEPT_ALIASES[$name] ?? $name;
+}
+
+// "ปวส (ทวิ)" / "ปวส" -> "ปวส." — valid_year_levels() and the signup form
+// both key off the trailing dot, so a roster row without it would never match
+// the dropdown the student picks from.
+function normalize_level(string $raw): string
+{
+    $level = preg_replace('/[(（].*$/su', '', $raw);
+    $level = trim(preg_replace('/\s+/u', '', (string) $level), " .…");
+    if ($level === 'ปวช' || $level === 'ปวส') {
+        return $level . '.';
+    }
+    return $level;
+}
 
 // Strip the dot/ellipsis fill-in-the-blank characters used on the paper form.
 function clean(?string $value): string
@@ -89,8 +139,8 @@ function extract_students(string $path): array
                 continue;
             }
             $info = [
-                'department' => clean($deptMatch['department']),
-                'level' => clean($deptMatch['level']),
+                'department' => normalize_department(clean($deptMatch['department'])),
+                'level' => normalize_level(clean($deptMatch['level'])),
                 'year_level' => clean($deptMatch['year_level']),
                 'room' => clean($deptMatch['room']),
             ];
@@ -179,18 +229,144 @@ function import_to_mysql(array $records): void
     }
 }
 
+// Returns the departments and levels in $records that normalize_department() /
+// normalize_level() did NOT recognise, each with a count and a sample student
+// so the report can point at a real row in the workbook.
+//
+// This is the half that DEPT_ALIASES and tests/import_normalize_test.php cannot
+// cover: the test pins spellings we have already seen, and the alias table only
+// knows names someone thought to add. When the college opens a new department,
+// or renames one, its rows arrive under a name nothing here has an opinion
+// about — and an import that just accepts it puts a 15th department into the
+// roster that no dropdown offers and every per-department report splits out
+// separately. Nobody notices for weeks. So the import stops instead.
+function find_unknown_values(array $records): array
+{
+    $validDepartments = valid_departments();
+    $validLevels = ['ปวช.', 'ปวส.'];
+    $unknown = ['department' => [], 'level' => []];
+
+    foreach ($records as $rec) {
+        foreach ([['department', $validDepartments], ['level', $validLevels]] as [$field, $allowed]) {
+            $value = $rec[$field];
+            if ($value === '' || in_array($value, $allowed, true)) {
+                continue;
+            }
+            if (!isset($unknown[$field][$value])) {
+                $unknown[$field][$value] = ['count' => 0, 'sample' => $rec['student_id']];
+            }
+            $unknown[$field][$value]['count']++;
+        }
+    }
+    return $unknown;
+}
+
+// Departments that ARE recognised but matched nobody. On its own this is not an
+// error — a small department can genuinely have no students in a given term —
+// but paired with an unknown name above it usually means a rename, so it is
+// worth printing next to it.
+function find_empty_departments(array $records): array
+{
+    $seen = array_count_values(array_column($records, 'department'));
+    return array_values(array_filter(
+        valid_departments(),
+        fn($dept) => !isset($seen[$dept])
+    ));
+}
+
+function report_unknown_values(array $unknown, array $emptyDepartments): void
+{
+    $labels = ['department' => 'แผนกวิชา', 'level' => 'ระดับชั้น'];
+    foreach ($unknown as $field => $values) {
+        if (!$values) {
+            continue;
+        }
+        fwrite(STDERR, "\n!! พบ{$labels[$field]}ที่ระบบยังไม่รู้จัก " . count($values) . " ค่า:\n");
+        foreach ($values as $value => $info) {
+            fwrite(STDERR, sprintf(
+                "     [%s]  %d คน  (เช่นรหัส %s)\n",
+                $value,
+                $info['count'],
+                $info['sample']
+            ));
+        }
+    }
+    if ($emptyDepartments) {
+        fwrite(STDERR, "\n   หมายเหตุ: แผนกที่รู้จักแต่ไม่มีนักเรียนเลยในไฟล์นี้ — "
+            . "ถ้าชื่อข้างบนคือแผนกเดียวกันที่เปลี่ยนชื่อ ให้แก้เป็น alias แทนการเพิ่มแผนกใหม่:\n");
+        foreach ($emptyDepartments as $dept) {
+            fwrite(STDERR, "     [$dept]\n");
+        }
+    }
+    fwrite(STDERR, PHP_EOL
+        . "   ยังไม่ได้นำเข้าข้อมูล เพราะถ้าปล่อยผ่าน ชื่อพวกนี้จะกลายเป็นแผนก/ระดับชั้นใหม่" . PHP_EOL
+        . "   ที่ไม่มีในเมนูของหน้าสมัครและหน้าแก้ไขข้อมูล และรายงานแยกแผนกจะนับแยกกลุ่ม" . PHP_EOL
+        . PHP_EOL
+        . "   ต้องทำอย่างใดอย่างหนึ่ง:" . PHP_EOL
+        . "     1. ถ้าเป็นชื่อเดิมที่สะกดต่างออกไป (หรือเปลี่ยนชื่อ)" . PHP_EOL
+        . "        -> เพิ่มลงใน DEPT_ALIASES ที่หัวไฟล์ scripts/import_students.php" . PHP_EOL
+        . "     2. ถ้าเป็นแผนกใหม่จริงๆ" . PHP_EOL
+        . "        -> เพิ่มชื่อลงใน valid_departments() ที่ src/constants.php" . PHP_EOL
+        . "           และ DEPARTMENTS ที่ public/assets/js/constants.js ให้ตรงกัน" . PHP_EOL
+        . "     3. ถ้ารู้อยู่แล้วและตั้งใจให้เข้าไปแบบนี้" . PHP_EOL
+        . "        -> รันซ้ำด้วย --allow-unknown" . PHP_EOL
+        . PHP_EOL
+        . "   เพิ่มชื่อใหม่ลงใน tests/import_normalize_test.php ด้วย จะได้ไม่หลุดอีก" . PHP_EOL
+        . PHP_EOL);
+}
+
 if (php_sapi_name() === 'cli' && realpath($argv[0]) === __FILE__) {
-    $excelPath = $argv[1] ?? (__DIR__ . '/../Student.xlsx');
-    if (!is_file($excelPath)) {
-        fwrite(STDERR, "Error: file not found: $excelPath\n");
-        exit(1);
+    $args = array_slice($argv, 1);
+    $allowUnknown = in_array('--allow-unknown', $args, true);
+    // Parse, validate and report without writing a single row. Safe to run on
+    // a new workbook before anyone decides whether to import it.
+    $dryRun = in_array('--dry-run', $args, true);
+    $paths = array_values(array_filter($args, fn($a) => !str_starts_with($a, '--')));
+    if (!$paths) {
+        $paths = [__DIR__ . '/../Student.xlsx'];
     }
 
-    $allRecords = extract_students($excelPath);
-    echo 'Parsed ' . count($allRecords) . " rows from Excel\n";
+    $allRecords = [];
+    foreach ($paths as $excelPath) {
+        if (!is_file($excelPath)) {
+            fwrite(STDERR, "Error: file not found: $excelPath\n");
+            exit(1);
+        }
+        $rows = extract_students($excelPath);
+        echo 'Parsed ' . count($rows) . ' rows from ' . basename($excelPath) . "\n";
+        $allRecords = array_merge($allRecords, $rows);
+    }
 
     $deduped = dedupe_keep_latest_term($allRecords);
     echo count($deduped) . " unique students after keeping latest term per student_id\n";
+
+    $unknown = find_unknown_values($deduped);
+    if ($unknown['department'] || $unknown['level']) {
+        report_unknown_values($unknown, find_empty_departments($deduped));
+        if (!$allowUnknown) {
+            exit(1);
+        }
+        fwrite(STDERR, "   (--allow-unknown: นำเข้าต่อทั้งที่ยังไม่รู้จัก)\n\n");
+    } else {
+        echo "Departments and levels all recognised\n";
+    }
+
+    // Counts per department, so a rename or a missing sheet is visible in the
+    // output rather than only in the reports weeks later.
+    $byDepartment = array_count_values(array_column($deduped, 'department'));
+    ksort($byDepartment);
+    foreach ($byDepartment as $dept => $count) {
+        // Padded by CHARACTERS, not bytes: printf's %-40s counts bytes and a
+        // Thai character is three of them, so every name came out under-padded
+        // and the counts never lined up into a column.
+        $pad = str_repeat(' ', max(0, 34 - mb_strlen((string) $dept)));
+        printf("  %s%s %5d\n", $dept, $pad, $count);
+    }
+
+    if ($dryRun) {
+        echo "\n--dry-run: ไม่ได้เขียนลงฐานข้อมูล\n";
+        exit(0);
+    }
 
     import_to_mysql($deduped);
     echo "Import complete\n";
