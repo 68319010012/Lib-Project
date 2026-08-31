@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS users (
     -- 'retired': student_handlers.php's retire_expired_accounts_sweep() auto-suspends
     -- accounts a full academic year (365 days) after created_at.
     account_status ENUM('pending', 'approved', 'retired') NOT NULL DEFAULT 'pending',
+    -- 1 = ยังใช้รหัสที่คนอื่นออกให้ (สร้างเป็นชุด หรือแอดมินเพิ่งรีเซ็ต)
+    -- guard.php จะบังคับให้ไปตั้งรหัสของตัวเองก่อนใช้งานหน้าอื่น
+    must_change_password TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES students(student_id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
