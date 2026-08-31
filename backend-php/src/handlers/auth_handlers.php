@@ -132,6 +132,12 @@ function handle_login(): void
     // Used by reports/layout.php's print footer ("จัดทำโดย ...") — cheaper to
     // carry in the session than a users lookup on every report render.
     $_SESSION['username'] = $user['username'];
+    // บัญชีที่เจ้าหน้าที่สร้างให้หรือเพิ่งรีเซ็ตรหัส จะถูกบังคับให้ตั้งรหัสของ
+    // ตัวเองก่อนใช้งาน (ดู public/partials/guard.php)
+    // อ่านจากแถวที่ SELECT * มาอยู่แล้ว ไม่ได้ระบุชื่อคอลัมน์ในคำสั่ง — ถ้ายัง
+    // ไม่ได้เพิ่มคอลัมน์นี้ในฐานข้อมูล ค่าจะหายไปเฉย ๆ แล้วฟีเจอร์ก็แค่ปิดอยู่
+    // ไม่ใช่ทั้งเว็บล็อกอินไม่ได้
+    $_SESSION['must_change_password'] = !empty($user['must_change_password']);
     json_response(['message' => 'เข้าสู่ระบบสำเร็จ', 'role' => $user['role']]);
 }
 

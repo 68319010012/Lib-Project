@@ -199,7 +199,17 @@ function handle_admin_reset_password(): void
 
     $tempPassword = generate_temp_password();
     $hash = password_hash($tempPassword, PASSWORD_BCRYPT);
-    $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?')->execute([$hash, $userId]);
+    // รหัสที่เจ้าหน้าที่ออกให้คือรหัสสำหรับ "เข้าไปตั้งรหัสของตัวเอง" ไม่ใช่รหัส
+    // ประจำบัญชี — ตั้งธงให้ระบบบังคับเปลี่ยนตอนเจ้าตัวล็อกอินเข้ามา
+    try {
+        $conn->prepare('UPDATE users SET password_hash = ?, must_change_password = 1 WHERE user_id = ?')
+            ->execute([$hash, $userId]);
+    } catch (PDOException $e) {
+        if ($e->getCode() !== '42S22') {
+            throw $e;
+        }
+        $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?')->execute([$hash, $userId]);
+    }
 
     json_response(['message' => 'รีเซ็ตรหัสผ่านสำเร็จ', 'temp_password' => $tempPassword]);
 }

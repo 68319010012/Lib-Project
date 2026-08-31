@@ -1,4 +1,7 @@
 <?php
+// หน้านี้ต้องเข้าได้แม้ระบบกำลังบังคับให้เปลี่ยนรหัสผ่าน ไม่งั้น guard จะพา
+// วนกลับมาที่นี่ซ้ำ ๆ (ดู public/partials/guard.php)
+$allowWithoutPasswordChange = true;
 // หน้าเปลี่ยนรหัสผ่าน — แยกออกจากหน้าโปรไฟล์
 //
 // เปิดให้ทั้งนักศึกษาและเจ้าหน้าที่ ($requireAdmin = false) เพราะทั้งสองฝ่าย
@@ -14,6 +17,10 @@ require __DIR__ . '/partials/guard.php';
 $isAdmin = ($_SESSION['role'] ?? '') === 'admin';
 $backHref = $isAdmin ? '/admin-dashboard' : '/profile';
 $backLabel = $isAdmin ? 'กลับไปหน้าภาพรวม' : 'กลับไปหน้าข้อมูลผู้ใช้';
+
+// ถูก guard ส่งมาเพราะยังใช้รหัสที่เจ้าหน้าที่ออกให้อยู่ ไม่ใช่เดินมาเอง
+// ซ่อนลิงก์ย้อนกลับด้วย เพราะกดแล้ว guard ก็ส่งกลับมาที่นี่อยู่ดี
+$forcedChange = !empty($_SESSION['must_change_password']);
 ?>
 <!doctype html>
 <html lang="th">
@@ -35,18 +42,27 @@ $backLabel = $isAdmin ? 'กลับไปหน้าภาพรวม' : '�
          (ถ้า px-gutter อยู่ที่ <section> หัวเรื่องจะเยื้องซ้ายกว่าการ์ด 24px) -->
     <section class="hero-pattern py-12 md:h-[240px] md:py-0 flex items-center">
       <div class="rise-in cp-measure cp-hero mx-auto w-full px-gutter text-white">
-        <h1 class="font-headline-xl text-headline-xl mb-2">เปลี่ยนรหัสผ่าน</h1>
-        <p class="text-body-lg font-body-lg opacity-80">เปลี่ยนรหัสผ่านสำหรับเข้าสู่ระบบของคุณ</p>
+        <h1 class="font-headline-xl text-headline-xl mb-2"><?= $forcedChange ? 'ตั้งรหัสผ่านของคุณ' : 'เปลี่ยนรหัสผ่าน' ?></h1>
+        <p class="text-body-lg font-body-lg opacity-80"><?= $forcedChange
+            ? 'ก่อนเริ่มใช้งาน กรุณาเปลี่ยนจากรหัสที่เจ้าหน้าที่ให้มา เป็นรหัสที่คุณตั้งเอง'
+            : 'เปลี่ยนรหัสผ่านสำหรับเข้าสู่ระบบของคุณ' ?></p>
       </div>
     </section>
 
     <div class="cp-measure mx-auto px-gutter -mt-8 md:-mt-16 mb-12 relative z-10 w-full">
       <div class="rise-in bg-surface-white dark:bg-dm-surface rounded-xl shadow-card overflow-hidden border border-outline-variant/30 dark:border-dm-border">
         <div class="p-6 sm:p-8">
+          <?php if ($forcedChange): ?>
+          <p class="cp-forced">
+            <span class="material-symbols-outlined" aria-hidden="true">shield_lock</span>
+            <span>รหัสที่คุณได้รับมาเป็นรหัสตั้งต้น มีคนอื่นเห็นได้ (อยู่บนใบแจก) ตั้งรหัสใหม่ที่มีแต่คุณรู้ แล้วจะเข้าใช้งานได้ตามปกติ</span>
+          </p>
+          <?php else: ?>
           <a class="cp-back" href="<?= htmlspecialchars($backHref) ?>">
             <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
             <?= htmlspecialchars($backLabel) ?>
           </a>
+          <?php endif; ?>
 
           <p id="cp-alert" class="cp-alert" role="alert" aria-live="assertive" hidden>
             <span class="material-symbols-outlined" aria-hidden="true">error</span>

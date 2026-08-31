@@ -42,8 +42,20 @@ function handle_change_password(): void
     }
 
     $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
-    $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?')
-        ->execute([$newHash, $_SESSION['user_id']]);
+    // ปลดธงบังคับเปลี่ยนรหัสไปพร้อมกับการเปลี่ยนรหัส ทั้งสองอย่างต้องสำเร็จหรือ
+    // ไม่สำเร็จด้วยกัน ถ้าคอลัมน์ยังไม่มีในฐานข้อมูล (ยังไม่ได้รัน ALTER TABLE)
+    // ให้เปลี่ยนรหัสอย่างเดียวไปก่อน ดีกว่าปล่อยให้เปลี่ยนรหัสไม่ได้เลย
+    try {
+        $conn->prepare('UPDATE users SET password_hash = ?, must_change_password = 0 WHERE user_id = ?')
+            ->execute([$newHash, $_SESSION['user_id']]);
+    } catch (PDOException $e) {
+        if ($e->getCode() !== '42S22') {
+            throw $e;
+        }
+        $conn->prepare('UPDATE users SET password_hash = ? WHERE user_id = ?')
+            ->execute([$newHash, $_SESSION['user_id']]);
+    }
+    $_SESSION['must_change_password'] = false;
 
     // A password change is usually a response to "someone may have my
     // account" — issue a new session ID so any session that was riding the

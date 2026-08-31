@@ -28,3 +28,15 @@ if (!empty($requireAdmin) && ($_SESSION['role'] ?? null) !== 'admin') {
     header('Location: /dashboard');
     exit;
 }
+
+// บัญชีที่เจ้าหน้าที่สร้างให้ หรือเพิ่งถูกรีเซ็ตรหัส ยังใช้รหัสที่คนอื่นรู้อยู่
+// (อยู่บนใบแจก หรืออยู่ในมือเจ้าหน้าที่ที่กดรีเซ็ต) จนกว่าเจ้าตัวจะตั้งรหัสของ
+// ตัวเอง จึงกันไว้ไม่ให้ไปหน้าอื่นก่อน — ปล่อยผ่านเฉพาะหน้าเปลี่ยนรหัสผ่านเอง
+// ไม่งั้นจะวนกลับมาที่ตัวเองไม่รู้จบ
+//
+// $allowWithoutPasswordChange ให้หน้าไหนก็ตามประกาศยกเว้นตัวเองได้ ตอนนี้มีแค่
+// change-password.php ที่ใช้
+if (!empty($_SESSION['must_change_password']) && empty($allowWithoutPasswordChange)) {
+    header('Location: /change-password?first=1');
+    exit;
+}
