@@ -43,6 +43,13 @@ function handle_admin_members(): void
         $conditions[] = 's.year_level = ?';
         $params[] = $yearLevel;
     }
+    // ?roster=missing — เฉพาะคนที่สมัครเองโดยไม่มีชื่ออยู่ในทะเบียนที่นำเข้า
+    // academic_year เป็นตัวชี้: scripts/import_students.php เขียนค่านี้ทุกแถว
+    // ส่วนการสมัครหน้าเว็บไม่ได้เขียน แถวที่ว่างจึงคือคนที่ไม่ได้มาจากทะเบียน
+    // ไม่ได้แปลว่าเขาไม่ใช่นักศึกษาจริง — ทะเบียนที่นำเข้ายังขาดบางห้องอยู่
+    if (trim((string) ($_GET['roster'] ?? '')) === 'missing') {
+        $conditions[] = "(s.academic_year IS NULL OR s.academic_year = '')";
+    }
     // 'all' with no other filter leaves $conditions empty, and "WHERE" with
     // nothing after it is a syntax error.
     $whereClause = $conditions ? implode(' AND ', $conditions) : '1';
@@ -58,7 +65,7 @@ function handle_admin_members(): void
     // idx_checkin_logs_user_time already covers instead of scanning per row.
     $sql = "SELECT u.user_id, u.username, u.role, u.account_status,
                    s.student_id, s.prefix, s.gender, s.first_name, s.last_name,
-                   s.department, s.level, s.year_level, s.room,
+                   s.department, s.level, s.year_level, s.room, s.academic_year,
                    lv.last_visit
             FROM users u
             JOIN students s ON s.student_id = u.student_id

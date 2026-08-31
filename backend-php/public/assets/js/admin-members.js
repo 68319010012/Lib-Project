@@ -103,6 +103,12 @@ function memberBadges(row) {
   if (row.account_status !== 'approved') {
     badges.push(`<span class="text-xs font-bold text-warning">${escapeHtml(STATUS_LABEL[row.account_status] || row.account_status)}</span>`);
   }
+  // สมัครเองโดยไม่มีชื่อในทะเบียนที่นำเข้า — เป็นป้ายบอกให้เจ้าหน้าที่ไปตรวจ
+  // ไม่ใช่การกีดกัน บัญชีใช้งานได้ตามปกติทุกอย่าง (ทะเบียนยังขาดบางห้อง และ
+  // บางคนชื่อในทะเบียนสะกดไม่ตรงกับที่เจ้าตัวกรอก)
+  if (!row.academic_year) {
+    badges.push('<span class="text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary" title="ไม่มีชื่อนี้ในทะเบียนที่นำเข้า — ตรวจสอบแล้วนำเข้าทะเบียนเพิ่มได้">ไม่พบในทะเบียน</span>');
+  }
   return badges.length ? ` ${badges.join(' ')}` : '';
 }
 
@@ -404,7 +410,9 @@ async function loadMembers() {
   const level = document.getElementById('members-level').value;
   const yearLevel = document.getElementById('members-year-level').value;
   const status = document.getElementById('members-status').value;
+  const roster = document.getElementById('members-roster').value;
   if (department) params.set('department', department);
+  if (roster) params.set('roster', roster);
   if (level) params.set('level', level);
   if (yearLevel) params.set('year_level', yearLevel);
   if (status) params.set('status', status);
@@ -468,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   document.getElementById('members-department').addEventListener('change', loadMembers);
+  document.getElementById('members-roster').addEventListener('change', loadMembers);
   yearSelect.addEventListener('change', loadMembers);
   document.getElementById('members-status').addEventListener('change', loadMembers);
 
@@ -496,12 +505,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterFields = document.getElementById('members-filter-fields');
   const filterBadge = document.getElementById('members-filter-badge');
   const statusSelect = document.getElementById('members-status');
+  const rosterSelect = document.getElementById('members-roster');
   function refreshFilterBadge() {
     let active = 0;
     if (document.getElementById('members-department').value) active += 1;
     if (levelSelect.value) active += 1;
     if (yearSelect.value) active += 1;
     if (statusSelect.value !== 'approved') active += 1;
+    if (rosterSelect.value) active += 1;
     filterBadge.textContent = String(active);
     filterBadge.classList.toggle('hidden', active === 0);
   }
@@ -509,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const collapsed = filterFields.classList.toggle('is-collapsed');
     filterToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   });
-  [document.getElementById('members-department'), levelSelect, yearSelect, statusSelect]
+  [document.getElementById('members-department'), levelSelect, yearSelect, statusSelect, rosterSelect]
     .forEach((el) => el.addEventListener('change', refreshFilterBadge));
   refreshFilterBadge();
 

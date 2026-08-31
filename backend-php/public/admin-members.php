@@ -86,6 +86,13 @@ require __DIR__ . '/partials/guard.php';
             <select id="members-year-level" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary"></select>
           </div>
           <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
+            <label for="members-roster" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">ทะเบียน</label>
+            <select id="members-roster" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
+              <option value="">ทุกคน</option>
+              <option value="missing">เฉพาะที่ไม่พบในทะเบียน</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1 w-full sm:w-40 sm:shrink-0">
             <label for="members-status" class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary ml-1">สถานะ</label>
             <select id="members-status" class="w-full bg-surface-container-low dark:bg-dm-bg dark:text-inverse-on-surface border border-outline-variant dark:border-dm-border rounded-lg py-2.5 px-3 text-body-md focus:ring-primary focus:border-primary">
               <option value="approved">ใช้งานได้</option>
