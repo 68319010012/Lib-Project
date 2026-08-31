@@ -5,6 +5,12 @@ let logsAllRows = null;
 // mid-read; the search/filter handlers reset it explicitly instead.
 let logsPage = 1;
 
+// คีย์ระดับวันตามเวลาท้องถิ่น (ไม่ใช่ UTC) เพื่อไม่ให้รายการช่วงดึกตกไปอยู่วันถัดไป
+function logsDayKey(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
 function computeLogsStats(rows) {
   const lastByUser = {};
   rows.forEach((r) => {
@@ -83,16 +89,38 @@ function renderLogs() {
   const pageState = paginateRows(filtered, logsPage);
   logsPage = pageState.page;
 
+  // วันเดียวกันซ้ำอยู่ทุกแถวจนกวาดตาแล้วแยกไม่ออกว่ารายการไหนคือวันไหน —
+  // ยกวันที่ขึ้นไปเป็นหัวข้อคั่น แล้วในแถวเหลือแค่เวลา
+  const countByDay = {};
+  filtered.forEach((r) => {
+    const k = logsDayKey(r.timestamp);
+    countByDay[k] = (countByDay[k] || 0) + 1;
+  });
+
+  let lastDay = null;
   tbody.innerHTML = pageState.rows
     .map((r) => {
       const isIn = r.type === 'in';
       const initials = `${(r.first_name || '?')[0]}${(r.last_name || '?')[0]}`.toUpperCase();
-      const formatted = new Date(r.timestamp)
-        .toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
-        .replace(',', '');
-      return `
-        <tr class="hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
-          <td class="px-6 py-4 font-label-code text-label-code text-text-primary dark:text-inverse-on-surface whitespace-nowrap">${formatted}</td>
+      const when = new Date(r.timestamp);
+      const dayKey = logsDayKey(r.timestamp);
+      let header = '';
+      if (dayKey !== lastDay) {
+        lastDay = dayKey;
+        const dayLabel = when.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        header = `
+        <tr class="logs-day-row">
+          <td colspan="5">
+            <span class="logs-day-label">${escapeHtml(dayLabel)}</span>
+            <span class="logs-day-count">${countByDay[dayKey].toLocaleString()} รายการ</span>
+          </td>
+        </tr>
+      `;
+      }
+      const time = when.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return `${header}
+        <tr class="logs-row ${isIn ? 'logs-row-in' : 'logs-row-out'} hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+          <td class="px-6 py-4 font-label-code text-label-code text-text-primary dark:text-inverse-on-surface whitespace-nowrap">${time}</td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-full bg-primary/10 text-primary dark:text-primary-fixed-dim flex items-center justify-center font-bold text-xs">${escapeHtml(initials)}</div>
@@ -103,7 +131,7 @@ function renderLogs() {
           <td class="px-6 py-4 font-body-md text-body-md dark:text-inverse-on-surface">${escapeHtml(r.department || '-')}</td>
           <td class="px-6 py-4">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${isIn ? 'bg-status-success/10 text-status-success' : 'bg-warning/10 text-warning'}">
-              <span class="w-1.5 h-1.5 rounded-full ${isIn ? 'bg-status-success' : 'bg-warning'}"></span>
+              <span class="material-symbols-outlined logs-type-icon">${isIn ? 'login' : 'logout'}</span>
               ${isIn ? 'เช็คอิน' : 'เช็คเอาต์'}
             </span>
           </td>

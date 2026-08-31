@@ -70,7 +70,7 @@ require __DIR__ . '/partials/guard.php';
           <table class="admin-table w-full text-left border-collapse">
             <thead class="bg-surface-container-high dark:bg-dm-bg">
               <tr>
-                <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">วันเวลา</th>
+                <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">เวลา</th>
                 <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">ชื่อนักศึกษา</th>
                 <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">รหัสนักศึกษา</th>
                 <th class="px-6 py-4 font-label-caps text-label-caps text-primary dark:text-primary-fixed-dim uppercase tracking-wider">แผนกวิชา</th>
