@@ -84,6 +84,14 @@ $sidebarStateKey = $variant === 'admin' ? 'ntc-admin-sidebar-collapsed' : 'ntc-s
           </button>
           <?php endif; ?>
 
+          <!-- ติดตั้งแอป — ซ่อนไว้จนกว่าเบราว์เซอร์จะบอกว่าติดตั้งได้จริง (หรือเป็น
+               iOS ที่ต้องทำเองผ่านปุ่มแชร์) ปุ่มที่กดแล้วไม่เกิดอะไรขึ้นแย่กว่า
+               ไม่มีปุ่ม — assets/js/header.js เป็นตัวเปิดให้เห็น -->
+          <button type="button" id="account-menu-install" class="hidden w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
+            <span class="material-symbols-outlined text-lg">install_mobile</span>
+            ติดตั้งแอป
+          </button>
+
           <button type="button" id="account-menu-logout" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-error hover:bg-error-container/30 transition-colors border-t border-outline-variant dark:border-dm-border">
             <span class="material-symbols-outlined text-lg">logout</span>
             ออกจากระบบ

@@ -89,3 +89,99 @@ function initAppHeader() {
 }
 
 document.addEventListener('DOMContentLoaded', initAppHeader);
+
+/* ---------------------------------------------------------------------
+   ติดตั้งเป็นแอป
+
+   ทุกอย่างฝั่งเซิร์ฟเวอร์ครบมาตั้งแต่แรกแล้ว (manifest, service worker,
+   ไอคอน, HTTPS) แต่ผู้ใช้ยังหา "ที่กดโหลด" ไม่เจอ เพราะเบราว์เซอร์ซ่อน
+   ทางติดตั้งไว้ในที่ที่คนไม่เปิด: Chrome บนคอมเป็นไอคอนเล็ก ๆ ในแถบ
+   ที่อยู่เว็บ, Chrome บนแอนดรอยด์อยู่ในเมนูสามจุด ส่วน Safari บน iPhone
+   ไม่มีทางติดตั้งอัตโนมัติเลย ต้องกดแชร์แล้วเลือก "เพิ่มไปยังหน้าจอโฮม"
+   เอง — ไม่มีเบราว์เซอร์ไหนจะเด้งบอกให้
+
+   เมนูบัญชีจึงมีรายการติดตั้งของตัวเอง แต่โผล่เฉพาะตอนที่กดแล้วได้ผลจริง
+   --------------------------------------------------------------------- */
+(function initInstallApp() {
+  let deferredPrompt = null;
+
+  // เปิดจากไอคอนบนหน้าจอโฮมอยู่แล้ว ไม่ต้องชวนติดตั้งซ้ำ
+  function alreadyInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches
+      || window.matchMedia('(display-mode: window-controls-overlay)').matches
+      || navigator.standalone === true;
+  }
+
+  // iOS ไม่ยิง beforeinstallprompt ให้เลยไม่ว่าเว็บจะพร้อมแค่ไหน จึงต้องดักเอง
+  // แล้วบอกวิธีทำด้วยมือแทน ตัวเช็ค maxTouchPoints คือ iPad รุ่นใหม่ที่ปลอมตัว
+  // เป็น Mac ใน userAgent
+  function isIOS() {
+    const ua = navigator.userAgent;
+    return /iPhone|iPad|iPod/.test(ua)
+      || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  }
+
+  function showIOSHelp() {
+    if (document.getElementById('install-help')) return;
+    const el = document.createElement('div');
+    el.id = 'install-help';
+    el.className = 'install-help';
+    el.innerHTML = `
+      <div class="install-help-card" role="dialog" aria-modal="true" aria-labelledby="install-help-title">
+        <h2 class="install-help-title" id="install-help-title">ติดตั้งบน iPhone / iPad</h2>
+        <p class="install-help-lead">Safari ไม่มีปุ่มติดตั้งอัตโนมัติ ทำตามสามขั้นนี้ครั้งเดียวจบ</p>
+        <ol class="install-help-steps">
+          <li><span class="material-symbols-outlined">ios_share</span> แตะปุ่ม <b>แชร์</b> ที่แถบล่างของ Safari</li>
+          <li><span class="material-symbols-outlined">add_box</span> เลื่อนลงแล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b></li>
+          <li><span class="material-symbols-outlined">check_circle</span> แตะ <b>เพิ่ม</b> มุมขวาบน</li>
+        </ol>
+        <button type="button" class="install-help-close">เข้าใจแล้ว</button>
+      </div>`;
+    const close = () => el.remove();
+    el.addEventListener('click', (e) => { if (e.target === el) close(); });
+    el.querySelector('.install-help-close').addEventListener('click', close);
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+    });
+    document.body.appendChild(el);
+  }
+
+  function wire() {
+    const btn = document.getElementById('account-menu-install');
+    if (!btn || alreadyInstalled()) return;
+
+    const reveal = () => { btn.classList.remove('hidden'); btn.classList.add('flex'); };
+
+    if (isIOS()) {
+      reveal();
+      btn.addEventListener('click', showIOSHelp);
+      return;
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // ถ้าไม่กัน Chrome จะไปเด้งแถบของตัวเองแทน แล้วเราจะเรียก prompt() ไม่ได้
+      e.preventDefault();
+      deferredPrompt = e;
+      reveal();
+    });
+
+    btn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      // ใช้ได้ครั้งเดียวต่อหนึ่ง event ถ้าผู้ใช้ปฏิเสธ เบราว์เซอร์จะยิงมาใหม่เอง
+      deferredPrompt = null;
+      btn.classList.add('hidden');
+      btn.classList.remove('flex');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      btn.classList.add('hidden');
+      btn.classList.remove('flex');
+      if (typeof showToast === 'function') showToast('ติดตั้งแอปเรียบร้อยแล้ว', { type: 'success' });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', wire);
+})();
