@@ -5,7 +5,19 @@
      Centered icon + title + optional subject + message, matching the
      reset-result modal's layout so confirmations read as one consistent
      dialog rather than a wall of left-aligned text. -->
-<div id="confirm-modal" class="ntc-modal hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center px-gutter">
+<!-- z-[200], deliberately above the z-[100] every page-level modal uses. This
+     dialog is included from header.php, i.e. near the TOP of the document,
+     while the modals that open it (#member-edit-modal, #reset-result-modal)
+     live further down the page. At equal z-index the browser falls back to DOM
+     order and the later element wins, so a confirm raised from inside the edit
+     modal rendered BEHIND it — "ตั้งเป็นแอดมิน" looked like it did nothing.
+     200 rather than a tidier 110/120 because styles.css is PRE-BUILT Tailwind
+     with no compile step at deploy time: the only z utilities that exist in it
+     are 60/80/90/95/100/200, and a class that isn't in the file silently
+     resolves to no z-index at all — which would have made this worse, not
+     better. Ties with the toast container (also 200), and that is correct:
+     toast.js appends it to <body> last, so toasts stay above this dialog. -->
+<div id="confirm-modal" class="ntc-modal hidden fixed inset-0 z-[200] bg-black/50 flex items-center justify-center px-gutter">
   <div class="bg-surface-white dark:bg-dm-surface rounded-xl shadow-xl max-w-sm w-full p-6">
     <div class="flex flex-col items-center text-center">
       <div id="confirm-modal-icon-wrap" class="w-12 h-12 rounded-full flex items-center justify-center mb-4">
