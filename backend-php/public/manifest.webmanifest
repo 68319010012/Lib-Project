@@ -1,6 +1,6 @@
 {
-  "name": "ห้องสมุดวิทยาลัยเทคนิคนครนายก",
-  "short_name": "ห้องสมุด",
+  "name": "NTC Library",
+  "short_name": "NTC Library",
   "description": "เช็คอิน-เช็คเอาต์ห้องสมุด และดูประวัติการเข้าใช้ของตัวเอง",
   "lang": "th",
   "dir": "ltr",
