@@ -10,7 +10,7 @@
 // with ?v=<filemtime> (see partials/head.php), so a changed file already
 // arrives under a new URL — the version bump is for evicting the old entries,
 // not for correctness.
-const CACHE_VERSION = 'ntc-shell-v1';
+const CACHE_VERSION = 'ntc-shell-v2';
 
 // The offline page has to be in the cache before it is ever needed, so it is
 // the one navigable URL precached here.

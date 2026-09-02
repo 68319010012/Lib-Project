@@ -16,6 +16,15 @@ function ntc_asset_v(string $relPath): string
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?>ห้องสมุด NTC</title>
 <link rel="icon" type="image/svg+xml" href="/assets/img/logo-badge.svg?v=<?= ntc_asset_v('assets/img/logo-badge.svg') ?>" />
+<!-- ย่อจาก pwa/icon-512.png ตัวเดียวกับที่แอปที่ติดตั้งใช้ เพื่อให้แท็บ
+     เบราว์เซอร์และผลค้นหาเห็นโลโก้เดียวกับไอคอนแอปบนมือถือ SVG ข้างบนคม
+     กว่าและเบราว์เซอร์ปัจจุบันจะเลือกใช้ก่อน สองบรรทัดนี้ไว้ให้ตัวที่อ่าน
+     SVG ไม่ได้ ซึ่งรวมถึง crawler ของเครื่องมือค้นหาบางตัว -->
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=<?= ntc_asset_v('assets/img/favicon-32.png') ?>" />
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png?v=<?= ntc_asset_v('assets/img/favicon-16.png') ?>" />
+<!-- เบราว์เซอร์เก่าและ crawler บางตัวขอ /favicon.ico ที่รากเสมอโดยไม่อ่าน
+     <link> ข้างบนเลย จึงต้องมีไฟล์นั้นรออยู่ด้วย -->
+<link rel="alternate icon" href="/favicon.ico" />
 
 <!-- Installable app (PWA). With these three the browser offers "เพิ่มไปยังหน้าจอ
      โฮม" / "ติดตั้งแอป", and the installed copy opens without the browser's
