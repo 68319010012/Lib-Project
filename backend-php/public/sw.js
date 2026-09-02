@@ -10,7 +10,16 @@
 // with ?v=<filemtime> (see partials/head.php), so a changed file already
 // arrives under a new URL — the version bump is for evicting the old entries,
 // not for correctness.
-const CACHE_VERSION = 'ntc-shell-v2';
+//
+// The icons in manifest.webmanifest are the exception: it is static JSON, so
+// nothing stamps a filemtime into those URLs and they carry a hand-written
+// ?v=N instead. Without it the URL never changes, and a replaced icon file is
+// invisible to anyone who had already opened the site — this cache serves the
+// old bytes, and so does Chrome's own separate manifest-icon cache, which no
+// amount of clearing site data or reinstalling the app reaches. Change the
+// icons and you must raise that ?v=N in the manifest too; bumping only this
+// constant is not enough.
+const CACHE_VERSION = 'ntc-shell-v3';
 
 // The offline page has to be in the cache before it is ever needed, so it is
 // the one navigable URL precached here.
@@ -19,7 +28,7 @@ const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
   OFFLINE_URL,
   '/assets/img/logo-badge.svg',
-  '/assets/img/pwa/icon-192.png',
+  '/assets/img/pwa/icon-192.png?v=2',
 ];
 
 self.addEventListener('install', (event) => {
