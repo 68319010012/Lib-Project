@@ -15,7 +15,15 @@ function ntc_asset_v(string $relPath): string
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?>ห้องสมุด NTC</title>
-<link rel="icon" type="image/svg+xml" href="/assets/img/logo-badge.svg?v=<?= ntc_asset_v('assets/img/logo-badge.svg') ?>" />
+<!-- Favicon, PWA icon และ apple-touch-icon ทั้งหมดสร้างจากไฟล์เดียวกันคือ
+     assets/img/logo-badge.png (ตราวิทยาลัย) ซึ่งเป็นโลโก้ที่แสดงบน header
+     ทุกหน้า เพื่อให้แท็บเบราว์เซอร์ ผลค้นหา และแอปที่ติดตั้งบนมือถือเห็น
+     เป็นแบรนด์เดียวกัน -->
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=<?= ntc_asset_v('assets/img/favicon-32.png') ?>" />
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png?v=<?= ntc_asset_v('assets/img/favicon-16.png') ?>" />
+<!-- เบราว์เซอร์เก่าและ crawler บางตัวขอ /favicon.ico ที่รากเสมอโดยไม่อ่าน
+     <link> ข้างบน จึงต้องมีไฟล์นั้นรออยู่ด้วย -->
+<link rel="alternate icon" href="/favicon.ico" />
 
 <!-- Installable app (PWA). With these three the browser offers "เพิ่มไปยังหน้าจอ
      โฮม" / "ติดตั้งแอป", and the installed copy opens without the browser's
