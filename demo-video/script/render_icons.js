@@ -6,11 +6,11 @@ const DIR = __dirname;
 const OUT = path.join(__dirname, '..', '..', 'backend-php', 'public', 'assets', 'img', 'pwa');
 
 const jobs = [
-  { svg: 'icon_source.svg', size: 192, out: 'icon-192.png' },
-  { svg: 'icon_source.svg', size: 512, out: 'icon-512.png' },
-  { svg: 'icon_maskable.svg', size: 192, out: 'icon-maskable-192.png' },
-  { svg: 'icon_maskable.svg', size: 512, out: 'icon-maskable-512.png' },
-  { svg: 'icon_apple.svg', size: 180, out: 'apple-touch-icon.png' },
+  { svg: 'icon_any_from_logo.svg', size: 192, out: 'icon-192.png' },
+  { svg: 'icon_any_from_logo.svg', size: 512, out: 'icon-512.png' },
+  { svg: 'icon_maskable_from_logo.svg', size: 192, out: 'icon-maskable-192.png' },
+  { svg: 'icon_maskable_from_logo.svg', size: 512, out: 'icon-maskable-512.png' },
+  { svg: 'icon_any_from_logo.svg', size: 180, out: 'apple-touch-icon.png' },
 ];
 
 (async () => {

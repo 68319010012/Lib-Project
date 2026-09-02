@@ -1,5 +1,0 @@
-file 'p03_login.mp3'
-file 'p04_dashboard.mp3'
-file 'p05_checkin.mp3'
-file 'p06_checkout.mp3'
-file 'p07_history.mp3'

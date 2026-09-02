@@ -1,0 +1,463 @@
+1
+00:00:00,000 --> 00:00:06,023
+Good afternoon. Today we are presenting the Library Usage Monitoring and Statistics System.
+
+2
+00:00:06,023 --> 00:00:12,443
+A web application built to record, monitor, and analyse how our college library is actually used.
+
+3
+00:00:12,443 --> 00:00:18,069
+Over the next few minutes we will walk through the problem that started this project,
+
+4
+00:00:18,069 --> 00:00:24,820
+the objectives we set, the technology behind the system, and how students and staff use it day to day.
+
+5
+00:00:24,820 --> 00:00:28,445
+Traditionally, library attendance is recorded by hand.
+
+6
+00:00:28,445 --> 00:00:35,427
+A student signs a paper logbook on the way in, and staff copy those entries later if a report is needed.
+
+7
+00:00:35,427 --> 00:00:38,381
+That approach works, but it has real limits.
+
+8
+00:00:38,381 --> 00:00:44,222
+Handwriting can be difficult to read, and entries can be skipped when the desk is busy.
+
+9
+00:00:44,222 --> 00:00:50,130
+Nobody can answer a simple question like how many students are in the library right now,
+
+10
+00:00:50,130 --> 00:00:52,547
+without walking around and counting.
+
+11
+00:00:52,547 --> 00:00:56,374
+Totals for a whole semester mean adding up pages by hand.
+
+12
+00:00:56,374 --> 00:01:00,670
+Our project replaces that logbook with a centralised web system,
+
+13
+00:01:00,670 --> 00:01:04,900
+so that every entry and exit is recorded the moment it happens.
+
+14
+00:01:04,900 --> 00:01:07,621
+We set three objectives for this system.
+
+15
+00:01:07,621 --> 00:01:11,090
+The first is to develop the web application itself,
+
+16
+00:01:11,090 --> 00:01:16,872
+a single place where students record their visits and where staff manage the library.
+
+17
+00:01:16,872 --> 00:01:22,994
+Because it runs in a browser, students use it on their own phones with nothing to install.
+
+18
+00:01:22,994 --> 00:01:26,463
+The second objective is systematic data management.
+
+19
+00:01:26,463 --> 00:01:31,973
+Every member record and every visit is stored in a database rather than on paper,
+
+20
+00:01:31,973 --> 00:01:36,122
+so information can be searched, verified, and reviewed later.
+
+21
+00:01:36,122 --> 00:01:41,632
+Staff can filter records by department, by academic year, or by a range of dates,
+
+22
+00:01:41,632 --> 00:01:43,673
+and get an answer immediately.
+
+23
+00:01:43,673 --> 00:01:46,530
+The third objective covers administration.
+
+24
+00:01:46,530 --> 00:01:52,652
+The system gives library staff a dashboard showing current occupancy and usage statistics,
+
+25
+00:01:52,652 --> 00:01:55,781
+and it generates reports from the stored data,
+
+26
+00:01:55,781 --> 00:02:00,270
+which can be printed as PDF, or downloaded as CSV and Excel files.
+
+27
+00:02:00,270 --> 00:02:04,154
+Let me explain how the system is built, layer by layer.
+
+28
+00:02:04,154 --> 00:02:11,498
+What the user sees is built with HTML5 and Tailwind CSS, with plain JavaScript handling the interaction.
+
+29
+00:02:11,498 --> 00:02:17,359
+The layout is responsive, so the same pages work on a phone at the library entrance
+
+30
+00:02:17,359 --> 00:02:20,043
+and on a desktop at the staff counter.
+
+31
+00:02:20,043 --> 00:02:26,893
+Behind that, the application runs on PHP 8 on an Apache server, using a front controller pattern.
+
+32
+00:02:26,893 --> 00:02:29,859
+Every request enters through a single file
+
+33
+00:02:29,859 --> 00:02:34,307
+that decides which page or which API endpoint should handle it.
+
+34
+00:02:34,307 --> 00:02:38,686
+This is also the layer that checks whether a user is logged in
+
+35
+00:02:38,686 --> 00:02:42,993
+and whether they are allowed to see what they are asking for.
+
+36
+00:02:42,993 --> 00:02:47,230
+The data sits in MySQL, in a database named library_checkin.
+
+37
+00:02:47,230 --> 00:02:51,891
+All access goes through PHP Data Objects with prepared statements,
+
+38
+00:02:51,891 --> 00:02:56,481
+which keeps the values a user types separate from the SQL itself,
+
+39
+00:02:56,481 --> 00:02:59,588
+a standard protection against SQL injection.
+
+40
+00:02:59,588 --> 00:03:03,967
+Finally, printable reports are produced with the mPDF library,
+
+41
+00:03:03,967 --> 00:03:07,780
+together with the PHP GD extension for image handling.
+
+42
+00:03:07,780 --> 00:03:11,075
+Now let us follow a student through the system.
+
+43
+00:03:11,075 --> 00:03:17,384
+A student opens the library portal in any browser, usually on their phone as they walk in.
+
+44
+00:03:17,384 --> 00:03:20,749
+They sign in with their student ID and password.
+
+45
+00:03:20,749 --> 00:03:26,218
+If it is their first visit, they can register their profile in the same place:
+
+46
+00:03:26,218 --> 00:03:28,601
+name, department, level, and year.
+
+47
+00:03:28,601 --> 00:03:33,439
+Once signed in, the main screen shows a single large check-in button.
+
+48
+00:03:33,439 --> 00:03:39,117
+The student presses it, chooses roughly how long they plan to stay, and confirms.
+
+49
+00:03:39,117 --> 00:03:42,973
+The system records the exact time and stores the visit.
+
+50
+00:03:42,973 --> 00:03:47,740
+If the same student presses check-in again while already checked in,
+
+51
+00:03:47,740 --> 00:03:50,895
+the system will not create a duplicate entry.
+
+52
+00:03:50,895 --> 00:03:55,311
+It knows they are already inside, and offers check-out instead.
+
+53
+00:03:55,311 --> 00:04:01,060
+When they leave, they press the same button to check out, and the visit is closed.
+
+54
+00:04:01,060 --> 00:04:03,487
+Those steps are simple on the surface,
+
+55
+00:04:03,487 --> 00:04:08,341
+but several features work together behind them to keep the records reliable.
+
+56
+00:04:08,341 --> 00:04:11,215
+The system manages how long each visit lasts,
+
+57
+00:04:11,215 --> 00:04:14,664
+separates what students may do from what staff may do,
+
+58
+00:04:14,664 --> 00:04:17,538
+keeps a live view of who is currently inside,
+
+59
+00:04:17,538 --> 00:04:23,158
+prevents duplicate or unfinished entries, and preserves the full history of every visit.
+
+60
+00:04:23,158 --> 00:04:27,820
+The next few sections look at the most important of these in more detail.
+
+61
+00:04:27,820 --> 00:04:33,475
+When a student checks in, they choose a planned duration, for example, two hours.
+
+62
+00:04:33,475 --> 00:04:38,083
+The system will not accept a time that runs past the closing hour,
+
+63
+00:04:38,083 --> 00:04:41,713
+so a planned visit always ends within opening times.
+
+64
+00:04:41,713 --> 00:04:47,019
+If they need longer, they can extend the session by thirty or sixty minutes,
+
+65
+00:04:47,019 --> 00:04:48,904
+again within opening hours.
+
+66
+00:04:48,904 --> 00:04:52,953
+The most useful part is what happens when someone forgets.
+
+67
+00:04:52,953 --> 00:04:57,142
+In a paper logbook, a student who leaves without signing out
+
+68
+00:04:57,142 --> 00:04:59,865
+simply leaves an open, unfinished line.
+
+69
+00:04:59,865 --> 00:05:04,333
+Here, the system closes the visit automatically at closing time.
+
+70
+00:05:04,333 --> 00:05:09,360
+That means the history contains complete visits with a start and an end,
+
+71
+00:05:09,360 --> 00:05:12,990
+and the average duration statistics stay meaningful.
+
+72
+00:05:12,990 --> 00:05:18,049
+For library staff, the handwritten logbook is replaced by database records.
+
+73
+00:05:18,049 --> 00:05:23,108
+Staff can see current occupancy at any moment, open any attendance history,
+
+74
+00:05:23,108 --> 00:05:25,671
+and compare usage between departments.
+
+75
+00:05:25,671 --> 00:05:30,190
+The system also records failed login attempts in a dedicated table,
+
+76
+00:05:30,190 --> 00:05:32,146
+which supports rate limiting.
+
+77
+00:05:32,146 --> 00:05:37,947
+Repeated wrong passwords are slowed down rather than allowed to continue indefinitely.
+
+78
+00:05:37,947 --> 00:05:42,533
+Changes to the database structure are tracked in a migrations table,
+
+79
+00:05:42,533 --> 00:05:45,838
+so the schema can be updated in a controlled way.
+
+80
+00:05:45,838 --> 00:05:50,155
+The figure shown here, one hundred percent digital traceability,
+
+81
+00:05:50,155 --> 00:05:52,988
+describes the design goal of this project:
+
+82
+00:05:52,988 --> 00:05:57,844
+that every recorded visit exists as a digital record that can be traced,
+
+83
+00:05:57,844 --> 00:06:00,340
+rather than as a line of handwriting.
+
+84
+00:06:00,340 --> 00:06:03,377
+Because every visit is stored with a timestamp,
+
+85
+00:06:03,377 --> 00:06:08,610
+the dashboard can group them and show when the library is busiest across the day:
+
+86
+00:06:08,610 --> 00:06:11,194
+morning, midday, afternoon, and evening.
+
+87
+00:06:11,194 --> 00:06:13,908
+The values on this slide are illustrative,
+
+88
+00:06:13,908 --> 00:06:19,787
+shown to demonstrate how the chart presents a busy midday period against a quieter evening.
+
+89
+00:06:19,787 --> 00:06:21,596
+The point is the capability.
+
+90
+00:06:21,596 --> 00:06:26,054
+Once real attendance data accumulates, staff can see genuine patterns
+
+91
+00:06:26,054 --> 00:06:31,610
+and use them when planning seating or deciding when more staff are needed at the desk.
+
+92
+00:06:31,610 --> 00:06:34,168
+Not everyone sees the same system.
+
+93
+00:06:34,168 --> 00:06:40,412
+Students can check in and out, and view their own attendance history, nothing more.
+
+94
+00:06:40,412 --> 00:06:45,829
+They cannot open the dashboard, browse other records, or export reports.
+
+95
+00:06:45,829 --> 00:06:51,772
+Library staff have full access: the dashboard and analytics, member management,
+
+96
+00:06:51,772 --> 00:06:57,339
+the complete attendance history, and report export in PDF, CSV, and Excel.
+
+97
+00:06:57,339 --> 00:07:00,047
+The login page is the same for both.
+
+98
+00:07:00,047 --> 00:07:03,734
+The system reads the role attached to the account
+
+99
+00:07:03,734 --> 00:07:07,420
+and decides what that person is allowed to reach.
+
+100
+00:07:07,420 --> 00:07:09,969
+We built the system in four phases.
+
+101
+00:07:09,969 --> 00:07:16,377
+Phase one was the database: designing the tables for students, users, and check-in logs,
+
+102
+00:07:16,377 --> 00:07:21,402
+and setting up migrations so the structure could change safely later.
+
+103
+00:07:21,402 --> 00:07:27,664
+Phase two was the core web application: the PHP backend, session-based authentication,
+
+104
+00:07:27,664 --> 00:07:31,014
+the check-in flow, and the Tailwind interface.
+
+105
+00:07:31,014 --> 00:07:36,621
+Phase three added the administrative side: the dashboard, mPDF report export,
+
+106
+00:07:36,621 --> 00:07:38,588
+and rate limiting on login.
+
+107
+00:07:38,588 --> 00:07:43,539
+Phase four was testing and deployment. We tested locally with XAMPP,
+
+108
+00:07:43,539 --> 00:07:48,054
+and deployment to the live server runs through GitHub Actions,
+
+109
+00:07:48,054 --> 00:07:53,880
+so a release is a controlled, repeatable step rather than copying files by hand.
+
+110
+00:07:53,880 --> 00:07:58,200
+In conclusion, the Library Usage Monitoring and Statistics System
+
+111
+00:07:58,200 --> 00:08:01,922
+replaces a paper logbook with a working web application.
+
+112
+00:08:01,922 --> 00:08:05,112
+Students check in and out from their own phones,
+
+113
+00:08:05,112 --> 00:08:08,036
+every visit is stored in a central database,
+
+114
+00:08:08,036 --> 00:08:11,094
+staff can see who is in the library right now,
+
+115
+00:08:11,094 --> 00:08:16,145
+and the system turns that stored data into statistics and printable reports.
+
+116
+00:08:16,145 --> 00:08:20,930
+Thank you for your attention. We are now ready to answer your questions.

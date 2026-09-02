@@ -27,3 +27,11 @@ backend-php/composer.phar
 # deployment chapter, so it must never reach GitHub. The manual itself
 # teaches "git add .", which would otherwise sweep this straight up.
 NTC_Library_*.pdf
+
+# Demo-video media — ตัวไฟล์เสียง/วิดีโอไม่เก็บใน git
+# ของจริงอยู่บน Google Drive แล้ว (วิดิโอการสาธิตการใช้งานเว็บแอปพลิเคชัน.mp4)
+# เก็บซ้ำใน repo ทำให้ clone ช้าโดยไม่ได้อะไรเพิ่ม และ deploy ก็ไม่เคยอัปโฟลเดอร์นี้
+# สคริปต์ (.js) สคริปต์พากย์ (.md) และซับ (.srt) ยังเก็บตามปกติ เพราะเป็นซอร์ส
+demo-video/output/
+demo-video/recordings/
+demo-video/voice/
