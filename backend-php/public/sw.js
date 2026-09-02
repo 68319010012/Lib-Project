@@ -18,8 +18,7 @@ const OFFLINE_URL = '/offline.html';
 
 const PRECACHE = [
   OFFLINE_URL,
-  '/assets/img/logo-badge.png',
-  '/assets/img/favicon-32.png',
+  '/assets/img/logo-badge.svg',
   '/assets/img/pwa/icon-192.png',
 ];
 
