@@ -3,6 +3,20 @@
 // host=localhost, user=root, no password, db=library_checkin).
 function get_db_connection(): PDO
 {
+    // One connection per request, reused. Every caller used to open its own,
+    // and index.php calls this three times before a handler even starts —
+    // auto_checkout_sweep(), retire_expired_accounts_sweep(), then the handler.
+    // The dashboard fires three API requests at once, so opening it once put
+    // nine connections on the server at the same moment. Shared hosting caps
+    // max_user_connections well below what a handful of students loading the
+    // page together produced, and the refusals surfaced as /announcement
+    // quietly returning nothing (see get_announcement()) rather than as an
+    // error anyone could see. PHP closes this at the end of the request.
+    static $conn = null;
+    if ($conn instanceof PDO) {
+        return $conn;
+    }
+
     $host = env('DB_HOST', 'localhost');
     $user = env('DB_USER', 'root');
     $password = env('DB_PASSWORD', '');
