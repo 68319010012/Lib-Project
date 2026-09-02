@@ -703,7 +703,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ประกาศจากเจ้าหน้าที่ — โหลดแยกจากประวัติ เพราะล้มเหลวคนละเรื่องกัน
 // ถ้าดึงไม่ได้ก็แค่ไม่มีประกาศ ไม่ควรมี toast มารบกวนการเช็คอิน
-function loadAnnouncement() {
+// ลองใหม่หนึ่งครั้งก่อนยอมแพ้ ของเดิมเป็น .catch(() => {}) เปล่า ๆ ทุกความ
+// ล้มเหลวจึงจบลงเหมือนกันหมดคือ "ไม่มีประกาศ" ไม่ว่าจะเป็นเน็ตสะดุดตอนโหลด
+// หรือเซิร์ฟเวอร์ตอบ 500 และไม่มีร่องรอยให้ตามเลยแม้แต่ใน console
+//
+// ลองใหม่เฉพาะกรณีที่ลองแล้วมีโอกาสได้ผลต่างออกไป: เชื่อมต่อไม่ได้ (ไม่มี
+// status) หรือ 5xx ส่วน 401 คือเซสชันหมดอายุ ซึ่ง retry ไม่ช่วย และ guard.php
+// จะพาไปหน้า login ให้เองอยู่แล้ว
+const ANNOUNCEMENT_RETRY_DELAY_MS = 1500;
+
+function loadAnnouncement(attempt = 0) {
   apiFetch('/announcement')
     .then((data) => {
       const block = document.getElementById('announcement-block');
@@ -713,7 +722,16 @@ function loadAnnouncement() {
       // textContent ไม่ใช่ innerHTML — ข้อความมาจากช่องพิมพ์ของแอดมิน
       if (show) document.getElementById('announcement-text').textContent = text;
     })
-    .catch(() => {});
+    .catch((err) => {
+      const worthRetrying = !err.status || err.status >= 500;
+      if (attempt === 0 && worthRetrying) {
+        setTimeout(() => loadAnnouncement(attempt + 1), ANNOUNCEMENT_RETRY_DELAY_MS);
+        return;
+      }
+      // เงียบบนหน้าจอโดยตั้งใจ ประกาศไม่ใช่สิ่งที่ต้องขัดจังหวะการเช็คอิน แต่ต้อง
+      // เหลือร่องรอยไว้ ไม่งั้นครั้งหน้าที่มีคนถามว่าทำไมประกาศไม่ขึ้นก็ไม่มีอะไรดู
+      console.warn('โหลดประกาศไม่สำเร็จ', err);
+    });
 }
 
-document.addEventListener('DOMContentLoaded', loadAnnouncement);
+document.addEventListener('DOMContentLoaded', () => loadAnnouncement());

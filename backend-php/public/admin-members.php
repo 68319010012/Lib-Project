@@ -228,10 +228,9 @@ require __DIR__ . '/partials/guard.php';
         <p class="text-label-caps font-label-caps text-on-surface-variant dark:text-dm-text-secondary mb-2">สิทธิ์และการลบ</p>
         <div class="flex gap-3 items-center">
           <span id="member-edit-role-label" class="text-body-md font-bold text-on-surface dark:text-inverse-on-surface flex-1"></span>
-          <button type="button" id="member-edit-role-btn" class="h-9 px-4 rounded-full border border-outline-variant dark:border-dm-border text-text-primary dark:text-inverse-on-surface font-bold text-xs"></button>
           <button type="button" id="member-edit-delete-btn" class="h-9 px-4 rounded-full bg-error text-white font-bold text-xs">ลบบัญชี</button>
         </div>
-        <p id="member-edit-self-note" class="hidden text-xs text-text-secondary dark:text-dm-text-secondary mt-2">นี่คือบัญชีของคุณเอง เปลี่ยนสิทธิ์ ระงับ หรือลบตัวเองไม่ได้</p>
+        <p id="member-edit-self-note" class="hidden text-xs text-text-secondary dark:text-dm-text-secondary mt-2">นี่คือบัญชีของคุณเอง ระงับหรือลบตัวเองไม่ได้</p>
       </div>
 
       <div class="flex gap-3 p-6 border-t border-outline-variant dark:border-dm-border">

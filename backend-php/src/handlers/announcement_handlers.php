@@ -32,20 +32,34 @@ function ensure_settings_table(PDO $conn): void
 
 // อ่านประกาศปัจจุบัน คืนค่าเริ่มต้น (ว่าง/ปิด) เมื่อยังไม่เคยตั้ง
 //
-// ห่อด้วย try/catch เพราะบัญชีฐานข้อมูลบนโฮสต์อาจไม่มีสิทธิ์ CREATE TABLE
-// ถ้าเป็นอย่างนั้นควรได้หน้าเว็บที่ไม่มีประกาศ ไม่ใช่ error 500 ทั้งหน้า
+// อ่านก่อน แล้วค่อยสร้างตารางถ้ามันฟ้องว่าไม่มี แทนที่จะยิง CREATE TABLE นำหน้า
+// ทุก request: ตารางถูกสร้างไปแล้วตั้งแต่ครั้งแรกสุด การยิง DDL ซ้ำทุกครั้งที่มี
+// คนเปิดหน้าหลักจึงเป็นภาระเปล่าและเป็นอีกจุดที่พังได้
+//
+// error อื่นที่ไม่ใช่ "ไม่มีตาราง" ถูกโยนต่อโดยตั้งใจ ของเดิมกลืนทุกอย่างแล้ว
+// คืนค่าว่าง ทำให้ "ต่อฐานข้อมูลไม่ได้" หน้าตาเหมือน "แอดมินยังไม่ได้ตั้งประกาศ"
+// เป๊ะ ๆ ประกาศจึงหายเงียบโดยไม่มีใครรู้ว่าระบบมีปัญหา — handle_announcement()
+// เป็นคนตัดสินใจว่าจะบอกผู้ใช้อย่างไร
 function get_announcement(PDO $conn): array
 {
     $blank = ['text' => '', 'enabled' => false, 'updated_at' => null, 'updated_by' => null];
+    $sql = "SELECT setting_key, setting_value, updated_at, updated_by
+            FROM app_settings
+            WHERE setting_key IN ('announcement_text', 'announcement_enabled')";
     try {
-        ensure_settings_table($conn);
-        $stmt = $conn->query(
-            "SELECT setting_key, setting_value, updated_at, updated_by
-             FROM app_settings
-             WHERE setting_key IN ('announcement_text', 'announcement_enabled')"
-        );
-        $rows = $stmt->fetchAll();
+        $rows = $conn->query($sql)->fetchAll();
     } catch (PDOException $e) {
+        // 42S02 = base table not found. เพิ่งติดตั้งใหม่ ยังไม่มีตาราง
+        if ($e->getCode() !== '42S02') {
+            throw $e;
+        }
+        try {
+            ensure_settings_table($conn);
+        } catch (PDOException $createFailed) {
+            // บัญชีฐานข้อมูลไม่มีสิทธิ์ CREATE TABLE — ยังไม่มีประกาศให้แสดงจริง ๆ
+            // ไม่ใช่ระบบล่ม จึงคืนค่าว่างแทนที่จะทำให้ทั้งหน้าพัง
+            return $blank;
+        }
         return $blank;
     }
 
@@ -68,7 +82,14 @@ function get_announcement(PDO $conn): array
 function handle_announcement(): void
 {
     require_login();
-    json_response(get_announcement(get_db_connection()));
+    try {
+        json_response(get_announcement(get_db_connection()));
+    } catch (PDOException $e) {
+        // 500 ไม่ใช่ 200-พร้อมประกาศเปล่า: หน้าเว็บแยกออกว่านี่คือความล้มเหลว
+        // ชั่วคราวที่ควรลองใหม่ ไม่ใช่ "ไม่มีประกาศ" (ดู loadAnnouncement()
+        // ใน assets/js/dashboard.js)
+        json_error('โหลดประกาศไม่สำเร็จ', 500);
+    }
 }
 
 // POST /admin/announcement — บันทึกประกาศจากหน้าแอดมิน
@@ -107,9 +128,12 @@ function handle_admin_announcement_save(): void
         $stmt = $conn->prepare($sql);
         $stmt->execute(['announcement_text', $text, $username]);
         $stmt->execute(['announcement_enabled', $enabled ? '1' : '0', $username]);
+        // อ่านกลับอยู่ใน try เดียวกัน: get_announcement() โยน PDOException ได้แล้ว
+        // ปล่อยไว้ข้างนอกจะกลายเป็น error ที่ไม่มีใครดัก ทั้งที่การบันทึกสำเร็จไปแล้ว
+        $saved = get_announcement($conn);
     } catch (PDOException $e) {
         json_error('บันทึกประกาศไม่สำเร็จ กรุณาลองใหม่', 500);
     }
 
-    json_response(['message' => 'บันทึกประกาศแล้ว'] + get_announcement($conn));
+    json_response(['message' => 'บันทึกประกาศแล้ว'] + $saved);
 }

@@ -258,19 +258,25 @@ function openMemberEdit(row) {
   document.getElementById('member-edit-status').value = row.account_status || 'approved';
 
   const isSelf = Number(row.user_id) === Number(currentUserId);
-  const roleBtn = document.getElementById('member-edit-role-btn');
   const deleteBtn = document.getElementById('member-edit-delete-btn');
+  // สิทธิ์ยังบอกให้รู้ แต่เปลี่ยนจากหน้านี้ไม่ได้แล้ว — การตั้งใครเป็นแอดมิน
+  // ไม่ควรอยู่ห่างจากปุ่มแก้ไขข้อมูลนักศึกษาทั่วไปแค่คลิกเดียว
   document.getElementById('member-edit-role-label').textContent =
     row.role === 'admin' ? 'สิทธิ์ปัจจุบัน: แอดมิน' : 'สิทธิ์ปัจจุบัน: นักศึกษา';
-  roleBtn.textContent = row.role === 'admin' ? 'ลดเป็นนักศึกษา' : 'ตั้งเป็นแอดมิน';
   // Styling for the disabled state is a plain rule in styles.css keyed off
   // :disabled — the opacity-50 utility isn't in the prebuilt bundle.
-  roleBtn.disabled = isSelf;
   deleteBtn.disabled = isSelf;
   document.getElementById('member-edit-status').disabled = isSelf;
   document.getElementById('member-edit-self-note').classList.toggle('hidden', !isSelf);
 
-  document.getElementById('member-edit-modal').classList.remove('hidden');
+  const modal = document.getElementById('member-edit-modal');
+  modal.classList.remove('hidden');
+  // เริ่มที่หัวฟอร์มเสมอ กล่องนี้ถูกซ่อนด้วย display:none ซึ่ง "ไม่" ล้างตำแหน่ง
+  // เลื่อนทิ้ง (วัดแล้วใน Chromium: เลื่อนไว้เท่าไหร่ เปิดใหม่ก็เท่านั้น) พอ
+  // แอดมินเลื่อนลงไปกดปุ่มล่างสุดครั้งหนึ่ง ครั้งต่อไปที่กด "แก้ไข" ฟอร์มจึงเปิด
+  // มาค้างอยู่ตรงล่างสุด เหมือนหน้าต่างไปโผล่ผิดที่
+  modal.scrollTop = 0;
+  modal.querySelector('.member-edit-body').scrollTop = 0;
 }
 
 function closeMemberEdit() {
@@ -308,36 +314,6 @@ async function saveMemberEdit() {
     setMemberEditError(err.message || 'บันทึกไม่สำเร็จ');
   } finally {
     saveBtn.disabled = false;
-  }
-}
-
-async function toggleMemberRole() {
-  if (!editingMember) return;
-  const promoting = editingMember.role !== 'admin';
-  const name = `${editingMember.prefix || ''}${editingMember.first_name} ${editingMember.last_name}`;
-  const ok = await showConfirmModal(
-    promoting
-      ? 'บัญชีนี้จะเห็นข้อมูลนักศึกษาทุกคน แก้ไขบัญชีอื่น และออกรายงานได้ทั้งหมด'
-      : 'บัญชีนี้จะเข้าหน้าแอดมินไม่ได้อีก และเหลือสิทธิ์เท่านักศึกษาทั่วไป',
-    {
-      title: promoting ? 'ยืนยันตั้งเป็นแอดมิน' : 'ยืนยันลดเป็นนักศึกษา',
-      subject: name,
-      confirmLabel: promoting ? 'ตั้งเป็นแอดมิน' : 'ลดเป็นนักศึกษา',
-      danger: true,
-      icon: 'admin_panel_settings',
-    }
-  );
-  if (!ok) return;
-  try {
-    const data = await apiFetch('/admin/members/role', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: Number(editingMember.user_id), role: promoting ? 'admin' : 'student' }),
-    });
-    closeMemberEdit();
-    showToast(data.message, { type: 'success' });
-    loadMembers();
-  } catch (err) {
-    setMemberEditError(err.message || 'เปลี่ยนสิทธิ์ไม่สำเร็จ');
   }
 }
 
@@ -553,7 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('member-edit-close').addEventListener('click', closeMemberEdit);
   document.getElementById('member-edit-cancel').addEventListener('click', closeMemberEdit);
   document.getElementById('member-edit-save').addEventListener('click', saveMemberEdit);
-  document.getElementById('member-edit-role-btn').addEventListener('click', toggleMemberRole);
   document.getElementById('member-edit-delete-btn').addEventListener('click', deleteMember);
   document.getElementById('member-edit-level').addEventListener('change', () => refreshEditYearOptions(null));
 
