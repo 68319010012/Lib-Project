@@ -3880,7 +3880,14 @@ html.dark .lib-banner { filter: brightness(.88); }
    put. Plain CSS because max-h-[85vh], grid-cols-2 and col-span-2 are not in
    the prebuilt styles.css bundle — writing them would have looked right in the
    markup and done nothing in the browser. */
-.member-edit-panel { display: flex; flex-direction: column; max-height: 88vh; }
+/* dvh มาหลัง vh ด้วยเหตุผลเดียวกับ .visit-panel ข้างบน: บนมือถือ 1vh คิดจาก
+   ความสูงตอนแถบที่อยู่เว็บถูกซ่อน กล่องที่สูง 88vh จึงยังล้นพื้นที่ที่มองเห็น
+   จริงอยู่ดี ทำให้ฟอร์มต้องเลื่อนมากกว่าที่ควร */
+.member-edit-panel {
+  display: flex; flex-direction: column;
+  max-height: 88vh;
+  max-height: 88dvh;
+}
 .member-edit-body { overflow-y: auto; }
 /* opacity-50 isn't in the bundle, and a disabled button that looks enabled is
    worse than no affordance at all. Keyed off :disabled so the JS only has to
