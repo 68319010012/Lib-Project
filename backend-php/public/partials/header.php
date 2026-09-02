@@ -4,7 +4,10 @@
 // 'student' or 'admin' beforehand (defaults to 'student').
 $variant = $variant ?? 'student';
 $homeHref = $variant === 'admin' ? '/admin-dashboard' : '/dashboard';
-$profileHref = $variant === 'admin' ? '/admin-members' : '/profile';
+// เฉพาะนักศึกษา เมนูบัญชีของเจ้าหน้าที่ไม่มีรายการนี้แล้ว: ของเดิมชี้ไป
+// /admin-members ซึ่งเป็นรายการแรกในแถบเมนูซ้ายอยู่แล้ว จึงเป็นทางเข้าซ้ำ
+// ที่ชื่อ "ข้อมูลสมาชิก" ชวนให้เข้าใจว่าเป็นข้อมูลของตัวเอง
+$profileHref = '/profile';
 
 // ปุ่มพับแถบเมนูซ้ายบนจอคอม สองฝั่งใช้เบรกพอยต์คนละค่าเพราะแถบเมนูของแต่ละฝั่ง
 // โผล่คนละความกว้าง: ของเจ้าหน้าที่ที่ 768px ของนักศึกษาที่ 1024px ปุ่มต้อง
@@ -64,10 +67,12 @@ $sidebarStateKey = $variant === 'admin' ? 'ntc-admin-sidebar-collapsed' : 'ntc-s
             <p class="text-xs text-text-secondary dark:text-dm-text-secondary truncate" id="account-student-id">รหัส: ...</p>
           </div>
 
+          <?php if ($variant === 'student'): ?>
           <a href="<?= htmlspecialchars($profileHref) ?>" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-container-low dark:hover:bg-dm-bg transition-colors">
             <span class="material-symbols-outlined text-lg">person</span>
-            <?= $variant === 'admin' ? 'ข้อมูลสมาชิก' : 'ข้อมูลผู้ใช้' ?>
+            ข้อมูลผู้ใช้
           </a>
+          <?php endif; ?>
 
           <!-- การเปลี่ยนรหัสผ่านเป็นหน้าของตัวเอง ไม่ได้อยู่ในหน้าโปรไฟล์แล้ว
                จึงต้องมีทางเข้าที่นี่ ไม่งั้นผู้ใช้จะหาไม่เจอ และแอดมินก็ต้องเห็น
