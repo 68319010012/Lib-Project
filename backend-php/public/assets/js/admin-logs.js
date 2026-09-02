@@ -166,11 +166,21 @@ async function loadLogs(params, { silent = false } = {}) {
 document.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
   const localMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const params = new URLSearchParams({ month: localMonth });
-  loadLogs(params);
+  // The poll has to re-query whatever the admin is currently looking at, not
+  // whatever was on screen when the page loaded. Holding the initial
+  // URLSearchParams in the interval's closure meant that 20s after picking a
+  // date, the poll silently re-fetched the *default month* and overwrote the
+  // filtered rows — the chosen day's data appeared to vanish on its own.
+  // Every query now goes through this one variable so the two stay in step.
+  let logsQuery = new URLSearchParams({ month: localMonth });
+  const runQuery = (params) => {
+    logsQuery = params;
+    loadLogs(params);
+  };
+  loadLogs(logsQuery);
   // Poll so newly-arrived check-ins/check-outs show up without a manual
   // reload — silent so the table doesn't flash back to "loading" each time.
-  setInterval(() => loadLogs(params, { silent: true }), 20000);
+  setInterval(() => loadLogs(logsQuery, { silent: true }), 20000);
 
   // Narrowing the result set invalidates the current page number — a search
   // that leaves 3 rows has no page 7 to stay on.
@@ -184,10 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logs-date-filter').addEventListener('change', () => {
     const dateFilter = document.getElementById('logs-date-filter').value;
     if (!dateFilter) return;
-    loadLogs(new URLSearchParams({ date: dateFilter }));
+    runQuery(new URLSearchParams({ date: dateFilter }));
   });
   document.getElementById('logs-date-clear').addEventListener('click', () => {
     document.getElementById('logs-date-filter').value = '';
-    loadLogs(new URLSearchParams({ month: new Date().toISOString().slice(0, 7) }));
+    // toISOString() is UTC — on +07:00 that rolls back a day for the first
+    // seven hours of every month, landing the admin on the previous month.
+    // localMonth above is built from local parts for the same reason.
+    runQuery(new URLSearchParams({ month: localMonth }));
   });
 });

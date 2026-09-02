@@ -19,7 +19,7 @@
 // amount of clearing site data or reinstalling the app reaches. Change the
 // icons and you must raise that ?v=N in the manifest too; bumping only this
 // constant is not enough.
-const CACHE_VERSION = 'ntc-shell-v3';
+const CACHE_VERSION = 'ntc-shell-v4';
 
 // The offline page has to be in the cache before it is ever needed, so it is
 // the one navigable URL precached here.
@@ -28,7 +28,7 @@ const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
   OFFLINE_URL,
   '/assets/img/logo-badge.svg',
-  '/assets/img/pwa/icon-192.png?v=2',
+  '/assets/img/pwa/icon-192.png?v=3',
 ];
 
 self.addEventListener('install', (event) => {

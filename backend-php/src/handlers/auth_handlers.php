@@ -167,6 +167,24 @@ function handle_logout(): void
 // Mirrors the old React router's <Navigate to="/login" replace> for "/".
 function handle_root_redirect(): void
 {
+    // "/" is the PWA's start_url, so this is the first thing the installed app
+    // opens — and the installed app is the one place where the visitor is
+    // usually ALREADY signed in. Sending everyone to /login regardless of
+    // session meant an admin who installed the app landed on the student
+    // check-in screen (login.php happily renders for a signed-in user, and
+    // /dashboard has no admin guard), so staff saw a "เช็คอิน" button that was
+    // never meant for them. Route by the session's role instead.
+    if (isset($_SESSION['user_id'])) {
+        // A staff-issued password still has to be changed before anything else,
+        // exactly as partials/guard.php enforces on every other page.
+        if (!empty($_SESSION['must_change_password'])) {
+            header('Location: /change-password?first=1');
+            exit;
+        }
+        $home = ($_SESSION['role'] ?? null) === 'admin' ? '/admin-dashboard' : '/dashboard';
+        header("Location: $home");
+        exit;
+    }
     header('Location: /login');
     exit;
 }

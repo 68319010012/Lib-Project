@@ -28,6 +28,13 @@ if (!empty($requireAdmin) && ($_SESSION['role'] ?? null) !== 'admin') {
     header('Location: /dashboard');
     exit;
 }
+// Student-only pages set $requireStudent = true. Without this an admin could
+// open /dashboard and be shown a check-in button that would log a staff member
+// as a library visitor.
+if (!empty($requireStudent) && ($_SESSION['role'] ?? null) === 'admin') {
+    header('Location: /admin-dashboard');
+    exit;
+}
 
 // บัญชีที่เจ้าหน้าที่สร้างให้ หรือเพิ่งถูกรีเซ็ตรหัส ยังใช้รหัสที่คนอื่นรู้อยู่
 // (อยู่บนใบแจก หรืออยู่ในมือเจ้าหน้าที่ที่กดรีเซ็ต) จนกว่าเจ้าตัวจะตั้งรหัสของ

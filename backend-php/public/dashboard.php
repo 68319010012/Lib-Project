@@ -1,5 +1,10 @@
 ﻿<?php
 $requireAdmin = false;
+// The student check-in screen is not a staff screen: an admin who lands here
+// (from the installed app, a bookmark, or a stale tab) would be offered a
+// "เช็คอิน" button that records THEM as a library visitor. Bounce them to the
+// staff home instead — the mirror of $requireAdmin in the guard.
+$requireStudent = true;
 require __DIR__ . '/partials/guard.php';
 ?>
 <!doctype html>

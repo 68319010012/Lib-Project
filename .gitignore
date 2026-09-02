@@ -35,3 +35,7 @@ NTC_Library_*.pdf
 demo-video/output/
 demo-video/recordings/
 demo-video/voice/
+
+# เราเตอร์สำหรับ php -S เท่านั้น ของจริงใช้ Apache + .htaccess
+# ห้ามขึ้นเว็บจริง: deploy.yml อัปทุกไฟล์ที่เปลี่ยนใต้ public/
+backend-php/public/_devrouter.php
