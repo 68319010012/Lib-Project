@@ -19,7 +19,18 @@ let elapsedTimerId = null;
 let reminderWatcherId = null;
 let historyRefreshId = null;
 let reminderNotifiedKey = null;
+// นักศึกษากด "ไม่ต้อง ขอบคุณ" ไปแล้วสำหรับรอบเวลานี้ — ซ่อนกล่อง แต่ยังเตือน
+// ด้วยการสั่นต่อ (ดู restartReminderWatcher) และจะโผล่อีกครั้งเดียวตอนใกล้หมดจริง
+let reminderDismissed = false;
+let reminderFinalShown = false;
+// เวลาที่จะสั่นครั้งถัดไป (ms) — ระยะห่างสั้นลงเรื่อย ๆ เมื่อใกล้เวลา
+let reminderNextBuzzAt = 0;
+let overduePollId = null;
+let overduePollStopAt = 0;
 let selectedHours = null;
+
+// เริ่มเตือนเมื่อเหลือไม่เกินกี่นาที
+const REMINDER_LEAD_MINUTES = 20;
 
 // Slow background refresh, deliberately nowhere near the 1s elapsed tick: this
 // only has to notice a state change that happened server-side, not animate one.
@@ -349,6 +360,31 @@ function restartElapsedTimer(checkedInSince) {
   elapsedTimerId = setInterval(tick, 1000);
 }
 
+// เตือนครั้งเดียวไม่พอ นักศึกษาวางโทรศัพท์ไว้แล้วกลับไปอ่านหนังสือต่อ กว่าจะ
+// หยิบขึ้นมาอีกทีก็ถูกเช็คเอาต์อัตโนมัติไปแล้ว จึงสั่นซ้ำโดยเว้นระยะสั้นลงเรื่อย ๆ
+// ตามเวลาที่เหลือ ยิ่งใกล้ยิ่งถี่ — คนที่กำลังจะลืมจะได้รู้ตัวทัน
+function reminderBuzzGapMs(minutesLeft) {
+  if (minutesLeft > 10) return 5 * 60000;
+  if (minutesLeft > 5) return 2 * 60000;
+  if (minutesLeft > 2) return 60000;
+  return 20000;
+}
+
+// จังหวะสั่นก็หนักขึ้นตาม ไม่ใช่แค่ถี่ขึ้น เพราะการสั่นแบบเดิมซ้ำ ๆ กลายเป็นเสียง
+// พื้นหลังที่คนเลิกสังเกตไปเอง
+function reminderBuzzPattern(minutesLeft) {
+  if (minutesLeft > 5) return [200, 100, 200, 100, 400];
+  if (minutesLeft > 2) return [300, 120, 300, 120, 600];
+  return [400, 120, 400, 120, 400, 120, 800];
+}
+
+function resetReminderState() {
+  reminderNotifiedKey = null;
+  reminderDismissed = false;
+  reminderFinalShown = false;
+  reminderNextBuzzAt = 0;
+}
+
 // Only relevant while this tab stays open — the server-side auto-checkout
 // sweep (backend-php/src/handlers/checkin_handlers.php) is the real backstop.
 function restartReminderWatcher(checkedInSince, plannedCheckoutAt) {
@@ -357,22 +393,86 @@ function restartReminderWatcher(checkedInSince, plannedCheckoutAt) {
   if (!checkedInSince || !plannedCheckoutAt) {
     // ไม่ได้อยู่ในห้องสมุดแล้ว คำเตือนเรื่องเวลาออกจึงไม่มีความหมาย
     hideReminder();
-    reminderNotifiedKey = null;
+    resetReminderState();
+    stopOverdueConfirmPoll();
     return;
   }
   function tick() {
-    const minutesLeft = Math.ceil((plannedCheckoutAt.getTime() - Date.now()) / 60000);
+    const msLeft = plannedCheckoutAt.getTime() - Date.now();
+    const minutesLeft = Math.ceil(msLeft / 60000);
     const key = plannedCheckoutAt.toISOString();
-    if (minutesLeft <= 20 && minutesLeft > 0 && reminderNotifiedKey !== key) {
+
+    // เลยเวลาที่ตั้งไว้แล้ว: เซิร์ฟเวอร์กำลังจะเช็คเอาต์ให้ (หรือทำไปแล้ว) หน้าจอ
+    // ไม่ควรค้างอยู่ที่ปุ่มสีแดงจนกว่าจะครบรอบ poll ปกติซึ่งนานถึงหนึ่งนาที
+    if (msLeft <= 0) {
+      hideReminder();
+      startOverdueConfirmPoll();
+      return;
+    }
+    if (minutesLeft > REMINDER_LEAD_MINUTES) return;
+
+    // รอบเวลาใหม่ (เพิ่งเช็คอิน หรือเพิ่งขอเวลาเพิ่ม) — เริ่มนับกันใหม่ทั้งหมด
+    if (reminderNotifiedKey !== key) {
       reminderNotifiedKey = key;
+      reminderDismissed = false;
+      reminderFinalShown = false;
+      reminderNextBuzzAt = 0;
+    }
+
+    // ข้อความเดินตามเวลาจริงทุกรอบ ไม่ใช่ค้างเลขที่เขียนไว้ตอนเปิดกล่องครั้งแรก
+    if (!reminderDismissed) {
       showReminder(minutesLeft);
-      // จังหวะสั่นสั้น-สั้น-ยาว แยกออกจากการสั่นแจ้งเตือนทั่วไปของเครื่อง
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+    } else if (minutesLeft <= 2 && !reminderFinalShown) {
+      // กด "ไม่ต้อง ขอบคุณ" ไปแล้ว แต่สองนาทีสุดท้ายคือโอกาสสุดท้ายจริง ๆ
+      // ที่จะขอเวลาเพิ่มก่อนถูกเช็คเอาต์ — ขึ้นให้ดูอีกครั้งเดียว ไม่รบกวนซ้ำอีก
+      reminderFinalShown = true;
+      showReminder(minutesLeft);
+    }
+
+    if (Date.now() >= reminderNextBuzzAt) {
+      reminderNextBuzzAt = Date.now() + reminderBuzzGapMs(minutesLeft);
+      if (navigator.vibrate) navigator.vibrate(reminderBuzzPattern(minutesLeft));
       playReminderChime();
     }
   }
   tick();
-  reminderWatcherId = setInterval(tick, 30000);
+  // 5 วินาที ไม่ใช่ 30: ตัวจับเวลานี้ไม่ยิงเครือข่ายเลย มีแต่คำนวณกับ DOM และ
+  // ระยะสั่นช่วงท้าย (20 วินาที) จะเพี้ยนถ้าตัวจับเวลาหยาบกว่านั้น
+  reminderWatcherId = setInterval(tick, 5000);
+}
+
+// ---------------------------------------------------------------------------
+// เลยเวลาที่ตั้งไว้แล้ว — ไล่ถามเซิร์ฟเวอร์ถี่ ๆ จนกว่ามันจะยืนยันว่าเช็คเอาต์แล้ว
+//
+// การเช็คเอาต์อัตโนมัติเกิดขึ้นฝั่งเซิร์ฟเวอร์ (auto_checkout_sweep()) และไม่มี
+// อะไรวิ่งมาบอกหน้านี้ หน้าจึงรู้ได้จากการถามเองเท่านั้น ปกติถามทุก 60 วินาที
+// ซึ่งนานเกินไปตรงจุดนี้: นักศึกษาเห็นปุ่ม "เช็คเอาต์" สีแดงค้างอยู่ทั้งที่ระบบ
+// ปิดรอบให้ไปแล้ว เลยกดซ้ำหรือคิดว่าแอปค้าง อาการชัดที่สุดบนแอปที่ติดตั้ง (PWA)
+// เพราะแอนดรอยด์หยุดตัวจับเวลาของหน้าที่ไม่ได้อยู่หน้าจอ พอกลับมาเปิดจึงต้องรอ
+// รอบ poll ถัดไปทั้งรอบ
+//
+// มีเวลาจำกัด: ถ้าเซิร์ฟเวอร์ไม่ปิดรอบให้ภายในห้านาที (เช่นตั้งเวลาปิดห้องสมุด
+// ไว้ทีหลัง หรือ sweep ไม่ทำงาน) ก็เลิกถามถี่ แล้วปล่อยให้ poll ปกติทำงานต่อ
+// ดีกว่ายิงทุกเจ็ดวินาทีค้างไว้ทั้งวัน
+const OVERDUE_POLL_MS = 7000;
+const OVERDUE_POLL_MAX_MS = 5 * 60000;
+
+function startOverdueConfirmPoll() {
+  if (overduePollId) return;
+  overduePollStopAt = Date.now() + OVERDUE_POLL_MAX_MS;
+  refreshHistoryQuietly();
+  overduePollId = setInterval(() => {
+    if (!isCheckedIn() || Date.now() > overduePollStopAt) {
+      stopOverdueConfirmPoll();
+      return;
+    }
+    refreshHistoryQuietly();
+  }, OVERDUE_POLL_MS);
+}
+
+function stopOverdueConfirmPoll() {
+  if (overduePollId) clearInterval(overduePollId);
+  overduePollId = null;
 }
 
 // เสียงเตือนสร้างจาก oscillator ไม่ได้โหลดไฟล์เสียง: ไม่ต้องมีไฟล์ให้ deploy
@@ -428,6 +528,14 @@ function hideReminder() {
   document.getElementById('reminder-banner').classList.add('hidden');
 }
 
+// กด "ไม่ต้อง ขอบคุณ" = ตอบคำถามว่าจะขอเวลาเพิ่มไหม ไม่ใช่ "เลิกเตือนฉัน"
+// กล่องจึงหายไป แต่การสั่นยังเดินต่อตามตารางที่ถี่ขึ้นเรื่อย ๆ และกล่องจะกลับ
+// มาอีกครั้งเดียวตอนเหลือสองนาที ซึ่งเป็นโอกาสสุดท้ายที่จะขอเวลาเพิ่มได้จริง
+function dismissReminder() {
+  reminderDismissed = true;
+  hideReminder();
+}
+
 function cooldownLeftMs() {
   return Math.max(0, cooldownUntil - Date.now());
 }
@@ -476,7 +584,7 @@ async function performCheckin(body) {
   setBusy(true);
   try {
     const data = await apiPostJson('/checkin', body);
-    reminderNotifiedKey = null;
+    resetReminderState();
     hideReminder();
     startCooldown();
     await loadHistory();
@@ -491,7 +599,7 @@ async function performCheckin(body) {
 async function extendCheckout(minutes) {
   try {
     const data = await apiPostJson('/checkin/extend', { minutes });
-    reminderNotifiedKey = null;
+    resetReminderState();
     hideReminder();
     await loadHistory();
     showToast(data.message, { type: 'success' });
@@ -670,10 +778,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('checkin-modal').addEventListener('click', (e) => {
     if (e.target.id === 'checkin-modal') closeCheckinModal();
   });
-  document.getElementById('reminder-dismiss').addEventListener('click', hideReminder);
+  document.getElementById('reminder-dismiss').addEventListener('click', dismissReminder);
   // แตะพื้นหลังนอกกล่อง = เท่ากับกด "ไม่ต้อง" (กดโดนกล่องเองไม่ปิด)
   document.getElementById('reminder-banner').addEventListener('click', (e) => {
-    if (e.target.id === 'reminder-banner') hideReminder();
+    if (e.target.id === 'reminder-banner') dismissReminder();
   });
   // ครั้งเดียวพอ หลังจากนั้น AudioContext ก็พร้อมใช้ไปตลอดอายุหน้า
   ['pointerdown', 'keydown'].forEach((evt) => {
@@ -697,7 +805,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // back/forward cache, and pageshow re-arms the timer if the student comes
   // back to a restored page. startHistoryAutoRefresh() clears first, so the
   // pageshow that follows this initial load can't stack a second interval.
-  window.addEventListener('pagehide', stopHistoryAutoRefresh);
+  window.addEventListener('pagehide', () => {
+    stopHistoryAutoRefresh();
+    stopOverdueConfirmPoll();
+  });
   window.addEventListener('pageshow', startHistoryAutoRefresh);
 });
 
