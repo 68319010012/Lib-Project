@@ -80,9 +80,19 @@ def main():
     subprocess.run(
         ['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', str(listfile),
          '-i', str(full_mp3),
-         '-vf', "subtitles=subs.srt:force_style='FontSize=20,"
-                "PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=3,"
-                "Outline=1,Shadow=0,MarginV=28',fps=25,format=yuv420p",
+         # fps ต้องมาก่อน subtitles: concat ป้อนเข้ามาแค่ 12 เฟรม (เฟรมละหนึ่งสไลด์)
+         # ถ้าเผาซับก่อนแปลงเฟรมเรต ทั้งสไลด์จะได้ซับของวินาทีแรกวินาทีเดียวแล้ว
+         # ค้างอยู่อย่างนั้นทั้งฉาก — ซึ่งส่วนใหญ่คือ "ไม่มีซับเลย" เพราะช่วงต้น
+         # ฉากเป็นช่วงเงียบ ต้องมีเฟรมจริงครบ 25 เฟรม/วินาทีก่อน ซับถึงจะเดินตามเวลา
+         # ค่าใน force_style ไม่ใช่พิกเซลบนจอ: .srt ไม่ได้บอกความละเอียดอ้างอิง
+         # libass จึงถือว่าเป็น 384x288 แล้วขยายขึ้น 1080p — ทุกค่าโดนคูณ ~3.2 เท่า
+         # (ลองใส่ original_size=1920x1080 แล้วยิ่งใหญ่กว่าเดิม จึงคิดกลับทางนี้แทน)
+         # FontSize=13 จึงออกมาราว 42px บนจอ 1080p ซึ่งอ่านออกแต่ไม่บังสไลด์
+         # MarginV=20 ก็ราว 64px ยกให้พ้นแถบฟุตเตอร์ล่างสุดพอดี
+         '-vf', "fps=25,subtitles=subs.srt:force_style='FontName=Arial,"
+                "FontSize=13,Bold=1,PrimaryColour=&H00FFFFFF,"
+                "OutlineColour=&H40000000,BorderStyle=3,Outline=2,Shadow=0,"
+                "MarginV=27',format=yuv420p",
          '-c:v', 'libx264', '-preset', 'medium', '-crf', '20',
          '-c:a', 'aac', '-b:a', '192k', '-shortest', str(OUT)],
         check=True, cwd=str(tmp))
