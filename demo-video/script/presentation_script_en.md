@@ -2,34 +2,34 @@
 ### English Voice-over + English Subtitles
 
 **Presenters:** Mr. Kongphop Tipprasertsuk · Mr. Khachon Phansimahamat · Mr. Wachiramaytee Cameviangjun
-**Total runtime:** 8 minutes 21 seconds (measured from the rendered audio, not estimated)
-**Voice:** Microsoft Edge TTS — en-US-ChristopherNeural, rate −4%
+**Total runtime:** 8 minutes 45 seconds (measured from the rendered audio, not estimated)
+**Voice:** Microsoft Edge TTS — en-US-AndrewMultilingualNeural, rate −3%, rendered sentence-by-sentence with breathing pauses (see `script/make_voice_en.py`)
 
 ## Delivered files
 
 | File | What it is |
 |---|---|
-| `demo-video/voice/en/presentation_full_en.mp3` | Full narration, all 12 scenes in order (8:21) |
+| `demo-video/voice/en/presentation_full_en.mp3` | Full narration, all 12 scenes in order (8:45) |
 | `demo-video/voice/en/s01_opening.mp3` … `s12_conclusion.mp3` | One file per scene, for re-recording a single scene without redoing the rest |
-| `demo-video/subtitles/presentation_en.srt` | 116 English subtitle cues, timed against the rendered audio |
+| `demo-video/subtitles/presentation_en.srt` | 67 English subtitle cues, timed against the rendered audio |
 
 ## Measured scene durations
 
 | Scene | Audio file | Duration |
 |---|---|---|
-| 1 Opening | `s01_opening.mp3` | 24.82 s |
-| 2 Background | `s02_background.mp3` | 40.08 s |
-| 3 Objectives | `s03_objectives.mp3` | 55.37 s |
-| 4 Architecture | `s04_architecture.mp3` | 67.51 s |
-| 5 Student workflow | `s05_workflow.mp3` | 53.28 s |
-| 6 Operational features | `s06_features.mp3` | 26.76 s |
-| 7 Duration & auto check-out | `s07_duration.mp3` | 45.17 s |
-| 8 Administrative impact | `s08_admin.mp3` | 47.35 s |
-| 9 Dashboard trends | `s09_dashboard.mp3` | 31.27 s |
-| 10 Role access | `s10_roles.mp3` | 35.81 s |
-| 11 Roadmap | `s11_roadmap.mp3` | 46.46 s |
-| 12 Conclusion | `s12_conclusion.mp3` | 27.05 s |
-| | **Total** | **500.93 s** |
+| 1 Opening | `s01_opening.mp3` | 25.02 s |
+| 2 Background | `s02_background.mp3` | 40.46 s |
+| 3 Objectives | `s03_objectives.mp3` | 57.55 s |
+| 4 Architecture | `s04_architecture.mp3` | 69.18 s |
+| 5 Student workflow | `s05_workflow.mp3` | 54.29 s |
+| 6 Operational features | `s06_features.mp3` | 28.34 s |
+| 7 Duration & auto check-out | `s07_duration.mp3` | 46.38 s |
+| 8 Administrative impact | `s08_admin.mp3` | 49.01 s |
+| 9 Dashboard trends | `s09_dashboard.mp3` | 32.34 s |
+| 10 Role access | `s10_roles.mp3` | 35.55 s |
+| 11 Roadmap | `s11_roadmap.mp3` | 48.91 s |
+| 12 Conclusion | `s12_conclusion.mp3` | 27.33 s |
+| | **Total** | **514.37 s** |
 
 > **Accuracy note.** This script was written against the actual codebase, not only the
 > slide deck. Three claims in the original brief did not exist in the running system and
