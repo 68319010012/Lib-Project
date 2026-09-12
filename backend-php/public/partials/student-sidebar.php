@@ -39,7 +39,7 @@ function student_nav_class(string $href, string $active): string
         <span class="material-symbols-outlined text-on-primary">local_library</span>
       </div>
       <div>
-        <h2 class="text-primary dark:text-primary-fixed-dim text-headline-md font-bold leading-tight">NTC Library</h2>
+        <h2 class="text-primary dark:text-primary-fixed-dim text-base font-bold leading-snug"><?= LIBRARY_NAME ?></h2>
         <p class="text-on-surface-variant dark:text-dm-text-secondary text-label-caps font-label-caps uppercase tracking-wider">พอร์ทัลนักศึกษา</p>
       </div>
     </div>
@@ -70,7 +70,7 @@ function student_nav_class(string $href, string $active): string
           <span class="material-symbols-outlined text-on-primary">local_library</span>
         </div>
         <div>
-          <h1 class="font-bold text-primary dark:text-primary-fixed-dim leading-tight">NTC Library</h1>
+          <h1 class="font-bold text-primary dark:text-primary-fixed-dim leading-tight"><?= LIBRARY_NAME_SHORT ?></h1>
           <p class="text-[10px] uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลนักศึกษา</p>
         </div>
       </div>

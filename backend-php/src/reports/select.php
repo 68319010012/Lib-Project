@@ -20,7 +20,7 @@ function handle_report_select(): void
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>เลือกเทมเพลตรายงาน | ห้องสมุด NNTC</title>
+<title>เลือกเทมเพลตรายงาน | <?= LIBRARY_NAME_SHORT ?></title>
 <link rel="stylesheet" href="/assets/css/report-fonts.css">
 <style>
   :root {
@@ -189,7 +189,7 @@ function handle_report_select(): void
 <header>
   <div class="inner">
     <a class="back-link" href="/admin-dashboard"><span class="material-symbols-outlined">arrow_back</span> กลับหน้าหลัก</a>
-    <h1><span class="material-symbols-outlined">receipt_long</span> ศูนย์รายงานเช็คชื่อห้องสมุด</h1>
+    <h1><span class="material-symbols-outlined">receipt_long</span> ศูนย์รายงานเช็คชื่อ<?= LIBRARY_NAME ?></h1>
     <p>เลือกรูปแบบรายงานที่ต้องการ กรอกเงื่อนไข แล้วพิมพ์หรือบันทึกเป็น PDF ได้ทันที</p>
   </div>
 </header>

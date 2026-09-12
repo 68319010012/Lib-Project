@@ -12,7 +12,9 @@
       <img class="login-crest" src="/assets/img/ntc-crest.png?v=<?= ntc_asset_v('assets/img/ntc-crest.png') ?>"
            alt="ตราวิทยาลัยเทคนิคนครนายก" width="73" height="73" decoding="async">
       <h1 class="login-title">เข้าสู่ระบบ</h1>
-      <p class="login-identity-org">ห้องสมุดวิทยาลัยเทคนิคนครนายก</p>
+      <!-- แยกสองบรรทัดเอง ไม่ปล่อยให้เบราว์เซอร์ตัด: overflow-wrap:anywhere ใน
+           .login-identity-org ตัดกลางคำ ทำให้ได้ "วิทยาลัยเทคนิค / นครนายก" -->
+      <p class="login-identity-org"><span><?= LIBRARY_NAME ?></span><span><?= COLLEGE_NAME ?></span></p>
 
       <p id="login-error" role="alert" aria-live="assertive" class="login-error hidden"></p>
 

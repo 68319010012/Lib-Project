@@ -3768,45 +3768,54 @@ html.dark .lib-banner { filter: brightness(.88); }
    Item height is mirrored by WHEEL_ITEM_H in assets/js/dashboard.js; the
    two must agree or the snapped row and the read-back value drift apart.
    --------------------------------------------------------------------- */
-/* --- check-in dialog: smooth tab switching -----------------------------
-   The two panels ("เลือกเวลาที่จะออก" / "เลือกจำนวนชั่วโมง") are very
-   different heights, and toggling `hidden` made the dialog jump between the
-   two sizes on every switch. Animating grid-template-rows 0fr -> 1fr is the
-   one way to transition to a content-derived height in plain CSS, so the box
-   glides to its new size while the panels cross-fade. */
+/* --- check-in dialog: สลับแท็บโดยกล่องไม่ขยับ --------------------------
+   สองแพเนล ("เลือกเวลาที่จะออก" / "เลือกจำนวนชั่วโมง") สูงไม่เท่ากัน
+   รอบก่อนแก้ด้วยการอนิเมต grid-template-rows 0fr -> 1fr ให้กล่องค่อย ๆ
+   เปลี่ยนขนาด ซึ่งยังเป็นการขยับอยู่ดี: วัดได้ 530px ตอนอยู่แท็บเวลา และ
+   418px ตอนอยู่แท็บชั่วโมง ปุ่มยืนยันจึงไถลขึ้น 112px ใต้นิ้วทุกครั้งที่กด
+   สลับแท็บ ตอนนี้ทั้งสองแพเนลวางซ้อนกันในช่องกริดเดียว (.modal-panels)
+   ความสูงของกรอบเท่ากับแพเนลที่สูงที่สุดเสมอ และสลับด้วยการจางเข้า-ออก */
 .modal-panel {
-  display: grid;
-  grid-template-rows: 0fr;
   opacity: 0;
   overflow: hidden;
-  /* visibility flips only after the collapse finishes, so a hidden panel
+  /* visibility flips only after the fade finishes, so a hidden panel
      can't be tabbed into mid-animation. */
   visibility: hidden;
-  transition:
-    grid-template-rows .36s cubic-bezier(.4, 0, .2, 1),
-    opacity .26s ease,
-    margin-bottom .36s cubic-bezier(.4, 0, .2, 1),
-    visibility 0s linear .36s;
-  margin-bottom: 0;
+  transition: opacity .18s ease, visibility 0s linear .18s;
 }
-.modal-panel > .modal-panel-inner { min-height: 0; overflow: hidden; }
+.modal-panel > .modal-panel-inner { min-height: 0; }
 .modal-panel.is-active {
-  grid-template-rows: 1fr;
   opacity: 1;
   visibility: visible;
+  transition: opacity .18s ease, visibility 0s linear 0s;
+}
+/* เดิมสองแพเนลนี้ยืด/ยุบความสูงตัวเองตอนสลับแท็บ (grid-template-rows 0fr↔1fr)
+   กล่องจึงสูง 530px ตอนอยู่แท็บเวลา และ 418px ตอนอยู่แท็บชั่วโมง — ต่างกัน
+   112px ปุ่ม "ยืนยันเช็คอิน" กับแถบแท็บเองเลยไถลขึ้นลงใต้นิ้วทุกครั้งที่กด
+   สลับ ตอนนี้วางซ้อนกันในช่องกริดเดียว ความสูงของกรอบจึงเท่ากับแพเนลที่สูง
+   ที่สุดเสมอ ไม่ขยับ แล้วสลับด้วยการจางเข้า-ออกแทน */
+.modal-panels {
+  display: grid;
   margin-bottom: 1rem;
-  transition:
-    grid-template-rows .36s cubic-bezier(.4, 0, .2, 1),
-    opacity .3s ease .06s,
-    margin-bottom .36s cubic-bezier(.4, 0, .2, 1),
-    visibility 0s linear 0s;
 }
-/* Older engines without animatable grid-template-rows: fall back to a plain
-   show/hide rather than leaving a collapsed panel permanently invisible. */
-@supports not (grid-template-rows: 1fr) {
-  .modal-panel { display: none; }
-  .modal-panel.is-active { display: block; visibility: visible; opacity: 1; margin-bottom: 1rem; }
+.modal-panels > .modal-panel {
+  grid-area: 1 / 1;
+  align-self: stretch;
 }
+/* แพเนล "จำนวนชั่วโมง" เตี้ยกว่าแพเนลล้อเลือกเวลาราว 110px พอความสูงของกรอบ
+   ถูกตรึงไว้เท่าอันที่สูงกว่า ที่ว่างส่วนนั้นจะค้างเปล่า ๆ — ให้ปุ่มยืดเต็มแทน
+   ได้เป้ากดที่ใหญ่ขึ้นด้วย (h-10 = 40px บนปุ่มถูกแทนที่ด้วย height:auto ตรงนี้
+   ตัวเลือกแบบ id + ชนิดแท็กจึงชนะคลาสของ Tailwind โดยไม่ต้องใช้ !important) */
+#modal-panel-hours > .modal-panel-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+#modal-hour-buttons {
+  flex: 1 1 auto;
+  grid-auto-rows: 1fr;
+}
+#modal-hour-buttons > button { height: auto; min-height: 40px; }
 
 /* Dialog itself fades and lifts in instead of appearing instantly. */
 #checkin-modal { transition: opacity .24s ease; }
@@ -3827,6 +3836,7 @@ html.dark .lib-banner { filter: brightness(.88); }
 @media (prefers-reduced-motion: reduce) {
   .modal-panel,
   .modal-panel.is-active,
+  .modal-panels > .modal-panel,
   #checkin-modal > div,
   [data-modal-tab] { transition-duration: .01ms !important; }
 }
@@ -3849,6 +3859,10 @@ html.dark .lib-banner { filter: brightness(.88); }
   /* Momentum scrolling on iOS, so a flick behaves like every other wheel
      the person has used on that phone. */
   -webkit-overflow-scrolling: touch;
+  /* เลื่อนจนสุดหัว/ท้ายล้อแล้วต้องหยุดแค่นั้น ค่าเดิม (auto) ส่งการเลื่อนต่อไป
+     ให้ .ntc-modal ที่ครอบอยู่ กล่องทั้งกล่องเลยไถลตามนิ้วระหว่างเลือกเวลา
+     ตัวเลขที่กำลังจะกดจึงขยับหนี */
+  overscroll-behavior: contain;
   /* Fade the ends instead of slicing them. Without this the first and last
      visible rows are cut through the middle of a digit at a hard edge, which
      reads as a rendering fault rather than as numbers curving away. */
@@ -4686,6 +4700,9 @@ html.dark .donut-legend li.donut-clickable:hover { background: rgba(147, 197, 25
   overflow-wrap: anywhere; word-break: break-word;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
+/* ชื่อห้องสมุดกับชื่อวิทยาลัยขึ้นบรรทัดของตัวเอง — ปล่อยให้ขึ้นบรรทัดเองเมื่อไร
+   overflow-wrap ข้างบนจะตัดกลางคำเป็น "วิทยาลัยเทคนิค / นครนายก" */
+.login-identity-org span { display: block; }
 
 /* Card heading. clamp() so it scales with the viewport instead of staying at
    one desktop size that overwhelms a small phone. */
@@ -5912,4 +5929,28 @@ main { animation: ntc-main-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @media (max-width: 767px) {
   .hero-stats-float { margin-top: 0 !important; }
+}
+
+/* ชื่อระบบบนแถบหัว — มือถือใส่ชื่อย่อ ("ห้องสมุดพระครูฯ") จอกว้างใส่ชื่อเต็ม
+   ทำเป็นคลาสของตัวเองเพราะ styles.css เป็นบันเดิล Tailwind ที่ build ไว้แล้ว
+   sm:hidden / sm:inline ไม่มีอยู่ในไฟล์ ใส่ไปก็ไม่มีผลอะไรแบบเงียบ ๆ */
+.app-brand-full { display: none; }
+@media (min-width: 640px) {
+  .app-brand-short { display: none; }
+  .app-brand-full { display: inline; }
+}
+
+/* ---------------------------------------------------------------------
+   หัวเรื่องหน้าแอดมินที่ช่วงจอแท็บเล็ต (768-1023px)
+   ที่ 768px คลาส md: เริ่มทำงาน: แถวหัวเรื่องกลายเป็นแนวนอน และเมนูข้างถูกตรึง
+   กว้าง 256px พร้อมกัน เนื้อที่ที่เหลือให้หัวเรื่องจึงราว 200px ขณะที่กล่อง
+   "ช่วงเวลา + พิมพ์รายงาน" ข้าง ๆ ไม่ยอมหด ภาษาไทยไม่มีช่องว่างระหว่างคำ
+   "ภาพรวมการใช้งานห้องสมุด" จึงถูกหั่นเป็นบรรทัดละพยางค์ ("ภาพ / รวม / การใช้")
+   ช่วงนี้กลับไปวางแนวตั้งเหมือนบนมือถือ ซึ่งมีที่ให้หัวเรื่องเต็มบรรทัด
+   --------------------------------------------------------------------- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-hero-pattern > div {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

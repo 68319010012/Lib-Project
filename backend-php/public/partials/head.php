@@ -1,4 +1,9 @@
 <?php
+// head.php ถูก include จากทุกหน้า และหน้าเหล่านั้นถูกเสิร์ฟตรงจาก Apache
+// (ดู .htaccess) ไม่ได้ผ่าน index.php ที่ require ไฟล์นี้ไว้แล้ว จึงต้องโหลดเอง
+// เพื่อให้ LIBRARY_NAME_* ใช้ได้ทุกหน้า require_once กันซ้ำกับ index.php
+require_once __DIR__ . '/../../src/constants.php';
+
 // Cache-busting query string for /assets/* files: the deployed environment
 // has swapped backends mid-session more than once (Docker <-> XAMPP) on the
 // same http://localhost:8080 origin, and each time the browser kept serving
@@ -14,7 +19,7 @@ function ntc_asset_v(string $relPath): string
 ?>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?>ห้องสมุด NTC</title>
+<title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - ' : '' ?><?= LIBRARY_NAME_SHORT ?></title>
 <link rel="icon" type="image/svg+xml" href="/assets/img/logo-badge.svg?v=<?= ntc_asset_v('assets/img/logo-badge.svg') ?>" />
 <!-- ย่อจาก pwa/icon-512.png ตัวเดียวกับที่แอปที่ติดตั้งใช้ เพื่อให้แท็บ
      เบราว์เซอร์และผลค้นหาเห็นโลโก้เดียวกับไอคอนแอปบนมือถือ SVG ข้างบนคม
@@ -36,7 +41,7 @@ function ntc_asset_v(string $relPath): string
 <link rel="apple-touch-icon" href="/assets/img/pwa/apple-touch-icon.png?v=<?= ntc_asset_v('assets/img/pwa/apple-touch-icon.png') ?>" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="ห้องสมุด NTC" />
+<meta name="apple-mobile-web-app-title" content="<?= LIBRARY_NAME_SHORT ?>" />
 <meta name="mobile-web-app-capable" content="yes" />
 <!-- Fonts (Noto Sans Thai, IBM Plex Mono, Material Symbols Outlined) are
      self-hosted via @font-face rules at the top of styles.css — no external

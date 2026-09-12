@@ -57,7 +57,7 @@ function admin_nav_class(string $href, string $active): string
           <span class="material-symbols-outlined text-on-primary">local_library</span>
         </div>
         <div>
-          <h1 class="font-bold text-primary dark:text-primary-fixed-dim leading-tight">NTC Library</h1>
+          <h1 class="font-bold text-primary dark:text-primary-fixed-dim leading-tight"><?= LIBRARY_NAME_SHORT ?></h1>
           <p class="text-[10px] uppercase tracking-widest text-outline dark:text-dm-text-secondary font-bold">พอร์ทัลเจ้าหน้าที่</p>
         </div>
       </div>

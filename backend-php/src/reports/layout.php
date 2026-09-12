@@ -296,6 +296,61 @@ function render_pdf_donut_chart(array $slices, string $centerValue = '', string 
 // dialog can save anywhere, with correct Thai text (Sarabun, bundled under
 // ../../fonts, registered as the default font below since mPDF's own bundled
 // fonts have no Thai glyphs).
+// ช่องลงนามท้ายรายงาน — ตอบคำถามว่า "เอกสารนี้เป็นของใคร และใครรับรอง"
+//
+// บรรทัด "จัดทำโดย <username>" ที่ท้ายรายงานบอกได้แค่ว่าใครกดสั่งพิมพ์ ซึ่งเป็น
+// ชื่อบัญชีในระบบ ไม่ใช่ลายมือชื่อ เอกสารที่ส่งต่อให้ฝ่ายอื่นจึงไม่มีอะไรยืนยัน
+// ช่องนี้เว้นที่ให้เซ็นจริงด้วยปากกาหลังพิมพ์ออกมา
+//
+// ช่องเดียวคือของบรรณารักษ์ผู้จัดทำ ตามที่ตกลงไว้ — ไม่ใส่ช่องผู้ตรวจสอบ/ผู้อนุมัติ
+// เพราะรายงานชุดนี้ออกจากงานห้องสมุดเอง ไม่ได้เดินเรื่องขออนุมัติใคร
+//
+// วงเล็บเว้นว่างไว้ให้เขียนมือ: บัญชีแอดมินเก็บแค่ชื่อผู้ใช้ ไม่มีชื่อ-นามสกุลจริง
+// พิมพ์ "( admin )" ลงบนเอกสารที่ส่งให้ฝ่ายอื่นแย่กว่าปล่อยว่าง
+//
+// $forPdf: mPDF ไม่มี flexbox และไม่รองรับ CSS ภายนอก จึงต้องเป็นตารางกับสไตล์
+// inline ส่วนฝั่งหน้าเว็บใช้คลาสที่ประกาศไว้ใน <style> ของ render_report_layout()
+function report_signature_rows(): array
+{
+    return [
+        ['role' => 'ครูบรรณารักษ์ ผู้จัดทำรายงาน', 'name' => ''],
+    ];
+}
+
+function render_signature_block(bool $forPdf = false): string
+{
+    $cells = '';
+    foreach (report_signature_rows() as $sig) {
+        $name = $sig['name'] !== ''
+            ? '( ' . htmlspecialchars($sig['name']) . ' )'
+            : '( ' . str_repeat('.', 28) . ' )';
+        if ($forPdf) {
+            $cells .= '<td style="width:45%; text-align:center; vertical-align:top; padding:0 6px;">'
+                . '<div style="font-size:11px; margin-bottom:14px;">ลงชื่อ ' . str_repeat('.', 22) . '</div>'
+                . '<div style="font-size:11px; margin-bottom:3px;">' . $name . '</div>'
+                . '<div style="font-size:11px; font-weight:bold; color:#1a2947; margin-bottom:3px;">' . $sig['role'] . '</div>'
+                . '<div style="font-size:10px; color:#6b6153;">วันที่ ......../......../..........</div>'
+                . '</td>';
+        } else {
+            $cells .= '<td class="sig-cell">'
+                . '<div class="sig-line">ลงชื่อ ' . str_repeat('.', 22) . '</div>'
+                . '<div class="sig-name">' . $name . '</div>'
+                . '<div class="sig-role">' . $sig['role'] . '</div>'
+                . '<div class="sig-date">วันที่ ......../......../..........</div>'
+                . '</td>';
+        }
+    }
+
+    if ($forPdf) {
+        // page-break-inside:avoid กันไม่ให้ช่องเซ็นถูกหั่นคนละหน้ากับหัวข้อของมัน
+        // <td> ว่างกินที่ครึ่งซ้าย ดันช่องเซ็นไปอยู่ครึ่งขวาของกระดาษ —
+        // mPDF ไม่มี margin-left:auto ให้ใช้กับตาราง
+        return '<table style="width:100%; margin-top:26px; page-break-inside:avoid;"><tr>'
+            . '<td style="width:55%;"></td>' . $cells . '</tr></table>';
+    }
+    return '<div class="signature-block"><table><tr>' . $cells . '</tr></table></div>';
+}
+
 function render_report_pdf(string $title, string $subtitle, string $content, string $extraStyle, string $filenameBase, array $pdfCharts = [], bool $ownHeading = false): void
 {
     // รายงานทุกฉบับเป็น A4 แนวนอนอย่างเดียว ไม่มีตัวเลือกให้เลือกอีกต่อไป:
@@ -352,6 +407,7 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
     body { font-family: ibmplexsansthai; font-size: 12px; color: #212430; }
     h1 { font-size: 18px; color: #1a2947; margin: 0 0 4px; }
     h2 { font-size: 12px; font-weight: normal; color: #444; margin: 0 0 12px; }
+    .pdf-org { font-size: 11px; color: #444; margin: 0 0 6px; }
     .meter-ring-wrap, .heatmap-grid, .heatmap-cell,
     .filter-bar, .compare-filter, .month-filter, .toolbar, .empty .empty-cta,
     .quick-filter-chips, .filter-note, .rank-bars .links { display: none; }
@@ -542,11 +598,13 @@ function render_report_pdf(string $title, string $subtitle, string $content, str
 
     $heading = $ownHeading
         ? ''
-        : '<h1>วิทยาลัยเทคนิคนครนายก</h1><h2>' . htmlspecialchars($subtitle) . '</h2>';
+        : '<h1>' . LIBRARY_NAME . '</h1><div class="pdf-org">' . COLLEGE_NAME . '</div>'
+            . '<h2>' . htmlspecialchars($subtitle) . '</h2>';
     $html = '<style>' . $pdfStyle . '</style>'
         . $heading
         . $chartsHtml
         . $content
+        . render_signature_block(true)
         . '<p style="margin-top:16px; font-size:9px; color:#6b6153;">สร้างรายงานเมื่อ ' . htmlspecialchars(date('d/m/Y H:i'))
         . ' น. — จัดทำโดย ' . htmlspecialchars($_SESSION['username'] ?? '-') . '</p>';
 
@@ -701,6 +759,9 @@ function render_report_layout(string $title, string $subtitle, string $content, 
   }
   header.report-head h1 { font-size: 20px; margin: 0 0 4px; font-weight: 800; }
   header.report-head h2 { font-size: 14px; font-weight: 400; margin: 0; opacity: .85; }
+  /* ชื่อวิทยาลัยเป็นบรรทัดรองใต้ชื่อห้องสมุด ไม่ใช่หัวเรื่อง — ห้องสมุดคือ
+     เจ้าของเอกสาร วิทยาลัยคือสังกัด */
+  header.report-head .report-org { font-size: 13px; margin: 0 0 6px; opacity: .8; }
 
   main.report-body {
     max-width: 1100px;
@@ -823,6 +884,19 @@ function render_report_layout(string $title, string $subtitle, string $content, 
      เบราว์เซอร์กับไฟล์ที่ดาวน์โหลดจะไม่ตรงกัน */
   @page { size: A4 landscape; margin: 12mm; }
 
+  /* ช่องลงนามมีไว้สำหรับกระดาษ บนจอมันเป็นแค่เส้นประที่เซ็นไม่ได้ จึงซ่อนไว้
+     แล้วเปิดให้เห็นใน @media print (ดูบล็อกพิมพ์ด้านล่าง) ส่วน PDF สร้างจาก
+     render_signature_block(true) คนละเส้นทางกัน */
+  .signature-block { display: none; }
+  /* width ต้องระบุ: บล็อก @media print มี `table { width: 100% }` ที่กินตาราง
+     นี้ด้วย ทำให้ช่องเซ็นกลายเป็นเซลล์เดียวกลางหน้ากระดาษแทนที่จะชิดขวา */
+  .signature-block table { width: 320px; border-collapse: collapse; margin: 28px 0 0 auto; }
+  .sig-cell { width: 300px; text-align: center; vertical-align: top; padding: 0 8px; }
+  .sig-line { font-size: 13px; margin-bottom: 18px; }
+  .sig-name { font-size: 13px; margin-bottom: 4px; }
+  .sig-role { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+  .sig-date { font-size: 12px; color: var(--text-secondary); }
+
   .report-foot {
     max-width: 1100px; margin: 0 auto; padding: 0 20px 32px;
     font-size: 11px; color: var(--text-secondary);
@@ -838,6 +912,7 @@ function render_report_layout(string $title, string $subtitle, string $content, 
     body { margin: 0; background: #fff; }
     header.report-head { background: #fff !important; color: #111 !important; padding: 0 0 8px; }
     header.report-head h2 { opacity: 1; color: #444; }
+    header.report-head .report-org { opacity: 1; color: #444; }
     main.report-body { max-width: none; padding: 12px 0; }
     .table-wrap { box-shadow: none; border-radius: 0; }
     /* Paging is a screen convenience only — the printed report carries every
@@ -866,6 +941,8 @@ function render_report_layout(string $title, string $subtitle, string $content, 
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .report-foot { max-width: none; padding: 8px 0 0; border-top: 1px solid #ccc; }
+    /* page-break-inside กันช่องเซ็นถูกหั่นครึ่งข้ามหน้า */
+    .signature-block { display: block; page-break-inside: avoid; }
   }
 </style>
 <?= $extraStyle ?>
@@ -910,11 +987,13 @@ function render_report_layout(string $title, string $subtitle, string $content, 
 </div>
 
 <header class="report-head">
-  <h1>วิทยาลัยเทคนิคนครนายก</h1>
+  <h1><?= LIBRARY_NAME ?></h1>
+  <p class="report-org"><?= COLLEGE_NAME ?></p>
   <h2><?= htmlspecialchars($subtitle) ?></h2>
 </header>
 <main class="report-body">
 <?= $content ?>
+<?= render_signature_block() ?>
 </main>
 <footer class="report-foot">
   <span>สร้างรายงานเมื่อ <?= htmlspecialchars(date('d/m/Y H:i')) ?> น.</span>

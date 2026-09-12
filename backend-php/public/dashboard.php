@@ -61,7 +61,7 @@ require __DIR__ . '/partials/guard.php';
               <span id="stamp-label" class="font-headline-md text-headline-md">เช็คอิน</span>
             </button>
           </div>
-          <p id="stamp-hint" class="text-body-md text-text-secondary dark:text-dm-text-secondary max-w-sm mx-auto">กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออกห้องสมุด NTC</p>
+          <p id="stamp-hint" class="text-body-md text-text-secondary dark:text-dm-text-secondary max-w-sm mx-auto">กดปุ่มด้านบนเพื่อบันทึกการเข้า-ออก<?= LIBRARY_NAME ?></p>
 
           <div id="planned-checkout-wrap" class="hidden flex flex-col items-center gap-2 mt-5">
             <p id="planned-checkout-time" class="text-body-md text-text-secondary dark:text-dm-text-secondary"></p>
@@ -98,8 +98,10 @@ require __DIR__ . '/partials/guard.php';
         <button type="button" data-modal-tab="hours" class="flex-1 h-10 rounded-md text-xs font-bold transition-all text-on-surface-variant dark:text-dm-text-secondary">เลือกจำนวนชั่วโมง</button>
       </div>
 
-      <!-- Both panels stay in the DOM and animate their own height, so switching
-           tabs glides instead of snapping the dialog taller/shorter. -->
+      <!-- ทั้งสองแพเนลอยู่ใน DOM เสมอและวางซ้อนกันในช่องกริดเดียว กรอบจึงสูง
+           เท่ากับแพเนลที่สูงที่สุดตลอด ไม่ว่ากำลังเปิดแท็บไหน กดสลับแท็บแล้ว
+           ปุ่มด้านล่างจึงอยู่ที่เดิม ดู .modal-panels ใน assets/css/styles.css -->
+      <div class="modal-panels">
       <div id="modal-panel-time" class="modal-panel is-active">
         <div class="modal-panel-inner">
           <p class="block text-xs font-bold text-on-surface-variant dark:text-dm-text-secondary mb-2">เวลาที่จะออก</p>
@@ -122,6 +124,7 @@ require __DIR__ . '/partials/guard.php';
           <div id="modal-hour-buttons" class="grid grid-cols-3 gap-2" role="group" aria-labelledby="modal-hours-label"></div>
           <p id="modal-hours-warning" class="hidden text-warning text-xs mt-2">เวลาที่เลือกเกินเวลาปิดห้องสมุด ระบบจะปรับให้ออกตอนปิดแทน</p>
         </div>
+      </div>
       </div>
 
       <p id="modal-error" role="alert" aria-live="assertive" class="hidden text-error text-sm mb-3"></p>

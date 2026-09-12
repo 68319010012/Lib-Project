@@ -270,7 +270,7 @@ function render_dashboard_body(array $c): string
     $forPdf = !empty($c['for_pdf']);
 
     $out = '<div class="dx-head">'
-        . '<div class="dx-org">วิทยาลัยเทคนิคนครนายก</div>'
+        . '<div class="dx-org">' . LIBRARY_NAME_FULL . '</div>'
         . '<div class="dx-title">ภาพรวมการใช้งานห้องสมุด</div>'
         . '<div class="dx-sub">สรุปข้อมูลการเข้าใช้ห้องสมุด — ' . htmlspecialchars($c['periodLabel']) . '</div>'
         . '</div>';
