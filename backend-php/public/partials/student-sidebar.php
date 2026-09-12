@@ -39,7 +39,10 @@ function student_nav_class(string $href, string $active): string
         <span class="material-symbols-outlined text-on-primary">local_library</span>
       </div>
       <div>
-        <h2 class="text-primary dark:text-primary-fixed-dim text-base font-bold leading-snug"><?= LIBRARY_NAME ?></h2>
+        <!-- text-sm ไม่ใช่ text-base: คอลัมน์ข้อความในเมนูข้างกว้าง 199px ส่วน
+             "ห้องสมุดพระครูสุขุมสมาจารย์" ที่ 16px กว้าง 198px คือพอดีเป๊ะจนล้น
+             ที่ 14px กว้าง 174px เหลือที่หายใจ และชื่อวิทยาลัยกว้าง 149px -->
+        <h2 class="sidebar-brand text-primary dark:text-primary-fixed-dim text-sm font-bold leading-snug"><span><?= LIBRARY_NAME ?></span><span><?= COLLEGE_NAME ?></span></h2>
         <p class="text-on-surface-variant dark:text-dm-text-secondary text-label-caps font-label-caps uppercase tracking-wider">พอร์ทัลนักศึกษา</p>
       </div>
     </div>

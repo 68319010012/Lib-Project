@@ -27,7 +27,7 @@ $sidebarStateKey = $variant === 'admin' ? 'ntc-admin-sidebar-collapsed' : 'ntc-s
       </button>
       <a href="<?= htmlspecialchars($homeHref) ?>" class="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
         <span class="material-symbols-outlined text-2xl flex-shrink-0">local_library</span>
-        <span class="text-headline-md font-headline-md font-bold whitespace-nowrap"><span class="app-brand-short"><?= LIBRARY_NAME_SHORT ?></span><span class="app-brand-full"><?= LIBRARY_NAME ?></span></span>
+        <span class="text-headline-md font-headline-md font-bold whitespace-nowrap"><span class="app-brand-short"><?= LIBRARY_NAME_SHORT ?></span><span class="app-brand-full"><?= LIBRARY_NAME_FULL ?></span></span>
       </a>
     </div>
 

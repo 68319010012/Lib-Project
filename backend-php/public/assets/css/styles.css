@@ -5935,9 +5935,20 @@ main { animation: ntc-main-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
    ทำเป็นคลาสของตัวเองเพราะ styles.css เป็นบันเดิล Tailwind ที่ build ไว้แล้ว
    sm:hidden / sm:inline ไม่มีอยู่ในไฟล์ ใส่ไปก็ไม่มีผลอะไรแบบเงียบ ๆ */
 .app-brand-full { display: none; }
-@media (min-width: 640px) {
+/* 1024px ไม่ใช่ 640px: ชื่อเต็มกว้าง 558px พอบวกปุ่มธีมกับเมนูบัญชีทางขวาแล้ว
+   ที่ 640-768px มันไม่พอ และเพราะ whitespace-nowrap ตัวอักษรจะไม่หดแต่ไหล
+   ไปทับปุ่มแทน (วัดแล้วที่ 640px ชื่อจบที่ x=606 ทับทั้งสองปุ่มพอดี) */
+@media (min-width: 1024px) {
   .app-brand-short { display: none; }
-  .app-brand-full { display: inline; }
+  .app-brand-full { display: inline-block; }
+}
+/* กันเหนียว: ถ้าชื่อยาวกว่าที่เหลือจริง ๆ (ชื่อผู้ใช้ยาว, จอแคบกว่าที่คาด)
+   ให้ตัดด้วย … แทนที่จะไหลไปทับปุ่ม — ทับคือมองไม่เห็นว่ามีปุ่มอยู่ */
+.app-brand-full {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
 }
 
 /* ---------------------------------------------------------------------
@@ -5954,3 +5965,10 @@ main { animation: ntc-main-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
     align-items: stretch;
   }
 }
+
+/* เมนูข้างของนักศึกษา (หน้าโปรไฟล์/เปลี่ยนรหัสผ่าน) กว้าง 256px ชื่อเต็มยาวเกิน
+   หนึ่งบรรทัด และภาษาไทยไม่มีช่องว่างในคำ เบราว์เซอร์จึงหั่นเป็น "ห้องสมุด
+   พระครูสุขุม / สมาจารย์ วิทยาลัย / เทคนิคนครนายก" ให้ชื่อห้องสมุดกับชื่อ
+   วิทยาลัยอยู่คนละบรรทัด และห้ามตัดกลางชื่อ — ที่ 16px ชื่อที่ยาวกว่ากว้างราว
+   220px ยังพอดีในคอลัมน์ */
+.sidebar-brand > span { display: block; white-space: nowrap; }

@@ -57,7 +57,17 @@ function handle_report_select(): void
     padding: 40px 24px 56px;
   }
   header .inner { max-width: 1040px; margin: 0 auto; }
-  header h1 { font-size: clamp(20px, 5vw, 26px); font-weight: 800; margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
+  /* flex-start ไม่ใช่ center: พอหัวเรื่องยาวจนตกเป็นสองสามบรรทัด ไอคอนที่จัด
+     กึ่งกลางจะไปลอยอยู่กลางก้อนข้อความ ดูเหมือนหลุดมาจากที่อื่น ให้เสมอบรรทัดแรก
+     แทน — margin-top ชดเชยส่วนต่างระหว่างความสูงบรรทัดกับตัวไอคอน */
+  header h1 { font-size: clamp(20px, 5vw, 26px); font-weight: 800; margin: 0 0 6px; display: flex; align-items: flex-start; gap: 10px; }
+  header h1 > .material-symbols-outlined { margin-top: 2px; flex: 0 0 auto; }
+  /* ชื่อวิทยาลัยอยู่บรรทัดของตัวเองเสมอ ไม่ห้อยต่อท้ายชื่อห้องสมุด และแต่ละชื่อ
+     ห้ามถูกตัดกลางคำ — ภาษาไทยไม่มีช่องว่างในคำ เบราว์เซอร์จึงตัดเป็น "วิทยาลัย /
+     เทคนิคนครนายก" หรือ "พระครู / สุขุมสมาจารย์" ได้ถ้าไม่ห้ามไว้
+     ที่ 390px ชื่อที่ยาวที่สุดกว้างราว 260px ยังพอดีบรรทัดเดียว */
+  header h1 .rc-lib { white-space: nowrap; }
+  header h1 .rc-org { display: block; white-space: nowrap; }
   header p { margin: 0; opacity: .8; font-size: 14px; }
   header .back-link {
     display: inline-flex; align-items: center; gap: 6px;
@@ -189,7 +199,7 @@ function handle_report_select(): void
 <header>
   <div class="inner">
     <a class="back-link" href="/admin-dashboard"><span class="material-symbols-outlined">arrow_back</span> กลับหน้าหลัก</a>
-    <h1><span class="material-symbols-outlined">receipt_long</span> ศูนย์รายงานเช็คชื่อ<?= LIBRARY_NAME ?></h1>
+    <h1><span class="material-symbols-outlined">receipt_long</span> <span>ศูนย์รายงานเช็คชื่อ <span class="rc-lib"><?= LIBRARY_NAME ?></span><span class="rc-org"><?= COLLEGE_NAME ?></span></span></h1>
     <p>เลือกรูปแบบรายงานที่ต้องการ กรอกเงื่อนไข แล้วพิมพ์หรือบันทึกเป็น PDF ได้ทันที</p>
   </div>
 </header>
